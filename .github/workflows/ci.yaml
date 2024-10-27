@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.10", "3.11", "3.12" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
     runs-on: "${{ matrix.os }}"
     defaults:
       run:
@@ -45,31 +45,35 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Run tests
         run: |
+          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src
+          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src
+          uv run --package bookshelf_producer pytest packages/bookshelf-producer -r a -v --doctest-modules --cov=packages/bookshelf-producer/src --cov-report=term --cov-append
+          uv run coverage xml
           uv run pytest -r a -v src tests --doctest-modules --cov=src --cov-report=term-missing --cov-report=xml
           uv run coverage report
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v4.2.0
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
   imports-without-extras:
     strategy:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: [ "3.10", "3.11", "3.12" ]
     runs-on: "${{ matrix.os }}"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run python scripts/test-install.py
+        run: uv run --package ref-core python scripts/test-install.py

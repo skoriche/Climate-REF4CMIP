@@ -25,7 +25,7 @@ help:  ## print short description of each target
 .PHONY: checks
 checks:  ## run all the linting checks of the codebase
 	@echo "=== pre-commit ==="; uv run pre-commit run --all-files || echo "--- pre-commit failed ---" >&2; \
-		echo "=== mypy ==="; MYPYPATH=stubs uv run mypy src || echo "--- mypy failed ---" >&2; \
+		echo "=== mypy ==="; MYPYPATH=stubs uv run mypy packages || echo "--- mypy failed ---" >&2; \
 		echo "======"
 
 .PHONY: ruff-fixes
@@ -36,10 +36,14 @@ ruff-fixes:  ## fix the code using ruff
 	uv run ruff check --fix
 	uv run ruff format
 
+.PHONY: test-core
+test-core:  ## run the tests
+	uv run --package ref-core \
+		pytest packages/ref-core \
+		-r a -v --doctest-modules --cov=packages/ref-core/src
 
 .PHONY: test
-test:  ## run the tests
-	uv run pytest src tests -r a -v --doctest-modules --cov=src
+test: test-core  ## run the tests
 
 # Note on code coverage and testing:
 # You must specify cov=src as otherwise funny things happen when doctests are

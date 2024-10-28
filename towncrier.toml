@@ -1,5 +1,5 @@
 [tool.towncrier]
-package = "cmip_ref"
+package = "ref_core"
 package_dir = "src"
 filename = "docs/changelog.md"
 directory = "changelog/"

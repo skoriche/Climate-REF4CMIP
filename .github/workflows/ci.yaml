@@ -91,26 +91,22 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Check for a changelog
-        uses: tj-actions/verify-changed-files@v20
       - uses: ./.github/actions/setup
       - name: Get all changelog files
-        id: changed-markdown-files
+        id: changed-changelog-files
         uses: tj-actions/changed-files@v45
         with:
           # Avoid using single or double quotes for multiline patterns
           files: |
             changelog/*.md
-      - name: Run step if any file(s) in the docs folder change
+      - name: Print out the changed files
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.changed-changelog-files.outputs.all_changed_files }}
         run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file"
-          done
-      - name: Run step if any file(s) in the docs folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'false'
+          make changelog-draft
+      - name: Fail if no changelog message is present
+        if: steps.changed-changelog-files.outputs.any_changed == 'false'
         run: |
           echo "No changelog present."
           exit 1

@@ -118,11 +118,14 @@ def write_module_page(
         fh.write("\n")
         fh.write(f"::: {package_full_name}")
 
-    package_doc_split = package.__doc__.splitlines()
-    if not package_doc_split[0]:
-        summary = package_doc_split[1]
+    if package.__doc__ is None:
+        summary = ""
     else:
-        summary = package_doc_split[0]
+        package_doc_split = package.__doc__.splitlines()
+        if not package_doc_split[0]:
+            summary = package_doc_split[1]
+        else:
+            summary = package_doc_split[0]
 
     return PackageInfo(package_full_name, package_name, summary)
 

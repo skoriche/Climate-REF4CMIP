@@ -94,7 +94,7 @@ register_executor = _default_manager.register
 get_executor = _default_manager.get
 
 
-def run_metric(metric: object, *args, **kwargs) -> object:  # type: ignore
+def run_metric(metric_name: str, *args, **kwargs) -> object:  # type: ignore
     """
     Run a metric using the default executor
 
@@ -105,9 +105,15 @@ def run_metric(metric: object, *args, **kwargs) -> object:  # type: ignore
 
     Parameters
     ----------
-    metric
+    metric_name
+        Name of the metric to run.
+
+        Eventually the metric will be sourced from via some kind of registry.
+        For now, it's just a placeholder.
     args
+        Extra arguments passed to the metric of interest
     kwargs
+        Extra keyword arguments passed to the metric of interest
 
     Returns
     -------
@@ -117,6 +123,8 @@ def run_metric(metric: object, *args, **kwargs) -> object:  # type: ignore
     executor_name = os.environ.get("CMIP_REF_EXECUTOR", "local")
 
     executor = get_executor(executor_name)
+    # metric = get_metric(metric_name)  # TODO: Implement this
+    metric = kwargs.pop("metric")
 
     return executor.run_metric(metric, *args, **kwargs)
 

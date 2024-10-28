@@ -46,7 +46,7 @@ class TestLocalExecutor:
 def test_run_metric_local(monkeypatch, executor_name):
     if executor_name:
         monkeypatch.setenv("CMIP_REF_EXECUTOR", executor_name)
-    result = run_metric(MockMetric(), "test", kwarg="test")
+    result = run_metric("example_metric", "test", kwarg="test", metric=MockMetric())
     assert result == {
         "args": ("test",),
         "kwargs": {"kwarg": "test"},
@@ -56,4 +56,4 @@ def test_run_metric_local(monkeypatch, executor_name):
 def test_run_metric_unknown(monkeypatch):
     monkeypatch.setenv("CMIP_REF_EXECUTOR", "missing")
     with pytest.raises(KeyError):
-        run_metric(MockMetric(), "test", kwarg="test")
+        run_metric("anything", "test", kwarg="test")

@@ -9,7 +9,7 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(self, metric, *args, **kwargs):
+    def run_metric(self, metric, *args, **kwargs):  # type: ignore
         """
         Run a metric in process
 

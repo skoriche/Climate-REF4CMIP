@@ -33,7 +33,7 @@ class Executor(Protocol):
 
     name: str
 
-    def run_metric(self, metric: object, *args, **kwargs) -> object:
+    def run_metric(self, metric: object, *args, **kwargs) -> object:  # type: ignore
         """
         Execute a metric
         """
@@ -50,8 +50,8 @@ class ExecutorManager:
      but for testability, you can create your own instance.
     """
 
-    def __init__(self):
-        self._executors = {}
+    def __init__(self) -> None:
+        self._executors: dict[str, Executor] = {}
 
     def register(self, executor: Executor) -> None:
         """
@@ -94,7 +94,7 @@ register_executor = _default_manager.register
 get_executor = _default_manager.get
 
 
-def run_metric(metric, *args, **kwargs) -> object:
+def run_metric(metric: object, *args, **kwargs) -> object:  # type: ignore
     """
     Run a metric using the default executor
 

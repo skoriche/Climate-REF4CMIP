@@ -76,7 +76,7 @@ plugins:
       enable_inventory: true
       handlers:
         python:
-          paths: [src]
+          paths: [packages]
           import:
             # Cross-ref helpers (lots included here, remove what you don't want)
             - https://www.attrs.org/en/stable/objects.inv
@@ -138,4 +138,4 @@ markdown_extensions:
 watch:
   - README.md
   # Auto-generate if `src` changes (because this changes API docs)
-  - src
+  - packages

@@ -22,34 +22,41 @@ export PRINT_HELP_PYSCRIPT
 help:  ## print short description of each target
 	@python3 -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-.PHONY: checks
-checks:  ## run all the linting checks of the codebase
-	@echo "=== pre-commit ==="; uv run pre-commit run --all-files || echo "--- pre-commit failed ---" >&2; \
-		echo "=== mypy ==="; MYPYPATH=stubs uv run mypy src || echo "--- mypy failed ---" >&2; \
-		echo "======"
+.PHONY: pre-commit
+pre-commit:  ## run all the linting checks of the codebase
+	uv run pre-commit run --all-files
+
+
+.PHONY: mypy
+mypy:  ## run mypy on the codebase
+	MYPYPATH=stubs uv run --package ref-core mypy packages/ref-core
+	MYPYPATH=stubs uv run --package ref-metrics-example mypy packages/ref-metrics-example
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
-    # format before and after checking so that the formatted stuff is checked and
-    # the fixed stuff is formatted
-	uv run ruff format
 	uv run ruff check --fix
 	uv run ruff format
 
+.PHONY: test-core
+test-core:  ## run the tests
+	uv run --package ref-core \
+		pytest packages/ref-core \
+		-r a -v --doctest-modules --cov=packages/ref-core/src
+
+.PHONY: test-metrics-example
+test-metrics-example:  ## run the tests
+	uv run --package ref-metrics-example \
+		pytest packages/ref-metrics-example \
+		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src
 
 .PHONY: test
-test:  ## run the tests
-	uv run pytest src tests -r a -v --doctest-modules --cov=src
+test: test-core test-metrics-example ## run the tests
 
 # Note on code coverage and testing:
-# You must specify cov=src as otherwise funny things happen when doctests are
-# involved.
 # If you want to debug what is going on with coverage, we have found
 # that adding COVERAGE_DEBUG=trace to the front of the below command
 # can be very helpful as it shows you if coverage is tracking the coverage
 # of all of the expected files or not.
-# We are sure that the coverage maintainers would appreciate a PR that improves
-# the coverage handling when there are doctests and a `src` layout like ours.
 
 .PHONY: docs
 docs:  ## build the docs
@@ -69,8 +76,11 @@ changelog-draft:  ## compile a draft of the next changelog
 
 .PHONY: licence-check
 licence-check:  ## Check that licences of the dependencies are suitable
-	# Will likely fail on Windows, but Makefiles are in general not Windows
-	# compatible so we're not too worried
 	uv export --no-dev > $(TEMP_FILE)
 	uv run liccheck -r $(TEMP_FILE) -R licence-check.txt
 	rm -f $(TEMP_FILE)
+
+.PHONY: virtual-environment
+virtual-environment:  ## update virtual environment, create a new one if it doesn't already exist
+	uv sync
+	uv run pre-commit install

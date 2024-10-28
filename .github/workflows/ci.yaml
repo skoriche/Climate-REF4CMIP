@@ -13,10 +13,19 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - uses: ./.github/actions/setup
       - name: mypy
-        run: MYPYPATH=stubs uv run mypy src
+        run: make mypy
+
+  pre-commit:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: pre-commit
+        run: make pre-commit
 
   docs:
     if: ${{ !github.event.pull_request.draft }}
@@ -24,8 +33,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - uses: ./.github/actions/setup
       - name: docs
         run: uv run mkdocs build
 
@@ -34,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.10", "3.11", "3.12" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
     runs-on: "${{ matrix.os }}"
     defaults:
       run:
@@ -45,31 +53,60 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Run tests
         run: |
-          uv run pytest -r a -v src tests --doctest-modules --cov=src --cov-report=term-missing --cov-report=xml
-          uv run coverage report
+          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term
+          uv run --package ref-metrics-example pytest packages/ref-metrics-example -r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
+          uv run coverage xml
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v4.2.0
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
   imports-without-extras:
     strategy:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: [ "3.10", "3.11", "3.12",  "3.13" ]
     runs-on: "${{ matrix.os }}"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run python scripts/test-install.py
+        run: uv run --package ref-core python scripts/test-install.py
+
+  # Check if a changelog message was added to the PR
+  # Only runs on pull requests
+  check-for-changelog:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Get all changelog files
+        id: changed-changelog-files
+        uses: tj-actions/changed-files@v45
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+            changelog/*.md
+      - name: Print out the changed files
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-changelog-files.outputs.all_changed_files }}
+        run: |
+          make changelog-draft
+      - name: Fail if no changelog message is present
+        if: steps.changed-changelog-files.outputs.any_changed == 'false'
+        run: |
+          echo "No changelog present."
+          exit 1

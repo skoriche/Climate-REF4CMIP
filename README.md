@@ -1,14 +1,13 @@
 # CMIP Rapid Evaluation Framework
 
-<!---
-Can use start-after and end-before directives in docs, see
-https://myst-parser.readthedocs.io/en/latest/syntax/organising_content.html#inserting-other-documents-directly-into-the-current-document
--->
 
 <!--- sec-begin-description -->
 
-Rapid evaluating CMIP data
+The CMIP Rapid Evaluation Framework is a Python application that provides the ability to rapidly process and
+evaluate CMIP data against a set of reference data.
+It is designed to be used as a CI/CD pipeline to provide a quick validation of CMIP data.
 
+CMIP REF is a community project, and we welcome contributions from anyone.
 
 
 [![CI](https://github.com/CMIP-REF/cmip-ref/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/CMIP-REF/cmip-ref/actions/workflows/ci.yaml)

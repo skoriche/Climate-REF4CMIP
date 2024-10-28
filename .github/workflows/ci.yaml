@@ -13,10 +13,19 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - uses: ./.github/actions/setup
       - name: mypy
-        run: MYPYPATH=stubs uv run mypy src
+        run: make mypy
+
+  pre-commit:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: pre-commit
+        run: make pre-commit
 
   docs:
     if: ${{ !github.event.pull_request.draft }}
@@ -24,8 +33,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - uses: ./.github/actions/setup
       - name: docs
         run: uv run mkdocs build
 

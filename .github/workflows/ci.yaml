@@ -82,3 +82,35 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
         run: uv run --package ref-core python scripts/test-install.py
+
+  # Check if a changelog message was added to the PR
+  # Only runs on pull requests
+  check-for-changelog:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Check for a changelog
+        uses: tj-actions/verify-changed-files@v20
+      - uses: ./.github/actions/setup
+      - name: Get all changelog files
+        id: changed-markdown-files
+        uses: tj-actions/changed-files@v45
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+            changelog/*.md
+      - name: Run step if any file(s) in the docs folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file"
+          done
+      - name: Run step if any file(s) in the docs folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'false'
+        run: |
+          echo "No changelog present."
+          exit 1

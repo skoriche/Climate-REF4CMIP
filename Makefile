@@ -42,8 +42,14 @@ test-core:  ## run the tests
 		pytest packages/ref-core \
 		-r a -v --doctest-modules --cov=packages/ref-core/src
 
+.PHONY: test-metrics-example
+test-metrics-example:  ## run the tests
+	uv run --package ref-metrics-example \
+		pytest packages/ref-metrics-example \
+		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src
+
 .PHONY: test
-test: test-core  ## run the tests
+test: test-core test-metrics-example ## run the tests
 
 # Note on code coverage and testing:
 # You must specify cov=src as otherwise funny things happen when doctests are
@@ -73,8 +79,11 @@ changelog-draft:  ## compile a draft of the next changelog
 
 .PHONY: licence-check
 licence-check:  ## Check that licences of the dependencies are suitable
-	# Will likely fail on Windows, but Makefiles are in general not Windows
-	# compatible so we're not too worried
 	uv export --no-dev > $(TEMP_FILE)
 	uv run liccheck -r $(TEMP_FILE) -R licence-check.txt
 	rm -f $(TEMP_FILE)
+
+.PHONY: virtual-environment
+virtual-environment:  ## update virtual environment, create a new one if it doesn't already exist
+	uv sync
+	uv run pre-commit install

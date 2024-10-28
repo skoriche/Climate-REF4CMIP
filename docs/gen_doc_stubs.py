@@ -21,7 +21,6 @@ import mkdocs_gen_files
 from attrs import define
 
 ROOT_DIR = Path("api")
-PACKAGE_NAME_ROOT = "cmip_ref"
 nav = mkdocs_gen_files.Nav()
 
 
@@ -74,9 +73,7 @@ def create_sub_packages_table(sub_packages: Iterable[PackageInfo]) -> str:
     description_column = [description_header, *descriptions]
 
     sub_packages_table_l = []
-    for i, (sub_package_value, description) in enumerate(
-        zip(sp_column, description_column)
-    ):
+    for i, (sub_package_value, description) in enumerate(zip(sp_column, description_column)):
         sp_padded = sub_package_value.ljust(sub_package_width)
         desc_padded = description.ljust(description_width)
 
@@ -109,9 +106,7 @@ def write_module_page(
 
     write_file = get_write_file(package_full_name)
 
-    nav[package_full_name.split(".")] = write_file.relative_to(
-        ROOT_DIR / PACKAGE_NAME_ROOT
-    ).as_posix()
+    nav[package_full_name.split(".")] = write_file.relative_to(ROOT_DIR).as_posix()
 
     with mkdocs_gen_files.open(write_file, "w") as fh:
         fh.write(f"# {package_full_name}\n")
@@ -132,6 +127,8 @@ def write_module_page(
     return PackageInfo(package_full_name, package_name, summary)
 
 
-write_module_page(PACKAGE_NAME_ROOT)
-with mkdocs_gen_files.open(ROOT_DIR / PACKAGE_NAME_ROOT / "NAVIGATION.md", "w") as fh:
+write_module_page("ref_core")
+write_module_page("ref_metrics_example")
+
+with mkdocs_gen_files.open(ROOT_DIR / "NAVIGATION.md", "w") as fh:
     fh.writelines(nav.build_literate_nav())

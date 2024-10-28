@@ -50,12 +50,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run tests
         run: |
-          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src
-          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src
-          uv run --package bookshelf_producer pytest packages/bookshelf-producer -r a -v --doctest-modules --cov=packages/bookshelf-producer/src --cov-report=term --cov-append
+          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term
+          uv run --package ref-metrics-example pytest packages/ref-metrics-example -r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
           uv run coverage xml
-          uv run pytest -r a -v src tests --doctest-modules --cov=src --cov-report=term-missing --cov-report=xml
-          uv run coverage report
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v4.2.0
         env:
@@ -67,7 +64,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.10", "3.11", "3.12" ]
+        python-version: [ "3.10", "3.11", "3.12",  "3.13" ]
     runs-on: "${{ matrix.os }}"
     steps:
       - name: Check out repository

@@ -1,4 +1,5 @@
-from ref_core.executor import Executor, ExecutorManager
+import pytest
+from ref_core.executor import Executor, ExecutorManager, run_metric
 from ref_core.executor.local import LocalExecutor
 
 
@@ -39,3 +40,20 @@ class TestLocalExecutor:
             "args": ("test",),
             "kwargs": {"kwarg": "test"},
         }
+
+
+@pytest.mark.parametrize("executor_name", ["local", None])
+def test_run_metric_local(monkeypatch, executor_name):
+    if executor_name:
+        monkeypatch.setenv("CMIP_REF_EXECUTOR", executor_name)
+    result = run_metric(MockMetric(), "test", kwarg="test")
+    assert result == {
+        "args": ("test",),
+        "kwargs": {"kwarg": "test"},
+    }
+
+
+def test_run_metric_unknown(monkeypatch):
+    monkeypatch.setenv("CMIP_REF_EXECUTOR", "missing")
+    with pytest.raises(KeyError):
+        run_metric(MockMetric(), "test", kwarg="test")

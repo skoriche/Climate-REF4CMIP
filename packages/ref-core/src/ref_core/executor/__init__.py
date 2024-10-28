@@ -62,7 +62,7 @@ class ExecutorManager:
         executor
             The executor to register
         """
-        if not isinstance(executor, Executor):
+        if not isinstance(executor, Executor):  # pragma: no cover
             raise ValueError("Executor must be an instance of Executor")
         self._executors[executor.name.lower()] = executor
 

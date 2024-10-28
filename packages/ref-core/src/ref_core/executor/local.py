@@ -1,3 +1,6 @@
+from ref_core.providers import Metric, MetricResult
+
+
 class LocalExecutor:
     """
     Run a metric locally, in-process.
@@ -9,13 +12,14 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(self, metric, *args, **kwargs):  # type: ignore
+    def run_metric(self, metric: Metric, *args, **kwargs) -> MetricResult:  # type: ignore
         """
         Run a metric in process
 
         Parameters
         ----------
         metric
+            Metric to run
         args
         kwargs
 

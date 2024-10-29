@@ -1,4 +1,5 @@
 from ref_core.metrics import Metric, MetricResult
+from ref_core.providers import Configuration
 
 
 class LocalExecutor:
@@ -12,7 +13,7 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(self, metric: Metric, *args, **kwargs) -> MetricResult:  # type: ignore
+    def run_metric(self, metric: Metric, configuration: Configuration) -> MetricResult:  # type: ignore
         """
         Run a metric in process
 
@@ -20,12 +21,12 @@ class LocalExecutor:
         ----------
         metric
             Metric to run
-        args
-        kwargs
+        configuration
+            Configuration to run the metric with
 
         Returns
         -------
         :
             Results from running the metric
         """
-        return metric.run(*args, **kwargs)
+        return metric.run(configuration=configuration)

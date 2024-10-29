@@ -17,6 +17,7 @@ from typing import Protocol, runtime_checkable
 
 from ref_core.executor.local import LocalExecutor
 from ref_core.metrics import Metric, MetricManager, MetricResult
+from ref_core.providers import Configuration
 
 
 @runtime_checkable
@@ -34,7 +35,7 @@ class Executor(Protocol):
 
     name: str
 
-    def run_metric(self, metric: Metric, *args, **kwargs) -> MetricResult:  # type: ignore
+    def run_metric(self, metric: Metric, configuration: Configuration) -> MetricResult:  # type: ignore
         """
         Execute a metric
         """

@@ -21,58 +21,12 @@ class MetricsProvider(Protocol):
     version: str
 
 
-class MetricResult(BaseModel):
-    """
-    The result of running a metric.
-
-    The content of the result follows the Earth System Metrics and Diagnostics Standards
-    ([EMDS](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md)).
-    """
-
-    output_bundle: pathlib.Path
-    """
-    Path to the output bundle file.
-
-    The contents of this file are defined by
-    [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-output-bundle-format-)
-    """
-    successful: bool
-    """
-    Whether the metric ran successfully.
-    """
-
-
-class Configuration:
+class Configuration(BaseModel):
     """
     Configuration that describes the input data sources
     """
 
-    ...
-
-
-class Metric(Protocol):
+    output_directory: pathlib.Path
     """
-    Interface for a metric that must be implemented.
+    Directory to write output files to
     """
-
-    name: str
-    """
-    Name of the metric being run
-    """
-
-    provider: MetricsProvider
-
-    def run(self, configuration: Configuration) -> MetricResult:
-        """
-        Run the metric using .
-
-        Parameters
-        ----------
-        configuration : Configuration
-            The configuration to run the metric on.
-
-        Returns
-        -------
-        MetricResult
-            The result of running the metric.
-        """

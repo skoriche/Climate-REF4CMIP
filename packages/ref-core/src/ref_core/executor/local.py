@@ -1,4 +1,4 @@
-from ref_core.providers import Metric, MetricResult
+from ref_core.metrics import Metric, MetricResult
 
 
 class LocalExecutor:

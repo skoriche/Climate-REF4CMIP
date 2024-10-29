@@ -4,6 +4,8 @@ from ref_core.executor.local import LocalExecutor
 
 
 class MockMetric:
+    name = "mock"
+
     def run(self, *args, **kwargs):
         result = {
             "args": args,

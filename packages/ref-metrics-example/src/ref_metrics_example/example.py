@@ -1,12 +1,15 @@
-from pathlib import Path
+import json
 
-from ref_core.providers import Configuration, MetricResult
+from ref_core.metrics import MetricResult
+from ref_core.providers import Configuration
 
 
 class ExampleMetric:
     """
     Example metric that does nothing but count the number of times it has been run.
     """
+
+    name = "example"
 
     def __init__(self):
         self._count = 0
@@ -26,7 +29,10 @@ class ExampleMetric:
         """
         self._count += 1
 
+        with open(configuration.output_directory / "output.json", "w") as fh:
+            json.dump(({"count": self._count}), fh)
+
         return MetricResult(
-            output_bundle=Path("output.json"),
+            output_bundle=configuration.output_directory / "output.json",
             successful=True,
         )

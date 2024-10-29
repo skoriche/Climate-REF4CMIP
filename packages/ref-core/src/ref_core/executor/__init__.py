@@ -15,8 +15,8 @@ This is a placeholder implementation and will be expanded in the future.
 import os
 from typing import Protocol, runtime_checkable
 
-from ..providers import Metric, MetricResult
-from .local import LocalExecutor
+from ref_core.executor.local import LocalExecutor
+from ref_core.metrics import Metric, MetricManager, MetricResult
 
 
 @runtime_checkable
@@ -95,7 +95,7 @@ register_executor = _default_manager.register
 get_executor = _default_manager.get
 
 
-def run_metric(metric_name: str, *args, **kwargs) -> MetricResult:  # type: ignore
+def run_metric(metric_name: str, /, metric_manager: MetricManager, **kwargs) -> MetricResult:  # type: ignore
     """
     Run a metric using the default executor
 
@@ -108,7 +108,8 @@ def run_metric(metric_name: str, *args, **kwargs) -> MetricResult:  # type: igno
     ----------
     metric_name
         Name of the metric
-    args
+    metric_manager
+        Metric manager to retrieve the metric
     kwargs
 
     Returns
@@ -119,10 +120,9 @@ def run_metric(metric_name: str, *args, **kwargs) -> MetricResult:  # type: igno
     executor_name = os.environ.get("CMIP_REF_EXECUTOR", "local")
 
     executor = get_executor(executor_name)
-    # metric_name = get_metric(metric_name)
-    metric = ""
+    metric = metric_manager.get(metric_name)
 
-    return executor.run_metric(metric, *args, **kwargs)
+    return executor.run_metric(metric, **kwargs)
 
 
 register_executor(LocalExecutor())

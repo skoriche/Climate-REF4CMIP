@@ -9,6 +9,7 @@ repo_url: https://github.com/CMIP-REF/cmip-ref
 nav:
   - CMIP REF: index.md
   - Installation: installation.md
+  - Configuration: configuration.md
   - How-to guides:
     - how-to-guides/index.md
   - Tutorials: tutorials.md

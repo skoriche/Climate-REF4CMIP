@@ -1,12 +1,12 @@
 import pytest
-from ref_core.metrics import MetricManager, MetricResult
-from ref_core.providers import Configuration
+from ref_core.metrics import Configuration, MetricResult, TriggerInfo
+from ref_core.providers import MetricsProvider
 
 
 class MockMetric:
     name = "mock"
 
-    def run(self, configuration: Configuration) -> MetricResult:
+    def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(
             output_bundle=configuration.output_directory / "output.json",
             successful=True,
@@ -16,19 +16,19 @@ class MockMetric:
 class FailedMetric:
     name = "failed"
 
-    def run(self, configuration: Configuration) -> MetricResult:
+    def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(
             successful=False,
         )
 
 
 @pytest.fixture
-def metric_manager() -> MetricManager:
-    manager = MetricManager()
-    manager.register(MockMetric())
-    manager.register(FailedMetric())
+def provider() -> MetricsProvider:
+    provider = MetricsProvider("mock_provider", "v0.1.0")
+    provider.register(MockMetric())
+    provider.register(FailedMetric())
 
-    return manager
+    return provider
 
 
 @pytest.fixture

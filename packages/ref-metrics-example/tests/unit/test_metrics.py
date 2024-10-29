@@ -1,4 +1,4 @@
-from ref_core.providers import Configuration
+from ref_core.metrics import Configuration
 from ref_metrics_example.example import ExampleMetric
 
 
@@ -9,7 +9,7 @@ def test_example_metric(tmp_path):
         output_directory=tmp_path,
     )
 
-    result = metric.run(configuration)
+    result = metric.run(configuration, trigger=None)
 
     assert result.successful
     assert result.output_bundle.exists()

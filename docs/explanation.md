@@ -18,6 +18,7 @@ The REF aims to support a variety of metric providers.
 These providers are responsible for performing the calculations and analyses.
 
 Each metric provider generally provides a number of different metrics that can be calculated.
+An example implementation of a metric provider is provided in the `ref_metrics_example` package.
 
 ### Metrics
 

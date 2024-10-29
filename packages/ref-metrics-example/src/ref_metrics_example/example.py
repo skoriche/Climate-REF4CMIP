@@ -1,7 +1,6 @@
 import json
 
-from ref_core.metrics import MetricResult
-from ref_core.providers import Configuration
+from ref_core.metrics import Configuration, MetricResult, TriggerInfo
 
 
 class ExampleMetric:
@@ -11,10 +10,10 @@ class ExampleMetric:
 
     name = "example"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._count = 0
 
-    def run(self, configuration: Configuration) -> MetricResult:
+    def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
         """
         Run a metric
 

@@ -4,29 +4,55 @@ Interfaces for metrics providers.
 This defines how metrics packages interoperate with the REF framework.
 """
 
-import pathlib
-from typing import Protocol
-
-from pydantic import BaseModel
+from ref_core.metrics import Metric
 
 
-class MetricsProvider(Protocol):
+class MetricsProvider:
     """
     Interface for that a metrics provider must implement.
 
     This provides a consistent interface to multiple different metrics packages.
     """
 
-    name: str
-    version: str
+    def __init__(self, name: str, version: str) -> None:
+        self.name = name
+        self.version = version
 
+        self._metrics: dict[str, Metric] = {}
 
-class Configuration(BaseModel):
-    """
-    Configuration that describes the input data sources
-    """
+    def __len__(self) -> int:
+        return len(self._metrics)
 
-    output_directory: pathlib.Path
-    """
-    Directory to write output files to
-    """
+    def register(self, metric: Metric) -> None:
+        """
+        Register a metric with the manager.
+
+        Parameters
+        ----------
+        metric : Metric
+            The metric to register.
+        """
+        if not isinstance(metric, Metric):
+            raise ValueError("Metric must be an instance of Metric")
+        self._metrics[metric.name.lower()] = metric
+
+    def get(self, name: str) -> Metric:
+        """
+        Get a metric by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the metric (case-sensitive).
+
+        Raises
+        ------
+        KeyError
+            If the metric with the given name is not found.
+
+        Returns
+        -------
+        Metric
+            The requested metric.
+        """
+        return self._metrics[name.lower()]

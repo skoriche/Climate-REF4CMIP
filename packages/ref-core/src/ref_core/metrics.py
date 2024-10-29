@@ -3,7 +3,18 @@ from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
-from ref_core.providers import Configuration
+
+class Configuration(BaseModel):
+    """
+    Configuration that describes the input data sources
+    """
+
+    output_directory: pathlib.Path
+    """
+    Directory to write output files to
+    """
+
+    # TODO: Add more configuration options here
 
 
 class MetricResult(BaseModel):
@@ -30,71 +41,73 @@ class MetricResult(BaseModel):
     # Log info is in the output bundle file already, but is definitely useful
 
 
+class TriggerInfo(BaseModel):
+    """
+    The reason why the metric was run.
+    """
+
+    dataset: pathlib.Path
+    """
+    Path to the dataset that triggered the metric run.
+    """
+
+    # TODO:
+    # Add/remove/modified?
+    # dataset metadata
+
+
 @runtime_checkable
 class Metric(Protocol):
     """
-    Interface for a metric that must be implemented.
+    Interface for the calculation of a metric.
+
+    This is a very high-level interface to provide maximum scope for the metrics packages
+    to have differing assumptions.
+    The configuration and output of the metric should follow the
+    Earth System Metrics and Diagnostics Standards formats as much as possible.
+
+    See (ref_example.example.ExampleMetric)[] for an example implementation.
     """
 
     name: str
     """
     Name of the metric being run
+
+    This should be unique for a given provider,
+    but multiple providers can implement the same metric.
     """
 
-    def run(self, configuration: Configuration) -> MetricResult:
+    # input_variable: list[VariableDefinition]
+    """
+    TODO: implement VariableDefinition
+    Should be extend the configuration defined in EMDS
+
+    Variables that the metric requires to run
+    Any modifications to the input data will trigger a new metric calculation.
+    """
+    # observation_dataset: list[ObservationDatasetDefinition]
+    """
+    TODO: implement ObservationDatasetDefinition
+    Should be extend the configuration defined in EMDS. To check with Bouwe.
+    """
+
+    def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
         """
-        Run the metric using .
+        Run the metric on the given configuration.
+
+        The implementation of this method method is left to the metrics providers.
+
+        A CMEC-compatible package can use: TODO: Add link to CMEC metric wrapper
 
         Parameters
         ----------
         configuration : Configuration
             The configuration to run the metric on.
+        trigger : TriggerInfo | None
+            Optional information about the dataset that triggered the metric run.
 
         Returns
         -------
         MetricResult
             The result of running the metric.
         """
-
-
-class MetricManager:
-    """
-    Manages the registration of metrics and retrieval by name.
-    """
-
-    def __init__(self) -> None:
-        self._metrics: dict[str, Metric] = {}
-
-    def register(self, metric: Metric) -> None:
-        """
-        Register a metric with the manager.
-
-        Parameters
-        ----------
-        metric : Metric
-            The metric to register.
-        """
-        if not isinstance(metric, Metric):
-            raise ValueError("Metric must be an instance of Metric")
-        self._metrics[metric.name.lower()] = metric
-
-    def get(self, name: str) -> Metric:
-        """
-        Get a metric by name.
-
-        Parameters
-        ----------
-        name : str
-            Name of the metric (case-sensitive).
-
-        Raises
-        ------
-        KeyError
-            If the metric with the given name is not found.
-
-        Returns
-        -------
-        Metric
-            The requested metric.
-        """
-        return self._metrics[name.lower()]

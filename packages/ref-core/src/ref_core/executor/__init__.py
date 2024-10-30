@@ -49,6 +49,8 @@ class Executor(Protocol):
             Configuration to run the metric with
         trigger
             Information about the dataset that triggered the metric run
+
+            TODO: The optionality of this parameter is a placeholder and will be expanded in the future.
         kwargs
             Additional keyword arguments for the executor
 
@@ -113,7 +115,7 @@ register_executor = _default_manager.register
 get_executor = _default_manager.get
 
 
-def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs) -> MetricResult:  # type: ignore
+def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs: Any) -> MetricResult:
     """
     Run a metric using the default executor
 
@@ -128,8 +130,6 @@ def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs)
         Name of the metric to run.
     metrics_provider
         Provider from where to retrieve the metric
-    args
-        Extra arguments passed to the metric of interest
     kwargs
         Additional options passed to the metric executor
 
@@ -143,7 +143,12 @@ def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs)
     executor = get_executor(executor_name)
     metric = metrics_provider.get(metric_name)
 
-    return executor.run_metric(metric, trigger=None, **kwargs)
+    result = executor.run_metric(metric, trigger=None, **kwargs)
+
+    # TODO: Validate the result
+    # TODO: Log the result
+
+    return result
 
 
 register_executor(LocalExecutor())

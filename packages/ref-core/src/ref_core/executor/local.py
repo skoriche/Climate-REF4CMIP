@@ -15,7 +15,7 @@ class LocalExecutor:
     name = "local"
 
     def run_metric(
-        self, metric: Metric, configuration: Configuration, trigger: TriggerInfo | None = None, **kwargs: Any
+        self, metric: Metric, configuration: Configuration, trigger: TriggerInfo | None, **kwargs: Any
     ) -> MetricResult:
         """
         Run a metric in process

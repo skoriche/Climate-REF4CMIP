@@ -125,9 +125,11 @@ def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs)
     Parameters
     ----------
     metric_name
-        Name of the metric
+        Name of the metric to run.
     metrics_provider
         Provider from where to retrieve the metric
+    args
+        Extra arguments passed to the metric of interest
     kwargs
         Additional options passed to the metric executor
 

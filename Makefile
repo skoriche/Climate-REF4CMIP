@@ -84,3 +84,7 @@ licence-check:  ## Check that licences of the dependencies are suitable
 virtual-environment:  ## update virtual environment, create a new one if it doesn't already exist
 	uv sync
 	uv run pre-commit install
+
+.PHONY: fetch-test-data
+fetch-test-data:  ## Fetch test data
+	uv run python ./scripts/fetch_test_data.py

@@ -61,6 +61,13 @@ You can read the instructions out and run the commands by hand if you wish,
 but we generally discourage this because it can be error prone.
 In order to create your environment, run `make virtual-environment`.
 
+If you wish to run the test suite,
+some input data must be fetched from ESGF.
+To do this, you will need to run `make fetch-data`.
+
+The test suite can then be run using `make test`.
+This will run the test suites for each package and finally the integration test suite.
+
 If there are any issues, the messages from the `Makefile` should guide you
 through. If not, please raise an issue in the
 [issue tracker](https://github.com/CMIP-REF/cmip-ref/issues).

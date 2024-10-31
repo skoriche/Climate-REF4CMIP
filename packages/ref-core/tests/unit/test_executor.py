@@ -23,7 +23,7 @@ class TestLocalExecutor:
     def test_run_metric(self, configuration, mock_metric):
         executor = LocalExecutor()
 
-        result = executor.run_metric(mock_metric, configuration)
+        result = executor.run_metric(mock_metric, configuration, trigger=None)
         assert result.successful
         assert result.output_bundle == configuration.output_directory / "output.json"
 

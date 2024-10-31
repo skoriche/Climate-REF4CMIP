@@ -64,10 +64,12 @@ jobs:
         with:
           path: .esgpull
           key: test-data-${{ hashFiles('scripts/fetch_test_data.py') }}
+      - name: Install esgpull
+        run: |
+          uv run esgpull self install .esgpull || uv run esgpull self choose .esgpull
       - if: ${{ steps.cache-test-data.outputs.cache-hit != 'true' }}
         name: Fetch the test data
         run: |
-          uv run esgpull self install .esgpull
           uv run esgpull config api.index_node esgf-node.llnl.gov
           make fetch-test-data
       - name: Run tests

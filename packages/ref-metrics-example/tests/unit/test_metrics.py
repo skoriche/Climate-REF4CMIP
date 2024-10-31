@@ -22,23 +22,8 @@ def test_dataset(esgf_data_dir) -> Path:
     )
 
 
-def test_annual_mean(esgf_data_dir):
-    input_files = list(
-        (
-            esgf_data_dir
-            / "CMIP6"
-            / "ScenarioMIP"
-            / "CSIRO"
-            / "ACCESS-ESM1-5"
-            / "ssp245"
-            / "r1i1p1f1"
-            / "Amon"
-            / "tas"
-            / "gn"
-            / "v20191115"
-        ).glob("*.nc")
-    )
-    annual_mean = calculate_annual_mean_timeseries(input_files)
+def test_annual_mean(esgf_data_dir, test_dataset):
+    annual_mean = calculate_annual_mean_timeseries(test_dataset)
 
     assert annual_mean.time.size == 86
 
@@ -56,3 +41,14 @@ def test_example_metric(tmp_path, test_dataset):
     assert result.output_bundle.exists()
     assert result.output_bundle.is_file()
     assert result.output_bundle.name == "output.json"
+
+
+def test_example_metric_no_trigger(tmp_path, test_dataset):
+    metric = ExampleMetric()
+
+    configuration = Configuration(
+        output_directory=tmp_path,
+    )
+
+    result = metric.run(configuration, trigger=None)
+    assert result.successful is False

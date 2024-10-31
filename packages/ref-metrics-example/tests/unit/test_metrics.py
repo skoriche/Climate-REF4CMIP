@@ -13,19 +13,19 @@ def test_dataset(esgf_data_dir) -> Path:
         / "ScenarioMIP"
         / "CSIRO"
         / "ACCESS-ESM1-5"
-        / "ssp245"
+        / "ssp126"
         / "r1i1p1f1"
         / "Amon"
         / "tas"
         / "gn"
-        / "v20191115"
+        / "v20210318"
     )
 
 
 def test_annual_mean(esgf_data_dir, test_dataset):
     annual_mean = calculate_annual_mean_timeseries(test_dataset)
 
-    assert annual_mean.time.size == 86
+    assert annual_mean.time.size == 286
 
 
 def test_example_metric(tmp_path, test_dataset):

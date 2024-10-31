@@ -27,7 +27,7 @@ def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
     """
     input_files = dataset.glob("*.nc")
 
-    xr_ds = xr.open_mfdataset(list(input_files), combine="by_coords", chunks=None)
+    xr_ds = xr.open_mfdataset(list(input_files), combine="by_coords", chunks=None, use_cftime=True)
 
     annual_mean = xr_ds.resample(time="YS").mean()
     return annual_mean.mean(dim=["lat", "lon"], keep_attrs=True)
@@ -105,6 +105,9 @@ class ExampleMetric:
                 successful=False,
             )
 
+        # This is where one would hook into how ever they want to run
+        # their benchmarking packages.
+        # cmec-driver, python calls, subprocess calls all would work
         annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(trigger.dataset)
 
         return MetricResult.build(

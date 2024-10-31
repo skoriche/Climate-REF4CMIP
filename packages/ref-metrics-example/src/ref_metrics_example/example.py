@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import xarray as xr
 from ref_core.metrics import Configuration, MetricResult, TriggerInfo
@@ -26,13 +27,13 @@ def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
     """
     input_files = dataset.glob("*.nc")
 
-    dataset = xr.open_mfdataset(list(input_files), combine="by_coords", chunks=None)
+    xr_ds = xr.open_mfdataset(list(input_files), combine="by_coords", chunks=None)
 
-    annual_mean = dataset.resample(time="YS").mean()
+    annual_mean = xr_ds.resample(time="YS").mean()
     return annual_mean.mean(dim=["lat", "lon"], keep_attrs=True)
 
 
-def format_cmec_output_bundle(dataset: xr.Dataset) -> dict:
+def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     """
     Create a simple CMEC output bundle for the dataset.
 
@@ -45,6 +46,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict:
     -------
         A CMEC output bundle ready to be written to disk
     """
+    # TODO: Check how timeseries data are generally serialised
     cmec_output = {
         "DIMENSIONS": {
             "dimensions": {
@@ -74,7 +76,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict:
 
 class ExampleMetric:
     """
-    Example metric that does nothing but count the number of times it has been run.
+    Calculate the annual mean global mean timeseries for a dataset
     """
 
     name = "example"

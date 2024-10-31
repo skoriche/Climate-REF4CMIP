@@ -1,6 +1,6 @@
 import json
 import pathlib
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from attrs import frozen
 
@@ -44,7 +44,7 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: Configuration, cmec_output_bundle: dict) -> "MetricResult":
+    def build(configuration: Configuration, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 

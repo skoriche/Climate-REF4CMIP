@@ -49,8 +49,14 @@ test-metrics-example:  ## run the tests
 		pytest packages/ref-metrics-example \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src
 
+.PHONY: test-integration
+test-integration:  ## run the integration tests
+	uv run \
+		pytest tests \
+		-r a -v
+
 .PHONY: test
-test: test-core test-metrics-example ## run the tests
+test: test-core test-metrics-example test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

@@ -64,7 +64,7 @@ jobs:
         with:
           path: .esgpull
           key: test-data-${{ hashFiles('scripts/fetch_test_data.py') }}
-      - if: ${{ steps.cache-esgf.outputs.cache-hit != 'true' }}
+      - if: ${{ steps.cache-test-data.outputs.cache-hit != 'true' }}
         name: Fetch the test data
         run: |
           uv run esgpull self install .esgpull

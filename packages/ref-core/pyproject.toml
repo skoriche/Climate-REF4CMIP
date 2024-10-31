@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "pydantic>=2.0"
+    "attrs"
 ]
 
 [tool.uv]

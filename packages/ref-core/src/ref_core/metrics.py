@@ -1,10 +1,12 @@
+import json
 import pathlib
 from typing import Protocol, runtime_checkable
 
-from pydantic import BaseModel
+from attrs import frozen
 
 
-class Configuration(BaseModel):
+@frozen
+class Configuration:
     """
     Configuration that describes the input data sources
     """
@@ -17,7 +19,8 @@ class Configuration(BaseModel):
     # TODO: Add more configuration options here
 
 
-class MetricResult(BaseModel):
+@frozen
+class MetricResult:
     """
     The result of running a metric.
 
@@ -27,7 +30,7 @@ class MetricResult(BaseModel):
 
     # Do we want to load a serialised version of the output bundle here or just a file path?
 
-    output_bundle: pathlib.Path
+    output_bundle: pathlib.Path | None
     """
     Path to the output bundle file.
 
@@ -40,8 +43,36 @@ class MetricResult(BaseModel):
     """
     # Log info is in the output bundle file already, but is definitely useful
 
+    @staticmethod
+    def build(configuration: Configuration, cmec_output_bundle: dict) -> "MetricResult":
+        """
+        Build a MetricResult from a CMEC output bundle.
 
-class TriggerInfo(BaseModel):
+        Parameters
+        ----------
+        configuration
+            The configuration used to run the metric.
+        cmec_output_bundle
+            An output bundle in the CMEC format.
+
+            TODO: This needs a better type hint
+
+        Returns
+        -------
+        :
+            A prepared MetricResult object.
+            The output bundle will be written to the output directory.
+        """
+        with open(configuration.output_directory / "output.json", "w") as file_handle:
+            json.dump(cmec_output_bundle, file_handle)
+        return MetricResult(
+            output_bundle=configuration.output_directory / "output.json",
+            successful=True,
+        )
+
+
+@frozen
+class TriggerInfo:
     """
     The reason why the metric was run.
     """

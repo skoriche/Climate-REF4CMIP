@@ -60,13 +60,16 @@ jobs:
       # Share a cache of test data across all test jobs
       - name: Cache test data
         id: cache-test-data
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .esgpull
           key: test-data-${{ hashFiles('scipts/fetch_test_data.py') }}
       - if: ${{ steps.cache-esgf.outputs.cache-hit != 'true' }}
         name: Fetch the test data
-        run: make fetch-test-data
+        run: |
+          uv run esgpull self install .esgpull
+          uv run esgpull config api.index_node esgf-node.llnl.gov
+          make fetch-test-data
       - name: Run tests
         run: |
           uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term

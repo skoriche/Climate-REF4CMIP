@@ -19,6 +19,8 @@ For most users, installing it in a default location will make sense
 because sharing your ESGF data across projects will be fine.
 For some users (e.g. those on shared systems),
 you may want to use a more specific location.
+
+Changes to this file will trigger the CI to redownload the test-data.
 """
 
 import subprocess

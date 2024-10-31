@@ -63,7 +63,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .esgpull
-          key: test-data-${{ hashFiles('scipts/fetch_test_data.py') }}
+          key: test-data-${{ hashFiles('scripts/fetch_test_data.py') }}
       - if: ${{ steps.cache-esgf.outputs.cache-hit != 'true' }}
         name: Fetch the test data
         run: |

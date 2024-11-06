@@ -1,5 +1,5 @@
 [project]
-name = "ref-core"
+name = "ref"
 version = "0.1.0"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
@@ -21,15 +21,12 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    'ref-core'
+    "typer>=0.12.5",
 ]
 
 [tool.uv]
 dev-dependencies = [
 ]
-
-[tool.uv.sources]
-ref-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

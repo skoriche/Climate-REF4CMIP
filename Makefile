@@ -30,12 +30,19 @@ pre-commit:  ## run all the linting checks of the codebase
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
 	MYPYPATH=stubs uv run --package ref-core mypy packages/ref-core
+	MYPYPATH=stubs uv run --package ref mypy packages/ref
 	MYPYPATH=stubs uv run --package ref-metrics-example mypy packages/ref-metrics-example
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
 	uv run ruff check --fix
 	uv run ruff format
+
+.PHONY: test-ref
+test-ref:  ## run the tests
+	uv run --package ref \
+		pytest packages/ref \
+		-r a -v --doctest-modules --cov=packages/ref/src
 
 .PHONY: test-core
 test-core:  ## run the tests
@@ -56,7 +63,7 @@ test-integration:  ## run the integration tests
 		-r a -v
 
 .PHONY: test
-test: test-core test-metrics-example test-integration ## run the tests
+test: test-core test-ref test-metrics-example test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

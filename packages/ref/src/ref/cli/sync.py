@@ -4,7 +4,7 @@ app = typer.Typer()
 
 
 @app.command()
-def sync():
+def sync() -> None:
     """
     Placeholder command for syncing data
     """  # noqa: D401

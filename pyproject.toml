@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "ref",
     "ref-core",
     "ref-metrics-example",
 ]
@@ -48,6 +49,7 @@ dev-dependencies = [
 members = ["packages/*"]
 
 [tool.uv.sources]
+ref = { workspace = true }
 ref-core = { workspace = true }
 ref-metrics-example = { workspace = true }
 
@@ -92,6 +94,10 @@ formats = "ipynb,py:percent"
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
+]
+filterwarnings = [
+    'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
+    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
 
 

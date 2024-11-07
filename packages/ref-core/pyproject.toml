@@ -21,15 +21,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    'ref-core'
 ]
 
 [tool.uv]
 dev-dependencies = [
 ]
-
-[tool.uv.sources]
-ref-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

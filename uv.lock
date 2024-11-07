@@ -2135,6 +2135,7 @@ dependencies = [
     { name = "attrs" },
     { name = "cattrs" },
     { name = "environs" },
+    { name = "ref-core" },
     { name = "tomlkit" },
     { name = "typer" },
 ]
@@ -2144,6 +2145,7 @@ requires-dist = [
     { name = "attrs", specifier = ">=24.2.0" },
     { name = "cattrs", specifier = ">=24.1.2" },
     { name = "environs", specifier = ">=11.0.0" },
+    { name = "ref-core", editable = "packages/ref-core" },
     { name = "tomlkit", specifier = ">=0.13.2" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
@@ -2152,9 +2154,6 @@ requires-dist = [
 name = "ref-core"
 version = "0.1.0"
 source = { editable = "packages/ref-core" }
-
-[package.metadata]
-requires-dist = [{ name = "ref-core", editable = "packages/ref-core" }]
 
 [[package]]
 name = "ref-metrics-example"

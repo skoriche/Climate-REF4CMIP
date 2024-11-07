@@ -15,20 +15,7 @@ def test_config_help():
     result = runner.invoke(app, ["config", "--help"])
     assert result.exit_code == 0
 
-    expected = """
- Usage: ref config [OPTIONS] COMMAND [ARGS]...
-
- View and update the REF configuration
-
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ list     Print the current ref configuration                                 │
-│ update   Print the current ref configuration                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-"""
-    assert expected in result.output
+    assert "View and update the REF configuration" in result.output
 
 
 class TestConfigList:

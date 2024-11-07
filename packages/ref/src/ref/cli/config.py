@@ -18,8 +18,7 @@ def list(configuration_directory: Path | None = typer.Option(None, help="Configu
     Print the current ref configuration
 
     If a configuration directory is provided,
-    the configuration will attempted to be loaded from the specified directory.
-    If the configuration file is missing then a
+    the configuration will attempt to load from the specified directory.
     """
     try:
         if configuration_directory:
@@ -36,6 +35,6 @@ def list(configuration_directory: Path | None = typer.Option(None, help="Configu
 @app.command()
 def update() -> None:
     """
-    Print the current ref configuration
+    Update a configuration value
     """
     print("config")

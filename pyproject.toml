@@ -86,6 +86,7 @@ exclude = [
     "scripts",
     "stubs",
     "tests",
+    "conftest.py"
 ]
 
 

@@ -5,7 +5,7 @@
 # https://github.com/ESGF/esgf-download/blob/main/esgpull/config.py
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import tomlkit
 from attrs import Factory, define, field
@@ -61,7 +61,15 @@ class Db:
     Database configuration
     """
 
-    filename: str = "ref.db"
+    engine: Literal["sqlite", "postgres"] = field(default="sqlite")
+    connection_url: str = field()
+    run_migrations: bool = field(default=True)
+
+    @connection_url.default
+    def _connection_url_factory(self) -> str:
+        filename = env.path("REF_CONFIGURATION") / "db" / "ref.db"
+        sqlite_url = f"sqlite:///{filename}"
+        return sqlite_url
 
 
 @define

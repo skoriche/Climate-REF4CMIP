@@ -57,7 +57,7 @@ class Database:
         """
         # TODO: move the database URL creation to the Config class
         config.paths.db.mkdir(parents=True, exist_ok=True)
-        url = f"sqlite:///{config.paths.db / config.db.filename}"
+        url = config.db.connection_url
 
         return Database(url, run_migrations=run_migrations)
 

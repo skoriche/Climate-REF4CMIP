@@ -61,7 +61,7 @@ class Db:
     Database configuration
     """
 
-    filename: str = "sqlite://ref.db"
+    filename: str = "ref.db"
 
 
 @define

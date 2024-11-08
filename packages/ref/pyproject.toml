@@ -27,6 +27,9 @@ dependencies = [
     "environs>=11.0.0",
     "tomlkit>=0.13.2",
     "typer>=0.12.5",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.13.3",
+    "loguru>=0.7.2",
 ]
 
 [project.scripts]

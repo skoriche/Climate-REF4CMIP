@@ -12,7 +12,7 @@ from ref.config import Config
 from ref.env import env
 
 
-def validate_database_url(database_url: str):
+def validate_database_url(database_url: str) -> str:
     """
     Validate a database URL
 
@@ -68,7 +68,7 @@ class Database:
         if run_migrations:
             self._migrate()
 
-    def _migrate(self):
+    def _migrate(self) -> None:
         root_dir = Path(__file__).parents[4]
 
         alembic_config = AlembicConfig(root_dir / "alembic.ini")
@@ -79,7 +79,7 @@ class Database:
         head = script.get_current_head()
 
         # Run migrations
-        alembic.command.upgrade(alembic_config, head)
+        alembic.command.upgrade(alembic_config, head or "heads")
 
     @staticmethod
     def from_config(config: Config, run_migrations: bool = True) -> "Database":

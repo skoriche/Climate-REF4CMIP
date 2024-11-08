@@ -42,5 +42,5 @@ class Dataset(Base):
     #  variable_id, table_id, institution_id, model_id, experiment_id, source_id, member_id, grid_label,
     #  time_range, time_frequency, realm,retracted
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Dataset dataset_id={self.dataset_id}>"

@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib import parse as urlparse
 
 import alembic.command
 import sqlalchemy
@@ -8,6 +9,48 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from ref.config import Config
+from ref.env import env
+
+
+def validate_database_url(database_url: str):
+    """
+    Validate a database URL
+
+    We support sqlite databases, and we create the directory if it doesn't exist.
+
+    Parameters
+    ----------
+    database_url
+        The database URL to validate
+
+        See [ref.config.Db.database_url](ref.config.Db.database_url) for more information
+        on the format of the URL.
+
+    Raises
+    ------
+    ValueError
+        If the database scheme is not supported
+
+    Returns
+    -------
+    :
+        The validated database URL
+    """
+    split_url = urlparse.urlsplit(database_url)
+    path = split_url.path[1:]
+
+    if split_url.scheme == "sqlite":
+        if path == ":memory:":
+            logger.warning("Using an in-memory database")
+        else:
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+    elif split_url.scheme == "postgresql":
+        # We don't need to do anything special for PostgreSQL
+        logger.warning("PostgreSQL support is currently experimental and untested")
+    else:
+        raise ValueError(f"Unsupported database scheme: {split_url.scheme}")
+
+    return database_url
 
 
 class Database:
@@ -43,6 +86,9 @@ class Database:
         """
         Create a Database instance from a Config instance
 
+        The `REF_DATABASE_URL` environment variable will take preference,
+         and override the database URL specified in the config.
+
         Parameters
         ----------
         config
@@ -55,12 +101,7 @@ class Database:
         :
             A new Database instance
         """
-        # TODO: move the database URL creation to the Config class
-        config.paths.db.mkdir(parents=True, exist_ok=True)
-        url = config.db.connection_url
+        database_url: str = env.str("REF_DATABASE_URL", default=config.db.database_url)
 
-        return Database(url, run_migrations=run_migrations)
-
-
-if __name__ == "__main__":
-    Database.from_config(Config(), run_migrations=True)
+        database_url = validate_database_url(database_url)
+        return Database(database_url, run_migrations=run_migrations)

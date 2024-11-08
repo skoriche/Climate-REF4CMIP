@@ -5,7 +5,7 @@
 # https://github.com/ESGF/esgf-download/blob/main/esgpull/config.py
 
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import tomlkit
 from attrs import Factory, define, field
@@ -34,17 +34,12 @@ class Paths:
     """
 
     data: Path = field(converter=Path)
-    db: Path = field(converter=Path)
     log: Path = field(converter=Path)
     tmp: Path = field(converter=Path)
 
     @data.default
     def _data_factory(self) -> Path:
         return env.path("REF_CONFIGURATION") / "data"
-
-    @db.default
-    def _db_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "db"
 
     @log.default
     def _log_factory(self) -> Path:
@@ -59,13 +54,26 @@ class Paths:
 class Db:
     """
     Database configuration
+
+    We currently only plan to support SQLite and PostgreSQL databases,
+    although only SQLite is currently implemented and tested.
     """
 
-    engine: Literal["sqlite", "postgres"] = field(default="sqlite")
-    connection_url: str = field()
+    database_url: str = field()
+    """
+    Database URL that describes the connection to the database.
+
+    Defaults to sqlite:///{config.paths.db}/ref.db".
+    This configuration value will be overridden by the `REF_DATABASE_URL` environment variable.
+
+    ## Schemas
+
+    postgresql://USER:PASSWORD@HOST:PORT/NAME
+    sqlite:///RELATIVE_PATH or sqlite:////ABS_PATH or sqlite:///:memory:
+    """
     run_migrations: bool = field(default=True)
 
-    @connection_url.default
+    @database_url.default
     def _connection_url_factory(self) -> str:
         filename = env.path("REF_CONFIGURATION") / "db" / "ref.db"
         sqlite_url = f"sqlite:///{filename}"

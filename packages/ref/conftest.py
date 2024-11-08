@@ -2,6 +2,9 @@ import pytest
 
 from ref.config import Config
 
+# Ignore the alembic folder
+collect_ignore = ["alembic"]
+
 
 @pytest.fixture
 def config(tmp_path, monkeypatch) -> Config:

@@ -79,6 +79,7 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
+    "alembic",
     "build",
     "dist",
     "notebooks",
@@ -99,6 +100,7 @@ filterwarnings = [
     'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
+
 
 
 # We currently check for GPL licensed code, but this restriction may be removed

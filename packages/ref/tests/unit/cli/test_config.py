@@ -1,6 +1,7 @@
 import platformdirs
-from ref.cli import app
 from typer.testing import CliRunner
+
+from ref.cli import app
 
 runner = CliRunner()
 
@@ -25,7 +26,7 @@ class TestConfigList:
 
         config_dir = platformdirs.user_config_dir("cmip-ref")
         assert f'data = "{config_dir}/data"\n' in result.output
-        assert 'filename = "sqlite://ref.db"\n' in result.output
+        assert 'database_url = "sqlite://' in result.output
 
     def test_config_list_custom(self, config):
         result = runner.invoke(

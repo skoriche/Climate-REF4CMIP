@@ -1,0 +1,22 @@
+# Alembic
+
+Alembic is a database migration tool.
+It interoperates with SqlAlchemy to determine how the currently declared models differ from what the database
+expects and generates a migration to apply the changes.
+
+The migrations are applied at run-time automatically (see [ref.database.Database]()).
+
+## Generating migrations
+
+To generate a migration,
+you can use the `uv run` command with the `alembic` package and the `revision` command.
+The `--rev-id` flag is used to specify the revision id.
+If it is omitted the revision id will be generated automatically.
+
+```
+uv run --package ref alembic revision --rev-id 0.1.0 --message "initial table" --autogenerate
+```
+
+How we name and manage these migrations is still a work in progress.
+It might be nice to have a way to automatically generate the revision id based on the version of the package.
+This would allow us to easily track which migrations have been applied to the database.

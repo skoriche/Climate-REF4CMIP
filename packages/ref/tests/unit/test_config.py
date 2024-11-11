@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cattrs
 import pytest
+
 from ref.config import Config, Paths
 
 
@@ -16,7 +17,6 @@ class TestConfig:
         loaded = Config.load(Path("ref.toml"))
 
         assert loaded.paths.data == tmp_path / "ref" / "data"
-        assert loaded.paths.db == tmp_path / "ref" / "db"
 
         # The results aren't serialised back to disk
         assert not (tmp_path / "ref.toml").exists()
@@ -92,6 +92,6 @@ filename = "sqlite://ref.db"
 
         assert without_defaults == {}
         assert with_defaults == {
-            "paths": {"data": "test/data", "db": "test/db", "log": "test/log", "tmp": "test/tmp"},
-            "db": {"filename": "sqlite://ref.db"},
+            "paths": {"data": "test/data", "log": "test/log", "tmp": "test/tmp"},
+            "db": {"database_url": "sqlite:///test/db/ref.db", "run_migrations": True},
         }

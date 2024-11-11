@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "ref",
+    "ref[postgres]",
     "ref-core",
     "ref-metrics-example",
 ]
@@ -79,12 +79,14 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
+    "alembic",
     "build",
     "dist",
     "notebooks",
     "scripts",
     "stubs",
     "tests",
+    "conftest.py"
 ]
 
 
@@ -99,6 +101,7 @@ filterwarnings = [
     'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
+
 
 
 # We currently check for GPL licensed code, but this restriction may be removed

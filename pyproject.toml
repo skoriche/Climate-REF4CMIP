@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "ref[postgres]",
     "ref-core",
     "ref-metrics-example",
 ]
@@ -48,6 +49,7 @@ dev-dependencies = [
 members = ["packages/*"]
 
 [tool.uv.sources]
+ref = { workspace = true }
 ref-core = { workspace = true }
 ref-metrics-example = { workspace = true }
 
@@ -77,12 +79,14 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
+    "alembic",
     "build",
     "dist",
     "notebooks",
     "scripts",
     "stubs",
     "tests",
+    "conftest.py"
 ]
 
 
@@ -93,6 +97,11 @@ formats = "ipynb,py:percent"
 addopts = [
     "--import-mode=importlib",
 ]
+filterwarnings = [
+    'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
+    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
+]
+
 
 
 # We currently check for GPL licensed code, but this restriction may be removed

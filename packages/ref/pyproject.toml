@@ -1,0 +1,49 @@
+[project]
+name = "ref"
+version = "0.1.0"
+description = "Application which runs the CMIP Rapid Evaluation Framework"
+readme = "README.md"
+authors = [
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "ref-core",
+    "attrs>=24.2.0",
+    "cattrs>=24.1.2",
+    "environs>=11.0.0",
+    "tomlkit>=0.13.2",
+    "typer>=0.12.5",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.13.3",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+postgres = [
+    "psycopg2-binary>=2.9.2",
+]
+
+[project.scripts]
+ref = "ref.cli:app"
+
+[tool.uv]
+dev-dependencies = [
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

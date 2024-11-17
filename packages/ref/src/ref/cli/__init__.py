@@ -2,9 +2,9 @@
 
 import typer
 
-from ref.cli import config, sync
+from ref.cli import config, ingest
 
 app = typer.Typer(name="ref")
 
-app.command(name="sync")(sync.sync)
+app.command(name="ingest")(ingest.ingest)
 app.add_typer(config.app, name="config")

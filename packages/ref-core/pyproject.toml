@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "attrs"
+    "attrs>=22.1.0"
 ]
 
 [tool.uv]

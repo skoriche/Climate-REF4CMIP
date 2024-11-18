@@ -1,3 +1,5 @@
+import errno
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -16,13 +18,13 @@ from ref.cli.config import load_config
 from ref.cli.solve import solve as solve_cli
 from ref.config import Config
 from ref.database import Database
-from ref.models.dataset import CMIP6File, Dataset
+from ref.models.dataset import CMIP6Dataset, CMIP6File, Dataset
 
 app = typer.Typer()
 console = Console()
 
 
-def _parse_datetimes(dt_str: pd.Series) -> pd.Series:
+def _parse_datetime(dt_str: pd.Series) -> pd.Series:
     """
     Pandas tries to coerce everything to their own datetime format, which is not what we want here.
     """
@@ -40,12 +42,22 @@ def parse_datasets(file_or_directory: Path, source_type: SourceDatasetType) -> p
     Parameters
     ----------
     file_or_directory
+        File or directory to search for datasets
+
+        This can be a single file or a directory containing multiple files and/or datasets.
+        The format depends on the source dataset type.
+    source_type
+        Type of source dataset
 
     Returns
     -------
     :
         A DataFrame containing the datasets found in the specified file or directory
     """
+    if not file_or_directory.exists():
+        logger.error(f"File or directory {file_or_directory} does not exist")
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
+
     if source_type.CMIP6:
         builder = Builder(
             paths=[str(file_or_directory)],
@@ -58,8 +70,8 @@ def parse_datasets(file_or_directory: Path, source_type: SourceDatasetType) -> p
 
         # Convert the start_time and end_time columns to datetime objects
         # We don't know the calendar used in the dataset (TODO: Check what ecgtools does)
-        datasets["start_time"] = _parse_datetimes(datasets["start_time"])
-        datasets["end_time"] = _parse_datetimes(datasets["end_time"])
+        datasets["start_time"] = _parse_datetime(datasets["start_time"])
+        datasets["end_time"] = _parse_datetime(datasets["end_time"])
 
         drs_items = [
             "activity_id",
@@ -96,7 +108,7 @@ def pretty_print_df(df: pd.DataFrame, source_dataset_type: SourceDatasetType) ->
     df
         DataFrame to print
     """
-    # TODO: Should this live here or alongside a defintion of a source dataset type?
+    # TODO: Should this live here or alongside a definition of a source dataset type?
     if source_dataset_type.CMIP6:
         df = df[
             [
@@ -151,10 +163,9 @@ def ingest(
     dry_run: bool = typer.Option(False, help="Do not execute any metrics"),
 ) -> None:
     """
-    Ingest a source dataset
+    Ingest a dataset
 
-    This will register a dataset in the database and trigger any metric calculations that rely on
-    this dataset.
+    This will register a dataset in the database to be used for metrics calculations.
     """
     config = load_config(configuration_directory)
     db = Database(config.db.database_url)
@@ -182,7 +193,8 @@ def ingest(
                     logger.info(f"Would save dataset {instance_id} to the database")
                     continue
             else:
-                dataset, created = db.get_or_create(Dataset, slug=instance_id, dataset_type=source_type)
+                # TODO: This should be a switch statement as we add more dataset types
+                dataset, created = db.get_or_create(CMIP6Dataset, slug=instance_id, dataset_type=source_type)
 
                 if not created:
                     logger.warning(f"{dataset} already exists in the database. Skipping")

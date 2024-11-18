@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -6,6 +5,7 @@ import ecgtools.parsers
 import pandas as pd
 import typer
 from ecgtools import Builder
+from loguru import logger
 from ref_core.datasets import SourceDatasetType
 from ref_core.exceptions import OutOfTreeDatasetException
 from rich import box
@@ -159,19 +159,19 @@ def ingest(
     config = load_config(configuration_directory)
     db = Database(config.db.database_url)
 
-    typer.echo(f"ingesting {file_or_directory}")
+    logger.info(f"ingesting {file_or_directory}")
 
     incoming_dataset_files = parse_datasets(file_or_directory, source_type)
 
-    typer.echo(
+    logger.info(
         f"Found {len(incoming_dataset_files)} files for {len(incoming_dataset_files.index.unique())} datasets"
     )
     pretty_print_df(incoming_dataset_files, source_type)
 
-    for instance_id in incoming_dataset_files.index:
+    for instance_id in incoming_dataset_files.index.unique():
         dataset_files = incoming_dataset_files.loc[[instance_id]]
 
-        logging.info(f"Processing dataset {instance_id}")
+        logger.info(f"Processing dataset {instance_id}")
 
         with db.session.begin():
             if dry_run:
@@ -179,13 +179,13 @@ def ingest(
                     db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
                 )
                 if not dataset:
-                    logging.info(f"Would save dataset {instance_id} to the database")
+                    logger.info(f"Would save dataset {instance_id} to the database")
                     continue
             else:
                 dataset, created = db.get_or_create(Dataset, slug=instance_id, dataset_type=source_type)
 
                 if not created:
-                    logging.warning(f"{dataset} already exists in the database. Skipping")
+                    logger.warning(f"{dataset} already exists in the database. Skipping")
                     continue
 
                 db.session.flush()
@@ -198,7 +198,7 @@ def ingest(
                 prefix = _validate_prefix(config, raw_path)
 
                 if dry_run:
-                    logging.info(f"Would save file {raw_path} to the database")
+                    logger.info(f"Would save file {raw_path} to the database")
                 else:
                     db.session.add(CMIP6File.build(prefix=str(prefix), **dataset_file))
 
@@ -219,7 +219,7 @@ def _validate_prefix(config: Config, raw_path: str) -> Path:
     if prefix.is_relative_to(config.paths.data):
         prefix = prefix.relative_to(config.paths.data)
     elif config.paths.allow_out_of_tree_datasets:
-        logging.warning(f"Dataset {prefix} is not relative to {config.paths.data}")
+        logger.warning(f"Dataset {prefix} is not relative to {config.paths.data}")
     else:
         raise OutOfTreeDatasetException(prefix, config.paths.data)
 

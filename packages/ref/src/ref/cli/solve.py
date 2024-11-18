@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import typer
+from loguru import logger
 
 from ref.cli.config import load_config
 from ref.database import Database
@@ -25,12 +26,12 @@ def solve(
 
     solver = MetricSolver.build_from_db(db)
 
-    typer.echo("Solving for metrics that require recalculation...")
+    logger.info("Solving for metrics that require recalculation...")
     metric_runs = solver.solve()
 
-    typer.echo(f"Found {len(metric_runs)} new calculations to be made")
+    logger.info(f"Found {len(metric_runs)} new calculations to be made")
 
     if not dry_run:
-        typer.echo(f"Found {len(metric_runs)} new calculations to be made")
+        logger.info(f"Found {len(metric_runs)} new calculations to be made")
         for metric_run in metric_runs:
-            db.register_metric_run(metric_run)
+            logger.info(f"Registering metric run: {metric_run}")

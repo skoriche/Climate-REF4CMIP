@@ -1,20 +1,11 @@
 import datetime
-import enum
 from typing import Any, ClassVar
 
+from ref_core.datasets import SourceDatasetType
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from ref.models.base import Base
-
-
-class SourceDatasetType(enum.Enum):
-    """
-    Types of supported source datasets
-    """
-
-    CMIP6 = "cmip6"
-    CMIP7 = "cmip7"
 
 
 class Dataset(Base):

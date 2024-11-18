@@ -1,12 +1,9 @@
 import errno
 import os
-from datetime import datetime
 from pathlib import Path
 
-import ecgtools.parsers
 import pandas as pd
 import typer
-from ecgtools import Builder
 from loguru import logger
 from ref_core.datasets import SourceDatasetType
 from ref_core.exceptions import OutOfTreeDatasetException
@@ -18,88 +15,31 @@ from ref.cli.config import load_config
 from ref.cli.solve import solve as solve_cli
 from ref.config import Config
 from ref.database import Database
-from ref.models.dataset import CMIP6Dataset, CMIP6File, Dataset
+from ref.datasets import get_dataset_adapter, validate_data_catalog
+from ref.models.dataset import Dataset
 
 app = typer.Typer()
 console = Console()
 
 
-def _parse_datetime(dt_str: pd.Series) -> pd.Series:
+def validate_prefix(config: Config, raw_path: str) -> Path:
     """
-    Pandas tries to coerce everything to their own datetime format, which is not what we want here.
+    Validate the prefix of a dataset against the data directory
     """
-    return pd.Series(
-        [datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") if dt else None for dt in dt_str],
-        index=dt_str.index,
-        dtype="object",
-    )
+    prefix = Path(raw_path)
 
-
-def parse_datasets(file_or_directory: Path, source_type: SourceDatasetType) -> pd.DataFrame:
-    """
-    Find the datasets in the specified file or directory
-
-    Parameters
-    ----------
-    file_or_directory
-        File or directory to search for datasets
-
-        This can be a single file or a directory containing multiple files and/or datasets.
-        The format depends on the source dataset type.
-    source_type
-        Type of source dataset
-
-    Returns
-    -------
-    :
-        A DataFrame containing the datasets found in the specified file or directory
-    """
-    if not file_or_directory.exists():
-        logger.error(f"File or directory {file_or_directory} does not exist")
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
-
-    if source_type.CMIP6:
-        builder = Builder(
-            paths=[str(file_or_directory)],
-            depth=10,
-            include_patterns=["*.nc"],
-            joblib_parallel_kwargs={"n_jobs": 1},
-        ).build(parsing_func=ecgtools.parsers.parse_cmip6)
-
-        datasets = builder.df
-
-        # Convert the start_time and end_time columns to datetime objects
-        # We don't know the calendar used in the dataset (TODO: Check what ecgtools does)
-        datasets["start_time"] = _parse_datetime(datasets["start_time"])
-        datasets["end_time"] = _parse_datetime(datasets["end_time"])
-
-        drs_items = [
-            "activity_id",
-            "institution_id",
-            "source_id",
-            "experiment_id",
-            "member_id",
-            "table_id",
-            "variable_id",
-            "grid_label",
-        ]
-        datasets["instance_id"] = datasets.apply(
-            lambda row: "CMIP6." + ".".join([row[item] for item in drs_items]), axis=1
-        )
-        datasets = datasets.set_index("instance_id")
-
-    elif source_type.CMIP7:
-        # TODO: Assuming that the same fields will be used for CMIP7
-        # Update as needed.
-
-        raise NotImplementedError("CMIP7 is not yet supported")
+    # Check if the prefix is relative to the data directory
+    if prefix.is_relative_to(config.paths.data):
+        prefix = prefix.relative_to(config.paths.data)
+    elif config.paths.allow_out_of_tree_datasets:
+        logger.warning(f"Dataset {prefix} is not relative to {config.paths.data}")
     else:
-        raise ValueError(f"Unsupported source dataset type: {source_type}")
+        raise OutOfTreeDatasetException(prefix, config.paths.data)
 
-    return datasets
+    return prefix
 
 
-def pretty_print_df(df: pd.DataFrame, source_dataset_type: SourceDatasetType) -> None:
+def pretty_print_df(df: pd.DataFrame) -> None:
     """
     Pretty print a DataFrame
 
@@ -108,38 +48,6 @@ def pretty_print_df(df: pd.DataFrame, source_dataset_type: SourceDatasetType) ->
     df
         DataFrame to print
     """
-    # TODO: Should this live here or alongside a definition of a source dataset type?
-    if source_dataset_type.CMIP6:
-        df = df[
-            [
-                "activity_id",
-                "institution_id",
-                "source_id",
-                "experiment_id",
-                "member_id",
-                "table_id",
-                "variable_id",
-                "grid_label",
-                "version",
-            ]
-        ]
-    elif source_dataset_type.CMIP7:
-        df = df[
-            [
-                "activity_id",
-                "institution_id",
-                "source_id",
-                "experiment_id",
-                "member_id",
-                "table_id",
-                "variable_id",
-                "grid_label",
-                "version",
-            ]
-        ]
-    else:
-        raise ValueError(f"Unsupported source dataset type: {source_dataset_type}")
-
     # Initiate a Table instance to be modified
     table = Table(*[str(column) for column in df.columns])
 
@@ -172,67 +80,33 @@ def ingest(
 
     logger.info(f"ingesting {file_or_directory}")
 
-    incoming_dataset_files = parse_datasets(file_or_directory, source_type)
+    adapter = get_dataset_adapter(source_type.value)
 
-    logger.info(
-        f"Found {len(incoming_dataset_files)} files for {len(incoming_dataset_files.index.unique())} datasets"
-    )
-    pretty_print_df(incoming_dataset_files, source_type)
+    # Create a data catalog from the specified file or directory
+    if not file_or_directory.exists():
+        logger.error(f"File or directory {file_or_directory} does not exist")
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
 
-    for instance_id in incoming_dataset_files.index.unique():
-        dataset_files = incoming_dataset_files.loc[[instance_id]]
+    data_catalog = adapter.find_datasets(file_or_directory)
+    validate_data_catalog(adapter, data_catalog)
 
+    logger.info(f"Found {len(data_catalog)} files for {len(data_catalog.index.unique())} datasets")
+    pretty_print_df(adapter.pretty_subset(data_catalog))
+
+    for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
         logger.info(f"Processing dataset {instance_id}")
 
-        with db.session.begin():
-            if dry_run:
-                dataset = (
-                    db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
-                )
-                if not dataset:
-                    logger.info(f"Would save dataset {instance_id} to the database")
-                    continue
-            else:
-                # TODO: This should be a switch statement as we add more dataset types
-                dataset, created = db.get_or_create(CMIP6Dataset, slug=instance_id, dataset_type=source_type)
-
-                if not created:
-                    logger.warning(f"{dataset} already exists in the database. Skipping")
-                    continue
-
-                db.session.flush()
-
-            for dataset_file in dataset_files.to_dict(orient="records"):
-                dataset_file["dataset_id"] = dataset.id
-                dataset_file["instance_id"] = instance_id
-
-                raw_path = dataset_file.pop("path")
-                prefix = _validate_prefix(config, raw_path)
-
-                if dry_run:
-                    logger.info(f"Would save file {raw_path} to the database")
-                else:
-                    db.session.add(CMIP6File.build(prefix=str(prefix), **dataset_file))
+        if dry_run:
+            dataset = db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
+            if not dataset:
+                logger.info(f"Would save dataset {instance_id} to the database")
+                continue
+        else:
+            with db.session.begin():
+                adapter.register_dataset(config, db, data_catalog_dataset)
 
     if solve:
         solve_cli(
             configuration_directory=configuration_directory,
             dry_run=dry_run,
         )
-
-
-def _validate_prefix(config: Config, raw_path: str) -> Path:
-    """
-    Validate the prefix of a dataset against the data directory
-    """
-    prefix = Path(raw_path)
-
-    # Check if the prefix is relative to the data directory
-    if prefix.is_relative_to(config.paths.data):
-        prefix = prefix.relative_to(config.paths.data)
-    elif config.paths.allow_out_of_tree_datasets:
-        logger.warning(f"Dataset {prefix} is not relative to {config.paths.data}")
-    else:
-        raise OutOfTreeDatasetException(prefix, config.paths.data)
-
-    return prefix

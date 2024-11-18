@@ -6,12 +6,15 @@ from ref.config import Config
 collect_ignore = ["alembic"]
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def config(tmp_path, monkeypatch) -> Config:
     monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "ref"))
 
     # Uses the default configuration
     cfg = Config.load(tmp_path / "ref" / "ref.toml")
+
+    # Allow adding datasets from outside the tree for testing
+    cfg.paths.allow_out_of_tree_datasets = True
 
     # Use a SQLite in-memory database for testing
     cfg.db.database_url = "sqlite:///:memory:"

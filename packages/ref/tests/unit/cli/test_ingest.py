@@ -1,7 +1,8 @@
-import platformdirs
+from ref_core.datasets import SourceDatasetType
 from typer.testing import CliRunner
 
 from ref.cli import app
+from ref.cli.ingest import ingest
 
 runner = CliRunner()
 
@@ -14,20 +15,14 @@ def test_ingest_help():
 
 
 class TestIngest:
-    def test_config_list(self):
-        result = runner.invoke(app, ["config", "list"])
-        assert result.exit_code == 0
+    def test_ingest(self, esgf_data_dir):
+        result = runner.invoke(app, ["ingest", str(esgf_data_dir), "--source-type", "cmip6"])
+        assert result.exit_code == 0, result.output
 
-        config_dir = platformdirs.user_config_dir("cmip-ref")
-        assert f'data = "{config_dir}/data"\n' in result.output
-        assert 'database_url = "sqlite://' in result.output
-
-    def test_config_list_custom(self, config):
-        result = runner.invoke(
-            app, ["config", "list", "--configuration-directory", str(config._config_file.parent)]
+    def test_ingest_directly(self, esgf_data_dir):
+        ingest(
+            file_or_directory=esgf_data_dir,
+            source_type=SourceDatasetType.CMIP6,
+            configuration_directory=None,
+            dry_run=False,
         )
-        assert result.exit_code == 0
-
-    def test_config_list_custom_missing(self, config):
-        result = runner.invoke(app, ["config", "list", "--configuration-directory", "missing"])
-        assert result.exit_code == 1

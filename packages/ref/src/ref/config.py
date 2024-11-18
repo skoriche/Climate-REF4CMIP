@@ -11,6 +11,7 @@ import tomlkit
 from attrs import Factory, define, field
 from cattrs import Converter
 from cattrs.gen import make_dict_unstructure_fn, override
+from loguru import logger
 from tomlkit import TOMLDocument
 
 from ref.constants import config_filename
@@ -36,6 +37,8 @@ class Paths:
     data: Path = field(converter=Path)
     log: Path = field(converter=Path)
     tmp: Path = field(converter=Path)
+
+    allow_out_of_tree_datasets: bool = field(default=False)
 
     @data.default
     def _data_factory(self) -> Path:
@@ -168,7 +171,10 @@ class Config:
             The default configuration
         """
         root = env.path("REF_CONFIGURATION")
-        return cls.load(root / config_filename)
+        path_to_load = root / config_filename
+
+        logger.debug(f"Loading default configuration from {path_to_load}")
+        return cls.load(path_to_load)
 
     def dumps(self, defaults: bool = True) -> str:
         """

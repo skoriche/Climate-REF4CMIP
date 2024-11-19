@@ -9,7 +9,7 @@ import typer
 from loguru import logger
 
 from ref import __core_version__, __version__
-from ref.cli import config, ingest
+from ref.cli import config, ingest, solve
 
 
 class _InterceptHandler(logging.Handler):
@@ -43,6 +43,7 @@ def capture_logging() -> None:
 app = typer.Typer(name="ref", no_args_is_help=True)
 
 app.command(name="ingest")(ingest.ingest)
+app.command(name="solve")(solve.solve)
 app.add_typer(config.app, name="config")
 
 

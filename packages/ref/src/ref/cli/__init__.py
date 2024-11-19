@@ -47,7 +47,7 @@ app.command(name="solve")(solve.solve)
 app.add_typer(config.app, name="config")
 
 
-def _version_callback(value: bool):
+def _version_callback(value: bool) -> None:
     if value:
         print(f"ref: {__version__}")
         print(f"ref-core: {__core_version__}")
@@ -61,7 +61,7 @@ def main(
         Optional[bool],
         typer.Option("--version", callback=_version_callback, is_eager=True),
     ] = None,
-):
+) -> None:
     """
     ref: A CLI for the CMIP Rapid Evaluation Framework
     """

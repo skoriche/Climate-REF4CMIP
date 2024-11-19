@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import ecgtools.parsers
 import pandas as pd
@@ -14,7 +17,7 @@ from ref.datasets.base import DatasetAdapter
 from ref.models.dataset import CMIP6Dataset, CMIP6File
 
 
-def _parse_datetime(dt_str: pd.Series) -> pd.Series:
+def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
     """
     Pandas tries to coerce everything to their own datetime format, which is not what we want here.
     """
@@ -29,9 +32,6 @@ class CMIP6DatasetAdapter(DatasetAdapter):
     """
     Adapter for CMIP6 datasets
     """
-
-    dataset_model = CMIP6Dataset
-    data_file_model = CMIP6File
 
     slug_column = "instance_id"
 
@@ -152,7 +152,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         return datasets
 
     def register_dataset(
-        self, config: Config, db: Database, dataset_subset: pd.DataFrame
+        self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
     ) -> CMIP6Dataset | None:
         """
         Register a dataset in the database using the data catalog
@@ -163,7 +163,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             Configuration object
         db
             Database instance
-        dataset_subset
+        data_catalog_dataset
             A subset of the data catalog containing the metadata for a single dataset
 
         Returns
@@ -171,25 +171,25 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         :
             Registered dataset if successful, else None
         """
-        unique_slugs = dataset_subset[self.slug_column].unique()
+        unique_slugs = data_catalog_dataset[self.slug_column].unique()
         if len(unique_slugs) != 1:
             raise RefException(f"Found multiple datasets in the same directory: {unique_slugs}")
         slug = unique_slugs[0]
 
-        dataset, created = db.get_or_create(self.dataset_model, slug=slug)
+        dataset, created = db.get_or_create(CMIP6Dataset, slug=slug)
 
         if not created:
             logger.warning(f"{dataset} already exists in the database. Skipping")
-            return
+            return None
 
         db.session.flush()
 
-        for dataset_file in dataset_subset.to_dict(orient="records"):
+        for dataset_file in data_catalog_dataset.to_dict(orient="records"):
             dataset_file["dataset_id"] = dataset.id
 
             raw_path = dataset_file.pop("path")
             prefix = validate_prefix(config, raw_path)
 
-            db.session.add(CMIP6File.build(prefix=str(prefix), **dataset_file))
+            db.session.add(CMIP6File.build(prefix=str(prefix), **dataset_file))  # type: ignore
 
         return dataset

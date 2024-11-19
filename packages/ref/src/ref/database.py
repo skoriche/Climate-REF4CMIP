@@ -109,7 +109,7 @@ class Database:
         return Database(database_url, run_migrations=run_migrations)
 
     def get_or_create(
-        self, model: Table, defaults: dict[str, Any] | None = None, **kwargs: Any
+        self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any
     ) -> tuple[Table, bool]:
         """
         Get or create an instance of a model

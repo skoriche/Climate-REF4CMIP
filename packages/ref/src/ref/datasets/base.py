@@ -1,13 +1,11 @@
 from pathlib import Path
-from typing import Protocol, TypeVar
+from typing import Protocol
 
 import pandas as pd
 
 from ref.config import Config
 from ref.database import Database
 from ref.models.dataset import Dataset
-
-T = TypeVar("T", bound=Dataset)
 
 
 class DatasetAdapter(Protocol):
@@ -17,7 +15,6 @@ class DatasetAdapter(Protocol):
     This allows the same code to work with different dataset types.
     """
 
-    dataset_model: T
     slug_column: str
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...]
@@ -37,7 +34,9 @@ class DatasetAdapter(Protocol):
         """
         ...
 
-    def register_dataset(self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame) -> T | None:
+    def register_dataset(
+        self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
+    ) -> Dataset | None:
         """
         Register a dataset in the database using the data catalog
         """

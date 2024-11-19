@@ -48,7 +48,7 @@ class Dataset(Base):
     def __repr__(self) -> str:
         return f"<Dataset slug={self.slug} dataset_type={self.dataset_type} >"
 
-    __mapper_args__: ClassVar[Any] = {"polymorphic_on": dataset_type}
+    __mapper_args__: ClassVar[Any] = {"polymorphic_on": dataset_type}  # type: ignore
 
 
 class CMIP6Dataset(Dataset):
@@ -61,7 +61,7 @@ class CMIP6Dataset(Dataset):
     __tablename__ = "cmip6_dataset"
     id: Mapped[int] = mapped_column(ForeignKey("dataset.id"), primary_key=True)
 
-    __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.CMIP6}
+    __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.CMIP6}  # type: ignore
 
 
 class CMIP6File(Base):
@@ -128,7 +128,7 @@ class CMIP6File(Base):
     dataset = relationship("CMIP6Dataset", backref="files")
 
     @staticmethod
-    def build(**kwargs) -> "CMIP6File":
+    def build(**kwargs: Any) -> "CMIP6File":
         """
         Build a new CMIP6Dataset instance
 

@@ -1,6 +1,6 @@
 import json
 import pathlib
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, ClassVar, Protocol, runtime_checkable
 
 from attrs import frozen
 
@@ -95,7 +95,7 @@ class FacetFilter:
     A filter to apply to a data catalog of datasets.
     """
 
-    facets: dict[str, str | tuple[str]]
+    facets: dict[str, str | tuple[str] | list[str]]
     """
     Filters to apply to the data catalog.
 
@@ -165,7 +165,7 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    inputs: list[DataRequirement]
+    inputs: ClassVar[list[DataRequirement]]
     """
     Description of the required datasets for the current metric
 

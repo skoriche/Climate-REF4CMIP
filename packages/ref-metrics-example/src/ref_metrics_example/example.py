@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import xarray as xr
-from ref_core.metrics import Configuration, MetricResult, TriggerInfo
+from ref_core.datasets import SourceDatasetType
+from ref_core.metrics import Configuration, DataRequirement, FacetFilter, Metric, MetricResult, TriggerInfo
 
 
 def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
@@ -74,12 +75,26 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_output
 
 
-class ExampleMetric:
+class GlobalMeanTimeseries(Metric):
     """
     Calculate the annual mean global mean timeseries for a dataset
     """
 
-    name = "example"
+    name = "global_mean_timeseries"
+
+    inputs: ClassVar[list[DataRequirement]] = [
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=[
+                # Only get the tas variable
+                FacetFilter(facets={"variable_id": "tas"}),
+                # Ignore some experiments because they are not relevant
+                FacetFilter(facets={"experiment_id": ["1pctCO2-*", "hist-*"]}, keep=False),
+            ],
+            # Run the metric on each unique combination of model, variable, experiment, and variant
+            group_by=["model_id", "variable_id", "experiment_id", "variant_label"],
+        )
+    ]
 
     def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
         """

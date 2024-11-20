@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 from ref_core.metrics import Configuration, TriggerInfo
-from ref_metrics_example.example import ExampleMetric, calculate_annual_mean_timeseries
+from ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def test_annual_mean(esgf_data_dir, test_dataset):
 
 
 def test_example_metric(tmp_path, test_dataset):
-    metric = ExampleMetric()
+    metric = GlobalMeanTimeseries()
 
     configuration = Configuration(
         output_directory=tmp_path,
@@ -44,7 +44,7 @@ def test_example_metric(tmp_path, test_dataset):
 
 
 def test_example_metric_no_trigger(tmp_path, test_dataset):
-    metric = ExampleMetric()
+    metric = GlobalMeanTimeseries()
 
     configuration = Configuration(
         output_directory=tmp_path,

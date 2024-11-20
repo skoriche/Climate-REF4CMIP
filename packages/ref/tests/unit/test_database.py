@@ -30,7 +30,43 @@ def test_database(db):
 
 
 def test_dataset_polymorphic(db):
-    db.session.add(CMIP6Dataset(slug="test"))
+    db.session.add(
+        CMIP6Dataset(
+            activity_id="",
+            branch_method="",
+            branch_time_in_child=12,
+            branch_time_in_parent=21,
+            experiment="",
+            experiment_id="",
+            frequency="",
+            grid="",
+            grid_label="",
+            institution_id="",
+            long_name="",
+            member_id="",
+            nominal_resolution="",
+            parent_activity_id="",
+            parent_experiment_id="",
+            parent_source_id="",
+            parent_time_units="",
+            parent_variant_label="",
+            realm="",
+            product="",
+            source_id="",
+            standard_name="",
+            source_type="",
+            sub_experiment="",
+            sub_experiment_id="",
+            table_id="",
+            units="",
+            variable_id="",
+            variant_label="",
+            vertical_levels=2,
+            version="v12",
+            instance_id="test",
+            slug="test",
+        )
+    )
     assert db.session.query(CMIP6Dataset).count() == 1
     assert db.session.query(Dataset).first().slug == "test"
     assert db.session.query(Dataset).first().dataset_type == SourceDatasetType.CMIP6

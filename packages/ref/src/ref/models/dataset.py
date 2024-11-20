@@ -61,6 +61,44 @@ class CMIP6Dataset(Dataset):
     __tablename__ = "cmip6_dataset"
     id: Mapped[int] = mapped_column(ForeignKey("dataset.id"), primary_key=True)
 
+    activity_id: Mapped[str] = mapped_column()
+    branch_method: Mapped[str] = mapped_column()
+    branch_time_in_child: Mapped[float] = mapped_column()
+    branch_time_in_parent: Mapped[float] = mapped_column()
+    experiment: Mapped[str] = mapped_column()
+    experiment_id: Mapped[str] = mapped_column()
+    frequency: Mapped[str] = mapped_column()
+    grid: Mapped[str] = mapped_column()
+    grid_label: Mapped[str] = mapped_column()
+    init_year: Mapped[int] = mapped_column(nullable=True)
+    institution_id: Mapped[str] = mapped_column()
+    long_name: Mapped[str] = mapped_column()
+    member_id: Mapped[str] = mapped_column()
+    nominal_resolution: Mapped[str] = mapped_column()
+    parent_activity_id: Mapped[str] = mapped_column()
+    parent_experiment_id: Mapped[str] = mapped_column()
+    parent_source_id: Mapped[str] = mapped_column()
+    parent_time_units: Mapped[str] = mapped_column()
+    parent_variant_label: Mapped[str] = mapped_column()
+    realm: Mapped[str] = mapped_column()
+    product: Mapped[str] = mapped_column()
+    source_id: Mapped[str] = mapped_column()
+    standard_name: Mapped[str] = mapped_column()
+    source_type: Mapped[str] = mapped_column()
+    sub_experiment: Mapped[str] = mapped_column()
+    sub_experiment_id: Mapped[str] = mapped_column()
+    table_id: Mapped[str] = mapped_column()
+    units: Mapped[str] = mapped_column()
+    variable_id: Mapped[str] = mapped_column()
+    variant_label: Mapped[str] = mapped_column()
+    vertical_levels: Mapped[int] = mapped_column()
+    version: Mapped[str] = mapped_column()
+
+    instance_id: Mapped[str] = mapped_column()
+    """
+    Unique identifier for the dataset.
+    """
+
     __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.CMIP6}  # type: ignore
 
 
@@ -83,67 +121,13 @@ class CMIP6File(Base):
     Foreign key to the dataset table
     """
 
-    instance_id: Mapped[str] = mapped_column()
-    """
-    Unique identifier for the dataset.
-    """
-
-    # CMIP6 metadata fields to track
-    # We might need to make these fields optional
-    activity_id: Mapped[str] = mapped_column()
-    branch_method: Mapped[str] = mapped_column()
-    branch_time_in_child: Mapped[float] = mapped_column()
-    branch_time_in_parent: Mapped[float] = mapped_column()
+    # File-specific metadata fields to track
     end_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    experiment: Mapped[str] = mapped_column()
-    experiment_id: Mapped[str] = mapped_column()
-    frequency: Mapped[str] = mapped_column()
-    grid: Mapped[str] = mapped_column()
-    grid_label: Mapped[str] = mapped_column()
-    institution_id: Mapped[str] = mapped_column()
-    member_id: Mapped[str] = mapped_column()
-    nominal_resolution: Mapped[str] = mapped_column()
-    parent_activity_id: Mapped[str] = mapped_column()
-    parent_experiment_id: Mapped[str] = mapped_column()
-    parent_source_id: Mapped[str] = mapped_column()
-    parent_time_units: Mapped[str] = mapped_column()
-    parent_variant_label: Mapped[str] = mapped_column()
-    realm: Mapped[str] = mapped_column()
-    product: Mapped[str] = mapped_column()
-    source_id: Mapped[str] = mapped_column()
-    source_type: Mapped[str] = mapped_column()
     start_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    sub_experiment: Mapped[str] = mapped_column()
-    sub_experiment_id: Mapped[str] = mapped_column()
-    table_id: Mapped[str] = mapped_column()
-    variable_id: Mapped[str] = mapped_column()
-    variant_label: Mapped[str] = mapped_column()
-    version: Mapped[str] = mapped_column()
 
-    prefix: Mapped[str] = mapped_column()
+    path: Mapped[str] = mapped_column()
     """
     Prefix that describes where the dataset is stored relative to the data directory
     """
 
     dataset = relationship("CMIP6Dataset", backref="files")
-
-    @staticmethod
-    def build(**kwargs: Any) -> "CMIP6File":
-        """
-        Build a new CMIP6Dataset instance
-
-        Parameters
-        ----------
-        kwargs
-            Metadata fields for the dataset
-
-        Returns
-        -------
-        :
-            A new CMIP6Dataset instance
-        """
-        kwargs_to_drop = [key for key in kwargs if key not in CMIP6File.__table__.columns.keys()]
-        for kw in kwargs_to_drop:
-            kwargs.pop(kw, None)
-
-        return CMIP6File(**kwargs)

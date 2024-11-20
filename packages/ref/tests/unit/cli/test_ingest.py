@@ -5,7 +5,7 @@ from ref_core.exceptions import OutOfTreeDatasetException
 from typer.testing import CliRunner
 
 from ref.cli import app
-from ref.cli.ingest import validate_prefix
+from ref.cli.ingest import validate_path
 from ref.models import Dataset
 from ref.models.dataset import CMIP6Dataset, CMIP6File
 
@@ -18,7 +18,7 @@ def test_validate_prefix_with_valid_relative_path(config):
     raw_path = "/data/subfolder/file.csv"
     expected_path = Path("subfolder/file.csv")
 
-    result = validate_prefix(config, raw_path)
+    result = validate_path(config, raw_path)
     assert result == expected_path
 
 
@@ -29,7 +29,7 @@ def test_validate_prefix_with_allow_out_of_tree_datasets(config):
     raw_path = "/other_dir/file.csv"
     expected_path = Path("/other_dir/file.csv")
 
-    result = validate_prefix(config, raw_path)
+    result = validate_path(config, raw_path)
     assert result == expected_path
 
 
@@ -39,7 +39,7 @@ def test_validate_prefix_with_invalid_relative_path(config):
 
     raw_path = "/other_dir/file.csv"
     with pytest.raises(OutOfTreeDatasetException):
-        validate_prefix(config, raw_path)
+        validate_path(config, raw_path)
 
 
 def test_ingest_help():

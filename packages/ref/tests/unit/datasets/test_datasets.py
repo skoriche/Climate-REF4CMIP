@@ -4,10 +4,11 @@ import pandas as pd
 import pytest
 from ref_core.datasets import SourceDatasetType
 
-from ref.datasets import get_dataset_adapter, validate_data_catalog
+from ref.datasets import get_dataset_adapter
+from ref.datasets.base import DatasetAdapter
 
 
-class MockDatasetAdapter:
+class MockDatasetAdapter(DatasetAdapter):
     dataset_model: pd.DataFrame
     slug_column: str = "dataset_slug"
     dataset_specific_metadata: tuple[str, ...] = ("metadata1", "metadata2")
@@ -37,7 +38,7 @@ def test_validate_data_catalog_complete_data():
     adapter = MockDatasetAdapter()
     data_catalog = adapter.find_datasets(Path("path/to/dataset"))
 
-    validated_catalog = validate_data_catalog(adapter, data_catalog)
+    validated_catalog = adapter.validate_data_catalog(data_catalog)
     assert not validated_catalog.empty
 
 
@@ -46,17 +47,17 @@ def test_validate_data_catalog_extra_columns():
     data_catalog = adapter.find_datasets(Path("path/to/dataset"))
     data_catalog["extra_column"] = "extra"
 
-    validate_data_catalog(adapter, data_catalog)
+    adapter.validate_data_catalog(data_catalog)
 
 
 def test_validate_data_catalog_missing_columns():
     adapter = MockDatasetAdapter()
     data_catalog = adapter.find_datasets(Path("path/to/dataset"))
     with pytest.raises(ValueError, match="Data catalog is missing required columns: {'metadata1'}"):
-        validate_data_catalog(adapter, data_catalog.drop(columns=["metadata1"]))
+        adapter.validate_data_catalog(data_catalog.drop(columns=["metadata1"]))
 
     with pytest.raises(ValueError, match="Data catalog is missing required columns: {'file_name'}"):
-        validate_data_catalog(adapter, data_catalog.drop(columns=["file_name"]))
+        adapter.validate_data_catalog(data_catalog.drop(columns=["file_name"]))
 
 
 def test_validate_data_catalog_metadata_variance():
@@ -72,7 +73,7 @@ def test_validate_data_catalog_metadata_variance():
         ValueError,
         match=f"Dataset specific metadata varies by dataset.\nUnique values: {exp_df}",
     ):
-        validate_data_catalog(adapter, data_catalog)
+        adapter.validate_data_catalog(data_catalog)
 
 
 @pytest.mark.parametrize(

@@ -10,7 +10,7 @@ from ecgtools import Builder
 from loguru import logger
 from ref_core.exceptions import RefException
 
-from ref.cli.ingest import validate_prefix
+from ref.cli.ingest import validate_path
 from ref.config import Config
 from ref.database import Database
 from ref.datasets.base import DatasetAdapter
@@ -71,7 +71,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         slug_column,
     )
 
-    file_specific_metadata = ("start_time", "end_time", "time_range", "path")
+    file_specific_metadata = ("start_time", "end_time", "path")
 
     def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
@@ -171,12 +171,15 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         :
             Registered dataset if successful, else None
         """
+        self.validate_data_catalog(data_catalog_dataset)
+
         unique_slugs = data_catalog_dataset[self.slug_column].unique()
         if len(unique_slugs) != 1:
             raise RefException(f"Found multiple datasets in the same directory: {unique_slugs}")
         slug = unique_slugs[0]
 
-        dataset, created = db.get_or_create(CMIP6Dataset, slug=slug)
+        dataset_metadata = data_catalog_dataset[list(self.dataset_specific_metadata)].iloc[0].to_dict()
+        dataset, created = db.get_or_create(CMIP6Dataset, slug=slug, **dataset_metadata)
 
         if not created:
             logger.warning(f"{dataset} already exists in the database. Skipping")
@@ -185,11 +188,15 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         db.session.flush()
 
         for dataset_file in data_catalog_dataset.to_dict(orient="records"):
-            dataset_file["dataset_id"] = dataset.id
+            path = validate_path(config, dataset_file.pop("path"))
 
-            raw_path = dataset_file.pop("path")
-            prefix = validate_prefix(config, raw_path)
-
-            db.session.add(CMIP6File.build(prefix=str(prefix), **dataset_file))  # type: ignore
+            db.session.add(
+                CMIP6File(
+                    path=str(path),
+                    dataset_id=dataset.id,
+                    start_time=dataset_file.pop("start_time"),
+                    end_time=dataset_file.pop("end_time"),
+                )
+            )  # type: ignore
 
         return dataset

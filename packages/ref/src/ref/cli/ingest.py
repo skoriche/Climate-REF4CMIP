@@ -15,14 +15,14 @@ from ref.cli.config import load_config
 from ref.cli.solve import solve as solve_cli
 from ref.config import Config
 from ref.database import Database
-from ref.datasets import get_dataset_adapter, validate_data_catalog
+from ref.datasets import get_dataset_adapter
 from ref.models.dataset import Dataset
 
 app = typer.Typer()
 console = Console()
 
 
-def validate_prefix(config: Config, raw_path: str) -> Path:
+def validate_path(config: Config, raw_path: str) -> Path:
     """
     Validate the prefix of a dataset against the data directory
     """
@@ -88,7 +88,7 @@ def ingest(
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
 
     data_catalog = adapter.find_datasets(file_or_directory)
-    validate_data_catalog(adapter, data_catalog)
+    adapter.validate_data_catalog(data_catalog)
 
     logger.info(f"Found {len(data_catalog)} files for {len(data_catalog.index.unique())} datasets")
     pretty_print_df(adapter.pretty_subset(data_catalog))

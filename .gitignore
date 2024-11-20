@@ -151,3 +151,4 @@ dmypy.json
 
 # Generated output
 out
+.ref

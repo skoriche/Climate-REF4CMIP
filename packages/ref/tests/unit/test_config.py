@@ -92,6 +92,11 @@ filename = "sqlite://ref.db"
 
         assert without_defaults == {}
         assert with_defaults == {
-            "paths": {"data": "test/data", "log": "test/log", "tmp": "test/tmp"},
+            "paths": {
+                "data": "test/data",
+                "log": "test/log",
+                "tmp": "test/tmp",
+                "allow_out_of_tree_datasets": False,
+            },
             "db": {"database_url": "sqlite:///test/db/ref.db", "run_migrations": True},
         }

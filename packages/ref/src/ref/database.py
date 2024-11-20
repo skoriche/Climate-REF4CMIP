@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 from urllib import parse as urlparse
 
 import alembic.command
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from ref.config import Config
 from ref.env import env
+from ref.models import Table
 
 
 def validate_database_url(database_url: str) -> str:
@@ -105,3 +107,36 @@ class Database:
 
         database_url = validate_database_url(database_url)
         return Database(database_url, run_migrations=run_migrations)
+
+    def get_or_create(
+        self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any
+    ) -> tuple[Table, bool]:
+        """
+        Get or create an instance of a model
+
+        This doesn't commit the transaction,
+        so you will need to call `session.commit()` after this method
+        or use a transaction context manager.
+
+        Parameters
+        ----------
+        model
+            The model to get or create
+        defaults
+            Default values to use when creating a new instance
+        kwargs
+            The filter parameters to use when querying for an instance
+
+        Returns
+        -------
+        :
+            A tuple containing the instance and a boolean indicating if the instance was created
+        """
+        instance = self.session.query(model).filter_by(**kwargs).first()
+        if instance:
+            return instance, False
+        else:
+            params = {**kwargs, **(defaults or {})}
+            instance = model(**params)
+            self.session.add(instance)
+            return instance, True

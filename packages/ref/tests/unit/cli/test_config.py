@@ -1,4 +1,5 @@
-import platformdirs
+import os
+
 from typer.testing import CliRunner
 
 from ref.cli import app
@@ -20,11 +21,11 @@ def test_config_help():
 
 
 class TestConfigList:
-    def test_config_list(self):
+    def test_config_list(self, config):
         result = runner.invoke(app, ["config", "list"])
         assert result.exit_code == 0
 
-        config_dir = platformdirs.user_config_dir("cmip-ref")
+        config_dir = os.environ.get("REF_CONFIGURATION")
         assert f'data = "{config_dir}/data"\n' in result.output
         assert 'database_url = "sqlite://' in result.output
 

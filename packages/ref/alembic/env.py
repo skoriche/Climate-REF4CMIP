@@ -1,19 +1,18 @@
-from logging.config import fileConfig
-
 from alembic import context
+from loguru import logger
 
+from ref.cli import capture_logging
 from ref.config import Config
 from ref.database import Database
 from ref.models import Base
 
+# Setup logging
+capture_logging()
+logger.info("Running alembic env")
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 
@@ -40,7 +39,9 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
+        dialect_name="sqlite",
         dialect_opts={"paramstyle": "named"},
+        render_as_batch=True,
     )
 
     with context.begin_transaction():
@@ -61,7 +62,7 @@ def run_migrations_online() -> None:
         connectable = db._engine
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True)
 
         with context.begin_transaction():
             context.run_migrations()

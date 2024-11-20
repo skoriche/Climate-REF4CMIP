@@ -1,9 +1,9 @@
 import pytest
 import sqlalchemy
-from sqlalchemy import select
+from ref_core.datasets import SourceDatasetType
 
 from ref.database import Database, validate_database_url
-from ref.models import Dataset
+from ref.models.dataset import CMIP6Dataset, Dataset
 
 
 @pytest.mark.parametrize(
@@ -24,40 +24,60 @@ def test_invalid_urls(config, database_url, tmp_path):
         validate_database_url(database_url.format(tmp_path=str(tmp_path)))
 
 
-def test_database(config):
-    db = Database.from_config(config, run_migrations=True)
-
+def test_database(db):
     assert db._engine
     assert db.session.is_active
 
+
+def test_dataset_polymorphic(db):
     db.session.add(
-        Dataset(
-            dataset_id="big_dataset",
+        CMIP6Dataset(
+            activity_id="",
+            branch_method="",
+            branch_time_in_child=12,
+            branch_time_in_parent=21,
+            experiment="",
+            experiment_id="",
+            frequency="",
+            grid="",
+            grid_label="",
+            institution_id="",
+            long_name="",
+            member_id="",
+            nominal_resolution="",
+            parent_activity_id="",
+            parent_experiment_id="",
+            parent_source_id="",
+            parent_time_units="",
+            parent_variant_label="",
+            realm="",
+            product="",
+            source_id="",
+            standard_name="",
+            source_type="",
+            sub_experiment="",
+            sub_experiment_id="",
+            table_id="",
+            units="",
+            variable_id="",
+            variant_label="",
+            vertical_levels=2,
+            version="v12",
             instance_id="test",
-            master_id="master",
-            version="version",
-            data_node="data_node",
-            size=12,
-            number_of_files=1,
+            slug="test",
         )
     )
-    db.session.add(
-        Dataset(
-            dataset_id="small_dataset",
-            instance_id="test",
-            master_id="master",
-            version="version",
-            data_node="data_node",
-            size=1,
-            number_of_files=1,
-        )
-    )
+    assert db.session.query(CMIP6Dataset).count() == 1
+    assert db.session.query(Dataset).first().slug == "test"
+    assert db.session.query(Dataset).first().dataset_type == SourceDatasetType.CMIP6
 
-    stmt = select(Dataset).where(Dataset.size >= 12)
-    res = db.session.scalars(stmt).all()
-    assert len(res) == 1
 
-    assert res[0].dataset_id == "big_dataset"
+def test_transaction_cleanup(db):
+    with pytest.raises(sqlalchemy.exc.IntegrityError):
+        with db.session.begin():
+            db.session.add(CMIP6Dataset(slug="test"))
+            db.session.add(CMIP6Dataset(slug="test"))
+    assert db.session.query(CMIP6Dataset).count() == 0
 
 
 def test_database_invalid_url(config, monkeypatch):

@@ -197,6 +197,6 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                     start_time=dataset_file.pop("start_time"),
                     end_time=dataset_file.pop("end_time"),
                 )
-            )  # type: ignore
+            )
 
         return dataset

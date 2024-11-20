@@ -50,37 +50,43 @@ def test_ingest_help():
 
 
 class TestIngest:
+    data_dir = Path("CMIP6") / "ScenarioMIP" / "CSIRO" / "ACCESS-ESM1-5" / "ssp126" / "r1i1p1f1"
+
     def test_ingest(self, esgf_data_dir, db):
-        result = runner.invoke(app, ["ingest", str(esgf_data_dir), "--source-type", "cmip6"])
+        result = runner.invoke(app, ["ingest", str(esgf_data_dir / self.data_dir), "--source-type", "cmip6"])
         assert result.exit_code == 0, result.output
 
-        assert db.session.query(Dataset).count() == 7
-        assert db.session.query(CMIP6Dataset).count() == 7
-        assert db.session.query(CMIP6File).count() == 11
+        assert db.session.query(Dataset).count() == 5
+        assert db.session.query(CMIP6Dataset).count() == 5
+        assert db.session.query(CMIP6File).count() == 9
 
     def test_ingest_and_solve(self, esgf_data_dir, db):
         result = runner.invoke(app, ["ingest", str(esgf_data_dir), "--source-type", "cmip6", "--solve"])
         assert result.exit_code == 0, result.output
         assert "Solving for metrics that require recalculation." in result.output
 
-    def test_ingest_twice(self, esgf_data_dir, db):
+    def test_ingest_multiple_times(self, esgf_data_dir, db):
         result = runner.invoke(
-            app, ["ingest", str(esgf_data_dir / "CMIP6" / "ScenarioMIP"), "--source-type", "cmip6"]
+            app, ["ingest", str(esgf_data_dir / self.data_dir / "Amon" / "tas"), "--source-type", "cmip6"]
         )
         assert result.exit_code == 0, result.output
 
-        assert db.session.query(Dataset).count() == 6
-        assert db.session.query(CMIP6Dataset).count() == 6
-        assert db.session.query(CMIP6File).count() == 10
+        assert db.session.query(Dataset).count() == 1
+        assert db.session.query(CMIP6File).count() == 2
 
         result = runner.invoke(
-            app, ["ingest", str(esgf_data_dir / "CMIP6" / "ScenarioMIP"), "--source-type", "cmip6"]
+            app, ["ingest", str(esgf_data_dir / self.data_dir / "Amon" / "tas"), "--source-type", "cmip6"]
         )
         assert result.exit_code == 0, result.output
 
-        assert db.session.query(Dataset).count() == 6
-        assert db.session.query(CMIP6Dataset).count() == 6
-        assert db.session.query(CMIP6File).count() == 10
+        assert db.session.query(Dataset).count() == 1
+
+        result = runner.invoke(
+            app, ["ingest", str(esgf_data_dir / self.data_dir / "Amon" / "rsut"), "--source-type", "cmip6"]
+        )
+        assert result.exit_code == 0, result.output
+
+        assert db.session.query(Dataset).count() == 2
 
     def test_ingest_missing(self, esgf_data_dir, db):
         result = runner.invoke(app, ["ingest", str(esgf_data_dir / "missing"), "--source-type", "cmip6"])

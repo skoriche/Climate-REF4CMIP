@@ -4,6 +4,8 @@ from typing import Any, Protocol, runtime_checkable
 
 from attrs import frozen
 
+from ref_core.datasets import SourceDatasetType
+
 
 @frozen
 class Configuration:
@@ -87,6 +89,61 @@ class TriggerInfo:
     # dataset metadata
 
 
+@frozen
+class FacetFilter:
+    """
+    A filter to apply to a data catalog of datasets.
+    """
+
+    facets: dict[str, str | tuple[str]]
+    """
+    Filters to apply to the data catalog.
+
+    The keys are the metadata fields to filter on, and the values are the values to filter on.
+    If multiple values are provided for a single field, the filter will be applied as an OR operation.
+    Multiple filters are applied as an AND operation.
+    """
+    keep: bool = True
+    """
+    Whether to keep or remove datasets that match the filter.
+
+    If true (default), datasets that match the filter will be kept else they will be removed.
+    """
+
+
+@frozen
+class DataRequirement:
+    """
+    Definition of the input dataset that a metric requires to run.
+
+    A filter and groupby process is used to select the datasets that are used,
+    and then group the filtered datasets into unique executions.
+    """
+
+    source_type: SourceDatasetType
+    """
+    Type of the source dataset (CMIP6, CMIP7 etc)
+    """
+
+    filters: list[FacetFilter]
+    """
+    Filters to apply to a data catalog of datasets.
+
+    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    This is effectively an AND operation.
+    """
+
+    group_by: list[str] | None
+    """
+    The fields to group the datasets by.
+
+    This groupby operation is performed after the data catalog is filtered according to `filters`.
+    Each group will contain a unique combination of values from the metadata fields,
+    and will result in a separate execution of the metric.
+    If `group_by=None`, all datasets will be processed together as a single execution.
+    """
+
+
 @runtime_checkable
 class Metric(Protocol):
     """
@@ -108,18 +165,14 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    # input_variable: list[VariableDefinition]
+    inputs: list[DataRequirement]
     """
-    TODO: implement VariableDefinition
-    Should be extend the configuration defined in EMDS
+    Description of the required datasets for the current metric
 
-    Variables that the metric requires to run
-    Any modifications to the input data will trigger a new metric calculation.
-    """
-    # observation_dataset: list[ObservationDatasetDefinition]
-    """
-    TODO: implement ObservationDatasetDefinition
-    Should be extend the configuration defined in EMDS. To check with Bouwe.
+    This information is used to filter the a data catalog of both CMIP and/or observation datasets
+    that are required by the metric.
+
+    Any modifications to the input data will new metric calculation.
     """
 
     def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:

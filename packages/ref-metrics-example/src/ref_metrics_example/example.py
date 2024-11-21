@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any
 
 import xarray as xr
 from ref_core.datasets import SourceDatasetType
@@ -82,7 +82,7 @@ class GlobalMeanTimeseries(Metric):
 
     name = "global_mean_timeseries"
 
-    inputs: ClassVar[list[DataRequirement]] = [
+    data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=[
@@ -93,8 +93,8 @@ class GlobalMeanTimeseries(Metric):
             ],
             # Run the metric on each unique combination of model, variable, experiment, and variant
             group_by=["model_id", "variable_id", "experiment_id", "variant_label"],
-        )
-    ]
+        ),
+    )
 
     def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
         """

@@ -1,10 +1,14 @@
 import pytest
-from ref_core.metrics import Configuration, MetricResult, TriggerInfo
+from ref_core.datasets import SourceDatasetType
+from ref_core.metrics import Configuration, DataRequirement, MetricResult, TriggerInfo
 from ref_core.providers import MetricsProvider
 
 
 class MockMetric:
     name = "mock"
+
+    # This runs on every dataset
+    data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=[], group_by=None),)
 
     def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(
@@ -15,6 +19,8 @@ class MockMetric:
 
 class FailedMetric:
     name = "failed"
+
+    data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=[], group_by=None),)
 
     def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(

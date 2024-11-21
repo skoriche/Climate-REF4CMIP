@@ -1,6 +1,6 @@
 import json
 import pathlib
-from typing import Any, ClassVar, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from attrs import frozen
 
@@ -165,7 +165,7 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    inputs: ClassVar[list[DataRequirement]]
+    data_requirements: tuple[DataRequirement, ...]
     """
     Description of the required datasets for the current metric
 

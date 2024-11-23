@@ -44,6 +44,7 @@ dev-dependencies = [
     "jupytext>=1.16.3",
     "esgpull>=0.7.3",
     "pandas-stubs>=2.2.3.241009",
+    "pytest-loguru>=0.4.0",
 ]
 
 [tool.uv.workspace]

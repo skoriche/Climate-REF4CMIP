@@ -27,11 +27,4 @@ def solve(
     solver = MetricSolver.build_from_db(db)
 
     logger.info("Solving for metrics that require recalculation...")
-    metric_runs = solver.solve()
-
-    logger.info(f"Found {len(metric_runs)} new calculations to be made")
-
-    if not dry_run:
-        logger.info(f"Found {len(metric_runs)} new calculations to be made")
-        for metric_run in metric_runs:
-            logger.info(f"Registering metric run: {metric_run}")
+    solver.solve(dry_run=dry_run)

@@ -11,7 +11,8 @@ runner = CliRunner(
 def test_without_subcommand():
     result = runner.invoke(app, [])
     assert result.exit_code == 0
-    assert "Usage: ref" in result.stdout
+    assert "Usage:" in result.stdout
+    assert "ref [OPTIONS] COMMAND [ARGS]" in result.stdout
     assert "ref: A CLI for the CMIP Rapid Evaluation Framework" in result.stdout
 
 

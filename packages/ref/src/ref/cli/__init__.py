@@ -18,7 +18,7 @@ class _InterceptHandler(logging.Handler):
         level: str | int
         try:
             level = logger.level(record.levelname).name
-        except ValueError:
+        except ValueError:  # pragma: no cover
             level = record.levelno
 
         # Find caller from where originated the logged message.

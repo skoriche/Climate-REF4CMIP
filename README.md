@@ -3,6 +3,8 @@
 
 <!--- sec-begin-description -->
 
+Status: This project is in active development. We expect to be ready for beta releases in Q2 2025.
+
 The CMIP Rapid Evaluation Framework is a Python application that provides the ability to rapidly process and
 evaluate CMIP data against a set of reference data.
 It is designed to be used as a CI/CD pipeline to provide a quick validation of CMIP data.
@@ -37,6 +39,8 @@ don't render correctly on GitHub's viewer.
 <!--- sec-begin-installation -->
 
 CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
+
+The following commands don't work yet, but will be updated when we have a release.
 
 ```bash
 pip install cmip-ref

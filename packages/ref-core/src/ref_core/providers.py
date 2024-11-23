@@ -4,6 +4,8 @@ Interfaces for metrics providers.
 This defines how metrics packages interoperate with the REF framework.
 """
 
+from collections.abc import Iterator
+
 from ref_core.exceptions import InvalidMetricException
 from ref_core.metrics import Metric
 
@@ -21,16 +23,16 @@ class MetricsProvider:
 
         self._metrics: dict[str, Metric] = {}
 
-    def metrics(self) -> list[Metric]:
+    def metrics(self) -> Iterator[Metric]:
         """
-        Get the names of all registered metrics.
+        Iterate over the available metrics for the provider.
 
         Returns
         -------
         :
-            Names of all registered metrics.
+            Iterator over the currently registered metrics.
         """
-        return list(self._metrics.values())
+        return iter(self._metrics.values())
 
     def __len__(self) -> int:
         return len(self._metrics)

@@ -15,8 +15,12 @@ class TestMetricSolver:
         assert isinstance(solver.provider_registry, ProviderRegistry)
         assert solver.data_catalog == {}
 
+    def test_solver_dry_run(self, solver):
+        solver.solve(dry_run=True)
+
+        # TODO: Check that nothing was solved
+
     def test_solver_solve_empty(self, solver):
         solver.solve()
 
-    def test_solver_solve_with_datasets(self, solver):
-        solver.solve()
+        # TODO: Check that nothing was solved

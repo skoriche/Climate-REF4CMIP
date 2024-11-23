@@ -1,4 +1,5 @@
 import pathlib
+from typing import Any
 
 
 class RefException(Exception):
@@ -10,7 +11,7 @@ class RefException(Exception):
 class InvalidMetricException(RefException):
     """Exception raised when an invalid metric is registered"""
 
-    def __init__(self, metric) -> None:
+    def __init__(self, metric: Any) -> None:
         message = f"Invalid metric: '{metric}'\n" "Metrics must be an instance of the 'Metric' class"
 
         super().__init__(message)

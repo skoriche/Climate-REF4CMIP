@@ -3,14 +3,16 @@ from typer.testing import CliRunner
 from ref import __core_version__, __version__
 from ref.cli import app
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner(
+    mix_stderr=False,
+)
 
 
 def test_without_subcommand():
     result = runner.invoke(app, [])
     assert result.exit_code == 0
-    assert "Usage: ref" in result.output
-    assert "ref: A CLI for the CMIP Rapid Evaluation Framework" in result.output
+    assert "Usage: ref" in result.stdout
+    assert "ref: A CLI for the CMIP Rapid Evaluation Framework" in result.stdout
 
 
 def test_version():

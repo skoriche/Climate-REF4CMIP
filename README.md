@@ -1,9 +1,9 @@
 # CMIP Rapid Evaluation Framework
 
 
-<!--- sec-begin-description -->
+<!--- --8<-- [start:description] -->
 
-Status: This project is in active development. We expect to be ready for beta releases in Q2 2025.
+**Status**: This project is in active development. We expect to be ready for beta releases in Q2 2025.
 
 The CMIP Rapid Evaluation Framework is a Python application that provides the ability to rapidly process and
 evaluate CMIP data against a set of reference data.
@@ -26,8 +26,40 @@ CMIP REF is a community project, and we welcome contributions from anyone.
 [![Last Commit](https://img.shields.io/github/last-commit/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/graphs/contributors)
 
+## Getting started
 
-<!--- sec-end-description -->
+### As a metrics provider
+
+Metrics providers are the core of the REF.
+They define the metrics that will be calculated and the data that will be used to calculate them,
+by providing a consistent interface for the REF to interact with.
+
+
+These metrics providers can be run as standalone applications or as part of the REF.
+See
+
+### As a modelling center
+
+The REF is designed to enable Modelling Centers to quickly evaluate their data against a set of reference data.
+The data under test here may not be published to ESGF yet,
+but the REF can still be used to evaluate it.
+
+TODO: Docs for that workflow
+
+```bash
+ref ingest {data_path} --solve
+```
+
+### As a devops engineer
+
+The REF can also be deployed as a standalone set of services that don't require any user interaction.
+This is useful for running the REF to automatically evaluate data as it is published to ESGF.
+
+TODO: Docs for that workflow
+
+Each service in the REF is designed to be run as a separate docker container.
+
+<!--- --8<-- [end:description] -->
 
 Full documentation can be found at:
 [cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
@@ -36,7 +68,7 @@ don't render correctly on GitHub's viewer.
 
 ## Installation
 
-<!--- sec-begin-installation -->
+<!--- --8<-- [start:description] -->
 
 CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
 
@@ -48,8 +80,7 @@ mamba install -c conda-forge cmip-ref
 conda install -c conda-forge cmip-ref
 ```
 
-
-<!--- sec-end-installation -->
+<!--- --8<-- [end:installation] -->
 
 ### For developers
 

@@ -7,6 +7,15 @@ class RefException(Exception):
     pass
 
 
+class InvalidMetricException(RefException):
+    """Exception raised when an invalid metric is registered"""
+
+    def __init__(self, metric) -> None:
+        message = f"Invalid metric: '{metric}'\n" "Metrics must be an instance of the 'Metric' class"
+
+        super().__init__(message)
+
+
 class OutOfTreeDatasetException(RefException):
     """Exception raised when a dataset is not in the datatree"""
 

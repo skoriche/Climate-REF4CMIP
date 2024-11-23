@@ -32,7 +32,7 @@ class TestLocalExecutor:
 def test_run_metric_local(monkeypatch, executor_name, mock_metric, provider, configuration):
     if executor_name:
         monkeypatch.setenv("REF_EXECUTOR", executor_name)
-    result = run_metric("mock", provider, configuration=configuration)
+    result = run_metric("mock", provider, configuration=configuration, trigger=None)
     assert result.successful
 
 

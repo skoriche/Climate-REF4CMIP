@@ -30,12 +30,25 @@ jobs:
   docs:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    env:
+      REF_DATA_ROOT: ${{ github.workspace }}/.esgpull/data
+      REF_OUTPUT_ROOT: ${{ github.workspace }}/out
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: Cache test data
+        id: cache-test-data
+        uses: actions/cache@v4
+        with:
+          path: .esgpull
+          key: test-data-${{ hashFiles('scripts/fetch_test_data.py') }}
+      - if: ${{ steps.cache-test-data.outputs.cache-hit != 'true' }}
+        run: |
+          echo "Rerun after cache generation in tests job"
+          exit 1
       - name: docs
-        run: uv run mkdocs build
+        run: uv run mkdocs build --strict
 
   tests:
     strategy:

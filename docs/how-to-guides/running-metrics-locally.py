@@ -56,6 +56,8 @@ example_dataset = (
 configuration = Configuration(output_directory=pathlib.Path("out") / "example" / "example")
 trigger = TriggerInfo(dataset=example_dataset)
 
+configuration.output_directory.mkdir(exist_ok=True, parents=True)
+
 # %% [markdown]
 # ## Metric calculations
 #
@@ -73,8 +75,7 @@ result = run_metric("example", provider, configuration=configuration, trigger=tr
 result
 
 # %%
-configuration.output_directory.mkdir(exist_ok=True, parents=True)
-with open(configuration.output_directory / "output.json") as fh:
+with open(result.output_bundle) as fh:
     # Load the output bundle and pretty print
     loaded_result = json.loads(fh.read())
     print(json.dumps(loaded_result, indent=2))

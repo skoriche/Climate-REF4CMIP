@@ -15,4 +15,7 @@ build:
     - asdf install uv latest
     - asdf global uv latest
     - uv sync --frozen
+    # Fetch test data from ESGF (needed by notebooks)
+    - uv run python scripts/fetch_test_data.py
+    # Run a strict build
     - NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html

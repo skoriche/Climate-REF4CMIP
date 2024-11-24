@@ -52,7 +52,8 @@ The currently supported execution environments are:
 The following environments are planned to be supported in the future:
 
 * Kubernetes (for cloud-based execution)
-* Subprocess (for HPC systems)
+* Slurm (for HPC systems)
+* Celery (for local testing)
 
-The selected executor is defined using the `CMIP_REF_EXECUTOR` environment variable.
+The selected executor is defined using the `REF_EXECUTOR` environment variable.
 See the [Configuration](configuration.md) page for more information.

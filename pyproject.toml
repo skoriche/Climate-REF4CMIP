@@ -37,6 +37,7 @@ dev-dependencies = [
     "mkdocs-material>=9.5.0",
     "mkdocs-gen-files>=0.5.0",
     "mkdocs-section-index>=0.3.9",
+    "mkdocs-literate-nav>=0.6.1",
     "mkdocs-autorefs>=1.0.1",
     "mkdocs-jupyter>=0.24.0",
     "myst-nb>=1.1.1",
@@ -45,6 +46,7 @@ dev-dependencies = [
     "esgpull>=0.7.3",
     "pandas-stubs>=2.2.3.241009",
     "pytest-loguru>=0.4.0",
+    "notebook>=7",
 ]
 
 [tool.uv.workspace]
@@ -100,6 +102,9 @@ addopts = [
     "--import-mode=importlib",
 ]
 filterwarnings = [
+    # Need to update ecgtools to remove this warning
+    'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
+    # Need to update esgpull/myproxyclient to remove these warnings
     'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]

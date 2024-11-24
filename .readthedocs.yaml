@@ -5,18 +5,21 @@
 # Required
 version: 2
 
+
 # Set the version of Python and other tools you might need
 build:
   os: ubuntu-24.04
   tools:
     python: "3.12"
+
+
   commands:
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
     - uv sync --frozen
     # Fetch test data from ESGF (needed by notebooks)
-    - uv run esgpull self install .esgpull
+    - uv run esgpull self install $READTHEDOCS_REPOSITORY_PATH/.esgf
     - uv run python scripts/fetch_test_data.py
     # Run a strict build
-    - NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html
+    - NO_COLOR=1 REF_DATA_ROOT=$READTHEDOCS_REPOSITORY_PATH/.esgf/data uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html

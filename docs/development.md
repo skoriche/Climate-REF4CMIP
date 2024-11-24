@@ -42,9 +42,9 @@ allow us to identify where key changes were made.
 
 ## Changelog
 
-We use [towncrier]() to manage our changelog which involves writing a news fragment
-for each Merge Request that will be added to the [changelog](./changelog.md)
-on the next release.
+We use [towncrier](https://towncrier.readthedocs.io/en/stable/)
+to manage our changelog which involves writing a news fragment
+for each Merge Request that will be added to the [changelog](./changelog.md) on the next release.
 See the [changelog](https://github.com/CMIP-REF/cmip-ref/tree/main/changelog) directory
 for more information about the format of the changelog entries.
 
@@ -63,8 +63,14 @@ there will be a lot of refactoring of the interfaces to find the best approach.
 Releasing is semi-automated via a CI job.
 The CI job requires the type of version bump
 that will be performed to be manually specified.
-See the pdm-bump docs for the
-[list of available bump rules](https://github.com/carstencodes/pdm-bump#usage).
+The supported bump types are:
+
+* `major`
+* `minor`
+* `patch`
+
+We don't yet support pre-release versions,
+but this is something that we will consider in the future.
 
 ### Standard process
 
@@ -72,14 +78,14 @@ The steps required are the following:
 
 1. Bump the version: manually trigger the "bump" workflow from the main branch
    (see here: [bump workflow](https://github.com/CMIP-REF/cmip-ref/actions/workflows/bump.yaml)).
-   A valid "bump_rule" (see [pdm-bump's docs](https://github.com/carstencodes/pdm-bump#usage)) will need to be specified.
+   A valid "bump_rule" will need to be specified.
    This will then trigger a draft release.
 
 1. Edit the draft release which has been created
    (see here:
    [project releases](https://github.com/CMIP-REF/cmip-ref/releases)).
    Once you are happy with the release (removed placeholders, added key
-   announcements etc.) then hit 'Publish release'. This triggers a release to
+   announcements etc.) then hit 'Publish release'. This triggers the `release` workflow to
    PyPI (which you can then add to the release if you want).
 
 

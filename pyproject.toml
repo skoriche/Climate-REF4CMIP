@@ -47,6 +47,7 @@ dev-dependencies = [
     "pandas-stubs>=2.2.3.241009",
     "pytest-loguru>=0.4.0",
     "notebook>=7",
+    "bump-my-version>=0.28.1",
 ]
 
 [tool.uv.workspace]

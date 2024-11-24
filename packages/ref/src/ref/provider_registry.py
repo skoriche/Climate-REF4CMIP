@@ -1,3 +1,14 @@
+"""
+Registry of the currently active providers in the REF
+
+This module provides a registry for the currently active providers.
+Often, we can't directly import a provider and it's metrics
+as each provider maintains its own virtual environment to avoid dependency conflicts.
+
+For remote providers, a proxy is used to access the metadata associated with the metrics.
+These metrics cannot be run locally, but can be executed using other executors.
+"""
+
 from attrs import field, frozen
 from ref_core.providers import MetricsProvider
 

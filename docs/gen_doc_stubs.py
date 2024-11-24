@@ -109,10 +109,7 @@ def write_module_page(
     nav[package_full_name.split(".")] = write_file.relative_to(ROOT_DIR).as_posix()
 
     with mkdocs_gen_files.open(write_file, "w") as fh:
-        fh.write(f"# {package_full_name}\n")
-
-        fh.write("\n")
-        fh.write(f"::: {package_full_name}")
+        fh.write(f"# ::: {package_full_name}\n")
 
         if sub_packages:
             fh.write("\n")
@@ -123,10 +120,9 @@ def write_module_page(
         summary = ""
     else:
         package_doc_split = package.__doc__.splitlines()
-        if not package_doc_split[0]:
-            summary = package_doc_split[1]
-        else:
-            summary = package_doc_split[0]
+
+        # Get the first non-empty line of the docstring
+        summary = next((x for x in package_doc_split if x != ""), "")
 
     return PackageInfo(package_full_name, package_name, summary)
 
@@ -136,5 +132,4 @@ write_module_page("ref_core")
 write_module_page("ref_metrics_example")
 
 with mkdocs_gen_files.open(ROOT_DIR / "NAVIGATION.md", "w") as fh:
-    print(list(nav.build_literate_nav()))
     fh.writelines(nav.build_literate_nav())

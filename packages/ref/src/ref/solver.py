@@ -1,3 +1,11 @@
+"""
+Solver to determine which metrics need to be calculated
+
+This module provides a solver to determine which metrics need to be calculated.
+
+This module is still a work in progress and is not yet fully implemented.
+"""
+
 import typing
 
 import pandas as pd

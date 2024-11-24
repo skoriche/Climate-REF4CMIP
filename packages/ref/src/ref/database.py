@@ -1,3 +1,13 @@
+"""Database adapter layer
+
+This module provides a database adapter layer that abstracts the database connection and migrations.
+This allows us to easily switch between different database backends,
+and to run migrations when the database is loaded.
+
+The `Database` class is the main entry point for interacting with the database.
+It provides a session object that can be used to interact with the database and run queries.
+"""
+
 from pathlib import Path
 from typing import Any
 from urllib import parse as urlparse
@@ -19,13 +29,14 @@ def validate_database_url(database_url: str) -> str:
     Validate a database URL
 
     We support sqlite databases, and we create the directory if it doesn't exist.
+    We may aim to support PostgreSQL databases, but this is currently experimental and untested.
 
     Parameters
     ----------
     database_url
         The database URL to validate
 
-        See [ref.config.Db.database_url](ref.config.Db.database_url) for more information
+        See [ref.config.Db.database_url][ref.config.Db.database_url] for more information
         on the format of the URL.
 
     Raises

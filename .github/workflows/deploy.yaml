@@ -1,0 +1,45 @@
+# Deploys the published wheels to PyPI
+# Uses the artifact from the release job to publish to PyPI
+
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy-pypi:
+    name: Deploy to PyPI
+    # Having an environment for deployment is strongly recommend by PyPI
+    # https://docs.pypi.org/trusted-publishers/adding-a-publisher/#github-actions
+    environment: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      # this permission is mandatory for trusted publishing with PyPI
+      id-token: write
+    steps:
+      - uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: 'CMIP-REF/cmip-ref'
+          version: ${{  github.ref_name }}
+          regex: true
+          file: ".*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        shell: bash
+        run: uv python install 3.12
+
+      - name: Verify installable
+        run: uv pip install dist/*.whl
+      - name: Publish to PyPI
+        run: |
+          uv publish

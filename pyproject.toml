@@ -13,8 +13,8 @@ dependencies = [
     "ref-metrics-example",
 ]
 
-#[project.license]
-#text = "Apache-2.0"
+[project.license]
+text = "Apache-2.0"
 
 [tool.uv]
 # These are the project wide development dependencies
@@ -109,8 +109,6 @@ filterwarnings = [
     'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
-
-
 
 # We currently check for GPL licensed code, but this restriction may be removed
 [tool.liccheck]

@@ -11,6 +11,7 @@ classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -22,6 +23,9 @@ classifiers = [
 dependencies = [
     "attrs>=22.1.0"
 ]
+
+[project.license]
+text = "Apache-2.0"
 
 [tool.uv]
 dev-dependencies = [

@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -36,6 +37,9 @@ dependencies = [
 postgres = [
     "psycopg2-binary>=2.9.2",
 ]
+
+[project.license]
+text = "Apache-2.0"
 
 [project.scripts]
 ref = "ref.cli:app"

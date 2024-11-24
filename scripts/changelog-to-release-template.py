@@ -14,6 +14,9 @@ def main() -> None:
     They are printed to stdout
     """
     CHANGELOG = Path("docs") / "changelog.md"
+    PACKAGE_NAME = "cmip-ref"
+
+    lead_in = f"## {PACKAGE_NAME}"
 
     with open(CHANGELOG) as fh:
         changelog_raw = fh.read()
@@ -29,14 +32,14 @@ def main() -> None:
             continue
 
         if not grab_notes:
-            if line.startswith("## ref"):
+            if line.startswith(lead_in):
                 grab_notes = True
 
             continue
 
         # We are grabbing notes now
         # If we've reached the next version's notes, break
-        if line.startswith("## ref"):
+        if line.startswith(lead_in):
             break
 
         latest_version_notes.append(line)

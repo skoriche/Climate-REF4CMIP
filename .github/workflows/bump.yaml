@@ -14,7 +14,7 @@ on:
           - patch
           - minor
           - major
-          - prerelease
+#          - prerelease
         required: true
 
 jobs:

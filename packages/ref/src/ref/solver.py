@@ -103,3 +103,16 @@ class MetricSolver:
             if solve_count == 0:
                 logger.info("No more metrics to solve")
                 break
+
+
+def solve_metrics(db: Database, dry_run: bool = False) -> None:
+    """
+    Solve for metrics that require recalculation
+
+    This may trigger a number of additional calculations depending on what data has been ingested
+    since the last solve.
+    """
+    solver = MetricSolver.build_from_db(db)
+
+    logger.info("Solving for metrics that require recalculation...")
+    solver.solve(dry_run=dry_run)

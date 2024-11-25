@@ -33,6 +33,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
     Adapter for CMIP6 datasets
     """
 
+    dataset_cls = CMIP6Dataset
     slug_column = "instance_id"
 
     dataset_specific_metadata = (
@@ -104,7 +105,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             ]
         ]
 
-    def find_datasets(self, file_or_directory: Path) -> pd.DataFrame:
+    def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
         Generate a data catalog from the specified file or directory
 
@@ -125,7 +126,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             paths=[str(file_or_directory)],
             depth=10,
             include_patterns=["*.nc"],
-            joblib_parallel_kwargs={"n_jobs": 1},
+            # joblib_parallel_kwargs={"n_jobs": 1},
         ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
         datasets = builder.df

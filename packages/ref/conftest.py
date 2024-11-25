@@ -2,6 +2,7 @@ import pytest
 
 from ref.config import Config
 from ref.database import Database
+from ref.datasets.cmip6 import CMIP6DatasetAdapter
 
 # Ignore the alembic folder
 collect_ignore = ["alembic"]
@@ -27,3 +28,16 @@ def config(tmp_path, monkeypatch) -> Config:
 @pytest.fixture
 def db(config) -> Database:
     return Database.from_config(config, run_migrations=True)
+
+
+@pytest.fixture
+def db_seeded(config, esgf_data_dir) -> Database:
+    database = Database.from_config(config, run_migrations=True)
+
+    adapter = CMIP6DatasetAdapter()
+
+    data_catalog = adapter.find_local_datasets(esgf_data_dir)
+    for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
+        adapter.register_dataset(config, database, data_catalog_dataset)
+
+    return database

@@ -12,11 +12,11 @@ from rich.console import Console
 from rich.table import Table
 
 from ref.cli.config import load_config
-from ref.cli.solve import solve as solve_cli
 from ref.config import Config
 from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.models.dataset import Dataset
+from ref.solver import solve_metrics
 
 app = typer.Typer()
 console = Console()
@@ -87,7 +87,7 @@ def ingest(
         logger.error(f"File or directory {file_or_directory} does not exist")
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
 
-    data_catalog = adapter.find_datasets(file_or_directory)
+    data_catalog = adapter.find_local_datasets(file_or_directory)
     adapter.validate_data_catalog(data_catalog)
 
     logger.info(f"Found {len(data_catalog)} files for {len(data_catalog.index.unique())} datasets")
@@ -106,7 +106,7 @@ def ingest(
                 adapter.register_dataset(config, db, data_catalog_dataset)
 
     if solve:
-        solve_cli(
-            configuration_directory=configuration_directory,
+        solve_metrics(
+            db=db,
             dry_run=dry_run,
         )

@@ -66,7 +66,6 @@ class DatasetAdapter(Protocol):
 
         # Verify that the dataset specific columns don't vary by dataset by counting the unique values
         # for each dataset and checking if there are any that have more than one unique value.
-
         unique_metadata = (
             data_catalog[list(self.dataset_specific_metadata)].groupby(self.slug_column).nunique()
         )
@@ -90,9 +89,4 @@ class DatasetAdapter(Protocol):
         :
             Data catalog containing the metadata for the currently ingested datasets
         """
-        # TODO: Paginate this query to avoid loading all the data at once
-        result = db.session.query(self.dataset_cls).all()
-
-        return pd.DataFrame(
-            [{k: getattr(dataset, k) for k in self.dataset_specific_metadata} for dataset in result]
-        )
+        ...

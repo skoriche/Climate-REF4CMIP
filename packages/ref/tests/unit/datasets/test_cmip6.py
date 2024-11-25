@@ -7,10 +7,14 @@ class TestCMIP6Adapter:
         df = adapter.load_catalog(db)
         assert df.empty
 
-    def test_catalog(self, db_seeded):
+    def test_catalog(self, db_seeded, data_regression):
         adapter = CMIP6DatasetAdapter()
         df = adapter.load_catalog(db_seeded)
 
-        for k in adapter.dataset_specific_metadata:
+        for k in adapter.dataset_specific_metadata + adapter.file_specific_metadata:
             assert k in df.columns
-        assert len(df) == 5
+
+        assert len(df) == 9  # unique files
+        assert df.groupby("instance_id").ngroups == 5  # unique datasets
+
+        data_regression.check(df.to_dict(orient="records"), basename="cmip6_catalog")

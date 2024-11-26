@@ -48,9 +48,9 @@ def db_seeded(config, esgf_data_dir) -> Database:
 
     adapter = CMIP6DatasetAdapter()
 
-    data_catalog = adapter.find_local_datasets(
-        esgf_data_dir / "CMIP6" / "ScenarioMIP" / "CSIRO" / "ACCESS-ESM1-5" / "ssp126" / "r1i1p1f1"
-    )
+    # Seed with all the datasets in the ESGF data directory
+    # This includes datasets which span multiple file and until 2300
+    data_catalog = adapter.find_local_datasets(esgf_data_dir)
     for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
         adapter.register_dataset(config, database, data_catalog_dataset)
 

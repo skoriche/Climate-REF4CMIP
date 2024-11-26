@@ -127,7 +127,8 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             paths=[str(file_or_directory)],
             depth=10,
             include_patterns=["*.nc"],
-            # joblib_parallel_kwargs={"n_jobs": 1},
+            # TODO: This is hardcoded to 1 because of >1 fails during unittests
+            joblib_parallel_kwargs={"n_jobs": 1},
         ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
         datasets = builder.df
@@ -216,7 +217,19 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             Data catalog containing the metadata for the currently ingested datasets
         """
         # TODO: Paginate this query to avoid loading all the data at once
-        result = db.session.query(CMIP6File).options(joinedload(CMIP6File.dataset)).all()
+        result = (
+            db.session.query(CMIP6File)
+            # The join is necessary to be able to order by the dataset columns
+            .join(CMIP6File.dataset)
+            # The joinedload is necessary to avoid N+1 queries (one for each dataset)
+            # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
+            .options(joinedload(CMIP6File.dataset))
+            .order_by(
+                CMIP6Dataset.instance_id,
+                CMIP6File.start_time,
+            )
+            .all()
+        )
 
         return pd.DataFrame(
             [

@@ -37,6 +37,7 @@ dev-dependencies = [
     "mkdocs-material>=9.5.0",
     "mkdocs-gen-files>=0.5.0",
     "mkdocs-section-index>=0.3.9",
+    "mkdocs-literate-nav>=0.6.1",
     "mkdocs-autorefs>=1.0.1",
     "mkdocs-jupyter>=0.24.0",
     "myst-nb>=1.1.1",
@@ -44,6 +45,10 @@ dev-dependencies = [
     "jupytext>=1.16.3",
     "esgpull>=0.7.3",
     "pandas-stubs>=2.2.3.241009",
+    "pytest-loguru>=0.4.0",
+    "notebook>=7",
+    "bump-my-version>=0.28.1",
+    "pytest-regressions>=2.5.0",
 ]
 
 [tool.uv.workspace]

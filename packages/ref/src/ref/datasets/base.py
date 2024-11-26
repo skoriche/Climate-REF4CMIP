@@ -15,6 +15,7 @@ class DatasetAdapter(Protocol):
     This allows the same code to work with different dataset types.
     """
 
+    dataset_cls: type[Dataset]
     slug_column: str
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...] = ()
@@ -25,7 +26,7 @@ class DatasetAdapter(Protocol):
         """
         ...
 
-    def find_datasets(self, file_or_directory: Path) -> pd.DataFrame:
+    def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
         Generate a data catalog from the specified file or directory
 
@@ -65,7 +66,6 @@ class DatasetAdapter(Protocol):
 
         # Verify that the dataset specific columns don't vary by dataset by counting the unique values
         # for each dataset and checking if there are any that have more than one unique value.
-
         unique_metadata = (
             data_catalog[list(self.dataset_specific_metadata)].groupby(self.slug_column).nunique()
         )
@@ -79,3 +79,14 @@ class DatasetAdapter(Protocol):
             )
 
         return data_catalog
+
+    def load_catalog(self, db: Database) -> pd.DataFrame:
+        """
+        Load the data catalog from the database
+
+        Returns
+        -------
+        :
+            Data catalog containing the metadata for the currently ingested datasets
+        """
+        ...

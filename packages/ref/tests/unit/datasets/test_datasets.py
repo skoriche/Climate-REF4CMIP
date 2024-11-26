@@ -18,7 +18,7 @@ class MockDatasetAdapter(DatasetAdapter):
         # Just an example implementation that returns the file_name column
         return data_catalog[["file_name"]]
 
-    def find_datasets(self, file_or_directory: Path) -> pd.DataFrame:
+    def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         # Mock implementation, return a DataFrame with fake data
         data = {
             "dataset_slug": [f"{file_or_directory.stem}_001", f"{file_or_directory.stem}_001"],
@@ -36,7 +36,7 @@ class MockDatasetAdapter(DatasetAdapter):
 
 def test_validate_data_catalog_complete_data():
     adapter = MockDatasetAdapter()
-    data_catalog = adapter.find_datasets(Path("path/to/dataset"))
+    data_catalog = adapter.find_local_datasets(Path("path/to/dataset"))
 
     validated_catalog = adapter.validate_data_catalog(data_catalog)
     assert not validated_catalog.empty
@@ -44,7 +44,7 @@ def test_validate_data_catalog_complete_data():
 
 def test_validate_data_catalog_extra_columns():
     adapter = MockDatasetAdapter()
-    data_catalog = adapter.find_datasets(Path("path/to/dataset"))
+    data_catalog = adapter.find_local_datasets(Path("path/to/dataset"))
     data_catalog["extra_column"] = "extra"
 
     adapter.validate_data_catalog(data_catalog)
@@ -52,7 +52,7 @@ def test_validate_data_catalog_extra_columns():
 
 def test_validate_data_catalog_missing_columns():
     adapter = MockDatasetAdapter()
-    data_catalog = adapter.find_datasets(Path("path/to/dataset"))
+    data_catalog = adapter.find_local_datasets(Path("path/to/dataset"))
     with pytest.raises(ValueError, match="Data catalog is missing required columns: {'metadata1'}"):
         adapter.validate_data_catalog(data_catalog.drop(columns=["metadata1"]))
 
@@ -62,7 +62,7 @@ def test_validate_data_catalog_missing_columns():
 
 def test_validate_data_catalog_metadata_variance():
     adapter = MockDatasetAdapter()
-    data_catalog = adapter.find_datasets(Path("path/to/dataset"))
+    data_catalog = adapter.find_local_datasets(Path("path/to/dataset"))
     # file_name differs between datasets
     adapter.dataset_specific_metadata = ("metadata1", "metadata2", "file_name")
 

@@ -109,27 +109,25 @@ def write_module_page(
     nav[package_full_name.split(".")] = write_file.relative_to(ROOT_DIR).as_posix()
 
     with mkdocs_gen_files.open(write_file, "w") as fh:
-        fh.write(f"# {package_full_name}\n")
+        fh.write(f"# ::: {package_full_name}\n")
 
         if sub_packages:
             fh.write("\n")
+            fh.write("## sub-packages \n")
             fh.write(f"{create_sub_packages_table(sub_packages)}\n")
-
-        fh.write("\n")
-        fh.write(f"::: {package_full_name}")
 
     if package.__doc__ is None:
         summary = ""
     else:
         package_doc_split = package.__doc__.splitlines()
-        if not package_doc_split[0]:
-            summary = package_doc_split[1]
-        else:
-            summary = package_doc_split[0]
+
+        # Get the first non-empty line of the docstring
+        summary = next((x for x in package_doc_split if x != ""), "")
 
     return PackageInfo(package_full_name, package_name, summary)
 
 
+write_module_page("ref")
 write_module_page("ref_core")
 write_module_page("ref_metrics_example")
 

@@ -61,7 +61,9 @@ class TestIngest:
         assert db.session.query(CMIP6File).count() == 9
 
     def test_ingest_and_solve(self, esgf_data_dir, db):
-        result = runner.invoke(app, ["ingest", str(esgf_data_dir), "--source-type", "cmip6", "--solve"])
+        result = runner.invoke(
+            app, ["ingest", str(esgf_data_dir / self.data_dir), "--source-type", "cmip6", "--solve"]
+        )
         assert result.exit_code == 0, result.output
         assert "Solving for metrics that require recalculation." in result.output
 

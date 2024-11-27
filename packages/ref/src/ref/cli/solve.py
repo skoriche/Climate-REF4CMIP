@@ -1,11 +1,10 @@
 from pathlib import Path
 
 import typer
-from loguru import logger
 
 from ref.cli.config import load_config
 from ref.database import Database
-from ref.solver import MetricSolver
+from ref.solver import solve_metrics
 
 app = typer.Typer()
 
@@ -24,7 +23,4 @@ def solve(
     config = load_config(configuration_directory)
     db = Database(config.db.database_url)
 
-    solver = MetricSolver.build_from_db(db)
-
-    logger.info("Solving for metrics that require recalculation...")
-    solver.solve(dry_run=dry_run)
+    solve_metrics(db, dry_run=dry_run)

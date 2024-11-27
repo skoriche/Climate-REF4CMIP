@@ -9,6 +9,7 @@ import pandas as pd
 from ecgtools import Builder
 from loguru import logger
 from ref_core.exceptions import RefException
+from sqlalchemy.orm import joinedload
 
 from ref.cli.ingest import validate_path
 from ref.config import Config
@@ -33,6 +34,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
     Adapter for CMIP6 datasets
     """
 
+    dataset_cls = CMIP6Dataset
     slug_column = "instance_id"
 
     dataset_specific_metadata = (
@@ -104,7 +106,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             ]
         ]
 
-    def find_datasets(self, file_or_directory: Path) -> pd.DataFrame:
+    def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
         Generate a data catalog from the specified file or directory
 
@@ -125,6 +127,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             paths=[str(file_or_directory)],
             depth=10,
             include_patterns=["*.nc"],
+            # TODO: This is hardcoded to 1 because of >1 fails during unittests
             joblib_parallel_kwargs={"n_jobs": 1},
         ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
@@ -179,7 +182,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         slug = unique_slugs[0]
 
         dataset_metadata = data_catalog_dataset[list(self.dataset_specific_metadata)].iloc[0].to_dict()
-        dataset, created = db.get_or_create(CMIP6Dataset, slug=slug, **dataset_metadata)
+        dataset, created = db.get_or_create(self.dataset_cls, slug=slug, **dataset_metadata)
 
         if not created:
             logger.warning(f"{dataset} already exists in the database. Skipping")
@@ -200,3 +203,40 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             )
 
         return dataset
+
+    def load_catalog(self, db: Database) -> pd.DataFrame:
+        """
+        Load the data catalog containing the currently tracked datasets/files from the database
+
+        Iterating over different datasets within the data catalog can be done using a `groupby`
+        operation for the `instance_id` column.
+
+        Returns
+        -------
+        :
+            Data catalog containing the metadata for the currently ingested datasets
+        """
+        # TODO: Paginate this query to avoid loading all the data at once
+        result = (
+            db.session.query(CMIP6File)
+            # The join is necessary to be able to order by the dataset columns
+            .join(CMIP6File.dataset)
+            # The joinedload is necessary to avoid N+1 queries (one for each dataset)
+            # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
+            .options(joinedload(CMIP6File.dataset))
+            .order_by(
+                CMIP6Dataset.instance_id,
+                CMIP6File.start_time,
+            )
+            .all()
+        )
+
+        return pd.DataFrame(
+            [
+                {
+                    **{k: getattr(file, k) for k in self.file_specific_metadata},
+                    **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
+                }
+                for file in result
+            ],
+        )

@@ -48,6 +48,7 @@ dev-dependencies = [
     "pytest-loguru>=0.4.0",
     "notebook>=7",
     "bump-my-version>=0.28.1",
+    "pytest-regressions>=2.5.0",
 ]
 
 [tool.uv.workspace]

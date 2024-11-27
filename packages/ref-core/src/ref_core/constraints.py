@@ -1,9 +1,13 @@
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 import pandas as pd
 from attrs import frozen
+from loguru import logger
+
+from ref_core.exceptions import ConstraintNotSatisfied
 
 
+@runtime_checkable
 class GroupValidator(Protocol):
     """
     A constraint that must be satisfied when executing a given metric run.
@@ -31,6 +35,7 @@ class GroupValidator(Protocol):
         ...
 
 
+@runtime_checkable
 class GroupOperation(Protocol):
     """
     An operation to perform on a group of datasets resulting in a new group of datasets.
@@ -75,6 +80,40 @@ If any constraint is not satisfied, the group will not be executed.
 """
 
 
+def apply_constraint(
+    dataframe: pd.DataFrame, constraint: Constraint, data_catalog: pd.DataFrame
+) -> pd.DataFrame | None:
+    """
+    Apply a constraint to a group of datasets
+
+    Parameters
+    ----------
+    constraint
+        The constraint to apply
+    data_catalog
+        The data catalog of datasets
+
+    Returns
+    -------
+    :
+        The updated group of datasets or None if the constraint was not satisfied
+    """
+    try:
+        updated_group = (
+            constraint.apply(dataframe, data_catalog) if isinstance(constraint, GroupOperation) else dataframe
+        )
+
+        valid = constraint.validate(updated_group) if isinstance(constraint, GroupValidator) else True
+        if not valid:
+            logger.debug(f"Constraint {constraint} not satisfied for {dataframe}")
+            raise ConstraintNotSatisfied(f"Constraint {constraint} not satisfied for {dataframe}")
+    except ConstraintNotSatisfied:
+        logger.debug(f"Constraint {constraint} not satisfied for {dataframe}")
+        return None
+
+    return updated_group
+
+
 @frozen
 class RequiredFacets:
     """
@@ -88,7 +127,7 @@ class RequiredFacets:
         """
         Check that the required facets are present in the group
         """
-        return group[self.dimension].isin(self.required_facets).all()
+        return all(value in group[self.dimension].values for value in self.required_facets)
 
 
 @frozen

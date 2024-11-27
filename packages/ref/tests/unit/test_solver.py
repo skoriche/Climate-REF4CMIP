@@ -36,7 +36,23 @@ class TestMetricSolver:
         pytest.param(
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
-                filters=(FacetFilter(facets={"variable_id": "tas", "experiment_id": "value1"}),),
+                filters=(FacetFilter(facets={"variable_id": "missing"}),),
+                group_by=("variable_id", "experiment_id"),
+            ),
+            pd.DataFrame(
+                {
+                    "variable_id": ["tas", "tas", "pr"],
+                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                    "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                }
+            ),
+            [],
+            id="empty",
+        ),
+        pytest.param(
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(FacetFilter(facets={"variable_id": "tas"}),),
                 group_by=("variable_id", "experiment_id"),
             ),
             pd.DataFrame(
@@ -52,50 +68,24 @@ class TestMetricSolver:
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp119"],
                         "variant_label": ["r1i1p1f1"],
-                    }
+                    },
+                    index=[0],
                 ),
                 pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
                         "variant_label": ["r1i1p1f1"],
-                    }
+                    },
+                    index=[1],
                 ),
             ],
-            id="simple",
+            id="simple-filter",
         ),
         pytest.param(
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
                 filters=(FacetFilter(facets={"variable_id": ("tas", "pr")}),),
-                group_by=("variable_id", "experiment_id"),
-            ),
-            pd.DataFrame(
-                {
-                    "variable_id": ["tas", "tas", "pr"],
-                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
-                }
-            ),
-            [
-                pd.DataFrame(
-                    {
-                        "variable_id": ["tas", "pr"],
-                        "experiment_id": ["ssp119", "ssp119"],
-                    }
-                ),
-                pd.DataFrame(
-                    {
-                        "variable_id": ["tas"],
-                        "experiment_id": ["ssp126"],
-                    }
-                ),
-            ],
-            id="simple-or",
-        ),
-        pytest.param(
-            DataRequirement(
-                source_type=SourceDatasetType.CMIP6,
-                filters=(),
                 group_by=("experiment_id",),
             ),
             pd.DataFrame(
@@ -109,16 +99,18 @@ class TestMetricSolver:
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
-                    }
+                    },
+                    index=[0, 2],
                 ),
                 pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
-                    }
+                    },
+                    index=[1],
                 ),
             ],
-            id="simple-group",
+            id="simple-or",
         ),
         pytest.param(
             DataRequirement(
@@ -139,9 +131,12 @@ class TestMetricSolver:
                     {
                         "variable_id": ["tas", "tas"],
                         "experiment_id": ["historical", "ssp119"],
-                    }
+                    },
+                    # The order of the rows is not guaranteed
+                    index=[1, 0],
                 ),
             ],
+            marks=[pytest.mark.xfail(reason="Parent experiment not implemented")],
             id="parent",
         ),
         pytest.param(
@@ -162,15 +157,17 @@ class TestMetricSolver:
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
-                    }
+                    },
+                    index=[0, 2],
                 ),
             ],
             id="simple-and",
         ),
     ],
 )
-@pytest.mark.xfail
 def test_data_coverage(requirement, data_catalog, expected):
-    res = extract_covered_datasets(data_catalog, [requirement])
+    result = extract_covered_datasets(data_catalog, requirement)
 
-    assert res == expected
+    for res, exp in zip(result, expected):
+        pd.testing.assert_frame_equal(res, exp)
+    assert len(result) == len(expected)

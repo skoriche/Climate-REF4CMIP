@@ -2,6 +2,7 @@ import json
 import pathlib
 from typing import Any, Protocol, runtime_checkable
 
+import pandas as pd
 from attrs import field, frozen
 
 from ref_core.constraints import Constraint
@@ -135,6 +136,32 @@ class DataRequirement:
     Each filter is applied iterative to a set of datasets to reduce the set of datasets.
     This is effectively an AND operation.
     """
+
+    def apply_filters(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
+        """
+        Apply filters to a DataFrame-based data catalog.
+
+        Parameters
+        ----------
+        data_catalog
+            DataFrame to filter.
+            Each column contains a facet
+
+        Returns
+        -------
+        :
+            Filtered data catalog
+        """
+        for facet_filter in self.filters:
+            for facet, value in facet_filter.facets.items():
+                clean_value = value if isinstance(value, tuple) else (value,)
+
+                mask = data_catalog[facet].isin(clean_value)
+                if not facet_filter.keep:
+                    mask = ~mask
+
+                data_catalog = data_catalog[mask]
+        return data_catalog
 
 
 @runtime_checkable

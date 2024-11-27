@@ -2,9 +2,10 @@ import json
 import pathlib
 from typing import Any, Protocol, runtime_checkable
 
-from attrs import frozen
+from attrs import field, frozen
 
-from ref_core.datasets import SourceDatasetType
+from ref_core.constraints import Constraint
+from ref_core.datasets import FacetFilter, SourceDatasetType
 
 
 @frozen
@@ -89,35 +90,18 @@ class TriggerInfo:
     # dataset metadata
 
 
-@frozen
-class FacetFilter:
-    """
-    A filter to apply to a data catalog of datasets.
-    """
-
-    facets: dict[str, str | tuple[str] | list[str]]
-    """
-    Filters to apply to the data catalog.
-
-    The keys are the metadata fields to filter on, and the values are the values to filter on.
-    If multiple values are provided for a single field, the filter will be applied as an OR operation.
-    Multiple filters are applied as an AND operation.
-    """
-    keep: bool = True
-    """
-    Whether to keep or remove datasets that match the filter.
-
-    If true (default), datasets that match the filter will be kept else they will be removed.
-    """
-
-
-@frozen
+@frozen(hash=True)
 class DataRequirement:
     """
-    Definition of the input dataset that a metric requires to run.
+    Definition of the input datasets that a metric requires to run.
 
-    A filter and groupby process is used to select the datasets that are used,
-    and then group the filtered datasets into unique executions.
+    This is used to determine the different metric executions that are required to be performed
+    with the current data catalog.
+
+    The data catalog is filtered according to the `filters` field,
+    then grouped according to the `group_by` field,
+    and then each group is checked that it satisfies the `constraints`.
+    Each such group will be processed as a separate execution of the metric.
     """
 
     source_type: SourceDatasetType
@@ -125,15 +109,7 @@ class DataRequirement:
     Type of the source dataset (CMIP6, CMIP7 etc)
     """
 
-    filters: list[FacetFilter]
-    """
-    Filters to apply to a data catalog of datasets.
-
-    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
-    This is effectively an AND operation.
-    """
-
-    group_by: list[str] | None
+    group_by: tuple[str, ...] | None
     """
     The fields to group the datasets by.
 
@@ -141,6 +117,23 @@ class DataRequirement:
     Each group will contain a unique combination of values from the metadata fields,
     and will result in a separate execution of the metric.
     If `group_by=None`, all datasets will be processed together as a single execution.
+    """
+
+    filters: tuple[FacetFilter, ...]
+    """
+    Filters to apply to the data catalog of datasets.
+
+    This is used to reduce the set of datasets to only those that are required by the metric.
+    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    """
+
+    constraints: tuple[Constraint, ...] = field(factory=tuple)
+    """
+    Constraints that must be satisfied when executing a given metric run
+
+    All of the constraints must be satisfied for a given group to be run.
+    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    This is effectively an AND operation.
     """
 
 
@@ -153,6 +146,14 @@ class Metric(Protocol):
     to have differing assumptions.
     The configuration and output of the metric should follow the
     Earth System Metrics and Diagnostics Standards formats as much as possible.
+
+    A metric can be executed multiple times,
+    each time targeting a different group of input data.
+    The groups are determined using the grouping the data catalog according to the `group_by` field
+    in the `DataRequirement` object using one or more metadata fields.
+    Each group must conform with a set of constraints,
+    to ensure that the correct data is available to run the metric.
+    Each group will then be processed as a separate execution of the metric.
 
     See (ref_example.example.ExampleMetric)[] for an example implementation.
     """

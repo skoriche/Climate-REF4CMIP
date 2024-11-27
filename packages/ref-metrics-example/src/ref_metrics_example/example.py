@@ -85,14 +85,14 @@ class GlobalMeanTimeseries(Metric):
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
-            filters=[
+            filters=(
                 # Only get the tas variable
                 FacetFilter(facets={"variable_id": "tas"}),
                 # Ignore some experiments because they are not relevant
-                FacetFilter(facets={"experiment_id": ["1pctCO2-*", "hist-*"]}, keep=False),
-            ],
+                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+            ),
             # Run the metric on each unique combination of model, variable, experiment, and variant
-            group_by=["model_id", "variable_id", "experiment_id", "variant_label"],
+            group_by=("model_id", "variable_id", "experiment_id", "variant_label"),
         ),
     )
 

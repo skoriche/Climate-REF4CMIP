@@ -12,11 +12,20 @@ import pandas as pd
 from attrs import define
 from loguru import logger
 from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import Metric
+from ref_core.metrics import DataRequirement, Metric
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
 from ref.provider_registry import ProviderRegistry
+
+
+def extract_covered_datasets(
+    data_catalog: pd.DataFrame, requirements: list[DataRequirement]
+) -> list[pd.DataFrame]:
+    """
+    Determine the different metric executions that should be performed with the current data catalog
+    """
+    return []
 
 
 @define

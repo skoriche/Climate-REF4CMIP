@@ -127,6 +127,9 @@ class RequiredFacets:
         """
         Check that the required facets are present in the group
         """
+        if self.dimension not in group:
+            logger.warning(f"Dimension {self.dimension} not present in group {group}")
+            return False
         return all(value in group[self.dimension].values for value in self.required_facets)
 
 

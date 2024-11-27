@@ -115,7 +115,7 @@ def apply_constraint(
 
 
 @frozen
-class RequiredFacets:
+class RequireFacets:
     """
     A constraint that requires a dataset to have certain facets.
     """

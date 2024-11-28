@@ -12,7 +12,7 @@ from ref.constants import config_filename
 app = typer.Typer(help=__doc__)
 
 
-def load_config(configuration_directory: Path | None) -> Config:
+def load_config(configuration_directory: Path | None = None) -> Config:
     """
     Load the configuration from the specified directory
 

@@ -161,7 +161,7 @@ class TestMetricSolver:
                     index=[0, 2],
                 ),
             ],
-            id="simple-and",
+            id="simple-validation",
         ),
     ],
 )

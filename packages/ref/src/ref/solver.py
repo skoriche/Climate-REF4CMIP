@@ -49,11 +49,12 @@ def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequir
 
 def _process_group_constraints(
     data_catalog: pd.DataFrame, group: pd.DataFrame, requirement: DataRequirement
-) -> pd.DataFrame:
+) -> pd.DataFrame | None:
     for constraint in requirement.constraints or []:
         constrained_group = apply_constraint(group, constraint, data_catalog)
         if constrained_group is None:
-            break
+            return None
+
         group = constrained_group
     return group
 
@@ -91,13 +92,6 @@ class MetricSolver:
         This should probably be passed via DI
         """
         # TODO: Implement this method
-
-        metric_runs = []
-        for data_requirement in metric.data_requirements:
-            metric_runs.append(
-                extract_covered_datasets(self.data_catalog[SourceDatasetType.CMIP6], data_requirement)
-            )
-
         # TODO: wrap the result in a class representing a metric run
         return True
 
@@ -113,10 +107,7 @@ class MetricSolver:
         for provider in self.provider_registry.providers:
             for metric in provider.metrics():
                 if self._can_solve(metric):
-                    yield (
-                        provider,
-                        metric,
-                    )
+                    yield (provider, metric)
 
     def solve(self, dry_run: bool = False, max_iterations: int = 10) -> None:
         """

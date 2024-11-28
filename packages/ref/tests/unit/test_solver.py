@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from ref_core.constraints import RequiredFacets, SelectParentExperiment
+from ref_core.constraints import RequireFacets, SelectParentExperiment
 from ref_core.datasets import SourceDatasetType
 from ref_core.metrics import DataRequirement, FacetFilter
 
@@ -143,7 +143,7 @@ class TestMetricSolver:
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
                 filters=(FacetFilter(facets={"variable_id": ("tas", "pr")}),),
-                constraints=(RequiredFacets(dimension="variable_id", required_facets=["tas", "pr"]),),
+                constraints=(RequireFacets(dimension="variable_id", required_facets=["tas", "pr"]),),
                 group_by=("experiment_id",),
             ),
             pd.DataFrame(

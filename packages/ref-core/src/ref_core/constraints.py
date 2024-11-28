@@ -74,7 +74,7 @@ class GroupOperation(Protocol):
         ...
 
 
-Constraint = GroupOperation | GroupValidator
+GroupConstraint = GroupOperation | GroupValidator
 """
 A constraint that must be satisfied when executing a given metric run.
 
@@ -87,7 +87,7 @@ If any constraint is not satisfied, the group will not be executed.
 
 
 def apply_constraint(
-    dataframe: pd.DataFrame, constraint: Constraint, data_catalog: pd.DataFrame
+    dataframe: pd.DataFrame, constraint: GroupConstraint, data_catalog: pd.DataFrame
 ) -> pd.DataFrame | None:
     """
     Apply a constraint to a group of datasets

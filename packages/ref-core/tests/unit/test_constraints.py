@@ -3,7 +3,7 @@ import pytest
 from ref_core.constraints import (
     GroupOperation,
     GroupValidator,
-    RequiredFacets,
+    RequireFacets,
     SelectParentExperiment,
     apply_constraint,
 )
@@ -20,8 +20,8 @@ def data_catalog():
     )
 
 
-class TestRequiredFacets:
-    validator = RequiredFacets(dimension="variable_id", required_facets=["tas", "pr"])
+class TestRequireFacets:
+    validator = RequireFacets(dimension="variable_id", required_facets=["tas", "pr"])
 
     def test_is_group_validator(self):
         assert isinstance(self.validator, GroupValidator)
@@ -113,7 +113,7 @@ def test_apply_constraint_empty():
     assert (
         apply_constraint(
             pd.DataFrame(),
-            RequiredFacets(dimension="variable_id", required_facets=["tas", "pr"]),
+            RequireFacets(dimension="variable_id", required_facets=["tas", "pr"]),
             pd.DataFrame(),
         )
         is None
@@ -123,7 +123,7 @@ def test_apply_constraint_empty():
 def test_apply_constraint_validate(data_catalog):
     result = apply_constraint(
         data_catalog,
-        RequiredFacets(dimension="variable", required_facets=["tas", "pr"]),
+        RequireFacets(dimension="variable", required_facets=["tas", "pr"]),
         pd.DataFrame(),
     )
     pd.testing.assert_frame_equal(result, data_catalog)
@@ -133,7 +133,7 @@ def test_apply_constraint_validate_invalid(data_catalog):
     assert (
         apply_constraint(
             data_catalog,
-            RequiredFacets(dimension="variable", required_facets=["missing", "pr"]),
+            RequireFacets(dimension="variable", required_facets=["missing", "pr"]),
             pd.DataFrame(),
         )
         is None

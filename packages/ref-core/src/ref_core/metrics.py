@@ -5,7 +5,7 @@ from typing import Any, Protocol, runtime_checkable
 import pandas as pd
 from attrs import field, frozen
 
-from ref_core.constraints import Constraint
+from ref_core.constraints import GroupConstraint
 from ref_core.datasets import FacetFilter, SourceDatasetType
 
 
@@ -96,8 +96,9 @@ class DataRequirement:
     """
     Definition of the input datasets that a metric requires to run.
 
-    This is used to determine the different metric executions that are required to be performed
-    with the current data catalog.
+    This is used to create a groups of datasets.
+    Each group will be result in an execution of a metric
+    and defines the input data for that execution.
 
     The data catalog is filtered according to the `filters` field,
     then grouped according to the `group_by` field,
@@ -128,7 +129,7 @@ class DataRequirement:
     If `group_by=None`, all datasets will be processed together as a single execution.
     """
 
-    constraints: tuple[Constraint, ...] = field(factory=tuple)
+    constraints: tuple[GroupConstraint, ...] = field(factory=tuple)
     """
     Constraints that must be satisfied when executing a given metric run
 

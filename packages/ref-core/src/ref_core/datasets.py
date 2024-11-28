@@ -39,8 +39,7 @@ class FacetFilter:
     Filters to apply to the data catalog.
 
     The keys are the metadata fields to filter on, and the values are the values to filter on.
-    If multiple values are provided for a single field, the filter will be applied as an OR operation.
-    Multiple filters are applied as an AND operation.
+    The result will only contain datasets where for all fields the value of the field is one of the given values.
     """
     keep: bool = True
     """

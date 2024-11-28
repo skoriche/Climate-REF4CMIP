@@ -78,11 +78,11 @@ GroupConstraint = GroupOperation | GroupValidator
 """
 A constraint that must be satisfied when executing a given metric run.
 
+This is applied to a group of datasets representing the inputs to a potential metric execution.
+The group must satisfy all constraints to be executed.
+
 This can include operations that are applied to a group of datasets which may modify the group,
 but may also include validators that check if the group satisfies a certain condition.
-
-All constraints must be satisfied for a given group to be run.
-If any constraint is not satisfied, the group will not be executed.
 """
 
 

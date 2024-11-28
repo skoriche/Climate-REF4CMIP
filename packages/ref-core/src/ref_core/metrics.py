@@ -96,8 +96,8 @@ class DataRequirement:
     """
     Definition of the input datasets that a metric requires to run.
 
-    This is used to create a groups of datasets.
-    Each group will be result in an execution of a metric
+    This is used to create groups of datasets.
+    Each group will result in an execution of the metric
     and defines the input data for that execution.
 
     The data catalog is filtered according to the `filters` field,

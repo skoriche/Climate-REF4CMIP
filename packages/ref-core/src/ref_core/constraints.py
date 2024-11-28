@@ -39,13 +39,19 @@ class GroupValidator(Protocol):
 class GroupOperation(Protocol):
     """
     An operation to perform on a group of datasets resulting in a new group of datasets.
+
+    !! warning
+
+        Operations should not mutate the input group, but instead return a new group.
+        Mutating the input group may result in unexpected behaviour.
     """
 
     def apply(self, group: pd.DataFrame, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Perform an operation on the group of datasets.
 
-        If this operation modifies the group, the modified group should be returned.
+        A new group of datasets should be returned if modifications are required,
+        and the input group should not be modified.
         If this operation fails, a ConstraintNotSatisfied exception should be raised.
 
         Parameters
@@ -145,4 +151,4 @@ class SelectParentExperiment:
 
         Not yet implemented
         """
-        raise NotImplementedError("This is not implemented yet")
+        raise NotImplementedError("This is not implemented yet")  # pragma: no cover

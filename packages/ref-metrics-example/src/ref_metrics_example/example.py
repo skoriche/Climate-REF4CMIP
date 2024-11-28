@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
-from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import Configuration, DataRequirement, FacetFilter, Metric, MetricResult, TriggerInfo
+from ref_core.datasets import FacetFilter, SourceDatasetType
+from ref_core.metrics import Configuration, DataRequirement, Metric, MetricResult, TriggerInfo
 
 
 def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
@@ -121,7 +121,7 @@ class GlobalMeanTimeseries(Metric):
                 successful=False,
             )
 
-        # This is where one would hook into how ever they want to run
+        # This is where one would hook into however they want to run
         # their benchmarking packages.
         # cmec-driver, python calls, subprocess calls all would work
         annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(trigger.dataset)

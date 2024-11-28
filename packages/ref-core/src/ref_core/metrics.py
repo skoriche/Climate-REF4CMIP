@@ -110,6 +110,14 @@ class DataRequirement:
     Type of the source dataset (CMIP6, CMIP7 etc)
     """
 
+    filters: tuple[FacetFilter, ...]
+    """
+    Filters to apply to the data catalog of datasets.
+
+    This is used to reduce the set of datasets to only those that are required by the metric.
+    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    """
+
     group_by: tuple[str, ...] | None
     """
     The fields to group the datasets by.
@@ -118,14 +126,6 @@ class DataRequirement:
     Each group will contain a unique combination of values from the metadata fields,
     and will result in a separate execution of the metric.
     If `group_by=None`, all datasets will be processed together as a single execution.
-    """
-
-    filters: tuple[FacetFilter, ...]
-    """
-    Filters to apply to the data catalog of datasets.
-
-    This is used to reduce the set of datasets to only those that are required by the metric.
-    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
     """
 
     constraints: tuple[Constraint, ...] = field(factory=tuple)

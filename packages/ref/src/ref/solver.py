@@ -30,21 +30,32 @@ def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequir
         logger.debug(f"No datasets found for requirement {requirement}")
         return []
 
-    groups = subset.groupby(list(requirement.group_by))
+    if requirement.group_by is None:
+        # Use a single group
+        groups = [(None, subset)]
+    else:
+        groups = subset.groupby(list(requirement.group_by))  # type: ignore
 
     results = []
 
     for name, group in groups:
-        constrained_group: pd.DataFrame | None = group
-        for constraint in requirement.constraints or []:
-            constrained_group = apply_constraint(constrained_group, constraint, data_catalog)
-            if constrained_group is None:
-                break
+        constrained_group = _process_group_constraints(data_catalog, group, requirement)
 
         if constrained_group is not None:
             results.append(constrained_group)
 
     return results
+
+
+def _process_group_constraints(
+    data_catalog: pd.DataFrame, group: pd.DataFrame, requirement: DataRequirement
+) -> pd.DataFrame:
+    for constraint in requirement.constraints or []:
+        constrained_group = apply_constraint(group, constraint, data_catalog)
+        if constrained_group is None:
+            break
+        group = constrained_group
+    return group
 
 
 @define

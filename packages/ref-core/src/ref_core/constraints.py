@@ -51,7 +51,8 @@ class GroupOperation(Protocol):
         Perform an operation on the group of datasets.
 
         A new group of datasets should be returned if modifications are required,
-        and the input group should not be modified.
+        and the input group should not be modified. If no modifications are required,
+        return the input group unchanged.
         If this operation fails, a ConstraintNotSatisfied exception should be raised.
 
         Parameters

@@ -116,7 +116,7 @@ class DataRequirement:
     Filters to apply to the data catalog of datasets.
 
     This is used to reduce the set of datasets to only those that are required by the metric.
-    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    The filters are applied iteratively to reduce the set of datasets.
     """
 
     group_by: tuple[str, ...] | None

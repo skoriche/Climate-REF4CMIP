@@ -48,7 +48,9 @@ jobs:
           echo "Rerun after cache generation in tests job"
           exit 1
       - name: docs
-        run: uv run mkdocs build --strict
+        run: |
+          uv run ref .esgpull/data
+          uv run mkdocs build --strict
 
   tests:
     strategy:

@@ -23,7 +23,7 @@ def test_version():
 
 
 def test_verbose():
-    exp_log = "| DEBUG    | ref.config:default:176 - Loading default configuration from"
+    exp_log = "| DEBUG    | ref.config:default:178 - Loading default configuration from"
     result = runner.invoke(
         app,
         ["--verbose", "config", "list"],

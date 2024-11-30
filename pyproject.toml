@@ -71,6 +71,8 @@ show_missing = true
 exclude_also = [
     # Don't complain about missing type checking code:
     "if TYPE_CHECKING",
+    # Exclude ... literals
+    "\\.\\.\\."
 ]
 
 [tool.mypy]

@@ -71,7 +71,7 @@ configuration.output_directory.mkdir(exist_ok=True, parents=True)
 # This can be overridden by specifying the `REF_EXECUTOR` environment variable.
 
 # %%
-result = run_metric("example", provider, configuration=configuration, trigger=trigger)
+result = run_metric("global_mean_timeseries", provider, configuration=configuration, trigger=trigger)
 result
 
 # %%
@@ -87,7 +87,7 @@ with open(result.output_bundle) as fh:
 # This will not perform and validation/verification of the output results.
 
 # %%
-metric = provider.get("example")
+metric = provider.get("global_mean_timeseries")
 
 direct_result = metric.run(configuration=configuration, trigger=trigger)
 assert direct_result.successful

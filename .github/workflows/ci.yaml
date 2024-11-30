@@ -33,6 +33,7 @@ jobs:
     env:
       REF_DATA_ROOT: ${{ github.workspace }}/.esgpull/data
       REF_OUTPUT_ROOT: ${{ github.workspace }}/out
+      REF_DATABASE_URL: "sqlite:///${{ github.workspace }}/.ref/db/ref.db"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -48,7 +49,10 @@ jobs:
           echo "Rerun after cache generation in tests job"
           exit 1
       - name: docs
-        run: uv run mkdocs build --strict
+        run: |
+          mkdir -p ${{ github.workspace }}/.ref/db
+          uv run ref ingest --source-type cmip6 .esgpull/data
+          uv run mkdocs build --strict
 
   tests:
     strategy:

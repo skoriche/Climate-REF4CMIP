@@ -24,7 +24,7 @@ def get_dataset_adapter(source_type: str) -> "DatasetAdapter":
     :
         DatasetAdapter instance
     """
-    if source_type == SourceDatasetType.CMIP6.value:
+    if source_type.lower() == SourceDatasetType.CMIP6.value:
         from ref.datasets.cmip6 import CMIP6DatasetAdapter
 
         return CMIP6DatasetAdapter()

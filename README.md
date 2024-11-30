@@ -91,14 +91,26 @@ dependency management. To get started, you will need to make sure that uv
 is installed
 ([instructions here](https://docs.astral.sh/uv/getting-started/installation/)).
 
-For all of work, we use our `Makefile`.
+We use our `Makefile` to provide an easy way to run common developer commands.
 You can read the instructions out and run the commands by hand if you wish,
 but we generally discourage this because it can be error prone.
-In order to create your environment, run `make virtual-environment`.
 
-If you wish to run the test suite,
-some input data must be fetched from ESGF.
-To do this, you will need to run `make fetch-data`.
+The following steps are required to set up a development environment.
+This will install the required dependencies and fetch some test data,
+as well as set up the configuration for the REF.
+
+```bash
+make virtual-environment
+uv run esgpull self install $PWD/.esgpull
+uv run ref config list > $PWD/.ref/ref.toml
+export REF_CONFIGURATION=$PWD/.ref
+make fetch-test-data
+uv run ref ingest --source-type cmip6 $PWD/.esgpull/data
+```
+
+The local `ref.toml` configuration file will make it easier to play around with settings.
+By default, the database will be stored in your home directory,
+this can be modified by changing the `db.database_url` setting in the `ref.toml` file.
 
 The test suite can then be run using `make test`.
 This will run the test suites for each package and finally the integration test suite.

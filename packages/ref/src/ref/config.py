@@ -38,7 +38,9 @@ class Paths:
     log: Path = field(converter=Path)
     tmp: Path = field(converter=Path)
 
-    allow_out_of_tree_datasets: bool = field(default=False)
+    # TODO: this should probably default to False,
+    # but we don't have an easy way to update cong
+    allow_out_of_tree_datasets: bool = field(default=True)
 
     @data.default
     def _data_factory(self) -> Path:

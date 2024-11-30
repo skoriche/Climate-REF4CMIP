@@ -28,3 +28,9 @@ class OutOfTreeDatasetException(RefException):
         )
 
         super().__init__(message)
+
+
+class ConstraintNotSatisfied(RefException):
+    """Exception raised when a constraint is violated"""
+
+    # TODO: implement when we have agreed on using constraints

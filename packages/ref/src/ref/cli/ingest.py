@@ -76,7 +76,7 @@ def ingest(
     This will register a dataset in the database to be used for metrics calculations.
     """
     config = load_config(configuration_directory)
-    db = Database(config.db.database_url)
+    db = Database.from_config(config)
 
     logger.info(f"ingesting {file_or_directory}")
 

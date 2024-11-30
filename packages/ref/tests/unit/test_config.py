@@ -96,7 +96,7 @@ filename = "sqlite://ref.db"
                 "data": "test/data",
                 "log": "test/log",
                 "tmp": "test/tmp",
-                "allow_out_of_tree_datasets": False,
+                "allow_out_of_tree_datasets": True,
             },
             "db": {"database_url": "sqlite:///test/db/ref.db", "run_migrations": True},
         }

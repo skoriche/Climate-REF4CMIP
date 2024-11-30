@@ -39,7 +39,8 @@ class FacetFilter:
     Filters to apply to the data catalog.
 
     The keys are the metadata fields to filter on, and the values are the values to filter on.
-    The result will only contain datasets where for all fields the value of the field is one of the given values.
+    The result will only contain datasets where for all fields,
+    the value of the field is one of the given values.
     """
     keep: bool = True
     """

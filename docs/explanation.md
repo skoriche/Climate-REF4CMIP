@@ -23,7 +23,7 @@ An example implementation of a metric provider is provided in the `ref_metrics_e
 ### Metrics
 
 A metric represents a specific calculation or analysis that can be performed on a dataset
-or set of datasets with the aim for benchmarking the performance of different models.
+or group of datasets with the aim for benchmarking the performance of different models.
 These metrics often represent a specific aspects of the Earth system and are compared against
 observations of the same quantities.
 
@@ -39,6 +39,24 @@ The Earth System Metrics and Diagnostics Standards
 ([EMDS](https://github.com/Earth-System-Diagnostics-Standards/EMDS))
 provide a community standard for reporting outputs.
 This enables the ability to generate standardised outputs that can be distributed.
+
+## Datasets
+
+The REF aims to support a variety of input datasets,
+including CMIP6, CMIP7+, Obs4MIPs, and other observational datasets.
+
+When ingesting these datasets into the REF,
+the metadata used to uniquely describe the datasets is stored in a database.
+This metadata includes information such as:
+
+* the model that produced the dataset
+* the experiment that was run
+* the variable and units of the data
+* the time period of the data
+
+The facets (or dimensions) of the metadata depend on the dataset type.
+This metadata, in combination with the data requirements from a Metric,
+are used to determine which new metric executions are required.
 
 ## Execution Environments
 

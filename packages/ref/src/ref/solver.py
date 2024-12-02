@@ -11,12 +11,52 @@ import typing
 import pandas as pd
 from attrs import define
 from loguru import logger
+from ref_core.constraints import apply_constraint
 from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import Metric
+from ref_core.metrics import DataRequirement, Metric
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
 from ref.provider_registry import ProviderRegistry
+
+
+def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequirement) -> list[pd.DataFrame]:
+    """
+    Determine the different metric executions that should be performed with the current data catalog
+    """
+    subset = requirement.apply_filters(data_catalog)
+
+    if len(subset) == 0:
+        logger.debug(f"No datasets found for requirement {requirement}")
+        return []
+
+    if requirement.group_by is None:
+        # Use a single group
+        groups = [(None, subset)]
+    else:
+        groups = subset.groupby(list(requirement.group_by))  # type: ignore
+
+    results = []
+
+    for name, group in groups:
+        constrained_group = _process_group_constraints(data_catalog, group, requirement)
+
+        if constrained_group is not None:
+            results.append(constrained_group)
+
+    return results
+
+
+def _process_group_constraints(
+    data_catalog: pd.DataFrame, group: pd.DataFrame, requirement: DataRequirement
+) -> pd.DataFrame | None:
+    for constraint in requirement.constraints or []:
+        constrained_group = apply_constraint(group, constraint, data_catalog)
+        if constrained_group is None:
+            return None
+
+        group = constrained_group
+    return group
 
 
 @define
@@ -51,6 +91,8 @@ class MetricSolver:
 
         This should probably be passed via DI
         """
+        # TODO: Implement this method
+        # TODO: wrap the result in a class representing a metric run
         return True
 
     def _find_solvable(self) -> typing.Generator[tuple[MetricsProvider, Metric], None, None]:
@@ -65,7 +107,7 @@ class MetricSolver:
         for provider in self.provider_registry.providers:
             for metric in provider.metrics():
                 if self._can_solve(metric):
-                    yield provider, metric
+                    yield (provider, metric)
 
     def solve(self, dry_run: bool = False, max_iterations: int = 10) -> None:
         """

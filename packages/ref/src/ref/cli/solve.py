@@ -21,6 +21,6 @@ def solve(
     since the last solve.
     """
     config = load_config(configuration_directory)
-    db = Database(config.db.database_url)
+    db = Database.from_config(config)
 
     solve_metrics(db, dry_run=dry_run)

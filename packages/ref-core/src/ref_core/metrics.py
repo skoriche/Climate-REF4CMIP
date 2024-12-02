@@ -2,7 +2,11 @@ import json
 import pathlib
 from typing import Any, Protocol, runtime_checkable
 
-from attrs import frozen
+import pandas as pd
+from attrs import field, frozen
+
+from ref_core.constraints import GroupConstraint
+from ref_core.datasets import FacetFilter, SourceDatasetType
 
 
 @frozen
@@ -87,6 +91,80 @@ class TriggerInfo:
     # dataset metadata
 
 
+@frozen(hash=True)
+class DataRequirement:
+    """
+    Definition of the input datasets that a metric requires to run.
+
+    This is used to create groups of datasets.
+    Each group will result in an execution of the metric
+    and defines the input data for that execution.
+
+    The data catalog is filtered according to the `filters` field,
+    then grouped according to the `group_by` field,
+    and then each group is checked that it satisfies the `constraints`.
+    Each such group will be processed as a separate execution of the metric.
+    """
+
+    source_type: SourceDatasetType
+    """
+    Type of the source dataset (CMIP6, CMIP7 etc)
+    """
+
+    filters: tuple[FacetFilter, ...]
+    """
+    Filters to apply to the data catalog of datasets.
+
+    This is used to reduce the set of datasets to only those that are required by the metric.
+    The filters are applied iteratively to reduce the set of datasets.
+    """
+
+    group_by: tuple[str, ...] | None
+    """
+    The fields to group the datasets by.
+
+    This groupby operation is performed after the data catalog is filtered according to `filters`.
+    Each group will contain a unique combination of values from the metadata fields,
+    and will result in a separate execution of the metric.
+    If `group_by=None`, all datasets will be processed together as a single execution.
+    """
+
+    constraints: tuple[GroupConstraint, ...] = field(factory=tuple)
+    """
+    Constraints that must be satisfied when executing a given metric run
+
+    All of the constraints must be satisfied for a given group to be run.
+    Each filter is applied iterative to a set of datasets to reduce the set of datasets.
+    This is effectively an AND operation.
+    """
+
+    def apply_filters(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
+        """
+        Apply filters to a DataFrame-based data catalog.
+
+        Parameters
+        ----------
+        data_catalog
+            DataFrame to filter.
+            Each column contains a facet
+
+        Returns
+        -------
+        :
+            Filtered data catalog
+        """
+        for facet_filter in self.filters:
+            for facet, value in facet_filter.facets.items():
+                clean_value = value if isinstance(value, tuple) else (value,)
+
+                mask = data_catalog[facet].isin(clean_value)
+                if not facet_filter.keep:
+                    mask = ~mask
+
+                data_catalog = data_catalog[mask]
+        return data_catalog
+
+
 @runtime_checkable
 class Metric(Protocol):
     """
@@ -96,6 +174,14 @@ class Metric(Protocol):
     to have differing assumptions.
     The configuration and output of the metric should follow the
     Earth System Metrics and Diagnostics Standards formats as much as possible.
+
+    A metric can be executed multiple times,
+    each time targeting a different group of input data.
+    The groups are determined using the grouping the data catalog according to the `group_by` field
+    in the `DataRequirement` object using one or more metadata fields.
+    Each group must conform with a set of constraints,
+    to ensure that the correct data is available to run the metric.
+    Each group will then be processed as a separate execution of the metric.
 
     See (ref_example.example.ExampleMetric)[] for an example implementation.
     """
@@ -108,18 +194,14 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    # input_variable: list[VariableDefinition]
+    data_requirements: tuple[DataRequirement, ...]
     """
-    TODO: implement VariableDefinition
-    Should be extend the configuration defined in EMDS
+    Description of the required datasets for the current metric
 
-    Variables that the metric requires to run
-    Any modifications to the input data will trigger a new metric calculation.
-    """
-    # observation_dataset: list[ObservationDatasetDefinition]
-    """
-    TODO: implement ObservationDatasetDefinition
-    Should be extend the configuration defined in EMDS. To check with Bouwe.
+    This information is used to filter the a data catalog of both CMIP and/or observation datasets
+    that are required by the metric.
+
+    Any modifications to the input data will new metric calculation.
     """
 
     def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:

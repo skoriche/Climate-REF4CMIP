@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
-from ref_core.metrics import Configuration, MetricResult, TriggerInfo
+from ref_core.datasets import FacetFilter, SourceDatasetType
+from ref_core.metrics import Configuration, DataRequirement, Metric, MetricResult, TriggerInfo
 
 
 def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
@@ -74,12 +75,27 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_output
 
 
-class ExampleMetric:
+class GlobalMeanTimeseries(Metric):
     """
     Calculate the annual mean global mean timeseries for a dataset
     """
 
-    name = "example"
+    name = "global_mean_timeseries"
+
+    data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(
+                FacetFilter(facets={"variable_id": ("tas", "rsut")}),
+                # Ignore some experiments because they are not relevant
+                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+            ),
+            # Add cell areas to the groups
+            # constraints=(AddCellAreas(),),
+            # Run the metric on each unique combination of model, variable, experiment, and variant
+            group_by=("model_id", "variable_id", "experiment_id", "variant_label"),
+        ),
+    )
 
     def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
         """
@@ -105,7 +121,7 @@ class ExampleMetric:
                 successful=False,
             )
 
-        # This is where one would hook into how ever they want to run
+        # This is where one would hook into however they want to run
         # their benchmarking packages.
         # cmec-driver, python calls, subprocess calls all would work
         annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(trigger.dataset)

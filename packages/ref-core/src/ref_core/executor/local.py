@@ -1,6 +1,4 @@
-from typing import Any
-
-from ref_core.metrics import Configuration, Metric, MetricResult, TriggerInfo
+from ref_core.metrics import Metric, MetricExecutionInfo, MetricResult
 
 
 class LocalExecutor:
@@ -14,9 +12,7 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(
-        self, metric: Metric, configuration: Configuration, trigger: TriggerInfo | None, **kwargs: Any
-    ) -> MetricResult:
+    def run_metric(self, metric: Metric, configuration: MetricExecutionInfo) -> MetricResult:
         """
         Run a metric in process
 
@@ -36,4 +32,4 @@ class LocalExecutor:
         :
             Results from running the metric
         """
-        return metric.run(configuration=configuration, trigger=trigger)
+        return metric.run(metric_info=configuration)

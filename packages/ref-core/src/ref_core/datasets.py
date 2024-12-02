@@ -1,5 +1,7 @@
+import base64
 import enum
 
+import pandas as pd
 from attrs import field, frozen
 
 
@@ -48,3 +50,48 @@ class FacetFilter:
 
     If true (default), datasets that match the filter will be kept else they will be removed.
     """
+
+
+@frozen
+class DatasetCollection:
+    """
+    Group of datasets required for a given metric execution for a specific source dataset type.
+    """
+
+    datasets: pd.DataFrame
+    slug_column: str
+
+    def __hash__(self) -> int:
+        return hash(self.datasets[self.slug_column].to_string(index=False))
+
+
+class MetricDataset:
+    """
+    The complete set of datasets required for a metric execution.
+
+    This may cover multiple source dataset types.
+    """
+
+    def __init__(self, collection: dict[SourceDatasetType, DatasetCollection]):
+        self._collection = collection
+
+    def __getitem__(self, key: SourceDatasetType) -> DatasetCollection:
+        return self._collection[key]
+
+    def __hash__(self):
+        return hash(tuple(hash(item) for item in self._collection.items()))
+
+    @property
+    def slug(self):
+        """
+        Unique identifier for the collection
+
+        This is a base64 encoded hash of the collections.
+        The value isn't reversible but can be used to uniquely identify the collection.
+
+        Returns
+        -------
+        :
+            Base64 encoded hash of the collection
+        """
+        return base64.b64encode(str(self.__hash__()))

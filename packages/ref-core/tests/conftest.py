@@ -1,6 +1,6 @@
 import pytest
 from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import Configuration, DataRequirement, MetricResult, TriggerInfo
+from ref_core.metrics import DataRequirement, MetricExecutionInfo, MetricResult, TriggerInfo
 from ref_core.providers import MetricsProvider
 
 
@@ -10,9 +10,9 @@ class MockMetric:
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
+    def run(self, configuration: MetricExecutionInfo, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(
-            output_bundle=configuration.output_directory / "output.json",
+            output_bundle=configuration.output_fragment / "output.json",
             successful=True,
         )
 
@@ -22,7 +22,7 @@ class FailedMetric:
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, configuration: Configuration, trigger: TriggerInfo) -> MetricResult:
+    def run(self, configuration: MetricExecutionInfo, trigger: TriggerInfo) -> MetricResult:
         return MetricResult(
             successful=False,
         )
@@ -43,7 +43,7 @@ def mock_metric() -> MockMetric:
 
 
 @pytest.fixture
-def configuration(tmp_path) -> Configuration:
-    return Configuration(
-        output_directory=tmp_path,
+def configuration(tmp_path) -> MetricExecutionInfo:
+    return MetricExecutionInfo(
+        output_fragment=tmp_path,
     )

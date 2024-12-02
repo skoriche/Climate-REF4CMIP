@@ -1,12 +1,12 @@
 import pandas as pd
 import pytest
 from ref_core.datasets import FacetFilter, SourceDatasetType
-from ref_core.metrics import Configuration, DataRequirement, MetricResult
+from ref_core.metrics import DataRequirement, MetricExecutionInfo, MetricResult
 
 
 class TestMetricResult:
     def test_build(self, tmp_path):
-        config = Configuration(output_directory=tmp_path)
+        config = MetricExecutionInfo(output_fragment=tmp_path)
         result = MetricResult.build(config, {"data": "value"})
 
         assert result.successful

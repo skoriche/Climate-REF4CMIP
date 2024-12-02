@@ -29,7 +29,7 @@ import pathlib
 
 import ref_metrics_example
 from ref_core.executor import run_metric
-from ref_core.metrics import Configuration, TriggerInfo
+from ref_core.metrics import MetricExecutionInfo, TriggerInfo
 
 from ref.env import env
 
@@ -54,10 +54,10 @@ example_dataset = (
 )
 
 # %%
-configuration = Configuration(output_directory=pathlib.Path("out") / "example" / "example")
+configuration = MetricExecutionInfo(output_fragment=pathlib.Path("out") / "example" / "example")
 trigger = TriggerInfo(dataset=example_dataset)
 
-configuration.output_directory.mkdir(exist_ok=True, parents=True)
+configuration.output_fragment.mkdir(exist_ok=True, parents=True)
 
 # %% [markdown]
 # ## Metric calculations
@@ -90,7 +90,7 @@ with open(result.output_bundle) as fh:
 # %%
 metric = provider.get("global_mean_timeseries")
 
-direct_result = metric.run(configuration=configuration, trigger=trigger)
+direct_result = metric.run(metric_info=configuration, trigger=trigger)
 assert direct_result.successful
 
 direct_result

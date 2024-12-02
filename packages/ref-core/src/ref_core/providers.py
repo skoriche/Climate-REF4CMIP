@@ -15,8 +15,9 @@ class MetricsProvider:
     This provides a consistent interface to multiple different metrics packages.
     """
 
-    def __init__(self, name: str, version: str) -> None:
+    def __init__(self, name: str, slug: str, version: str) -> None:
         self.name = name
+        self.slug = slug
         self.version = version
 
         self._metrics: dict[str, Metric] = {}
@@ -45,7 +46,7 @@ class MetricsProvider:
             The metric to register.
         """
         if not isinstance(metric, Metric):
-            raise InvalidMetricException(metric)
+            raise InvalidMetricException(metric, "Metrics must be an instance of the 'Metric' class")
         self._metrics[metric.name.lower()] = metric
 
     def get(self, name: str) -> Metric:

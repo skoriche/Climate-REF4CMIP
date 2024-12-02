@@ -16,7 +16,7 @@ import os
 from typing import Any, Protocol, runtime_checkable
 
 from ref_core.executor.local import LocalExecutor
-from ref_core.metrics import Configuration, Metric, MetricResult, TriggerInfo
+from ref_core.metrics import Metric, MetricExecutionInfo, MetricResult
 from ref_core.providers import MetricsProvider
 
 
@@ -35,9 +35,7 @@ class Executor(Protocol):
 
     name: str
 
-    def run_metric(
-        self, metric: Metric, configuration: Configuration, trigger: TriggerInfo | None, **kwargs: Any
-    ) -> MetricResult:
+    def run_metric(self, metric: Metric, configuration: MetricExecutionInfo, **kwargs: Any) -> MetricResult:
         """
         Execute a metric
 

@@ -6,21 +6,31 @@ import pandas as pd
 from attrs import field, frozen
 
 from ref_core.constraints import GroupConstraint
-from ref_core.datasets import FacetFilter, SourceDatasetType
+from ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
 
 
 @frozen
-class Configuration:
+class MetricExecutionInfo:
     """
     Configuration that describes the input data sources
     """
 
-    output_directory: pathlib.Path
+    output_fragment: pathlib.Path
     """
-    Directory to write output files to
+    Relative directory to store the output of the metric execution
+
+    This is relative to the temporary directory which may differ by executor.
     """
 
-    # TODO: Add more configuration options here
+    slug: str
+    """
+    A unique identifier for the metric execution
+    """
+
+    metric_dataset_collection: MetricDataset
+    """
+    Collection of datasets required for the metric execution
+    """
 
 
 @frozen
@@ -48,7 +58,7 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: Configuration, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
+    def build(configuration: MetricExecutionInfo, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -67,28 +77,12 @@ class MetricResult:
             A prepared MetricResult object.
             The output bundle will be written to the output directory.
         """
-        with open(configuration.output_directory / "output.json", "w") as file_handle:
+        with open(configuration.output_fragment / "output.json", "w") as file_handle:
             json.dump(cmec_output_bundle, file_handle)
         return MetricResult(
-            output_bundle=configuration.output_directory / "output.json",
+            output_bundle=configuration.output_fragment / "output.json",
             successful=True,
         )
-
-
-@frozen
-class TriggerInfo:
-    """
-    The reason why the metric was run.
-    """
-
-    dataset: pathlib.Path
-    """
-    Path to the dataset that triggered the metric run.
-    """
-
-    # TODO:
-    # Add/remove/modified?
-    # dataset metadata
 
 
 @frozen(hash=True)
@@ -194,7 +188,15 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    data_requirements: tuple[DataRequirement, ...]
+    # TODO: Validate slugs
+    slug: str = field()
+    """
+    Unique identifier for the metric
+
+    Defaults to the name of the metric in lowercase with spaces replaced by hyphens.
+    """
+
+    data_requirements: tuple[DataRequirement, ...] = field(factory=tuple)
     """
     Description of the required datasets for the current metric
 
@@ -204,7 +206,11 @@ class Metric(Protocol):
     Any modifications to the input data will new metric calculation.
     """
 
-    def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
+    @slug.default
+    def _default_slug(self) -> str:
+        return self.name.lower().replace(" ", "-")
+
+    def run(self, metric_info: MetricExecutionInfo) -> MetricResult:
         """
         Run the metric on the given configuration.
 
@@ -214,10 +220,8 @@ class Metric(Protocol):
 
         Parameters
         ----------
-        configuration : Configuration
+        metric_info : MetricExecutionInfo
             The configuration to run the metric on.
-        trigger : TriggerInfo | None
-            Optional information about the dataset that triggered the metric run.
 
         Returns
         -------

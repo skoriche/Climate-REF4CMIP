@@ -13,10 +13,10 @@ This is a placeholder implementation and will be expanded in the future.
 """
 
 import os
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from ref_core.executor.local import LocalExecutor
-from ref_core.metrics import Metric, MetricExecutionInfo, MetricResult
+from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 from ref_core.providers import MetricsProvider
 
 
@@ -35,7 +35,7 @@ class Executor(Protocol):
 
     name: str
 
-    def run_metric(self, metric: Metric, configuration: MetricExecutionInfo, **kwargs: Any) -> MetricResult:
+    def run_metric(self, metric: Metric, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Execute a metric
 
@@ -43,14 +43,12 @@ class Executor(Protocol):
         ----------
         metric
             Metric to run
-        configuration
+        definition
             Configuration to run the metric with
         trigger
             Information about the dataset that triggered the metric run
 
             TODO: The optionality of this parameter is a placeholder and will be expanded in the future.
-        kwargs
-            Additional keyword arguments for the executor
 
         Returns
         -------
@@ -113,7 +111,9 @@ register_executor = _default_manager.register
 get_executor = _default_manager.get
 
 
-def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs: Any) -> MetricResult:
+def run_metric(
+    metric_name: str, /, metrics_provider: MetricsProvider, definition: MetricExecutionDefinition
+) -> MetricResult:
     """
     Run a metric using the default executor
 
@@ -128,8 +128,11 @@ def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs:
         Name of the metric to run.
     metrics_provider
         Provider from where to retrieve the metric
-    kwargs
-        Additional options passed to the metric executor
+    definition
+        Information that describes a given metric execution.
+
+        This includes the datasets that are needed to run the metric,
+        where the output should be stored, and any other information needed to run the metric.
 
     Returns
     -------
@@ -141,7 +144,7 @@ def run_metric(metric_name: str, /, metrics_provider: MetricsProvider, **kwargs:
     executor = get_executor(executor_name)
     metric = metrics_provider.get(metric_name)
 
-    result = executor.run_metric(metric, **kwargs)
+    result = executor.run_metric(metric, definition)
 
     # TODO: Validate the result
     # TODO: Log the result

@@ -20,28 +20,28 @@ class TestLocalExecutor:
         assert executor.name == "local"
         assert isinstance(executor, Executor)
 
-    def test_run_metric(self, configuration, mock_metric):
+    def test_run_metric(self, metric_definition, mock_metric):
         executor = LocalExecutor()
 
-        result = executor.run_metric(mock_metric, configuration, trigger=None)
+        result = executor.run_metric(mock_metric, metric_definition)
         assert result.successful
-        assert result.output_bundle == configuration.output_fragment / "output.json"
+        assert result.output_bundle == metric_definition.output_fragment / "output.json"
 
 
 @pytest.mark.parametrize("executor_name", ["local", None])
-def test_run_metric_local(monkeypatch, executor_name, mock_metric, provider, configuration):
+def test_run_metric_local(monkeypatch, executor_name, mock_metric, provider, metric_definition):
     if executor_name:
         monkeypatch.setenv("REF_EXECUTOR", executor_name)
-    result = run_metric("mock", provider, configuration=configuration, trigger=None)
+    result = run_metric("mock", provider, definition=metric_definition)
     assert result.successful
 
 
 def test_run_metric_unknown_executor(monkeypatch, provider):
     monkeypatch.setenv("REF_EXECUTOR", "missing")
     with pytest.raises(KeyError):
-        run_metric("mock", metrics_provider=provider, kwarg="test")
+        run_metric("mock", metrics_provider=provider, definition=None)
 
 
 def test_run_metric_unknown_metric(monkeypatch, provider):
     with pytest.raises(KeyError):
-        run_metric("missing", metrics_provider=provider, kwarg="test")
+        run_metric("missing", metrics_provider=provider, definition=None)

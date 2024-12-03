@@ -1,4 +1,4 @@
-from ref_core.metrics import Metric, MetricExecutionInfo, MetricResult
+from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
 class LocalExecutor:
@@ -12,7 +12,7 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(self, metric: Metric, configuration: MetricExecutionInfo) -> MetricResult:
+    def run_metric(self, metric: Metric, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run a metric in process
 
@@ -20,8 +20,8 @@ class LocalExecutor:
         ----------
         metric
             Metric to run
-        configuration
-            Configuration to run the metric with
+        definition
+            Information about the execution of the metric
         trigger
             Information about the dataset that triggered the metric run
         kwargs
@@ -32,4 +32,4 @@ class LocalExecutor:
         :
             Results from running the metric
         """
-        return metric.run(metric_info=configuration)
+        return metric.run(definition=definition)

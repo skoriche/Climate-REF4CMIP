@@ -17,7 +17,7 @@ from ref_core.constraints import apply_constraint
 from ref_core.datasets import MetricDataset, SourceDatasetType
 from ref_core.exceptions import InvalidMetricException
 from ref_core.executor import get_executor
-from ref_core.metrics import DataRequirement, Metric, MetricExecutionInfo
+from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
@@ -35,16 +35,16 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
-    def build_metric_execution_info(self) -> MetricExecutionInfo:
+    def build_metric_execution_info(self) -> MetricExecutionDefinition:
         """
         Build the metric execution info for the current metric execution
         """
         slug = f"{self.provider.slug}-{self.metric.slug}-{self.metric_dataset.slug}"
 
-        return MetricExecutionInfo(
+        return MetricExecutionDefinition(
             output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.slug,
             slug=slug,
-            metric_dataset_collection=self.metric_dataset,
+            metric_dataset=self.metric_dataset,
         )
 
 
@@ -172,4 +172,4 @@ def solve_metrics(db: Database, dry_run: bool = False) -> None:
         logger.info(f"Calculating metric {info.slug}")
 
         if not dry_run:
-            executor.run_metric(metric=metric_execution.metric, configuration=info)
+            executor.run_metric(metric=metric_execution.metric, definition=info)

@@ -10,9 +10,11 @@ from ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
 
 
 @frozen
-class MetricExecutionInfo:
+class MetricExecutionDefinition:
     """
-    Configuration that describes the input data sources
+    Definition of a metric execution.
+
+    This represents the information needed by a metric to perform a single execution of the metric
     """
 
     output_fragment: pathlib.Path
@@ -27,7 +29,7 @@ class MetricExecutionInfo:
     A unique identifier for the metric execution
     """
 
-    metric_dataset_collection: MetricDataset
+    metric_dataset: MetricDataset
     """
     Collection of datasets required for the metric execution
     """
@@ -58,7 +60,7 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: MetricExecutionInfo, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
+    def build(configuration: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -188,15 +190,14 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
-    # TODO: Validate slugs
-    slug: str = field()
+    slug: str
     """
     Unique identifier for the metric
 
     Defaults to the name of the metric in lowercase with spaces replaced by hyphens.
     """
 
-    data_requirements: tuple[DataRequirement, ...] = field(factory=tuple)
+    data_requirements: tuple[DataRequirement, ...]
     """
     Description of the required datasets for the current metric
 
@@ -206,11 +207,7 @@ class Metric(Protocol):
     Any modifications to the input data will new metric calculation.
     """
 
-    @slug.default
-    def _default_slug(self) -> str:
-        return self.name.lower().replace(" ", "-")
-
-    def run(self, metric_info: MetricExecutionInfo) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
 
@@ -220,7 +217,7 @@ class Metric(Protocol):
 
         Parameters
         ----------
-        metric_info : MetricExecutionInfo
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
 
         Returns

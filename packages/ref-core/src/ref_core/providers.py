@@ -8,6 +8,23 @@ from ref_core.exceptions import InvalidMetricException
 from ref_core.metrics import Metric
 
 
+def _slugify(value: str) -> str:
+    """
+    Slugify a string.
+
+    Parameters
+    ----------
+    value : str
+        String to slugify.
+
+    Returns
+    -------
+    str
+        Slugified string.
+    """
+    return value.lower().replace(" ", "-")
+
+
 class MetricsProvider:
     """
     Interface for that a metrics provider must implement.
@@ -15,9 +32,9 @@ class MetricsProvider:
     This provides a consistent interface to multiple different metrics packages.
     """
 
-    def __init__(self, name: str, slug: str, version: str) -> None:
+    def __init__(self, name: str, version: str, slug: str | None = None) -> None:
         self.name = name
-        self.slug = slug
+        self.slug = slug or _slugify(name)
         self.version = version
 
         self._metrics: dict[str, Metric] = {}

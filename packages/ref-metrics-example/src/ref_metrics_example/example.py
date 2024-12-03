@@ -3,7 +3,7 @@ from typing import Any
 
 import xarray as xr
 from ref_core.datasets import FacetFilter, SourceDatasetType
-from ref_core.metrics import DataRequirement, Metric, MetricExecutionInfo, MetricResult, TriggerInfo
+from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult, TriggerInfo
 
 
 def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
@@ -97,7 +97,7 @@ class GlobalMeanTimeseries(Metric):
         ),
     )
 
-    def run(self, metric_info: MetricExecutionInfo, trigger: TriggerInfo | None) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition, trigger: TriggerInfo | None) -> MetricResult:
         """
         Run a metric
 
@@ -106,7 +106,7 @@ class GlobalMeanTimeseries(Metric):
         trigger
             Trigger for what caused the metric to be executed.
 
-        metric_info
+        definition
             Configuration object
 
         Returns
@@ -117,7 +117,7 @@ class GlobalMeanTimeseries(Metric):
         if trigger is None:
             # TODO: This should probably raise an exception
             return MetricResult(
-                output_bundle=metric_info.output_fragment / "output.json",
+                output_bundle=definition.output_fragment / "output.json",
                 successful=False,
             )
 
@@ -126,4 +126,4 @@ class GlobalMeanTimeseries(Metric):
         # cmec-driver, python calls, subprocess calls all would work
         annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(trigger.dataset)
 
-        return MetricResult.build(metric_info, format_cmec_output_bundle(annual_mean_global_mean_timeseries))
+        return MetricResult.build(definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries))

@@ -22,7 +22,8 @@
 # and its dependencies are installed in the current Python environment.
 #
 # This guide will walk you through how to run a metric provider locally.
-# %%
+
+# %% tags=["remove_input"]
 import json
 import pathlib
 
@@ -93,5 +94,3 @@ direct_result = metric.run(configuration=configuration, trigger=trigger)
 assert direct_result.successful
 
 direct_result
-
-# %%

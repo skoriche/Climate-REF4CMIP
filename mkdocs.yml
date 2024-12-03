@@ -12,6 +12,8 @@ nav:
   - Configuration: configuration.md
   - How-to guides:
     - how-to-guides/index.md
+    - how-to-guides/dataset-selection.py
+    - how-to-guides/running-metrics-locally.py
   - Tutorials: tutorials.md
   - Further background:
     - Explanation: explanation.md
@@ -75,8 +77,14 @@ plugins:
       include_source: True
       ignore: ["*.ipynb", "*.md", "docs/gen_doc_stubs.py"]
       remove_tag_config:
+        remove_cell_tags:
+          - remove_cell
         remove_input_tags:
           - remove_input
+        remove_single_output_tags:
+          - remove_output
+        remove_all_outputs_tags:
+          - remove_output
   # Docstring generation
   - mkdocstrings:
       enable_inventory: true

@@ -1,5 +1,5 @@
-import base64
 import enum
+import hashlib
 
 import pandas as pd
 from attrs import field, frozen
@@ -68,7 +68,11 @@ class DatasetCollection:
         return self.datasets[item]
 
     def __hash__(self) -> int:
-        return hash(self.datasets[self.slug_column].to_string(index=False))
+        # This hashes each item individually and sums them so order doesn't matter
+        return int(pd.util.hash_pandas_object(self.datasets[self.slug_column]).sum())
+
+    def __eq__(self, other):
+        return self.__hash__() == other.__hash__()
 
 
 class MetricDataset:
@@ -78,7 +82,7 @@ class MetricDataset:
     This may cover multiple source dataset types.
     """
 
-    def __init__(self, collection: dict[SourceDatasetType, DatasetCollection]):
+    def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
         self._collection = collection
 
     def __getitem__(self, key: SourceDatasetType | str) -> DatasetCollection:
@@ -87,22 +91,25 @@ class MetricDataset:
         return self._collection[key]
 
     def __hash__(self):
-        return hash(tuple(hash(item) for item in self._collection.items()))
-
-    def __len__(self):
-        return len(self._collection)
+        return hash(self.slug)
 
     @property
-    def slug(self):
+    def slug(self) -> str:
         """
         Unique identifier for the collection
 
-        This is a base64 encoded hash of the collections.
-        The value isn't reversible but can be used to uniquely identify the collection.
+        A SHA1 hash is calculated of the combination of the hashes of the individual collections.
+        The value isn't reversible but can be used to uniquely identify the aggregate of the
+        collections.
 
         Returns
         -------
         :
-            Base64 encoded hash of the collection
+            SHA1 hash of the collections
         """
-        return base64.b64encode(str(self.__hash__()))
+        # The dataset collection hashes are reproducible,
+        # so we can use them to hash the metric dataset.
+        # This isn't explicitly true for all Python hashes
+        hash_sum = sum(hash(item) for item in self._collection.values())
+        hash_bytes = hash_sum.to_bytes(16, "little", signed=True)
+        return hashlib.sha1(hash_bytes).hexdigest()  # noqa: S324

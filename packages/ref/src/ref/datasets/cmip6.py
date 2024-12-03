@@ -11,10 +11,10 @@ from loguru import logger
 from ref_core.exceptions import RefException
 from sqlalchemy.orm import joinedload
 
-from ref.cli.ingest import validate_path
 from ref.config import Config
 from ref.database import Database
 from ref.datasets.base import DatasetAdapter
+from ref.datasets.utils import validate_path
 from ref.models.dataset import CMIP6Dataset, CMIP6File
 
 

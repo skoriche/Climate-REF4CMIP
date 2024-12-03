@@ -46,12 +46,13 @@ class TestMetricDataset:
 
 
 class TestDatasetCollection:
-    def test_get_attr(self, dataset_collection):
-        assert dataset_collection["instance_id"].equals(dataset_collection.datasets["instance_id"])
-        assert dataset_collection["instance_id"].equals(dataset_collection.datasets.instance_id)
-
     def test_get_item(self, dataset_collection):
-        assert dataset_collection["instance_id"].equals(dataset_collection.datasets["instance_id"])
+        expected = dataset_collection.datasets.instance_id
+        assert dataset_collection["instance_id"].equals(expected)
+
+    def test_get_attr(self, dataset_collection):
+        expected = dataset_collection.datasets.instance_id
+        assert dataset_collection.instance_id.equals(expected)
 
     def test_hash(self, dataset_collection, cmip6_data_catalog):
         dataset_hash = hash(dataset_collection)

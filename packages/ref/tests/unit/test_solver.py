@@ -1,16 +1,24 @@
+from unittest import mock
+
 import pandas as pd
 import pytest
 from ref_core.constraints import RequireFacets, SelectParentExperiment
 from ref_core.datasets import SourceDatasetType
 from ref_core.metrics import DataRequirement, FacetFilter
+from ref_metrics_example import provider
 
 from ref.provider_registry import ProviderRegistry
-from ref.solver import MetricSolver, extract_covered_datasets
+from ref.solver import MetricSolver, extract_covered_datasets, solve_metrics
 
 
 @pytest.fixture
-def solver(db) -> MetricSolver:
-    return MetricSolver.build_from_db(db)
+def solver(db_seeded) -> MetricSolver:
+    registry = ProviderRegistry(providers=[provider])
+
+    # Use a fixed set of providers for the test suite until we can pull from the DB
+    metric_solver = MetricSolver.build_from_db(db_seeded)
+    metric_solver.provider_registry = registry
+    return metric_solver
 
 
 class TestMetricSolver:
@@ -19,15 +27,8 @@ class TestMetricSolver:
         assert isinstance(solver.provider_registry, ProviderRegistry)
         assert solver.data_catalog == {}
 
-    def test_solver_dry_run(self, solver):
-        solver.solve(dry_run=True)
-
-        # TODO: Check that nothing was solved
-
     def test_solver_solve_empty(self, solver):
-        solver.solve()
-
-        # TODO: Check that nothing was solved
+        assert len(list(solver.solve())) == 0
 
 
 @pytest.mark.parametrize(
@@ -171,3 +172,23 @@ def test_data_coverage(requirement, data_catalog, expected):
     for res, exp in zip(result, expected):
         pd.testing.assert_frame_equal(res, exp)
     assert len(result) == len(expected)
+
+
+@mock.patch("ref.solver.get_executor")
+def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
+    solve_metrics(db_seeded)
+
+    assert mock_executor.return_value.run_metric.call_count == 0
+
+
+@mock.patch("ref.solver.get_executor")
+def test_solve_metrics(mock_executor, db_seeded, solver):
+    solve_metrics(db_seeded, dry_run=False, solver=solver)
+
+    assert mock_executor.return_value.run_metric.call_count == 1
+
+
+def test_solve_metrics_dry_run(db_seeded):
+    solve_metrics(db_seeded, dry_run=True)
+
+    # TODO: Check that no new metrics were added to the db

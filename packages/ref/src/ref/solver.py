@@ -21,6 +21,7 @@ from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
+from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
 from ref.provider_registry import ProviderRegistry
 
@@ -111,7 +112,12 @@ class MetricSolver:
         :
             A new MetricSolver instance
         """
-        return MetricSolver(provider_registry=ProviderRegistry.build_from_db(db), data_catalog={})
+        return MetricSolver(
+            provider_registry=ProviderRegistry.build_from_db(db),
+            data_catalog={
+                SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
+            },
+        )
 
     def solve(self) -> typing.Generator[MetricExecution, None, None]:
         """
@@ -153,14 +159,15 @@ class MetricSolver:
                     )
 
 
-def solve_metrics(db: Database, dry_run: bool = False) -> None:
+def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | None = None) -> None:
     """
     Solve for metrics that require recalculation
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
     """
-    solver = MetricSolver.build_from_db(db)
+    if solver is None:
+        solver = MetricSolver.build_from_db(db)
 
     logger.info("Solving for metrics that require recalculation...")
 

@@ -14,13 +14,14 @@ import pandas as pd
 from attrs import define, frozen
 from loguru import logger
 from ref_core.constraints import apply_constraint
-from ref_core.datasets import MetricDataset, SourceDatasetType
+from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from ref_core.exceptions import InvalidMetricException
 from ref_core.executor import get_executor
 from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
+from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
 from ref.provider_registry import ProviderRegistry
@@ -40,7 +41,8 @@ class MetricExecution:
         """
         Build the metric execution info for the current metric execution
         """
-        slug = f"{self.provider.slug}-{self.metric.slug}-{self.metric_dataset.slug}"
+        # TODO: We might want to pretty print the dataset slug
+        slug = "_".join([self.provider.slug, self.metric.slug, self.metric_dataset.slug])
 
         return MetricExecutionDefinition(
             output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.slug,
@@ -154,7 +156,12 @@ class MetricSolver:
                         provider=provider,
                         metric=metric,
                         metric_dataset=MetricDataset(
-                            {key: value for key, value in zip(dataset_groups.keys(), items)}
+                            {
+                                key: DatasetCollection(
+                                    datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
+                                )
+                                for key, value in zip(dataset_groups.keys(), items)
+                            }
                         ),
                     )
 

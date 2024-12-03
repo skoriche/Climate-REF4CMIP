@@ -8,7 +8,8 @@ def test_version():
 
 
 def test_provider():
-    assert provider.name == "example"
+    assert provider.name == "Example"
+    assert provider.slug == "example"
     assert provider.version == __version__
 
     assert len(provider) == 1

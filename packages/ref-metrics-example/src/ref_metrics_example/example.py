@@ -78,7 +78,8 @@ class GlobalMeanTimeseries(Metric):
     Calculate the annual mean global mean timeseries for a dataset
     """
 
-    name = "global_mean_timeseries"
+    name = "Global Mean Timeseries"
+    slug = "global-mean-timeseries"
 
     data_requirements = (
         DataRequirement(

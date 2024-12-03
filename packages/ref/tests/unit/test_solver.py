@@ -25,10 +25,9 @@ class TestMetricSolver:
     def test_solver_build_from_db(self, solver):
         assert isinstance(solver, MetricSolver)
         assert isinstance(solver.provider_registry, ProviderRegistry)
-        assert solver.data_catalog == {}
-
-    def test_solver_solve_empty(self, solver):
-        assert len(list(solver.solve())) == 0
+        assert SourceDatasetType.CMIP6 in solver.data_catalog
+        assert isinstance(solver.data_catalog[SourceDatasetType.CMIP6], pd.DataFrame)
+        assert len(solver.data_catalog[SourceDatasetType.CMIP6])
 
 
 @pytest.mark.parametrize(
@@ -185,7 +184,7 @@ def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
 def test_solve_metrics(mock_executor, db_seeded, solver):
     solve_metrics(db_seeded, dry_run=False, solver=solver)
 
-    assert mock_executor.return_value.run_metric.call_count == 1
+    assert mock_executor.return_value.run_metric.call_count == 4
 
 
 def test_solve_metrics_dry_run(db_seeded):

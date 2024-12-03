@@ -12,5 +12,5 @@ __version__ = importlib.metadata.version("ref_metrics_example")
 __core_version__ = importlib.metadata.version("ref_core")
 
 # Initialise the metrics manager and register the example metric
-provider = MetricsProvider("Example", "example", __version__)
+provider = MetricsProvider("Example", __version__)
 provider.register(GlobalMeanTimeseries())

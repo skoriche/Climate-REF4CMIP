@@ -25,39 +25,44 @@
 
 # %% tags=["remove_input"]
 import json
-import pathlib
+from pathlib import Path
 
 import ref_metrics_example
+from ref_core.datasets import MetricDataset
 from ref_core.executor import run_metric
-from ref_core.metrics import MetricExecutionDefinition, TriggerInfo
+from ref_core.metrics import MetricExecutionDefinition
 
-from ref.env import env
+from ref.cli.config import load_config
+from ref.database import Database
+from ref.datasets import get_dataset_adapter
 
 # %%
 provider = ref_metrics_example.provider
 provider
 
+# %% tags=["hide_code"]
+config = load_config()
+db = Database.from_config(config)
+
 # %%
-# Relative path to some CMIP6 data
-example_dataset = (
-    pathlib.Path(env.path("REF_DATA_ROOT"))
-    / "CMIP6"
-    / "ScenarioMIP"
-    / "CSIRO"
-    / "ACCESS-ESM1-5"
-    / "ssp126"
-    / "r1i1p1f1"
-    / "Amon"
-    / "tas"
-    / "gn"
-    / "v20210318"
+# Load the data catalog
+data_catalog = get_dataset_adapter("cmip6").load_catalog(db)
+
+# %% [markdown]
+# Each metric execution requires a `MetricExecutionDefinition` object.
+# This object contains the information about where data should be stored
+# and which datasets should be used for the metric calculation.
+#
+# This object is created by hand,
+# but in the REF a `Solver` is used to determine the executions that are required
+# given a set of requirements and the currently available dataset.
+
+# %%
+definition = MetricExecutionDefinition(
+    slug="global_mean_timeseries",
+    output_fragment=Path("global_mean_timeseries"),
+    metric_dataset=MetricDataset({"cmip6": ["tas_Amon"]}),
 )
-
-# %%
-configuration = MetricExecutionDefinition(output_fragment=pathlib.Path("out") / "example" / "example")
-trigger = TriggerInfo(dataset=example_dataset)
-
-configuration.output_fragment.mkdir(exist_ok=True, parents=True)
 
 # %% [markdown]
 # ## Metric calculations
@@ -68,11 +73,11 @@ configuration.output_fragment.mkdir(exist_ok=True, parents=True)
 # The simplest executor is the `LocalExecutor`.
 # This executor runs a given metric synchronously in the current process.
 #
-# The LocalExectuor is the default executor when using the  `ref_core.executor.run_metric` function.
+# The `LocalExecutor` is the default executor when using the  `ref_core.executor.run_metric` function.
 # This can be overridden by specifying the `REF_EXECUTOR` environment variable.
 
 # %%
-result = run_metric("global_mean_timeseries", provider, configuration=configuration, trigger=trigger)
+result = run_metric("global_mean_timeseries", provider, definition=definition)
 result
 
 # %%
@@ -90,7 +95,7 @@ with open(result.output_bundle) as fh:
 # %%
 metric = provider.get("global_mean_timeseries")
 
-direct_result = metric.run(definition=configuration, trigger=trigger)
+direct_result = metric.run(definition=definition)
 assert direct_result.successful
 
 direct_result

@@ -3,10 +3,10 @@ from typing import Any
 
 import xarray as xr
 from ref_core.datasets import FacetFilter, SourceDatasetType
-from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult, TriggerInfo
+from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 
 
-def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
+def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
     """
     Calculate the annual mean timeseries for a dataset.
 
@@ -16,8 +16,8 @@ def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
 
     Parameters
     ----------
-    dataset
-        A path to a CMIP6 dataset.
+    input_files
+        List of input files to calculate the annual mean timeseries.
 
         This dataset may consist of multiple data files.
 
@@ -26,9 +26,7 @@ def calculate_annual_mean_timeseries(dataset: Path) -> xr.Dataset:
     :
         The annual mean timeseries of the dataset
     """
-    input_files = dataset.glob("*.nc")
-
-    xr_ds = xr.open_mfdataset(list(input_files), combine="by_coords", chunks=None, use_cftime=True)
+    xr_ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, use_cftime=True)
 
     annual_mean = xr_ds.resample(time="YS").mean()
     return annual_mean.mean(dim=["lat", "lon"], keep_attrs=True)
@@ -97,7 +95,7 @@ class GlobalMeanTimeseries(Metric):
         ),
     )
 
-    def run(self, definition: MetricExecutionDefinition, trigger: TriggerInfo | None) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run a metric
 
@@ -114,16 +112,14 @@ class GlobalMeanTimeseries(Metric):
         :
             The result of running the metric.
         """
-        if trigger is None:
-            # TODO: This should probably raise an exception
-            return MetricResult(
-                output_bundle=definition.output_fragment / "output.json",
-                successful=False,
-            )
-
         # This is where one would hook into however they want to run
         # their benchmarking packages.
         # cmec-driver, python calls, subprocess calls all would work
-        annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(trigger.dataset)
+
+        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+
+        annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(
+            input_files=input_datasets.path.to_list()
+        )
 
         return MetricResult.build(definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries))

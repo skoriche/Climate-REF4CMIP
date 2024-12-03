@@ -61,6 +61,12 @@ class DatasetCollection:
     datasets: pd.DataFrame
     slug_column: str
 
+    def __getattr__(self, item):
+        return getattr(self.datasets, item)
+
+    def __getitem__(self, item):
+        return self.datasets[item]
+
     def __hash__(self) -> int:
         return hash(self.datasets[self.slug_column].to_string(index=False))
 
@@ -75,11 +81,16 @@ class MetricDataset:
     def __init__(self, collection: dict[SourceDatasetType, DatasetCollection]):
         self._collection = collection
 
-    def __getitem__(self, key: SourceDatasetType) -> DatasetCollection:
+    def __getitem__(self, key: SourceDatasetType | str) -> DatasetCollection:
+        if isinstance(key, str):
+            key = SourceDatasetType(key)
         return self._collection[key]
 
     def __hash__(self):
         return hash(tuple(hash(item) for item in self._collection.items()))
+
+    def __len__(self):
+        return len(self._collection)
 
     @property
     def slug(self):

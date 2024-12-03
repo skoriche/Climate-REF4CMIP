@@ -1,5 +1,6 @@
 import enum
 import hashlib
+from typing import Any
 
 import pandas as pd
 from attrs import field, frozen
@@ -61,17 +62,17 @@ class DatasetCollection:
     datasets: pd.DataFrame
     slug_column: str
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self.datasets[item]
 
     def __hash__(self) -> int:
         # This hashes each item individually and sums them so order doesn't matter
         return int(pd.util.hash_pandas_object(self.datasets[self.slug_column]).sum())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.__hash__() == other.__hash__()
 
 
@@ -90,7 +91,7 @@ class MetricDataset:
             key = SourceDatasetType(key)
         return self._collection[key]
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.slug)
 
     @property

@@ -1,6 +1,11 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import TYPE_CHECKING
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ref.models.base import Base, CreatedUpdatedMixin
+
+if TYPE_CHECKING:
+    from ref.models.metric import Metric
 
 
 class Provider(CreatedUpdatedMixin, Base):
@@ -27,6 +32,8 @@ class Provider(CreatedUpdatedMixin, Base):
 
     This should map to the package version.
     """
+
+    metrics: Mapped[list["Metric"]] = relationship(back_populates="metrics")
 
     def __repr__(self) -> str:
         return f"<Provider slug={self.slug} version={self.version}>"

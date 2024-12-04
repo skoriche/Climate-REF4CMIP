@@ -24,6 +24,7 @@ from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
+from ref.models import MetricExecution as MetricExecutionModel
 from ref.provider_registry import ProviderRegistry
 
 
@@ -206,5 +207,9 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
 
         logger.info(f"Calculating metric {info.slug}")
 
-        if not dry_run:
+        db_execution, created = db.get_or_create(
+            MetricExecutionModel, slug=info.slug, defaults={"dirty": True}
+        )
+
+        if created and not dry_run:
             executor.run_metric(metric=metric_execution.metric, definition=info)

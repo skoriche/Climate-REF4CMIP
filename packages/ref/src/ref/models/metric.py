@@ -1,7 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ref.models.base import Base, CreatedUpdatedMixin
+
+if TYPE_CHECKING:
+    from ref.models.metric_execution import MetricExecution
+    from ref.models.provider import Provider
 
 
 class Metric(CreatedUpdatedMixin, Base):
@@ -35,7 +41,6 @@ class Metric(CreatedUpdatedMixin, Base):
     """
     The provider that provides the metric
     """
-    provider = relationship("Provider", back_populates="metrics")
 
     enabled: Mapped[bool] = mapped_column(default=True)
     """
@@ -43,6 +48,9 @@ class Metric(CreatedUpdatedMixin, Base):
 
     If a metric is not enabled, it will not be used for any calculations.
     """
+
+    provider: Mapped["Provider"] = relationship(back_populates="metrics")
+    executions: Mapped[list["MetricExecution"]] = relationship(back_populates="metric")
 
     def __repr__(self) -> str:
         return f"<Metric slug={self.slug} version={self.version}>"

@@ -202,7 +202,10 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
         assert definition.slug in expected_slugs
 
 
-def test_solve_metrics_dry_run(db_seeded):
-    solve_metrics(db_seeded, dry_run=True)
+@mock.patch("ref.solver.get_executor")
+def test_solve_metrics_dry_run(mock_executor, db_seeded, solver):
+    solve_metrics(db_seeded, dry_run=True, solver=solver)
+
+    assert mock_executor.return_value.run_metric.call_count == 0
 
     # TODO: Check that no new metrics were added to the db

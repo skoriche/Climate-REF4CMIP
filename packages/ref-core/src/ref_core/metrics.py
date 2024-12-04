@@ -6,21 +6,33 @@ import pandas as pd
 from attrs import field, frozen
 
 from ref_core.constraints import GroupConstraint
-from ref_core.datasets import FacetFilter, SourceDatasetType
+from ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
 
 
 @frozen
-class Configuration:
+class MetricExecutionDefinition:
     """
-    Configuration that describes the input data sources
+    Definition of a metric execution.
+
+    This represents the information needed by a metric to perform a single execution of the metric
     """
 
-    output_directory: pathlib.Path
+    output_fragment: pathlib.Path
     """
-    Directory to write output files to
+    Relative directory to store the output of the metric execution
+
+    This is relative to the temporary directory which may differ by executor.
     """
 
-    # TODO: Add more configuration options here
+    slug: str
+    """
+    A unique identifier for the metric execution
+    """
+
+    metric_dataset: MetricDataset
+    """
+    Collection of datasets required for the metric execution
+    """
 
 
 @frozen
@@ -48,7 +60,7 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: Configuration, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
+    def build(configuration: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -67,28 +79,12 @@ class MetricResult:
             A prepared MetricResult object.
             The output bundle will be written to the output directory.
         """
-        with open(configuration.output_directory / "output.json", "w") as file_handle:
+        with open(configuration.output_fragment / "output.json", "w") as file_handle:
             json.dump(cmec_output_bundle, file_handle)
         return MetricResult(
-            output_bundle=configuration.output_directory / "output.json",
+            output_bundle=configuration.output_fragment / "output.json",
             successful=True,
         )
-
-
-@frozen
-class TriggerInfo:
-    """
-    The reason why the metric was run.
-    """
-
-    dataset: pathlib.Path
-    """
-    Path to the dataset that triggered the metric run.
-    """
-
-    # TODO:
-    # Add/remove/modified?
-    # dataset metadata
 
 
 @frozen(hash=True)
@@ -157,6 +153,11 @@ class DataRequirement:
             for facet, value in facet_filter.facets.items():
                 clean_value = value if isinstance(value, tuple) else (value,)
 
+                if facet not in data_catalog.columns:
+                    raise KeyError(
+                        f"Facet {facet!r} not in data catalog columns: {data_catalog.columns.to_list()}"
+                    )
+
                 mask = data_catalog[facet].isin(clean_value)
                 if not facet_filter.keep:
                     mask = ~mask
@@ -194,6 +195,13 @@ class Metric(Protocol):
     but multiple providers can implement the same metric.
     """
 
+    slug: str
+    """
+    Unique identifier for the metric
+
+    Defaults to the name of the metric in lowercase with spaces replaced by hyphens.
+    """
+
     data_requirements: tuple[DataRequirement, ...]
     """
     Description of the required datasets for the current metric
@@ -204,7 +212,7 @@ class Metric(Protocol):
     Any modifications to the input data will new metric calculation.
     """
 
-    def run(self, configuration: Configuration, trigger: TriggerInfo | None) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
 
@@ -214,10 +222,8 @@ class Metric(Protocol):
 
         Parameters
         ----------
-        configuration : Configuration
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
-        trigger : TriggerInfo | None
-            Optional information about the dataset that triggered the metric run.
 
         Returns
         -------

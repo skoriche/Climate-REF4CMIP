@@ -11,8 +11,8 @@ class RefException(Exception):
 class InvalidMetricException(RefException):
     """Exception raised when an invalid metric is registered"""
 
-    def __init__(self, metric: Any) -> None:
-        message = f"Invalid metric: '{metric}'\n" "Metrics must be an instance of the 'Metric' class"
+    def __init__(self, metric: Any, message: str) -> None:
+        message = f"Invalid metric: '{metric}'\n {message}"
 
         super().__init__(message)
 

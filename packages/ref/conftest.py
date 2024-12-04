@@ -43,15 +43,14 @@ def db(config) -> Database:
 
 
 @pytest.fixture
-def db_seeded(config, esgf_data_dir) -> Database:
+def db_seeded(config, cmip6_data_catalog) -> Database:
     database = Database.from_config(config, run_migrations=True)
 
     adapter = CMIP6DatasetAdapter()
 
     # Seed with all the datasets in the ESGF data directory
     # This includes datasets which span multiple file and until 2300
-    data_catalog = adapter.find_local_datasets(esgf_data_dir)
-    for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
+    for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
         adapter.register_dataset(config, database, data_catalog_dataset)
 
     return database

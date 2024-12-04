@@ -184,7 +184,22 @@ def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
 def test_solve_metrics(mock_executor, db_seeded, solver):
     solve_metrics(db_seeded, dry_run=False, solver=solver)
 
-    assert mock_executor.return_value.run_metric.call_count == 4
+    assert mock_executor.return_value.run_metric.call_count == 2
+
+    definitions = [call.kwargs["definition"] for call in mock_executor.return_value.run_metric.mock_calls]
+
+    expected_instance_ids = [
+        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn"],
+        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn"],
+    ]
+    expected_slugs = [
+        "example_global-mean-timeseries_3f3e279497006b055e8449f49562dea31c9c9b0f",
+        "example_global-mean-timeseries_afd155388b894babbeee7ac01bf5127d4ced19bd",
+    ]
+
+    for definition in definitions:
+        assert definition.metric_dataset["cmip6"].instance_id.unique().tolist() in expected_instance_ids
+        assert definition.slug in expected_slugs
 
 
 def test_solve_metrics_dry_run(db_seeded):

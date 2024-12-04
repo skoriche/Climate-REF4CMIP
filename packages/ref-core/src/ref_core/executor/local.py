@@ -32,4 +32,7 @@ class LocalExecutor:
         :
             Results from running the metric
         """
+        # TODO: Update fragment use the output directory which may vary depending on the executor
+        definition.output_fragment.mkdir(parents=True, exist_ok=True)
+
         return metric.run(definition=definition)

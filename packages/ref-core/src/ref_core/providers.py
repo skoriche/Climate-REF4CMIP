@@ -64,15 +64,15 @@ class MetricsProvider:
         """
         if not isinstance(metric, Metric):
             raise InvalidMetricException(metric, "Metrics must be an instance of the 'Metric' class")
-        self._metrics[metric.name.lower()] = metric
+        self._metrics[metric.slug.lower()] = metric
 
-    def get(self, name: str) -> Metric:
+    def get(self, slug: str) -> Metric:
         """
         Get a metric by name.
 
         Parameters
         ----------
-        name : str
+        slug : str
             Name of the metric (case-sensitive).
 
         Raises
@@ -85,4 +85,4 @@ class MetricsProvider:
         Metric
             The requested metric.
         """
-        return self._metrics[name.lower()]
+        return self._metrics[slug.lower()]

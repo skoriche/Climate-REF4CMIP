@@ -92,7 +92,7 @@ class GlobalMeanTimeseries(Metric):
             # Add cell areas to the groups
             # constraints=(AddCellAreas(),),
             # Run the metric on each unique combination of model, variable, experiment, and variant
-            group_by=("model_id", "variable_id", "experiment_id", "variant_label"),
+            group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
         ),
     )
 

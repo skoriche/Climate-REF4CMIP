@@ -86,6 +86,12 @@ class MetricDataset:
     def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
         self._collection = collection
 
+    def __str__(self) -> str:
+        result = ""
+        for k in self._collection:
+            result += f"{k.value}\n{self._collection[k].datasets!s}\n\n"
+        return result
+
     def __getitem__(self, key: SourceDatasetType | str) -> DatasetCollection:
         if isinstance(key, str):
             key = SourceDatasetType(key)

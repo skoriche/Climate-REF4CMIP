@@ -137,33 +137,52 @@ class MetricSolver:
         """
         for provider in self.provider_registry.providers:
             for metric in provider.metrics():
-                # Collect up the different data groups that can be used to calculate the metric
-                dataset_groups = {}
+                yield from self.solve_metric_executions(metric, provider)
 
-                for requirement in metric.data_requirements:
-                    if requirement.source_type not in self.data_catalog:
-                        raise InvalidMetricException(
-                            metric, f"No data catalog for source type {requirement.source_type}"
+    def solve_metric_executions(self, metric, provider) -> typing.Generator[MetricExecution, None, None]:
+        """
+        Calculate the metric executions that need to be performed for a given metric
+
+        Parameters
+        ----------
+        metric
+            Metric of interest
+        provider
+            Provider of the metric
+
+        Returns
+        -------
+        :
+            A generator that yields the metric executions that need to be performed
+
+        """
+        # Collect up the different data groups that can be used to calculate the metric
+        dataset_groups = {}
+
+        for requirement in metric.data_requirements:
+            if requirement.source_type not in self.data_catalog:
+                raise InvalidMetricException(
+                    metric, f"No data catalog for source type {requirement.source_type}"
+                )
+
+            dataset_groups[requirement.source_type] = extract_covered_datasets(
+                self.data_catalog[requirement.source_type], requirement
+            )
+
+        # I'm not sure if the right approach here is a product of the groups
+        for items in itertools.product(*dataset_groups.values()):
+            yield MetricExecution(
+                provider=provider,
+                metric=metric,
+                metric_dataset=MetricDataset(
+                    {
+                        key: DatasetCollection(
+                            datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
                         )
-
-                    dataset_groups[requirement.source_type] = extract_covered_datasets(
-                        self.data_catalog[requirement.source_type], requirement
-                    )
-
-                # I'm not sure if the right approach here is a product of the groups
-                for items in itertools.product(*dataset_groups.values()):
-                    yield MetricExecution(
-                        provider=provider,
-                        metric=metric,
-                        metric_dataset=MetricDataset(
-                            {
-                                key: DatasetCollection(
-                                    datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
-                                )
-                                for key, value in zip(dataset_groups.keys(), items)
-                            }
-                        ),
-                    )
+                        for key, value in zip(dataset_groups.keys(), items)
+                    }
+                ),
+            )
 
 
 def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | None = None) -> None:

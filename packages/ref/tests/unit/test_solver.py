@@ -199,7 +199,7 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
 
     for definition in definitions:
         assert definition.metric_dataset["cmip6"].instance_id.unique().tolist() in expected_instance_ids
-        assert definition.slug in expected_slugs
+        assert definition.hash in expected_slugs
 
 
 @mock.patch("ref.solver.get_executor")

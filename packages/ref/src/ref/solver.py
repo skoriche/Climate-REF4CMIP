@@ -24,7 +24,9 @@ from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
+from ref.models import Metric as MetricModel
 from ref.models import MetricExecution as MetricExecutionModel
+from ref.models import Provider
 from ref.provider_registry import ProviderRegistry
 
 
@@ -42,12 +44,25 @@ class MetricExecution:
         """
         Build the metric execution info for the current metric execution
         """
-        # TODO: We might want to pretty print the dataset slug
-        slug = "_".join([self.provider.slug, self.metric.slug, self.metric_dataset.slug])
+        # FTODO: We might want to pretty print the dataset slug
+        key_values = []
+        for requirement in self.metric.data_requirements:
+            source_datasets = self.metric_dataset[requirement.source_type]
+
+            unique_values = source_datasets[list(requirement.group_by)].drop_duplicates()
+            if len(unique_values) != 1:
+                logger.error(f"Unique values: {unique_values}")
+                raise InvalidMetricException(
+                    self.metric,
+                    f"Expected a single group for {requirement.source_type} but got {len(unique_values)}",
+                )
+            key_values.extend(unique_values.iloc[0].to_list())
+
+        key = "_".join(key_values)
 
         return MetricExecutionDefinition(
-            output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.slug,
-            slug=slug,
+            output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.hash,
+            key=key,
             metric_dataset=self.metric_dataset,
         )
 
@@ -205,11 +220,45 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
     for metric_execution in solver.solve():
         info = metric_execution.build_metric_execution_info()
 
-        logger.info(f"Calculating metric {info.slug}")
+        logger.info(f"Calculating metric {info.key}")
 
-        db_execution, created = db.get_or_create(
-            MetricExecutionModel, slug=info.slug, defaults={"dirty": True}
-        )
+        if not dry_run:
+            provider, created = db.get_or_create(
+                Provider,
+                slug=metric_execution.provider.slug,
+                version=metric_execution.provider.version,
+                defaults={
+                    "name": metric_execution.provider.name,
+                },
+            )
+            if created:
+                logger.info(f"Created provider {provider.slug}")
+                db.session.flush()
 
-        if created and not dry_run:
+            metric, created = db.get_or_create(
+                MetricModel,
+                slug=metric_execution.metric.slug,
+                provider_id=provider.id,
+                defaults={
+                    "name": metric_execution.metric.name,
+                },
+            )
+            if created:
+                logger.info(f"Created metric {metric.slug}")
+                db.session.flush()
+
+            db_execution, created = db.get_or_create(
+                MetricExecutionModel,
+                key=info.key,
+                metric_id=metric.id,
+                defaults={
+                    "dirty": True,
+                    "retracted": False,
+                },
+            )
+
+            if created:
+                logger.info(f"Created metric execution {info.key}")
+                db.session.flush()
+
             executor.run_metric(metric=metric_execution.metric, definition=info)

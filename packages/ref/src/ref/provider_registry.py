@@ -42,4 +42,6 @@ class ProviderRegistry:
             A new ProviderRegistry instance
         """
         # TODO: We don't yet have any tables to represent metrics providers
-        return ProviderRegistry(providers=[])
+        from ref_metrics_example import provider
+
+        return ProviderRegistry(providers=[provider])

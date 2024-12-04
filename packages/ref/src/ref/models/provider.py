@@ -33,7 +33,7 @@ class Provider(CreatedUpdatedMixin, Base):
     This should map to the package version.
     """
 
-    metrics: Mapped[list["Metric"]] = relationship(back_populates="metrics")
+    metrics: Mapped[list["Metric"]] = relationship(back_populates="provider")
 
     def __repr__(self) -> str:
         return f"<Provider slug={self.slug} version={self.version}>"

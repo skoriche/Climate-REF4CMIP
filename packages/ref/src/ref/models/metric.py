@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ref.models.base import Base, CreatedUpdatedMixin
@@ -16,11 +16,12 @@ class Metric(CreatedUpdatedMixin, Base):
     """
 
     __tablename__ = "metric"
+    __table_args__ = (UniqueConstraint("provider_id", "slug", name="metric_ident"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(unique=True)
     """
-    Globally unique identifier for the metric.
+    Unique identifier for the metric
 
     This will be used to reference the metric in the benchmarking process
     """
@@ -28,13 +29,6 @@ class Metric(CreatedUpdatedMixin, Base):
     name: Mapped[str] = mapped_column()
     """
     Long name of the metric
-    """
-
-    version: Mapped[str] = mapped_column(nullable=False)
-    """
-    Version of the metric.
-
-    This may not update on every provider update, but should be updated when the metric is updated.
     """
 
     provider_id: Mapped[int] = mapped_column(ForeignKey("provider.id"))

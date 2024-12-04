@@ -42,7 +42,7 @@ class TestMetricDataset:
         )
 
     def test_slug(self, metric_dataset):
-        assert metric_dataset.slug == "69165f25de10cc0b682e6d1acd1026c0ad27448c"
+        assert metric_dataset.hash == "69165f25de10cc0b682e6d1acd1026c0ad27448c"
 
 
 class TestDatasetCollection:

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ref.models.base import Base, CreatedUpdatedMixin
@@ -18,6 +18,7 @@ class MetricExecution(CreatedUpdatedMixin, Base):
     """
 
     __tablename__ = "metric_execution"
+    __table_args__ = (UniqueConstraint("metric_id", "key", name="metric_execution_ident"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

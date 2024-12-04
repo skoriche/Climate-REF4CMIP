@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import pytest
 from ref_core.datasets import FacetFilter, SourceDatasetType
@@ -122,3 +124,17 @@ def test_apply_filters_dont_keep(apply_data_catalog):
             index=[1, 2],
         ),
     )
+
+
+def test_apply_filters_missing(apply_data_catalog):
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=(FacetFilter({"missing": "tas"}, keep=False),),
+        group_by=None,
+    )
+
+    with pytest.raises(
+        KeyError,
+        match=re.escape("Facet 'missing' not in data catalog columns: ['variable', 'source_id']"),
+    ):
+        requirement.apply_filters(apply_data_catalog)

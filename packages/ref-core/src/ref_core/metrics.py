@@ -154,7 +154,9 @@ class DataRequirement:
                 clean_value = value if isinstance(value, tuple) else (value,)
 
                 if facet not in data_catalog.columns:
-                    raise KeyError(f"Facet {facet} not in data catalog columns: {data_catalog.columns}")
+                    raise KeyError(
+                        f"Facet {facet!r} not in data catalog columns: {data_catalog.columns.to_list()}"
+                    )
 
                 mask = data_catalog[facet].isin(clean_value)
                 if not facet_filter.keep:

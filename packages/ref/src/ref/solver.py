@@ -139,7 +139,9 @@ class MetricSolver:
             for metric in provider.metrics():
                 yield from self.solve_metric_executions(metric, provider)
 
-    def solve_metric_executions(self, metric, provider) -> typing.Generator[MetricExecution, None, None]:
+    def solve_metric_executions(
+        self, metric: Metric, provider: MetricsProvider
+    ) -> typing.Generator[MetricExecution, None, None]:
         """
         Calculate the metric executions that need to be performed for a given metric
 

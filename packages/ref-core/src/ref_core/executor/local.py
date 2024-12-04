@@ -21,11 +21,7 @@ class LocalExecutor:
         metric
             Metric to run
         definition
-            Information about the execution of the metric
-        trigger
-            Information about the dataset that triggered the metric run
-        kwargs
-            Additional keyword arguments for the executor
+            A description of the information needed for this execution of the metric
 
         Returns
         -------

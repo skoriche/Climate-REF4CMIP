@@ -102,11 +102,8 @@ class GlobalMeanTimeseries(Metric):
 
         Parameters
         ----------
-        trigger
-            Trigger for what caused the metric to be executed.
-
         definition
-            Configuration object
+            A description of the information needed for this execution of the metric
 
         Returns
         -------

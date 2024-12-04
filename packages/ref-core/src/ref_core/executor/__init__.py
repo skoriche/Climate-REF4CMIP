@@ -44,11 +44,9 @@ class Executor(Protocol):
         metric
             Metric to run
         definition
-            Configuration to run the metric with
-        trigger
-            Information about the dataset that triggered the metric run
+            Definition of the information needed to execute a metric
 
-            TODO: The optionality of this parameter is a placeholder and will be expanded in the future.
+            This
 
         Returns
         -------

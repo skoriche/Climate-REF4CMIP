@@ -6,18 +6,49 @@ This module provides a solver to determine which metrics need to be calculated.
 This module is still a work in progress and is not yet fully implemented.
 """
 
+import itertools
+import pathlib
 import typing
 
 import pandas as pd
-from attrs import define
+from attrs import define, frozen
 from loguru import logger
 from ref_core.constraints import apply_constraint
-from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import DataRequirement, Metric
+from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from ref_core.exceptions import InvalidMetricException
+from ref_core.executor import get_executor
+from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
+from ref.datasets import get_dataset_adapter
+from ref.datasets.cmip6 import CMIP6DatasetAdapter
+from ref.env import env
 from ref.provider_registry import ProviderRegistry
+
+
+@frozen
+class MetricExecution:
+    """
+    Class to hold information about the execution of a metric
+    """
+
+    provider: MetricsProvider
+    metric: Metric
+    metric_dataset: MetricDataset
+
+    def build_metric_execution_info(self) -> MetricExecutionDefinition:
+        """
+        Build the metric execution info for the current metric execution
+        """
+        # TODO: We might want to pretty print the dataset slug
+        slug = "_".join([self.provider.slug, self.metric.slug, self.metric_dataset.slug])
+
+        return MetricExecutionDefinition(
+            output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.slug,
+            slug=slug,
+            metric_dataset=self.metric_dataset,
+        )
 
 
 def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequirement) -> list[pd.DataFrame]:
@@ -83,33 +114,14 @@ class MetricSolver:
         :
             A new MetricSolver instance
         """
-        return MetricSolver(provider_registry=ProviderRegistry.build_from_db(db), data_catalog={})
+        return MetricSolver(
+            provider_registry=ProviderRegistry.build_from_db(db),
+            data_catalog={
+                SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
+            },
+        )
 
-    def _can_solve(self, metric: Metric) -> bool:
-        """
-        Determine if a metric can be solved
-
-        This should probably be passed via DI
-        """
-        # TODO: Implement this method
-        # TODO: wrap the result in a class representing a metric run
-        return True
-
-    def _find_solvable(self) -> typing.Generator[tuple[MetricsProvider, Metric], None, None]:
-        """
-        Find metrics that can be solved
-
-        Returns
-        -------
-        :
-            List of metrics that can be solved
-        """
-        for provider in self.provider_registry.providers:
-            for metric in provider.metrics():
-                if self._can_solve(metric):
-                    yield (provider, metric)
-
-    def solve(self, dry_run: bool = False, max_iterations: int = 10) -> None:
+    def solve(self) -> typing.Generator[MetricExecution, None, None]:
         """
         Solve which metrics need to be calculated for a dataset
 
@@ -118,43 +130,81 @@ class MetricSolver:
         After each iteration we check if there are any more metrics to solve.
         This may not be the most efficient way to solve the metrics, but it's a start.
 
+        Yields
+        ------
+        MetricExecution
+            A class containing the information related to the execution of a metric
+        """
+        for provider in self.provider_registry.providers:
+            for metric in provider.metrics():
+                yield from self.solve_metric_executions(metric, provider)
+
+    def solve_metric_executions(
+        self, metric: Metric, provider: MetricsProvider
+    ) -> typing.Generator[MetricExecution, None, None]:
+        """
+        Calculate the metric executions that need to be performed for a given metric
+
         Parameters
         ----------
-        dry_run
-            If true, don't actually calculate the metrics instead just log what would be calculated
-        max_iterations
-            The maximum number of solving iterations to run
+        metric
+            Metric of interest
+        provider
+            Provider of the metric
+
+        Returns
+        -------
+        :
+            A generator that yields the metric executions that need to be performed
+
         """
-        if dry_run:
-            max_iterations = 1
+        # Collect up the different data groups that can be used to calculate the metric
+        dataset_groups = {}
 
-        # Solve iteratively for now
-        for iteration in range(max_iterations):
-            logger.debug(f"Iteration {iteration}")
-            solve_count = 0
+        for requirement in metric.data_requirements:
+            if requirement.source_type not in self.data_catalog:
+                raise InvalidMetricException(
+                    metric, f"No data catalog for source type {requirement.source_type}"
+                )
 
-            for provider, metric in self._find_solvable():
-                logger.info(f"Calculating {metric}")
+            dataset_groups[requirement.source_type] = extract_covered_datasets(
+                self.data_catalog[requirement.source_type], requirement
+            )
 
-                if not dry_run:
-                    pass
-                    # run_metric(provider, metric, data_catalog=self.data_catalog)
-                solve_count += 1
+        # I'm not sure if the right approach here is a product of the groups
+        for items in itertools.product(*dataset_groups.values()):
+            yield MetricExecution(
+                provider=provider,
+                metric=metric,
+                metric_dataset=MetricDataset(
+                    {
+                        key: DatasetCollection(
+                            datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
+                        )
+                        for key, value in zip(dataset_groups.keys(), items)
+                    }
+                ),
+            )
 
-            logger.info(f"{solve_count} metrics calculated in iteration: {iteration}")
-            if solve_count == 0:
-                logger.info("No more metrics to solve")
-                break
 
-
-def solve_metrics(db: Database, dry_run: bool = False) -> None:
+def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | None = None) -> None:
     """
     Solve for metrics that require recalculation
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
     """
-    solver = MetricSolver.build_from_db(db)
+    if solver is None:
+        solver = MetricSolver.build_from_db(db)
 
     logger.info("Solving for metrics that require recalculation...")
-    solver.solve(dry_run=dry_run)
+
+    executor = get_executor(env.str("REF_EXECUTOR", "local"))
+
+    for metric_execution in solver.solve():
+        info = metric_execution.build_metric_execution_info()
+
+        logger.info(f"Calculating metric {info.slug}")
+
+        if not dry_run:
+            executor.run_metric(metric=metric_execution.metric, definition=info)

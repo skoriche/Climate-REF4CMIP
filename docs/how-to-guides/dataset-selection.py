@@ -19,16 +19,19 @@
 #
 # This notebook provides some examples querying and filtering datasets.
 
-# %% tags=["hide_code"]
+# %% tags=["remove_input"]
 import pandas as pd
 from IPython.display import display
+from loguru import logger
 from ref_core.datasets import FacetFilter, SourceDatasetType
 from ref_core.metrics import DataRequirement
 
 from ref.cli.config import load_config
 from ref.database import Database
 
-# %% tags=["hide_code"]
+logger.remove()
+
+# %%
 config = load_config()
 db = Database.from_config(config)
 
@@ -46,6 +49,7 @@ adapter = get_dataset_adapter("cmip6")
 adapter
 
 # %% [markdown]
+# ## Data Catalog
 # Below is an example of a data catalog of the CMIP6 datasets that have already been ingested.
 #
 # This data catalog contains information about the datasets that are available for use in the metrics.
@@ -84,6 +88,7 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
     print()
 
 # %% [markdown]
+# ## Data Requirements
 # Each metric may be run multiple times with different groups of datasets.
 #
 # Determining which metric executions should be performed is a three-step process:
@@ -93,7 +98,9 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 #
 # Each group that passes the constraints is a valid group for the metric to be executed.
 #
-# ## Examples
+# [ref.solver.extract_covered_datasets](/api/ref/solver/#ref.solver.extract_covered_datasets)
+# extracts the different groups
+# of datasets within the data catalog that that match the requirements.
 # Below are some examples showing different data requests
 # and the corresponding groups of datasets that would be executed.
 
@@ -101,13 +108,15 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 from ref.solver import extract_covered_datasets
 
 
-# %% tags=["hide_code"]
+# %% tags=["remove_input"]
 def display_groups(frames):
     for frame in frames:
         display(frame[["instance_id", "source_id", "variable_id"]].drop_duplicates())
 
 
 # %% [markdown]
+
+# ### Facet filters
 # The simplest data request is a `FacetFilter`.
 # This filters the data catalog to include only the data required for a given metric run.
 
@@ -126,6 +135,8 @@ groups = extract_covered_datasets(data_catalog, data_requirement)
 display_groups(groups)
 
 # %% [markdown]
+
+# ### Group by
 # The `group_by` field can be used to split the filtered data into multiple groups,
 # each of which has a unique set of values in the specified facets.
 # This results in multiple groups of datasets, each of which would correspond to a metric execution.
@@ -149,8 +160,10 @@ display_groups(groups)
 
 
 # %% [markdown]
+
+# ### Constraints
 # A data requirement can optionally specify `Constraint`s.
-# These constraints are applied to each group independtly to modify a group or ignore it.
+# These constraints are applied to each group independently to modify a group or ignore it.
 # All constraints much hold for a group to be executed.
 #
 # One type of constraint is a `GroupOperation`.
@@ -212,5 +225,3 @@ data_requirement = DataRequirement(
 groups = extract_covered_datasets(data_catalog, data_requirement)
 
 display_groups(groups)
-
-# %%

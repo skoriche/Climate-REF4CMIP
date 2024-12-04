@@ -6,13 +6,11 @@ import pandas as pd
 import typer
 from loguru import logger
 from ref_core.datasets import SourceDatasetType
-from ref_core.exceptions import OutOfTreeDatasetException
 from rich import box
 from rich.console import Console
 from rich.table import Table
 
 from ref.cli.config import load_config
-from ref.config import Config
 from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.models.dataset import Dataset
@@ -20,23 +18,6 @@ from ref.solver import solve_metrics
 
 app = typer.Typer()
 console = Console()
-
-
-def validate_path(config: Config, raw_path: str) -> Path:
-    """
-    Validate the prefix of a dataset against the data directory
-    """
-    prefix = Path(raw_path)
-
-    # Check if the prefix is relative to the data directory
-    if prefix.is_relative_to(config.paths.data):
-        prefix = prefix.relative_to(config.paths.data)
-    elif config.paths.allow_out_of_tree_datasets:
-        logger.warning(f"Dataset {prefix} is not relative to {config.paths.data}")
-    else:
-        raise OutOfTreeDatasetException(prefix, config.paths.data)
-
-    return prefix
 
 
 def pretty_print_df(df: pd.DataFrame) -> None:

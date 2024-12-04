@@ -1,6 +1,4 @@
-from typing import Any
-
-from ref_core.metrics import Configuration, Metric, MetricResult, TriggerInfo
+from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
 class LocalExecutor:
@@ -14,9 +12,7 @@ class LocalExecutor:
 
     name = "local"
 
-    def run_metric(
-        self, metric: Metric, configuration: Configuration, trigger: TriggerInfo | None, **kwargs: Any
-    ) -> MetricResult:
+    def run_metric(self, metric: Metric, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run a metric in process
 
@@ -24,16 +20,15 @@ class LocalExecutor:
         ----------
         metric
             Metric to run
-        configuration
-            Configuration to run the metric with
-        trigger
-            Information about the dataset that triggered the metric run
-        kwargs
-            Additional keyword arguments for the executor
+        definition
+            A description of the information needed for this execution of the metric
 
         Returns
         -------
         :
             Results from running the metric
         """
-        return metric.run(configuration=configuration, trigger=trigger)
+        # TODO: Update fragment use the output directory which may vary depending on the executor
+        definition.output_fragment.mkdir(parents=True, exist_ok=True)
+
+        return metric.run(definition=definition)

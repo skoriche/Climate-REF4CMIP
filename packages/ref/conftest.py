@@ -3,7 +3,6 @@ import pytest
 from pytest_regressions.data_regression import RegressionYamlDumper
 from yaml.representer import SafeRepresenter
 
-from ref.config import Config
 from ref.database import Database
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 
@@ -18,23 +17,6 @@ RegressionYamlDumper.add_representer(
 RegressionYamlDumper.add_representer(
     type(pd.NaT), lambda dumper, data: SafeRepresenter.represent_none(dumper, data)
 )
-
-
-@pytest.fixture(autouse=True)
-def config(tmp_path, monkeypatch) -> Config:
-    monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "ref"))
-
-    # Uses the default configuration
-    cfg = Config.load(tmp_path / "ref" / "ref.toml")
-
-    # Allow adding datasets from outside the tree for testing
-    cfg.paths.allow_out_of_tree_datasets = True
-
-    # Use a SQLite in-memory database for testing
-    # cfg.db.database_url = "sqlite:///:memory:"
-    cfg.save()
-
-    return cfg
 
 
 @pytest.fixture

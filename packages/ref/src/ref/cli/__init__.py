@@ -9,7 +9,7 @@ import typer
 from loguru import logger
 
 from ref import __core_version__, __version__
-from ref.cli import config, ingest, solve
+from ref.cli import config, datasets, ingest, solve
 
 
 class _InterceptHandler(logging.Handler):
@@ -45,6 +45,7 @@ app = typer.Typer(name="ref", no_args_is_help=True)
 app.command(name="ingest")(ingest.ingest)
 app.command(name="solve")(solve.solve)
 app.add_typer(config.app, name="config")
+app.add_typer(datasets.app, name="datasets")
 
 
 def _version_callback(value: bool) -> None:

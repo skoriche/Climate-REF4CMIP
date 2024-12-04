@@ -26,7 +26,8 @@ from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
 from ref.models import Metric as MetricModel
 from ref.models import MetricExecution as MetricExecutionModel
-from ref.models import Provider
+from ref.models import Provider as ProviderModel
+from ref.models.metric_execution import MetricExecutionResult
 from ref.provider_registry import ProviderRegistry
 
 
@@ -71,6 +72,10 @@ def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequir
     """
     Determine the different metric executions that should be performed with the current data catalog
     """
+    if len(data_catalog) == 0:
+        logger.error(f"No datasets found in the data catalog: {requirement.source_type.value}")
+        return []
+
     subset = requirement.apply_filters(data_catalog)
 
     if len(subset) == 0:
@@ -220,37 +225,21 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
     for metric_execution in solver.solve():
         info = metric_execution.build_metric_execution_info()
 
-        logger.info(f"Calculating metric {info.key}")
+        logger.debug(f"Identified candidate metric execution {info.key}")
 
         if not dry_run:
-            provider, created = db.get_or_create(
-                Provider,
-                slug=metric_execution.provider.slug,
-                version=metric_execution.provider.version,
-                defaults={
-                    "name": metric_execution.provider.name,
-                },
-            )
-            if created:
-                logger.info(f"Created provider {provider.slug}")
-                db.session.flush()
-
-            metric, created = db.get_or_create(
-                MetricModel,
-                slug=metric_execution.metric.slug,
-                provider_id=provider.id,
-                defaults={
-                    "name": metric_execution.metric.name,
-                },
-            )
-            if created:
-                logger.info(f"Created metric {metric.slug}")
-                db.session.flush()
-
-            db_execution, created = db.get_or_create(
+            metric_execution_model, created = db.get_or_create(
                 MetricExecutionModel,
                 key=info.key,
-                metric_id=metric.id,
+                metric_id=db.session.query(MetricModel)
+                .join(MetricModel.provider)
+                .filter(
+                    ProviderModel.slug == metric_execution.provider.slug,
+                    ProviderModel.version == metric_execution.provider.version,
+                    MetricModel.slug == metric_execution.metric.slug,
+                )
+                .one()
+                .id,
                 defaults={
                     "dirty": True,
                     "retracted": False,
@@ -261,4 +250,18 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
                 logger.info(f"Created metric execution {info.key}")
                 db.session.flush()
 
-            executor.run_metric(metric=metric_execution.metric, definition=info)
+            if metric_execution_model.should_run(info.metric_dataset.hash):
+                logger.info(f"Running metric {metric_execution_model.key}")
+                logger.warning(f"{metric_execution_model}, {info.metric_dataset.hash}")
+                metric_execution_result = MetricExecutionResult(
+                    metric_execution=metric_execution_model, dataset_hash=info.metric_dataset.hash
+                )
+                db.session.add(metric_execution_result)
+                db.session.flush()
+
+                # TODO add datasets
+                executor.run_metric(metric=metric_execution.metric, definition=info)
+                metric_execution_result.successful = True
+                metric_execution_model.dirty = False
+
+            db.session.commit()

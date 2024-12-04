@@ -55,6 +55,27 @@ class MetricExecution(CreatedUpdatedMixin, Base):
         back_populates="metric_execution", order_by="MetricExecutionResult.created_at"
     )
 
+    def should_run(self, dataset_hash: str) -> bool:
+        """
+        Check if a new run of the metric execution should be performed
+
+        The metric execution should be run if:
+
+        * the execution if marked as dirty
+        * no runs have been performed
+        * the dataset hash is different from the last run
+        """
+        if not self.results:
+            return True
+
+        if self.results[-1].dataset_hash != dataset_hash:
+            return True
+
+        if self.dirty:
+            return True
+
+        return False
+
 
 class MetricExecutionResult(CreatedUpdatedMixin, Base):
     """
@@ -64,6 +85,9 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
     """
 
     __tablename__ = "metric_execution_result"
+    __table_args__ = (
+        UniqueConstraint("metric_execution_id", "dataset_hash", name="metric_execution_result_ident"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -72,7 +96,7 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
     The target metric execution
     """
 
-    dataset_hash: Mapped[str] = mapped_column(index=True, unique=True)
+    dataset_hash: Mapped[str] = mapped_column(index=True)
     """
     Hash of the datasets used to calculate the metric
 

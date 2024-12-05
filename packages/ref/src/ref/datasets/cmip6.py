@@ -15,7 +15,7 @@ from ref.config import Config
 from ref.database import Database
 from ref.datasets.base import DatasetAdapter
 from ref.datasets.utils import validate_path
-from ref.models.dataset import CMIP6Dataset, CMIP6File
+from ref.models.dataset import CMIP6Dataset, CMIP6File, Dataset
 
 
 def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
@@ -204,7 +204,9 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
         return dataset
 
-    def load_catalog(self, db: Database, include_files: bool = True) -> pd.DataFrame:
+    def load_catalog(
+        self, db: Database, include_files: bool = True, limit: int | None = None
+    ) -> pd.DataFrame:
         """
         Load the data catalog containing the currently tracked datasets/files from the database
 
@@ -225,10 +227,8 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
                 .options(joinedload(CMIP6File.dataset))
-                .order_by(
-                    CMIP6Dataset.instance_id,
-                    CMIP6File.start_time,
-                )
+                .order_by(Dataset.updated_at.desc())
+                .limit(limit)
                 .all()
             )
 
@@ -242,8 +242,13 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 ],
             )
         else:
-            result = db.session.query(CMIP6Dataset).order_by(CMIP6Dataset.instance_id).all()
+            result_datasets = (
+                db.session.query(CMIP6Dataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
+            )
 
             return pd.DataFrame(
-                [{k: getattr(dataset, k) for k in self.dataset_specific_metadata} for dataset in result],
+                [
+                    {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
+                    for dataset in result_datasets
+                ],
             )

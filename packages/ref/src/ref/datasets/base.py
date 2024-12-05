@@ -80,7 +80,9 @@ class DatasetAdapter(Protocol):
 
         return data_catalog
 
-    def load_catalog(self, db: Database, include_files: bool = True) -> pd.DataFrame:
+    def load_catalog(
+        self, db: Database, include_files: bool = True, limit: int | None = None
+    ) -> pd.DataFrame:
         """
         Load the data catalog from the database
 

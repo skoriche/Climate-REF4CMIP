@@ -3,6 +3,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from ref.cli import app
+from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.models import Dataset
 from ref.models.dataset import CMIP6Dataset, CMIP6File
 
@@ -14,6 +15,45 @@ def test_ingest_help():
     assert result.exit_code == 0
 
     assert "Ingest a dataset" in result.output
+
+
+class TestDatasetsList:
+    def test_list(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list"])
+        assert result.exit_code == 0, result.output
+        assert "experi…" in result.output
+
+    def test_list_limit(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list", "--limit", "1", "--column", "instance_id"])
+        assert result.exit_code == 0, result.output
+        assert "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rlut.gn" in result.output
+
+    def test_list_column(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list", "--column", "variable_id"])
+        assert result.exit_code == 0, result.output
+        assert "variable_id" in result.output
+        assert "grid" not in result.output
+
+    def test_list_column_invalid(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list", "--column", "wrong"])
+        assert result.exit_code == 1
+
+
+class TestDatasetsListColumns:
+    def test_list(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list-columns"])
+        assert result.exit_code == 0, result.output
+        assert result.output.strip() == "\n".join(
+            sorted(CMIP6DatasetAdapter().load_catalog(db_seeded, include_files=False).columns.to_list())
+        )
+
+    def test_list_include_files(self, db_seeded):
+        result = runner.invoke(app, ["datasets", "list-columns", "--include-files"])
+        assert result.exit_code == 0, result.output
+        assert result.output.strip() == "\n".join(
+            sorted(CMIP6DatasetAdapter().load_catalog(db_seeded, include_files=True).columns.to_list())
+        )
+        assert "start_time" in result.output
 
 
 class TestIngest:
@@ -32,7 +72,16 @@ class TestIngest:
     def test_ingest_and_solve(self, esgf_data_dir, db):
         result = runner.invoke(
             app,
-            ["datasets", "ingest", str(esgf_data_dir / self.data_dir), "--source-type", "cmip6", "--solve"],
+            [
+                "--log-level",
+                "info",
+                "datasets",
+                "ingest",
+                str(esgf_data_dir / self.data_dir),
+                "--source-type",
+                "cmip6",
+                "--solve",
+            ],
         )
         assert result.exit_code == 0, result.output
         assert "Solving for metrics that require recalculation." in result.output

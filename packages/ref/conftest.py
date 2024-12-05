@@ -53,4 +53,5 @@ def db_seeded(config, cmip6_data_catalog) -> Database:
     for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
         adapter.register_dataset(config, database, data_catalog_dataset)
 
+    database.session.commit()
     return database

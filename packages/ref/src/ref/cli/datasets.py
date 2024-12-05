@@ -33,6 +33,11 @@ def _pretty_print_df(df: pd.DataFrame) -> None:
         DataFrame to print
     """
     # Initiate a Table instance to be modified
+    max_col_count = console.width // 10
+    if len(df.columns) > max_col_count:
+        logger.warning(f"Too many columns to display ({len(df.columns)}), truncating to {max_col_count}")
+        df = df.iloc[:, :max_col_count]
+
     table = Table(*[str(column) for column in df.columns])
 
     for index, value_list in enumerate(df.values.tolist()):
@@ -51,22 +56,25 @@ def list_(
     ctx: typer.Context,
     source_type: Annotated[
         SourceDatasetType, typer.Option(help="Type of source dataset")
-    ] = SourceDatasetType.CMIP6.value,
+    ] = SourceDatasetType.CMIP6.value,  # type: ignore
     column: Annotated[list[str] | None, typer.Option()] = None,
     include_files: bool = typer.Option(False, help="Include files in the output"),
+    limit: int = typer.Option(100, help="Limit the number of rows to display"),
 ) -> None:
     """
-    Print the current ref configuration
+    List the datasets that have been ingested
 
-    If a configuration directory is provided,
-    the configuration will attempt to load from the specified directory.
+    The data catalog is sorted by the date that the dataset was ingested (first = newest).
     """
     database = ctx.obj.database
 
     adapter = get_dataset_adapter(source_type.value)
-    data_catalog = adapter.load_catalog(database, include_files=include_files)
+    data_catalog = adapter.load_catalog(database, include_files=include_files, limit=limit)
 
     if column:
+        if not all(col in data_catalog.columns for col in column):
+            logger.error(f"Column not found in data catalog: {column}")
+            raise typer.Exit(code=1)
         data_catalog = data_catalog[column]
 
     _pretty_print_df(data_catalog)
@@ -77,7 +85,7 @@ def list_columns(
     ctx: typer.Context,
     source_type: Annotated[
         SourceDatasetType, typer.Option(help="Type of source dataset")
-    ] = SourceDatasetType.CMIP6.value,
+    ] = SourceDatasetType.CMIP6.value,  # type: ignore
     include_files: bool = typer.Option(False, help="Include files in the output"),
 ) -> None:
     """

@@ -204,7 +204,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
         return dataset
 
-    def load_catalog(self, db: Database) -> pd.DataFrame:
+    def load_catalog(self, db: Database, include_files: bool = True) -> pd.DataFrame:
         """
         Load the data catalog containing the currently tracked datasets/files from the database
 
@@ -217,26 +217,33 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             Data catalog containing the metadata for the currently ingested datasets
         """
         # TODO: Paginate this query to avoid loading all the data at once
-        result = (
-            db.session.query(CMIP6File)
-            # The join is necessary to be able to order by the dataset columns
-            .join(CMIP6File.dataset)
-            # The joinedload is necessary to avoid N+1 queries (one for each dataset)
-            # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-            .options(joinedload(CMIP6File.dataset))
-            .order_by(
-                CMIP6Dataset.instance_id,
-                CMIP6File.start_time,
+        if include_files:
+            result = (
+                db.session.query(CMIP6File)
+                # The join is necessary to be able to order by the dataset columns
+                .join(CMIP6File.dataset)
+                # The joinedload is necessary to avoid N+1 queries (one for each dataset)
+                # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
+                .options(joinedload(CMIP6File.dataset))
+                .order_by(
+                    CMIP6Dataset.instance_id,
+                    CMIP6File.start_time,
+                )
+                .all()
             )
-            .all()
-        )
 
-        return pd.DataFrame(
-            [
-                {
-                    **{k: getattr(file, k) for k in self.file_specific_metadata},
-                    **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
-                }
-                for file in result
-            ],
-        )
+            return pd.DataFrame(
+                [
+                    {
+                        **{k: getattr(file, k) for k in self.file_specific_metadata},
+                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
+                    }
+                    for file in result
+                ],
+            )
+        else:
+            result = db.session.query(CMIP6Dataset).order_by(CMIP6Dataset.instance_id).all()
+
+            return pd.DataFrame(
+                [{k: getattr(dataset, k) for k in self.dataset_specific_metadata} for dataset in result],
+            )

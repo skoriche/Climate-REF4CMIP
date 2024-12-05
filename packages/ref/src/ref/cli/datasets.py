@@ -1,6 +1,11 @@
+"""
+View and ingest input datasets
+"""
+
 import errno
 import os
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
@@ -10,17 +15,15 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from ref.cli.config import load_config
-from ref.database import Database
 from ref.datasets import get_dataset_adapter
-from ref.models.dataset import Dataset
+from ref.models import Dataset
 from ref.solver import solve_metrics
 
-app = typer.Typer()
+app = typer.Typer(help=__doc__)
 console = Console()
 
 
-def pretty_print_df(df: pd.DataFrame) -> None:
+def _pretty_print_df(df: pd.DataFrame) -> None:
     """
     Pretty print a DataFrame
 
@@ -43,10 +46,60 @@ def pretty_print_df(df: pd.DataFrame) -> None:
     console.print(table)
 
 
+@app.command(name="list")
+def list_(
+    ctx: typer.Context,
+    source_type: Annotated[
+        SourceDatasetType, typer.Option(help="Type of source dataset")
+    ] = SourceDatasetType.CMIP6.value,
+    column: Annotated[list[str] | None, typer.Option()] = None,
+    include_files: bool = typer.Option(False, help="Include files in the output"),
+) -> None:
+    """
+    Print the current ref configuration
+
+    If a configuration directory is provided,
+    the configuration will attempt to load from the specified directory.
+    """
+    database = ctx.obj.database
+
+    adapter = get_dataset_adapter(source_type.value)
+    data_catalog = adapter.load_catalog(database, include_files=include_files)
+
+    if column:
+        pd.set_option("display.max_colwidth", None)
+        data_catalog = data_catalog[column]
+
+    print(data_catalog)
+
+
+@app.command()
+def list_columns(
+    ctx: typer.Context,
+    source_type: Annotated[
+        SourceDatasetType, typer.Option(help="Type of source dataset")
+    ] = SourceDatasetType.CMIP6.value,
+    include_files: bool = typer.Option(False, help="Include files in the output"),
+) -> None:
+    """
+    Print the current ref configuration
+
+    If a configuration directory is provided,
+    the configuration will attempt to load from the specified directory.
+    """
+    database = ctx.obj.database
+
+    adapter = get_dataset_adapter(source_type.value)
+    data_catalog = adapter.load_catalog(database, include_files=include_files)
+
+    for column in sorted(data_catalog.columns.to_list()):
+        print(column)
+
+
 @app.command()
 def ingest(
+    ctx: typer.Context,
     file_or_directory: Path,
-    configuration_directory: Path | None = typer.Option(None, help="Configuration directory"),
     source_type: SourceDatasetType = typer.Option(help="Type of source dataset"),
     solve: bool = typer.Option(False, help="Run metrics after ingestion"),
     dry_run: bool = typer.Option(False, help="Do not execute any metrics"),
@@ -56,8 +109,8 @@ def ingest(
 
     This will register a dataset in the database to be used for metrics calculations.
     """
-    config = load_config(configuration_directory)
-    db = Database.from_config(config)
+    config = ctx.obj.config
+    db = ctx.obj.database
 
     logger.info(f"ingesting {file_or_directory}")
 
@@ -72,7 +125,7 @@ def ingest(
     adapter.validate_data_catalog(data_catalog)
 
     logger.info(f"Found {len(data_catalog)} files for {len(data_catalog.index.unique())} datasets")
-    pretty_print_df(adapter.pretty_subset(data_catalog))
+    _pretty_print_df(adapter.pretty_subset(data_catalog))
 
     for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
         logger.info(f"Processing dataset {instance_id}")

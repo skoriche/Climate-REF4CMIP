@@ -51,7 +51,7 @@ jobs:
       - name: docs
         run: |
           mkdir -p ${{ github.workspace }}/.ref/db
-          uv run ref ingest --source-type cmip6 .esgpull/data
+          uv run ref datasets ingest --source-type cmip6 .esgpull/data
           uv run mkdocs build --strict
 
   tests:

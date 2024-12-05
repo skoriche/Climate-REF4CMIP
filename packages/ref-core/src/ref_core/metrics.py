@@ -24,9 +24,12 @@ class MetricExecutionDefinition:
     This is relative to the temporary directory which may differ by executor.
     """
 
-    slug: str
+    key: str
     """
     A unique identifier for the metric execution
+
+    The key is a hash of the group by values for the datasets used in the metric execution.
+    Duplicate keys will occur when new datasets are available that match the same group by values.
     """
 
     metric_dataset: MetricDataset
@@ -123,6 +126,9 @@ class DataRequirement:
     Each group will contain a unique combination of values from the metadata fields,
     and will result in a separate execution of the metric.
     If `group_by=None`, all datasets will be processed together as a single execution.
+
+    The unique values of the group by fields are used to create a unique key for the metric execution.
+    Changing the value of `group_by` may invalidate all previous metric executions.
     """
 
     constraints: tuple[GroupConstraint, ...] = field(factory=tuple)

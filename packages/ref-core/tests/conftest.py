@@ -52,5 +52,5 @@ def mock_metric(tmp_path) -> MockMetric:
 @pytest.fixture
 def metric_definition(tmp_path) -> MetricExecutionDefinition:
     return MetricExecutionDefinition(
-        output_fragment=tmp_path, slug="mocked-metric-slug", metric_dataset=MetricDataset({})
+        output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=MetricDataset({})
     )

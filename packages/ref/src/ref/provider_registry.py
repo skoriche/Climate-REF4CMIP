@@ -10,9 +10,48 @@ These metrics cannot be run locally, but can be executed using other executors.
 """
 
 from attrs import field, frozen
+from loguru import logger
 from ref_core.providers import MetricsProvider
 
 from ref.database import Database
+
+
+def _register_provider(db: Database, provider: MetricsProvider) -> None:
+    """
+    Register a provider with the database
+
+    This is temporary until we have a proper flow for registering providers
+
+    Parameters
+    ----------
+    provider
+        MetricsProvider instance
+    """
+    from ref.models import Metric, Provider
+
+    provider_model, created = db.get_or_create(
+        Provider,
+        slug=provider.slug,
+        version=provider.version,
+        defaults={
+            "name": provider.name,
+        },
+    )
+    if created:
+        logger.info(f"Created provider {provider.slug}")
+        db.session.flush()
+
+    for metric in provider.metrics():
+        metric_model, created = db.get_or_create(
+            Metric,
+            slug=metric.slug,
+            provider_id=provider_model.id,
+            defaults={
+                "name": metric.name,
+            },
+        )
+        if created:
+            logger.info(f"Created metric {metric_model.slug}")
 
 
 @frozen
@@ -42,4 +81,8 @@ class ProviderRegistry:
             A new ProviderRegistry instance
         """
         # TODO: We don't yet have any tables to represent metrics providers
-        return ProviderRegistry(providers=[])
+        from ref_metrics_example import provider
+
+        with db.session.begin_nested():
+            _register_provider(db, provider)
+        return ProviderRegistry(providers=[provider])

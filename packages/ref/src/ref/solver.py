@@ -24,6 +24,10 @@ from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
+from ref.models import Metric as MetricModel
+from ref.models import MetricExecution as MetricExecutionModel
+from ref.models import Provider as ProviderModel
+from ref.models.metric_execution import MetricExecutionResult
 from ref.provider_registry import ProviderRegistry
 
 
@@ -42,11 +46,25 @@ class MetricExecution:
         Build the metric execution info for the current metric execution
         """
         # TODO: We might want to pretty print the dataset slug
-        slug = "_".join([self.provider.slug, self.metric.slug, self.metric_dataset.slug])
+        key_values = []
+        for requirement in self.metric.data_requirements:
+            source_datasets = self.metric_dataset[requirement.source_type]
+
+            _subset = source_datasets[list(requirement.group_by)] if requirement.group_by else source_datasets
+            unique_values = _subset.drop_duplicates()
+            if len(unique_values) != 1:
+                logger.error(f"Unique values: {unique_values}")
+                raise InvalidMetricException(
+                    self.metric,
+                    f"Expected a single group for {requirement.source_type} but got {len(unique_values)}",
+                )
+            key_values.extend(unique_values.iloc[0].to_list())
+
+        key = "_".join(key_values)
 
         return MetricExecutionDefinition(
-            output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.slug,
-            slug=slug,
+            output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.hash,
+            key=key,
             metric_dataset=self.metric_dataset,
         )
 
@@ -55,6 +73,10 @@ def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequir
     """
     Determine the different metric executions that should be performed with the current data catalog
     """
+    if len(data_catalog) == 0:
+        logger.error(f"No datasets found in the data catalog: {requirement.source_type.value}")
+        return []
+
     subset = requirement.apply_filters(data_catalog)
 
     if len(subset) == 0:
@@ -204,7 +226,40 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
     for metric_execution in solver.solve():
         info = metric_execution.build_metric_execution_info()
 
-        logger.info(f"Calculating metric {info.slug}")
+        logger.debug(f"Identified candidate metric execution {info.key}")
 
         if not dry_run:
-            executor.run_metric(metric=metric_execution.metric, definition=info)
+            metric_execution_model, created = db.get_or_create(
+                MetricExecutionModel,
+                key=info.key,
+                metric_id=db.session.query(MetricModel)
+                .join(MetricModel.provider)
+                .filter(
+                    ProviderModel.slug == metric_execution.provider.slug,
+                    ProviderModel.version == metric_execution.provider.version,
+                    MetricModel.slug == metric_execution.metric.slug,
+                )
+                .one()
+                .id,
+                defaults={
+                    "dirty": True,
+                    "retracted": False,
+                },
+            )
+
+            if created:
+                logger.info(f"Created metric execution {info.key}")
+                db.session.flush()
+
+            if metric_execution_model.should_run(info.metric_dataset.hash):
+                logger.info(f"Running metric {metric_execution_model.key}")
+                metric_execution_result = MetricExecutionResult(
+                    metric_execution=metric_execution_model, dataset_hash=info.metric_dataset.hash
+                )
+                db.session.add(metric_execution_result)
+                db.session.flush()
+
+                # TODO add datasets
+                executor.run_metric(metric=metric_execution.metric, definition=info)
+                metric_execution_result.successful = True
+                metric_execution_model.dirty = False

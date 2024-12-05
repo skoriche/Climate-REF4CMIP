@@ -61,11 +61,14 @@ class DatasetCollection:
 
     datasets: pd.DataFrame
     slug_column: str
+    """
+    Column in datasets that contains the unique identifier for the dataset
+    """
 
     def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)
 
-    def __getitem__(self, item: str) -> Any:
+    def __getitem__(self, item: str | list[str]) -> Any:
         return self.datasets[item]
 
     def __hash__(self) -> int:
@@ -92,10 +95,10 @@ class MetricDataset:
         return self._collection[key]
 
     def __hash__(self) -> int:
-        return hash(self.slug)
+        return hash(self.hash)
 
     @property
-    def slug(self) -> str:
+    def hash(self) -> str:
         """
         Unique identifier for the collection
 

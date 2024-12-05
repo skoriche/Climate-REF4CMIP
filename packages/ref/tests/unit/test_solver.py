@@ -14,10 +14,11 @@ from ref.solver import MetricSolver, extract_covered_datasets, solve_metrics
 @pytest.fixture
 def solver(db_seeded) -> MetricSolver:
     registry = ProviderRegistry(providers=[provider])
-
     # Use a fixed set of providers for the test suite until we can pull from the DB
-    metric_solver = MetricSolver.build_from_db(db_seeded)
+    with db_seeded.session.begin():
+        metric_solver = MetricSolver.build_from_db(db_seeded)
     metric_solver.provider_registry = registry
+
     return metric_solver
 
 
@@ -175,14 +176,16 @@ def test_data_coverage(requirement, data_catalog, expected):
 
 @mock.patch("ref.solver.get_executor")
 def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
-    solve_metrics(db_seeded)
+    with db_seeded.session.begin():
+        solve_metrics(db_seeded)
 
-    assert mock_executor.return_value.run_metric.call_count == 0
+    assert mock_executor.return_value.run_metric.call_count == 2
 
 
 @mock.patch("ref.solver.get_executor")
 def test_solve_metrics(mock_executor, db_seeded, solver):
-    solve_metrics(db_seeded, dry_run=False, solver=solver)
+    with db_seeded.session.begin():
+        solve_metrics(db_seeded, dry_run=False, solver=solver)
 
     assert mock_executor.return_value.run_metric.call_count == 2
 
@@ -192,17 +195,20 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
         ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn"],
         ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn"],
     ]
-    expected_slugs = [
-        "example_global-mean-timeseries_3f3e279497006b055e8449f49562dea31c9c9b0f",
-        "example_global-mean-timeseries_afd155388b894babbeee7ac01bf5127d4ced19bd",
+    expected_keys = [
+        "ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1",
+        "ACCESS-ESM1-5_tas_ssp126_r1i1p1f1",
     ]
 
     for definition in definitions:
         assert definition.metric_dataset["cmip6"].instance_id.unique().tolist() in expected_instance_ids
-        assert definition.slug in expected_slugs
+        assert definition.key in expected_keys
 
 
-def test_solve_metrics_dry_run(db_seeded):
-    solve_metrics(db_seeded, dry_run=True)
+@mock.patch("ref.solver.get_executor")
+def test_solve_metrics_dry_run(mock_executor, db_seeded, solver):
+    solve_metrics(db_seeded, dry_run=True, solver=solver)
+
+    assert mock_executor.return_value.run_metric.call_count == 0
 
     # TODO: Check that no new metrics were added to the db

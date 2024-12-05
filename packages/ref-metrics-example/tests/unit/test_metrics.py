@@ -31,7 +31,7 @@ def test_example_metric(tmp_path, metric_dataset, cmip6_data_catalog):
 
     configuration = MetricExecutionDefinition(
         output_fragment=tmp_path,
-        slug="global_mean_timeseries",
+        key="global_mean_timeseries",
         metric_dataset=MetricDataset(
             {
                 SourceDatasetType.CMIP6: DatasetCollection(ds, "instance_id"),

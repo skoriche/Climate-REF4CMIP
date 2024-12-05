@@ -31,7 +31,8 @@ class TestCMIP6Adapter:
         assert len(df) == 9  # unique files
         assert df.groupby("instance_id").ngroups == 5  # unique datasets
 
-        catalog_regression(df, basename="cmip6_catalog_db")
+        # The order of the rows may be flakey due to sqlite ordering and the created time resolution
+        catalog_regression(df.sort_values(["instance_id", "start_time"]), basename="cmip6_catalog_db")
 
     def test_round_trip(self, db_seeded, esgf_data_dir):
         adapter = CMIP6DatasetAdapter()

@@ -35,10 +35,18 @@ class TestCMIP6Adapter:
         catalog_regression(df.sort_values(["instance_id", "start_time"]), basename="cmip6_catalog_db")
 
     def test_round_trip(self, db_seeded, esgf_data_dir):
+        # Indexes and ordering may be different
         adapter = CMIP6DatasetAdapter()
-        local_data_catalog = adapter.find_local_datasets(esgf_data_dir).drop(columns=["time_range"])
+        local_data_catalog = (
+            adapter.find_local_datasets(esgf_data_dir)
+            .drop(columns=["time_range"])
+            .sort_values(["instance_id", "start_time"])
+            .reset_index(drop=True)
+        )
 
-        db_data_catalog = adapter.load_catalog(db_seeded)
+        db_data_catalog = (
+            adapter.load_catalog(db_seeded).sort_values(["instance_id", "start_time"]).reset_index(drop=True)
+        )
 
         # TODO: start_time has a different dtype from the database due to pandas dt coercion
         db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)

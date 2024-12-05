@@ -263,5 +263,3 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
                 executor.run_metric(metric=metric_execution.metric, definition=info)
                 metric_execution_result.successful = True
                 metric_execution_model.dirty = False
-
-            db.session.commit()

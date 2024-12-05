@@ -68,7 +68,7 @@ def test_dataset_polymorphic(db):
         )
     )
     assert db.session.query(CMIP6Dataset).count() == 1
-    assert db.session.query(Dataset).first().hash == "test"
+    assert db.session.query(Dataset).first().slug == "test"
     assert db.session.query(Dataset).first().dataset_type == SourceDatasetType.CMIP6
 
 

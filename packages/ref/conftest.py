@@ -32,8 +32,8 @@ def db_seeded(config, cmip6_data_catalog) -> Database:
 
     # Seed with all the datasets in the ESGF data directory
     # This includes datasets which span multiple file and until 2300
-    for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
-        adapter.register_dataset(config, database, data_catalog_dataset)
+    with database.session.begin():
+        for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
+            adapter.register_dataset(config, database, data_catalog_dataset)
 
-    database.session.commit()
     return database

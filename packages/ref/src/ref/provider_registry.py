@@ -27,34 +27,31 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
     provider
         MetricsProvider instance
     """
-    with db.session.begin():
-        from ref.models import Provider
+    from ref.models import Metric, Provider
 
-        provider_model, created = db.get_or_create(
-            Provider,
-            slug=provider.slug,
-            version=provider.version,
+    provider_model, created = db.get_or_create(
+        Provider,
+        slug=provider.slug,
+        version=provider.version,
+        defaults={
+            "name": provider.name,
+        },
+    )
+    if created:
+        logger.info(f"Created provider {provider.slug}")
+        db.session.flush()
+
+    for metric in provider.metrics():
+        metric_model, created = db.get_or_create(
+            Metric,
+            slug=metric.slug,
+            provider_id=provider_model.id,
             defaults={
-                "name": provider.name,
+                "name": metric.name,
             },
         )
         if created:
-            logger.info(f"Created provider {provider.slug}")
-            db.session.flush()
-
-        from ref.models import Metric
-
-        for metric in provider.metrics():
-            metric_model, created = db.get_or_create(
-                Metric,
-                slug=metric.slug,
-                provider_id=provider_model.id,
-                defaults={
-                    "name": metric.name,
-                },
-            )
-            if created:
-                logger.info(f"Created metric {metric_model.slug}")
+            logger.info(f"Created metric {metric_model.slug}")
 
 
 @frozen
@@ -86,5 +83,6 @@ class ProviderRegistry:
         # TODO: We don't yet have any tables to represent metrics providers
         from ref_metrics_example import provider
 
-        _register_provider(db, provider)
+        with db.session.begin_nested():
+            _register_provider(db, provider)
         return ProviderRegistry(providers=[provider])

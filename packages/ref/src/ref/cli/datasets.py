@@ -67,10 +67,9 @@ def list_(
     data_catalog = adapter.load_catalog(database, include_files=include_files)
 
     if column:
-        pd.set_option("display.max_colwidth", None)
         data_catalog = data_catalog[column]
 
-    print(data_catalog)
+    _pretty_print_df(data_catalog)
 
 
 @app.command()
@@ -124,7 +123,9 @@ def ingest(
     data_catalog = adapter.find_local_datasets(file_or_directory)
     adapter.validate_data_catalog(data_catalog)
 
-    logger.info(f"Found {len(data_catalog)} files for {len(data_catalog.index.unique())} datasets")
+    logger.info(
+        f"Found {len(data_catalog)} files for {len(data_catalog[adapter.slug_column].unique())} datasets"
+    )
     _pretty_print_df(adapter.pretty_subset(data_catalog))
 
     for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):

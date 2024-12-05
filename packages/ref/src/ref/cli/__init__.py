@@ -1,7 +1,7 @@
 """Entrypoint for the CLI"""
 
-import logging
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -15,6 +15,16 @@ from ref.cli._logging import capture_logging
 from ref.config import Config
 from ref.constants import config_filename
 from ref.database import Database
+
+
+class LogLevel(str, Enum):
+    """
+    Log levels for the CLI
+    """
+
+    Normal = "WARNING"
+    Debug = "DEBUG"
+    Info = "INFO"
 
 
 @define
@@ -73,8 +83,9 @@ app.add_typer(datasets.app, name="datasets")
 @app.callback()
 def main(
     ctx: typer.Context,
-    configuration_directory: Path | None = typer.Option(None, help="Configuration directory"),
-    verbose: bool = typer.Option(False, "--verbose", "-v"),
+    configuration_directory: Annotated[Path | None, typer.Option(help="Configuration directory")] = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+    log_level: Annotated[LogLevel, typer.Option(case_sensitive=False)] = LogLevel.Normal,
     version: Annotated[
         Optional[bool],
         typer.Option("--version", callback=_version_callback, is_eager=True),
@@ -85,12 +96,11 @@ def main(
     """
     capture_logging()
 
-    lvl = logging.INFO
     if verbose:
-        lvl = logging.DEBUG
+        log_level = LogLevel.Debug
 
     logger.remove()
-    logger.add(sys.stderr, level=lvl)
+    logger.add(sys.stderr, level=log_level.value)
 
     config = load_config(configuration_directory)
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))

@@ -1,8 +1,8 @@
-"""metric-tables
+"""add_metrics
 
-Revision ID: dadc7c118e68
+Revision ID: 4b95a617184e
 Revises: ea2aa1134cb3
-Create Date: 2024-12-04 17:04:17.898589
+Create Date: 2024-12-05 22:10:07.971615
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "dadc7c118e68"
+revision: str = "4b95a617184e"
 down_revision: Union[str, None] = "ea2aa1134cb3"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,7 +37,6 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("slug", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("version", sa.String(), nullable=False),
         sa.Column("provider_id", sa.Integer(), nullable=False),
         sa.Column("enabled", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),
@@ -47,6 +46,7 @@ def upgrade() -> None:
             ["provider.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("provider_id", "slug", name="metric_ident"),
         sa.UniqueConstraint("slug"),
     )
     op.create_table(
@@ -63,6 +63,7 @@ def upgrade() -> None:
             ["metric.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("metric_id", "key", name="metric_execution_ident"),
     )
     with op.batch_alter_table("metric_execution", schema=None) as batch_op:
         batch_op.create_index(batch_op.f("ix_metric_execution_key"), ["key"], unique=False)
@@ -81,10 +82,11 @@ def upgrade() -> None:
             ["metric_execution.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("metric_execution_id", "dataset_hash", name="metric_execution_result_ident"),
     )
     with op.batch_alter_table("metric_execution_result", schema=None) as batch_op:
         batch_op.create_index(
-            batch_op.f("ix_metric_execution_result_dataset_hash"), ["dataset_hash"], unique=True
+            batch_op.f("ix_metric_execution_result_dataset_hash"), ["dataset_hash"], unique=False
         )
 
     op.create_table(

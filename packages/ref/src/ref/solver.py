@@ -253,7 +253,6 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
 
             if metric_execution_model.should_run(info.metric_dataset.hash):
                 logger.info(f"Running metric {metric_execution_model.key}")
-                logger.warning(f"{metric_execution_model}, {info.metric_dataset.hash}")
                 metric_execution_result = MetricExecutionResult(
                     metric_execution=metric_execution_model, dataset_hash=info.metric_dataset.hash
                 )

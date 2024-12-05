@@ -45,12 +45,13 @@ class MetricExecution:
         """
         Build the metric execution info for the current metric execution
         """
-        # FTODO: We might want to pretty print the dataset slug
+        # TODO: We might want to pretty print the dataset slug
         key_values = []
         for requirement in self.metric.data_requirements:
             source_datasets = self.metric_dataset[requirement.source_type]
 
-            unique_values = source_datasets[list(requirement.group_by)].drop_duplicates()
+            _subset = source_datasets[list(requirement.group_by)] if requirement.group_by else source_datasets
+            unique_values = _subset.drop_duplicates()
             if len(unique_values) != 1:
                 logger.error(f"Unique values: {unique_values}")
                 raise InvalidMetricException(

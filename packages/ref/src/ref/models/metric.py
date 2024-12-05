@@ -47,7 +47,7 @@ class Metric(CreatedUpdatedMixin, Base):
     executions: Mapped[list["MetricExecution"]] = relationship(back_populates="metric")
 
     def __repr__(self) -> str:
-        return f"<Metric slug={self.slug} version={self.version}>"
+        return f"<Metric slug={self.slug}>"
 
     def full_slug(self) -> str:
         """

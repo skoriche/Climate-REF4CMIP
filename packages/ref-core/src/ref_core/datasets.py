@@ -68,7 +68,7 @@ class DatasetCollection:
     def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)
 
-    def __getitem__(self, item: str) -> Any:
+    def __getitem__(self, item: str | list[str]) -> Any:
         return self.datasets[item]
 
     def __hash__(self) -> int:

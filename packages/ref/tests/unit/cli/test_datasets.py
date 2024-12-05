@@ -26,7 +26,7 @@ class TestDatasetsList:
     def test_list_limit(self, db_seeded):
         result = runner.invoke(app, ["datasets", "list", "--limit", "1", "--column", "instance_id"])
         assert result.exit_code == 0, result.output
-        assert "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rlut.gn" in result.output
+        assert len(result.output.strip().split("\n")) == 3  # header + spacer + 1 row
 
     def test_list_column(self, db_seeded):
         result = runner.invoke(app, ["datasets", "list", "--column", "variable_id"])

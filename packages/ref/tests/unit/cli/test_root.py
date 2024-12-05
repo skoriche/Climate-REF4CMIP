@@ -36,3 +36,34 @@ def test_verbose():
     )
     # Only info and higher messages logged
     assert exp_log not in result.stderr
+
+
+def test_config_directory_custom(config):
+    config.paths.tmp = "test-value"
+    config.save()
+
+    result = runner.invoke(
+        app,
+        [
+            "--configuration-directory",
+            str(config._config_file.parent),
+            "config",
+            "list",
+        ],
+    )
+    assert result.exit_code == 0
+    assert 'tmp = "test-value"\n' in result.output
+
+
+def test_config_directory_append(config):
+    # configuration directory must be passed before command
+    result = runner.invoke(
+        app,
+        [
+            "config",
+            "list",
+            "--configuration-directory",
+            str(config._config_file.parent),
+        ],
+    )
+    assert result.exit_code == 2

@@ -26,13 +26,13 @@ from loguru import logger
 from ref_core.datasets import FacetFilter, SourceDatasetType
 from ref_core.metrics import DataRequirement
 
-from ref.cli.config import load_config
+from ref.config import Config
 from ref.database import Database
 
 logger.remove()
 
 # %%
-config = load_config()
+config = Config.default()
 db = Database.from_config(config)
 
 # %% [markdown]

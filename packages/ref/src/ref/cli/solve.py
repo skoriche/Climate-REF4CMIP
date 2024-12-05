@@ -16,4 +16,5 @@ def solve(
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
     """
-    solve_metrics(ctx.obj.database, dry_run=dry_run)
+    with ctx.obj.database.session.begin():
+        solve_metrics(ctx.obj.database, dry_run=dry_run)

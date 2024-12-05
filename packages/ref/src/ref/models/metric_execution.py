@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -66,12 +67,17 @@ class MetricExecution(CreatedUpdatedMixin, Base):
         * the dataset hash is different from the last run
         """
         if not self.results:
+            logger.debug(f"Execution {self.key} no previous results")
             return True
 
         if self.results[-1].dataset_hash != dataset_hash:
+            logger.debug(
+                f"Execution {self.key} hash mismatch: {self.results[-1].dataset_hash} != {dataset_hash}"
+            )
             return True
 
         if self.dirty:
+            logger.debug(f"Execution {self.key} is dirty")
             return True
 
         return False

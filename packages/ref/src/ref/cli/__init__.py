@@ -1,51 +1,40 @@
 """Entrypoint for the CLI"""
 
-import inspect
-import logging
 import sys
+from enum import Enum
+from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
+from attrs import define
 from loguru import logger
 
 from ref import __core_version__, __version__
-from ref.cli import config, datasets, ingest, solve
+from ref.cli import config, datasets, solve
+from ref.cli._logging import capture_logging
+from ref.config import Config
+from ref.constants import config_filename
+from ref.database import Database
 
 
-class _InterceptHandler(logging.Handler):
-    def emit(self, record: logging.LogRecord) -> None:
-        # Get corresponding Loguru level if it exists.
-        level: str | int
-        try:
-            level = logger.level(record.levelname).name
-        except ValueError:  # pragma: no cover
-            level = record.levelno
-
-        # Find caller from where originated the logged message.
-        frame, depth = inspect.currentframe(), 0
-        while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
-            frame = frame.f_back
-            depth += 1
-
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
-
-
-def capture_logging() -> None:
+class LogLevel(str, Enum):
     """
-    Capture logging from the standard library and redirect it to Loguru
-
-    Note that this replaces the root logger, so any other handlers attached to it will be removed.
+    Log levels for the CLI
     """
-    # logger.debug("Capturing logging from the standard library")
-    logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
+
+    Normal = "WARNING"
+    Debug = "DEBUG"
+    Info = "INFO"
 
 
-app = typer.Typer(name="ref", no_args_is_help=True)
+@define
+class CLIContext:
+    """
+    Context object that can be passed to commands
+    """
 
-app.command(name="ingest")(ingest.ingest)
-app.command(name="solve")(solve.solve)
-app.add_typer(config.app, name="config")
-app.add_typer(datasets.app, name="datasets")
+    config: Config
+    database: Database
 
 
 def _version_callback(value: bool) -> None:
@@ -55,9 +44,48 @@ def _version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
+def load_config(configuration_directory: Path | None = None) -> Config:
+    """
+    Load the configuration from the specified directory
+
+    Parameters
+    ----------
+    configuration_directory
+        The directory to load the configuration from
+
+        If the specified directory is not found, the process will exit with an exit code of 1
+
+        If None, the default configuration will be loaded
+
+    Returns
+    -------
+    :
+        The configuration loaded from the specified directory
+    """
+    try:
+        if configuration_directory:
+            config = Config.load(configuration_directory / config_filename, allow_missing=False)
+        else:
+            config = Config.default()
+    except FileNotFoundError:
+        typer.secho("Configuration file not found", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    return config
+
+
+app = typer.Typer(name="ref", no_args_is_help=True)
+
+app.command(name="solve")(solve.solve)
+app.add_typer(config.app, name="config")
+app.add_typer(datasets.app, name="datasets")
+
+
 @app.callback()
 def main(
-    verbose: bool = typer.Option(False, "--verbose", "-v"),
+    ctx: typer.Context,
+    configuration_directory: Annotated[Path | None, typer.Option(help="Configuration directory")] = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+    log_level: Annotated[LogLevel, typer.Option(case_sensitive=False)] = LogLevel.Normal,
     version: Annotated[
         Optional[bool],
         typer.Option("--version", callback=_version_callback, is_eager=True),
@@ -68,9 +96,15 @@ def main(
     """
     capture_logging()
 
-    lvl = logging.INFO
     if verbose:
-        lvl = logging.DEBUG
+        log_level = LogLevel.Debug
 
     logger.remove()
-    logger.add(sys.stderr, level=lvl)
+    logger.add(sys.stderr, level=log_level.value)
+
+    config = load_config(configuration_directory)
+    ctx.obj = CLIContext(config=config, database=Database.from_config(config))
+
+
+if __name__ == "__main__":
+    app()

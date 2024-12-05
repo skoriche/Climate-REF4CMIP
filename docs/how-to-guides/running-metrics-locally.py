@@ -38,7 +38,7 @@ import ref_metrics_example
 from ref_core.datasets import SourceDatasetType
 from ref_core.executor import run_metric
 
-from ref.cli.config import load_config
+from ref.config import Config
 from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.provider_registry import ProviderRegistry
@@ -64,7 +64,7 @@ metric = provider.get("global-mean-timeseries")
 prettyprinter.pprint(metric.data_requirements[0])
 
 # %% tags=["hide_code"]
-config = load_config()
+config = Config.default()
 db = Database.from_config(config)
 
 # %% [markdown]

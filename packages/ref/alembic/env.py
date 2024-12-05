@@ -8,7 +8,7 @@ from ref.models import Base
 
 # Setup logging
 capture_logging()
-logger.info("Running alembic env")
+logger.debug("Running alembic env")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

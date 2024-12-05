@@ -13,8 +13,8 @@ dependencies = [
     "ref-metrics-example",
 ]
 
-#[project.license]
-#text = "Apache-2.0"
+[project.license]
+text = "Apache-2.0"
 
 [tool.uv]
 # These are the project wide development dependencies
@@ -114,8 +114,6 @@ filterwarnings = [
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
 
-
-
 # We currently check for GPL licensed code, but this restriction may be removed
 [tool.liccheck]
 authorized_licenses = [
@@ -125,12 +123,14 @@ authorized_licenses = [
     "CC0",
     "apache",
     "apache 2.0",
+    "apache-2.0",
     "apache software",
     "apache software license",
     "Apache License, Version 2.0",
-    "Historical Permission Notice and Disclaimer (HPND)",
+    "CMU License (MIT-CMU)",
     "isc license",
     "isc license (iscl)",
+    "GNU Library or Lesser General Public License (LGPL)",
     "gnu lgpl",
     "lgpl with exceptions or zpl",
     "LGPLv2+",

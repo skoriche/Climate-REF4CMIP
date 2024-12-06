@@ -20,6 +20,7 @@ build:
     - uv sync --frozen
     # Fetch test data from ESGF (needed by notebooks)
     - uv run esgpull self install $READTHEDOCS_REPOSITORY_PATH/.esgpull
+    - uv run esgpull config api.index_node esgf-node.llnl.gov
     - uv run python scripts/fetch_test_data.py
     - uv run ref datasets ingest --source-type cmip6 $READTHEDOCS_REPOSITORY_PATH/.esgpull/data
     # Run a strict build

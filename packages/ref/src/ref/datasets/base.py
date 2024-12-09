@@ -9,7 +9,9 @@ from ref.database import Database
 from ref.models.dataset import Dataset
 
 
-def _log_duplicate_metadata(data_catalog, unique_metadata):
+def _log_duplicate_metadata(
+    data_catalog: pd.DataFrame, unique_metadata: pd.DataFrame, slug_column: str
+) -> None:
     # Drop out the rows where the values are the same
     invalid_datasets = unique_metadata[unique_metadata.gt(1).any(axis=1)]
     # Drop out the columns where the values are the same
@@ -19,9 +21,11 @@ def _log_duplicate_metadata(data_catalog, unique_metadata):
         # Get the columns where the values are different
         invalid_dataset_nunique = invalid_datasets.loc[instance_id]
         invalid_dataset_columns = invalid_dataset_nunique[invalid_dataset_nunique.gt(1)].index.tolist()
+
+        # Include time_range in the list of invalid columns to make debugging easier
         invalid_dataset_columns.append("time_range")
 
-        data_catalog_subset = data_catalog[data_catalog.instance_id == instance_id]
+        data_catalog_subset = data_catalog[data_catalog[slug_column] == instance_id]
 
         logger.error(
             f"Dataset {instance_id} has varying metadata:\n{data_catalog_subset[invalid_dataset_columns]}"
@@ -97,7 +101,7 @@ class DatasetAdapter(Protocol):
             data_catalog[list(self.dataset_specific_metadata)].groupby(self.slug_column).nunique()
         )
         if unique_metadata.gt(1).any(axis=1).any():
-            _log_duplicate_metadata(data_catalog, unique_metadata)
+            _log_duplicate_metadata(data_catalog, unique_metadata, self.slug_column)
 
             if skip_invalid:
                 data_catalog = data_catalog[

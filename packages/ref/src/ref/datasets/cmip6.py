@@ -191,7 +191,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
         # Temporary fix for some datasets
         # TODO: Replace with a standalone package that contains metadata fixes for CMIP6 datasets
-        datasets = _apply_fixes(datasets).reset_index()
+        datasets = _apply_fixes(datasets)
 
         return datasets
 

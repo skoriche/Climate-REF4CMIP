@@ -42,7 +42,7 @@ class TestMetricDataset:
         )
 
     def test_slug(self, metric_dataset):
-        assert metric_dataset.hash == "69165f25de10cc0b682e6d1acd1026c0ad27448c"
+        assert metric_dataset.hash == "33cf5324201ff57067b548077f3bb26d9a7d9def"
 
 
 class TestDatasetCollection:
@@ -57,7 +57,7 @@ class TestDatasetCollection:
     def test_hash(self, dataset_collection, cmip6_data_catalog):
         dataset_hash = hash(dataset_collection)
         assert isinstance(dataset_hash, int)
-        assert dataset_hash == 162057064475757030
+        assert dataset_hash == 1411607912180158146
 
         assert dataset_hash == hash(DatasetCollection(cmip6_data_catalog, "instance_id"))
         assert dataset_hash != hash(

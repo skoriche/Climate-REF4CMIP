@@ -23,7 +23,7 @@ def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
     Pandas tries to coerce everything to their own datetime format, which is not what we want here.
     """
 
-    def _inner(date_string):
+    def _inner(date_string: str | None) -> datetime | None:
         if not date_string:
             return None
 

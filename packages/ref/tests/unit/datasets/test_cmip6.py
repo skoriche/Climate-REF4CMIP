@@ -25,7 +25,6 @@ def test_parse_datetime():
             dtype="object",
         ),
     )
-    pass
 
 
 class TestCMIP6Adapter:

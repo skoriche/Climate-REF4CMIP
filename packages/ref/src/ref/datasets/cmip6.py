@@ -147,6 +147,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             "table_id",
             "variable_id",
             "grid_label",
+            "version",
         ]
         datasets["instance_id"] = datasets.apply(
             lambda row: "CMIP6." + ".".join([row[item] for item in drs_items]), axis=1

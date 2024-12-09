@@ -192,8 +192,8 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
     definitions = [call.kwargs["definition"] for call in mock_executor.return_value.run_metric.mock_calls]
 
     expected_instance_ids = [
-        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn"],
-        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn"],
+        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318"],
+        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318"],
     ]
     expected_keys = [
         "ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1",

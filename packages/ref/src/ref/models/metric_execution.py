@@ -1,12 +1,15 @@
 from typing import TYPE_CHECKING
 
 from loguru import logger
+from ref_core.datasets import MetricDataset
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ref.models import Dataset
 from ref.models.base import Base, CreatedUpdatedMixin
 
 if TYPE_CHECKING:
+    from ref.database import Database
     from ref.models.metric import Metric
 
 
@@ -83,11 +86,19 @@ class MetricExecution(CreatedUpdatedMixin, Base):
         return False
 
 
+metric_datasets = Table(
+    "metric_execution_result_dataset",
+    Base.metadata,
+    Column("metric_execution_result_id", ForeignKey("metric_execution_result.id")),
+    Column("dataset_id", ForeignKey("dataset.id")),
+)
+
+
 class MetricExecutionResult(CreatedUpdatedMixin, Base):
     """
     Represents a run of a metric calculation
 
-    The metric_id, key form an identifier of a unique group
+    A execution might be run multiple times as new data becomes available.
     """
 
     __tablename__ = "metric_execution_result"
@@ -121,10 +132,14 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
 
     metric_execution: Mapped["MetricExecution"] = relationship(back_populates="results")
 
+    datasets: Mapped[list[Dataset]] = relationship(secondary=metric_datasets)
 
-metric_datasets = Table(
-    "metric_execution_result_dataset",
-    Base.metadata,
-    Column("metric_execution_result_id", ForeignKey("metric_execution_result.id")),
-    Column("dataset_id", ForeignKey("dataset.id")),
-)
+    def register_datasets(self, db: "Database", metric_dataset: MetricDataset) -> None:
+        """
+        Register the datasets used in the metric calculation
+        """
+        for _, dataset in metric_dataset.items():
+            db.session.execute(
+                metric_datasets.insert(),
+                [{"metric_execution_result_id": self.id, "dataset_id": idx} for idx in dataset.index],
+            )

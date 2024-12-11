@@ -25,3 +25,10 @@ def test_solve(esgf_data_dir, config):
     assert result.exit_code == 0, result.stdout
     assert "Created metric execution ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1" not in result.stdout
     assert db.session.query(MetricExecution).count() == 2
+    execution = db.session.query(MetricExecution).filter_by(key="ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1").one()
+
+    assert len(execution.results[0].datasets) == 1
+    assert (
+        execution.results[0].datasets[0].instance_id
+        == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318"
+    )

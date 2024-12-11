@@ -259,7 +259,9 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
                 db.session.add(metric_execution_result)
                 db.session.flush()
 
-                # TODO add datasets
+                # Add links to the datasets used in the execution
+                metric_execution_result.register_datasets(db, info.metric_dataset)
+
                 executor.run_metric(metric=metric_execution.metric, definition=info)
                 metric_execution_result.successful = True
                 metric_execution_model.dirty = False

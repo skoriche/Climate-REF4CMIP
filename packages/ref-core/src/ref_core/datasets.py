@@ -1,5 +1,6 @@
 import enum
 import hashlib
+from collections.abc import Iterable
 from typing import Any
 
 import pandas as pd
@@ -87,7 +88,7 @@ class MetricDataset:
     """
 
     def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
-        self._collection = collection
+        self._collection = {SourceDatasetType(k): v for k, v in collection.items()}
 
     def __getitem__(self, key: SourceDatasetType | str) -> DatasetCollection:
         if isinstance(key, str):
@@ -96,6 +97,12 @@ class MetricDataset:
 
     def __hash__(self) -> int:
         return hash(self.hash)
+
+    def items(self) -> Iterable[tuple[SourceDatasetType, DatasetCollection]]:
+        """
+        Iterate over the datasets in the collection
+        """
+        return self._collection.items()
 
     @property
     def hash(self) -> str:

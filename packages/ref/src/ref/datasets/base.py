@@ -120,6 +120,9 @@ class DatasetAdapter(Protocol):
         """
         Load the data catalog from the database
 
+        The index of the data catalog is the primary key of the dataset.
+        This should be maintained during any processing.
+
         Returns
         -------
         :

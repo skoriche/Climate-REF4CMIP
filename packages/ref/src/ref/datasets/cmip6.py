@@ -254,6 +254,9 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         Iterating over different datasets within the data catalog can be done using a `groupby`
         operation for the `instance_id` column.
 
+        The index of the data catalog is the primary key of the dataset.
+        This should be maintained during any processing.
+
         Returns
         -------
         :

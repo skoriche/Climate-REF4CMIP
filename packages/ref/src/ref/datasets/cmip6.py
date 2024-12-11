@@ -281,6 +281,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                     }
                     for file in result
                 ],
+                index=[file.dataset.id for file in result],
             )
         else:
             result_datasets = (
@@ -292,4 +293,5 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                     {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
                     for dataset in result_datasets
                 ],
+                index=[file.id for file in result_datasets],
             )

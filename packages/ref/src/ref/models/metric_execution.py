@@ -5,6 +5,7 @@ from ref_core.datasets import MetricDataset
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ref.models import Dataset
 from ref.models.base import Base, CreatedUpdatedMixin
 
 if TYPE_CHECKING:
@@ -85,6 +86,14 @@ class MetricExecution(CreatedUpdatedMixin, Base):
         return False
 
 
+metric_datasets = Table(
+    "metric_execution_result_dataset",
+    Base.metadata,
+    Column("metric_execution_result_id", ForeignKey("metric_execution_result.id")),
+    Column("dataset_id", ForeignKey("dataset.id")),
+)
+
+
 class MetricExecutionResult(CreatedUpdatedMixin, Base):
     """
     Represents a run of a metric calculation
@@ -123,6 +132,8 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
 
     metric_execution: Mapped["MetricExecution"] = relationship(back_populates="results")
 
+    datasets: Mapped[list[Dataset]] = relationship(secondary=metric_datasets)
+
     def register_datasets(self, db: "Database", metric_dataset: MetricDataset) -> None:
         """
         Register the datasets used in the metric calculation
@@ -132,11 +143,3 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
                 metric_datasets.insert(),
                 [{"metric_execution_result_id": self.id, "dataset_id": idx} for idx in dataset.index],
             )
-
-
-metric_datasets = Table(
-    "metric_execution_result_dataset",
-    Base.metadata,
-    Column("metric_execution_result_id", ForeignKey("metric_execution_result.id")),
-    Column("dataset_id", ForeignKey("dataset.id")),
-)

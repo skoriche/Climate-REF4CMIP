@@ -20,6 +20,7 @@ from ref_core.executor import get_executor
 from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
+from ref.config import Config
 from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
@@ -41,7 +42,7 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
-    def build_metric_execution_info(self) -> MetricExecutionDefinition:
+    def build_metric_execution_info(self, config: Config) -> MetricExecutionDefinition:
         """
         Build the metric execution info for the current metric execution
         """
@@ -63,6 +64,7 @@ class MetricExecution:
         key = "_".join(key_values)
 
         return MetricExecutionDefinition(
+            output_directory=config.paths.output,
             output_fragment=pathlib.Path(self.provider.slug) / self.metric.slug / self.metric_dataset.hash,
             key=key,
             metric_dataset=self.metric_dataset,
@@ -209,7 +211,9 @@ class MetricSolver:
             )
 
 
-def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | None = None) -> None:
+def solve_metrics(
+    config: Config, db: Database, dry_run: bool = False, solver: MetricSolver | None = None
+) -> None:
     """
     Solve for metrics that require recalculation
 
@@ -224,7 +228,7 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
     executor = get_executor(env.str("REF_EXECUTOR", "local"))
 
     for metric_execution in solver.solve():
-        info = metric_execution.build_metric_execution_info()
+        info = metric_execution.build_metric_execution_info(config)
 
         logger.debug(f"Identified candidate metric execution {info.key}")
 
@@ -259,7 +263,9 @@ def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | No
                 db.session.add(metric_execution_result)
                 db.session.flush()
 
-                # TODO add datasets
+                # Add links to the datasets used in the execution
+                metric_execution_result.register_datasets(db, info.metric_dataset)
+
                 executor.run_metric(metric=metric_execution.metric, definition=info)
                 metric_execution_result.successful = True
                 metric_execution_model.dirty = False

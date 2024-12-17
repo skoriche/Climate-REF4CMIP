@@ -1,9 +1,10 @@
 import datetime
 
+import numpy as np
 import pandas as pd
 import pytest
 
-from ref.datasets.cmip6 import CMIP6DatasetAdapter, _parse_datetime
+from ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
 
 
 @pytest.fixture
@@ -76,3 +77,28 @@ class TestCMIP6Adapter:
         catalog_regression(
             data_catalog.sort_values(["instance_id", "start_time"]), basename="cmip6_catalog_local"
         )
+
+
+def test_apply_fixes():
+    df = pd.DataFrame(
+        {
+            "instance_id": ["dataset_001", "dataset_001", "dataset_002"],
+            "parent_variant_label": ["r1i1p1f1", "r1i1p1f2", "r1i1p1f2"],
+            "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
+            "branch_time_in_child": ["0D", "12", "12.0"],
+            "branch_time_in_parent": [None, "12", "12.0"],
+        }
+    )
+
+    res = _apply_fixes(df)
+
+    exp = pd.DataFrame(
+        {
+            "instance_id": ["dataset_001", "dataset_001", "dataset_002"],
+            "parent_variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
+            "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
+            "branch_time_in_child": [0.0, 12.0, 12.0],
+            "branch_time_in_parent": [np.nan, 12.0, 12.0],
+        }
+    )
+    pd.testing.assert_frame_equal(res, exp)

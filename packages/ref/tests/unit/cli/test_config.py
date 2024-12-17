@@ -2,14 +2,15 @@ import os
 
 
 def test_without_subcommand(invoke_cli):
+    # exit code 2 denotes a user error
     result = invoke_cli(["config"], expected_exit_code=2)
     assert "Missing command." in result.stderr
 
 
 def test_config_help(invoke_cli):
-    result = invoke_cli(["config", "--help"], expected_exit_code=2)
+    result = invoke_cli(["config", "--help"])
 
-    assert "View and update the REF configuration" in result.stderr
+    assert "View and update the REF configuration" in result.stdout
 
 
 class TestConfigList:

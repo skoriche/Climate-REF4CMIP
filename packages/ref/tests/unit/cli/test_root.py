@@ -10,7 +10,7 @@ def test_without_subcommand(invoke_cli):
 
 def test_version(invoke_cli):
     result = invoke_cli(["--version"])
-    assert f"ref: {__version__}\nref-core: {__core_version__}" in result.output
+    assert f"ref: {__version__}\nref-core: {__core_version__}" in result.stdout
 
 
 def test_verbose(invoke_cli):

@@ -8,22 +8,22 @@ from ref.models.dataset import CMIP6Dataset, CMIP6File
 def test_ingest_help(invoke_cli):
     result = invoke_cli(["datasets", "ingest", "--help"])
 
-    assert "Ingest a dataset" in result.output
+    assert "Ingest a dataset" in result.stdout
 
 
 class TestDatasetsList:
     def test_list(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list"])
-        assert "experi…" in result.output
+        assert "experi…" in result.stdout
 
     def test_list_limit(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list", "--limit", "1", "--column", "instance_id"])
-        assert len(result.output.strip().split("\n")) == 3  # header + spacer + 1 row
+        assert len(result.stdout.strip().split("\n")) == 3  # header + spacer + 1 row
 
     def test_list_column(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list", "--column", "variable_id"])
-        assert "variable_id" in result.output
-        assert "grid" not in result.output
+        assert "variable_id" in result.stdout
+        assert "grid" not in result.stdout
 
     def test_list_column_invalid(self, db_seeded, invoke_cli):
         invoke_cli(["datasets", "list", "--column", "wrong"], expected_exit_code=1)
@@ -32,16 +32,16 @@ class TestDatasetsList:
 class TestDatasetsListColumns:
     def test_list(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list-columns"])
-        assert result.output.strip() == "\n".join(
+        assert result.stdout.strip() == "\n".join(
             sorted(CMIP6DatasetAdapter().load_catalog(db_seeded, include_files=False).columns.to_list())
         )
 
     def test_list_include_files(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list-columns", "--include-files"])
-        assert result.output.strip() == "\n".join(
+        assert result.stdout.strip() == "\n".join(
             sorted(CMIP6DatasetAdapter().load_catalog(db_seeded, include_files=True).columns.to_list())
         )
-        assert "start_time" in result.output
+        assert "start_time" in result.stdout
 
 
 class TestIngest:

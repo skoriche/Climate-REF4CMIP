@@ -67,7 +67,7 @@ class TestIngest:
                 "--solve",
             ],
         )
-        assert "Solving for metrics that require recalculation." in result.output
+        assert "Solving for metrics that require recalculation." in result.stderr
 
     def test_ingest_multiple_times(self, esgf_data_dir, db, invoke_cli):
         invoke_cli(
@@ -121,7 +121,7 @@ class TestIngest:
         assert isinstance(result.exception, FileNotFoundError)
         assert result.exception.filename == esgf_data_dir / "missing"
 
-        assert f'File or directory {esgf_data_dir / "missing"} does not exist' in result.output
+        assert f'File or directory {esgf_data_dir / "missing"} does not exist' in result.stderr
 
     def test_ingest_dryrun(self, esgf_data_dir, db, invoke_cli):
         invoke_cli(

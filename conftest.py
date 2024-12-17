@@ -52,6 +52,10 @@ def invoke_cli():
     """
     Invoke the CLI with the given arguments and verify the exit code
     """
+
+    # We want to split stderr and stdout
+    # stderr == logging
+    # stdout == output from commands
     runner = CliRunner(mix_stderr=False)
 
     def _invoke_cli(args: list[str], expected_exit_code: int = 0) -> Result:

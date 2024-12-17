@@ -9,7 +9,10 @@ from pathlib import Path
 import esgpull
 import pandas as pd
 import pytest
+from click.testing import Result
+from typer.testing import CliRunner
 
+from ref import cli
 from ref.config import Config
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 
@@ -42,3 +45,32 @@ def config(tmp_path, monkeypatch) -> Config:
     cfg.save()
 
     return cfg
+
+
+@pytest.fixture
+def invoke_cli():
+    """
+    Invoke the CLI with the given arguments and verify the exit code
+    """
+
+    # We want to split stderr and stdout
+    # stderr == logging
+    # stdout == output from commands
+    runner = CliRunner(mix_stderr=False)
+
+    def _invoke_cli(args: list[str], expected_exit_code: int = 0) -> Result:
+        result = runner.invoke(
+            app=cli.app,
+            args=args,
+        )
+
+        if result.exit_code != expected_exit_code:
+            print(result.stdout)
+            print(result.stderr)
+
+            if result.exception:
+                raise result.exception
+            raise ValueError(f"Expected exit code {expected_exit_code}, got {result.exit_code}")
+        return result
+
+    return _invoke_cli

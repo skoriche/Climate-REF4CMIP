@@ -1,51 +1,43 @@
 import os
 
-from typer.testing import CliRunner
 
-from ref.cli import app
-
-runner = CliRunner()
-
-
-def test_without_subcommand():
-    result = runner.invoke(app, ["config"])
-    assert result.exit_code == 2
-    assert "Missing command." in result.output
+def test_without_subcommand(invoke_cli):
+    # exit code 2 denotes a user error
+    result = invoke_cli(["config"], expected_exit_code=2)
+    assert "Missing command." in result.stderr
 
 
-def test_config_help():
-    result = runner.invoke(app, ["config", "--help"])
-    assert result.exit_code == 0
+def test_config_help(invoke_cli):
+    result = invoke_cli(["config", "--help"])
 
-    assert "View and update the REF configuration" in result.output
+    assert "View and update the REF configuration" in result.stdout
 
 
 class TestConfigList:
-    def test_config_list(self, config):
-        result = runner.invoke(app, ["config", "list"])
-        assert result.exit_code == 0
+    def test_config_list(self, config, invoke_cli):
+        result = invoke_cli(["config", "list"])
 
         config_dir = os.environ.get("REF_CONFIGURATION")
         assert f'data = "{config_dir}/data"\n' in result.output
         assert 'database_url = "sqlite://' in result.output
 
-    def test_config_list_custom_missing(self, config):
-        result = runner.invoke(
-            app,
+    def test_config_list_custom_missing(self, config, invoke_cli):
+        result = invoke_cli(
             [
                 "--configuration-directory",
                 "missing",
                 "config",
                 "list",
             ],
+            expected_exit_code=1,
         )
-        assert result.exit_code == 1, result.output
+
+        assert "Configuration file not found" in result.stdout
 
 
 class TestConfigUpdate:
-    def test_config_update(self):
-        result = runner.invoke(app, ["config", "update"])
-        assert result.exit_code == 0
+    def test_config_update(self, invoke_cli):
+        result = invoke_cli(["config", "update"])
 
         # TODO: actually implement this functionality
-        assert "config" in result.output
+        assert "config" in result.stdout

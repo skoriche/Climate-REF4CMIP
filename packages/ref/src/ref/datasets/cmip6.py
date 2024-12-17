@@ -52,15 +52,16 @@ def _apply_fixes(data_catalog: pd.DataFrame) -> pd.DataFrame:
 
     data_catalog = data_catalog.groupby("instance_id").apply(_fix_parent_variant_label).reset_index(drop=True)
 
-    # EC-Earth3 uses "D" as a suffix for the branch_time_in_child and branch_time_in_parent columns
-    data_catalog["branch_time_in_child"] = pd.to_numeric(
-        data_catalog["branch_time_in_child"].astype(str).str.replace("D", ""), errors="raise"
-    )
-    data_catalog["branch_time_in_parent"] = pd.to_numeric(
-        data_catalog["branch_time_in_parent"].astype(str).str.replace("D", ""), errors="raise"
-    )
+    data_catalog["branch_time_in_child"] = _clean_branch_time(data_catalog["branch_time_in_child"])
+    data_catalog["branch_time_in_parent"] = _clean_branch_time(data_catalog["branch_time_in_parent"])
 
     return data_catalog
+
+
+def _clean_branch_time(branch_time: pd.Series[str]) -> pd.Series[float]:
+    # EC-Earth3 uses "D" as a suffix for the branch_time_in_child and branch_time_in_parent columns
+    # Handle missing values (these result in nan values)
+    return pd.to_numeric(branch_time.astype(str).str.replace("D", "").replace("None", ""), errors="raise")
 
 
 class CMIP6DatasetAdapter(DatasetAdapter):

@@ -124,18 +124,15 @@ class MetricResult:
             successful=True,
         )
 
+    @staticmethod
+    def build_from_failure() -> "MetricResult":
+        """
+        Build a failed metric result.
 
-@frozen
-class FailedMetricResult(MetricResult):
-    """
-    The result of running a metric.
-
-    The content of the result follows the Earth System Metrics and Diagnostics Standards
-    ([EMDS](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md)).
-    """
-
-    def __init__(self):
-        super().__init__(output_bundle=None, successful=False)
+        This is a placeholder.
+        Additional log information should still be captured in the output bundle.
+        """
+        return MetricResult(output_bundle=None, successful=False)
 
 
 @frozen(hash=True)

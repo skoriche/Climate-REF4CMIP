@@ -2,7 +2,7 @@ from attrs import evolve
 from loguru import logger
 
 from ref.config import Config
-from ref_core.metrics import FailedMetricResult, Metric, MetricExecutionDefinition, MetricResult
+from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
 class LocalExecutor:
@@ -43,4 +43,4 @@ class LocalExecutor:
             return metric.run(definition=definition)
         except Exception:
             logger.exception(f"Error running metric {metric.slug}")
-            return FailedMetricResult()
+            return MetricResult.build_from_failure()

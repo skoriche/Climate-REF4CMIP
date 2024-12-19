@@ -37,6 +37,36 @@ class MetricExecutionDefinition:
     Collection of datasets required for the metric execution
     """
 
+    output_directory: pathlib.Path | None = None
+    """
+    Root directory for output data
+
+    This will be resolved by the executor as the output directory may vary depending on where
+    the executor is being run.
+    """
+
+    def output_filename(self, filename: str | None = None) -> pathlib.Path:
+        """
+        Get the full path to a file in the output directory
+
+        Parameters
+        ----------
+        filename
+            Name of the file to get the full path for
+
+        Returns
+        -------
+        :
+            Full path to the file in the output directory
+        """
+        if self.output_directory is None:
+            raise AssertionError("Output directory is not set")  # pragma: no cover
+
+        if filename is None:
+            return self.output_directory / self.output_fragment
+        else:
+            return self.output_directory / self.output_fragment / filename
+
 
 @frozen
 class MetricResult:
@@ -63,7 +93,9 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
+    def build_from_output_bundle(
+        configuration: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]
+    ) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -82,12 +114,28 @@ class MetricResult:
             A prepared MetricResult object.
             The output bundle will be written to the output directory.
         """
-        with open(configuration.output_fragment / "output.json", "w") as file_handle:
+        configuration.output_filename().mkdir(parents=True, exist_ok=True)
+        bundle_path = configuration.output_filename("output.json")
+
+        with open(bundle_path, "w") as file_handle:
             json.dump(cmec_output_bundle, file_handle)
         return MetricResult(
             output_bundle=configuration.output_fragment / "output.json",
             successful=True,
         )
+
+
+@frozen
+class FailedMetricResult(MetricResult):
+    """
+    The result of running a metric.
+
+    The content of the result follows the Earth System Metrics and Diagnostics Standards
+    ([EMDS](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md)).
+    """
+
+    def __init__(self):
+        super().__init__(output_bundle=None, successful=False)
 
 
 @frozen(hash=True)

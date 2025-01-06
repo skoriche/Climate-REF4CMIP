@@ -23,8 +23,10 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
 def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
     metric = GlobalMeanTimeseries()
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
+    output_directory = tmp_path / "output"
 
     configuration = MetricExecutionDefinition(
+        output_directory=output_directory,
         output_fragment=tmp_path,
         key="global_mean_timeseries",
         metric_dataset=MetricDataset(
@@ -58,7 +60,9 @@ def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
 
     result = metric.run(configuration)
 
+    output_bundle_path = output_directory / result.output_fragment
+
     assert result.successful
-    assert result.output_bundle.exists()
-    assert result.output_bundle.is_file()
-    assert result.output_bundle.name == "output.json"
+    assert output_bundle_path.exists()
+    assert output_bundle_path.is_file()
+    assert result.output_fragment.name == "output.json"

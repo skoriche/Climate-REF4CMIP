@@ -18,7 +18,7 @@ class MockMetric:
 
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         return MetricResult(
-            output_bundle=self.temp_dir / definition.output_fragment / "output.json",
+            output_fragment=self.temp_dir / definition.output_fragment / "output.json",
             successful=True,
         )
 

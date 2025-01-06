@@ -51,11 +51,11 @@ def test_example_metric(mock_calc, tmp_path, metric_dataset, cmip6_data_catalog)
 
     assert mock_calc.call_count == 1
 
-    assert result.output_bundle == pathlib.Path(metric.slug) / "output.json"
+    assert result.output_fragment == pathlib.Path(metric.slug) / "output.json"
 
-    output_bundle_path = output_directory / result.output_bundle
+    output_bundle_path = output_directory / result.output_fragment
 
     assert result.successful
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
-    assert result.output_bundle.name == "output.json"
+    assert result.output_fragment.name == "output.json"

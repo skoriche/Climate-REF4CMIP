@@ -163,7 +163,7 @@ result = run_metric("global-mean-timeseries", provider, definition=definition)
 result
 
 # %%
-with open(result.output_bundle) as fh:
+with open(result.output_fragment) as fh:
     # Load the output bundle and pretty print
     loaded_result = json.loads(fh.read())
     print(json.dumps(loaded_result, indent=2))

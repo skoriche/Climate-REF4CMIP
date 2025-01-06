@@ -79,9 +79,12 @@ class MetricResult:
 
     # Do we want to load a serialised version of the output bundle here or just a file path?
 
-    output_bundle: pathlib.Path | None
+    output_fragment: pathlib.Path | None
     """
-    Path to the output bundle file.
+    Path to the output bundle file relative to the output directory.
+
+    The absolute path of the outputs may differ between executors
+    depending on where the output directory is mounted.
 
     The contents of this file are defined by
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-output-bundle-format-)
@@ -120,7 +123,7 @@ class MetricResult:
         with open(bundle_path, "w") as file_handle:
             json.dump(cmec_output_bundle, file_handle)
         return MetricResult(
-            output_bundle=configuration.output_fragment / "output.json",
+            output_fragment=configuration.output_fragment / "output.json",
             successful=True,
         )
 
@@ -132,7 +135,7 @@ class MetricResult:
         This is a placeholder.
         Additional log information should still be captured in the output bundle.
         """
-        return MetricResult(output_bundle=None, successful=False)
+        return MetricResult(output_fragment=None, successful=False)
 
 
 @frozen(hash=True)
@@ -167,7 +170,7 @@ class DataRequirement:
     """
     The fields to group the datasets by.
 
-    This groupby operation is performed after the data catalog is filtered according to `filters`.
+    This group by operation is performed after the data catalog is filtered according to `filters`.
     Each group will contain a unique combination of values from the metadata fields,
     and will result in a separate execution of the metric.
     If `group_by=None`, all datasets will be processed together as a single execution.

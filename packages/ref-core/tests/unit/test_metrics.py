@@ -18,12 +18,16 @@ class TestMetricResult:
         result = MetricResult.build_from_output_bundle(config, {"data": "value"})
 
         assert result.successful
-        assert result.output_fragment.exists()
-        assert result.output_fragment.is_file()
-        with open(result.output_fragment) as f:
+
+        # Convert relative path to absolute path
+        output_filename = result.to_output_path(result.bundle_filename)
+
+        assert output_filename.exists()
+        assert output_filename.is_file()
+        with open(output_filename) as f:
             assert f.read() == '{"data": "value"}'
 
-        assert result.output_fragment.is_relative_to(tmp_path)
+        assert output_filename.is_relative_to(tmp_path)
 
 
 @pytest.fixture

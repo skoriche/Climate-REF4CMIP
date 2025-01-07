@@ -37,10 +37,12 @@ class LocalExecutor:
         """
         # TODO: This should be changed to use executor specific configuration
         definition = evolve(definition, output_directory=self.config.paths.tmp)
-        definition.output_filename().mkdir(parents=True, exist_ok=True)
+        execution_output_path = definition.to_output_path(filename=None)
+        execution_output_path.mkdir(parents=True, exist_ok=True)
 
         try:
             return metric.run(definition=definition)
+            # TODO: Copy results to the output directory
         except Exception:
             logger.exception(f"Error running metric {metric.slug}")
-            return MetricResult.build_from_failure()
+            return MetricResult.build_from_failure(definition)

@@ -24,9 +24,6 @@
 # This guide will walk you through how to run a metric provider locally.
 
 
-# %%
-# !pip install prettyprinter
-
 # %% tags=["remove_input"]
 import json
 from pathlib import Path
@@ -35,6 +32,7 @@ import attrs
 import pandas as pd
 import prettyprinter
 import ref_metrics_example
+from attr import evolve
 from ref_core.datasets import SourceDatasetType
 from ref_core.executor import run_metric
 
@@ -138,12 +136,13 @@ metric_executions[0].metric_dataset["cmip6"]
 # and which datasets should be used for the metric calculation.
 
 # %%
+output_directory = Path("out")
 definition = metric_executions[0].build_metric_execution_info()
 prettyprinter.pprint(definition)
 
 # %%
 # Update the output fragment to be a subdirectory of the current working directory
-definition = attrs.evolve(definition, output_fragment=Path("out") / definition.output_fragment)
+definition = attrs.evolve(definition, output_fragment=output_directory / definition.output_fragment)
 definition.output_fragment
 
 # %% [markdown]
@@ -163,7 +162,9 @@ result = run_metric("global-mean-timeseries", provider, definition=definition)
 result
 
 # %%
-with open(result.output_fragment) as fh:
+
+output_file = result.definition.to_output_path(result.bundle_filename)
+with open(output_file) as fh:
     # Load the output bundle and pretty print
     loaded_result = json.loads(fh.read())
     print(json.dumps(loaded_result, indent=2))
@@ -175,7 +176,9 @@ with open(result.output_fragment) as fh:
 # This will not perform and validation/verification of the output results.
 
 # %%
-direct_result = metric.run(definition=definition)
+direct_result = metric.run(definition=evolve(definition, output_directory=output_directory))
 assert direct_result.successful
 
-direct_result
+prettyprinter.pprint(direct_result)
+
+# %%

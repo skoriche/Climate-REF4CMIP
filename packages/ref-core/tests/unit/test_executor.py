@@ -25,7 +25,7 @@ class TestLocalExecutor:
 
         result = executor.run_metric(mock_metric, metric_definition)
         assert result.successful
-        assert result.output_fragment == metric_definition.output_fragment / "output.json"
+        assert result.bundle_filename == metric_definition.output_fragment / "output.json"
 
 
 @pytest.mark.parametrize("executor_name", ["local", None])

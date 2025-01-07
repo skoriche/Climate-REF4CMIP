@@ -17,9 +17,11 @@ class MockMetric:
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+        # TODO: This doesn't write output.json, use build function?
         return MetricResult(
-            output_fragment=self.temp_dir / definition.output_fragment / "output.json",
+            bundle_filename=self.temp_dir / definition.output_fragment / "output.json",
             successful=True,
+            definition=definition,
         )
 
 
@@ -30,9 +32,7 @@ class FailedMetric:
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
-        return MetricResult(
-            successful=False,
-        )
+        return MetricResult.build_from_failure(definition)
 
 
 @pytest.fixture

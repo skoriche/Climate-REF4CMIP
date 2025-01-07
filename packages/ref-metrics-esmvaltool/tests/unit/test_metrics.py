@@ -25,7 +25,7 @@ def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
     output_directory = tmp_path / "output"
 
-    configuration = MetricExecutionDefinition(
+    definition = MetricExecutionDefinition(
         output_directory=output_directory,
         output_fragment=tmp_path,
         key="global_mean_timeseries",
@@ -36,7 +36,7 @@ def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
         ),
     )
 
-    result_dir = configuration.output_fragment / "results" / "recipe_test_a"
+    result_dir = definition.output_fragment / "results" / "recipe_test_a"
     result = result_dir / "work" / "timeseries" / "script1" / "result.nc"
 
     def mock_check_call(cmd, *args, **kwargs):
@@ -58,11 +58,11 @@ def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
     )
     open_dataset.return_value.attrs.__getitem__.return_value = "ABC"
 
-    result = metric.run(configuration)
+    result = metric.run(definition)
 
-    output_bundle_path = output_directory / result.output_fragment
+    output_bundle_path = definition.output_directory / definition.output_fragment / result.bundle_filename
 
     assert result.successful
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
-    assert result.output_fragment.name == "output.json"
+    assert result.bundle_filename.name == "output.json"

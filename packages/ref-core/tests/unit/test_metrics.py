@@ -8,14 +8,14 @@ from ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricR
 
 
 class TestMetricResult:
-    def test_build(self, tmp_path):
-        config = MetricExecutionDefinition(
+    def test_build_from_output_bundle(self, tmp_path):
+        definition = MetricExecutionDefinition(
             output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=None
         )
         # Setting the output directory generally happens as a side effect of the executor
-        config = evolve(config, output_directory=tmp_path)
+        definition = evolve(definition, output_directory=tmp_path)
 
-        result = MetricResult.build_from_output_bundle(config, {"data": "value"})
+        result = MetricResult.build_from_output_bundle(definition, {"data": "value"})
 
         assert result.successful
 
@@ -28,6 +28,16 @@ class TestMetricResult:
             assert f.read() == '{"data": "value"}'
 
         assert output_filename.is_relative_to(tmp_path)
+
+    def test_build_from_failure(self):
+        definition = MetricExecutionDefinition(
+            output_fragment="output", key="mocked-metric-slug", metric_dataset=None
+        )
+        result = MetricResult.build_from_failure(definition)
+
+        assert not result.successful
+        assert result.bundle_filename is None
+        assert result.definition == definition
 
 
 @pytest.fixture

@@ -27,6 +27,15 @@ class TestLocalExecutor:
         assert result.successful
         assert result.bundle_filename == metric_definition.output_fragment / "output.json"
 
+    def test_raises_exception(self, metric_definition, mock_metric):
+        executor = LocalExecutor()
+
+        mock_metric.run = lambda definition: 1 / 0
+
+        result = executor.run_metric(mock_metric, metric_definition)
+        assert result.successful is False
+        assert result.bundle_filename is None
+
 
 @pytest.mark.parametrize("executor_name", ["local", None])
 def test_run_metric_local(monkeypatch, executor_name, mock_metric, provider, metric_definition):

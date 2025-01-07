@@ -129,6 +129,7 @@ def write_module_page(
 
 write_module_page("ref")
 write_module_page("ref_core")
+write_module_page("ref_celery")
 write_module_page("ref_metrics_example")
 write_module_page("ref_metrics_esmvaltool")
 

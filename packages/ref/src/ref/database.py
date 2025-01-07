@@ -17,10 +17,10 @@ import sqlalchemy
 from alembic.config import Config as AlembicConfig
 from alembic.script import ScriptDirectory
 from loguru import logger
+from ref_core.env import env
 from sqlalchemy.orm import Session
 
 from ref.config import Config
-from ref.env import env
 from ref.models import Table
 
 

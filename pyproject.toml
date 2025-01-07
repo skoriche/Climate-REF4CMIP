@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "ref[postgres]",
     "ref-core",
+    "ref-celery",
     "ref-metrics-example",
     "ref-metrics-esmvaltool",
 ]
@@ -60,6 +61,7 @@ members = ["packages/*"]
 
 [tool.uv.sources]
 ref = { workspace = true }
+ref-celery = { workspace = true }
 ref-core = { workspace = true }
 ref-metrics-example = { workspace = true }
 ref-metrics-esmvaltool = { workspace = true }

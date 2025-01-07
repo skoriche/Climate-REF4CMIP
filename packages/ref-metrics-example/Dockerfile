@@ -30,6 +30,9 @@ ENV C_FORCE_ROOT=false
 ADD . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package ref-metrics-example
+# Add the ref-celery package to the worker
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv add ref-celery
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []

@@ -12,10 +12,10 @@ from attrs import Factory, define, field
 from cattrs import Converter
 from cattrs.gen import make_dict_unstructure_fn, override
 from loguru import logger
+from ref_core.env import env
 from tomlkit import TOMLDocument
 
 from ref.constants import config_filename
-from ref.env import env
 
 
 def _pop_empty(d: dict[str, Any]) -> None:

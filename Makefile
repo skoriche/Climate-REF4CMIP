@@ -31,6 +31,7 @@ pre-commit:  ## run all the linting checks of the codebase
 mypy:  ## run mypy on the codebase
 	MYPYPATH=stubs uv run --package ref-core mypy packages/ref-core
 	MYPYPATH=stubs uv run --package ref mypy packages/ref
+	MYPYPATH=stubs uv run --package ref-celery mypy packages/ref-celery
 	MYPYPATH=stubs uv run --package ref-metrics-example mypy packages/ref-metrics-example
 	MYPYPATH=stubs uv run --package ref-metrics-esmvaltool mypy packages/ref-metrics-esmvaltool
 
@@ -51,6 +52,12 @@ test-core:  ## run the tests
 		pytest packages/ref-core \
 		-r a -v --doctest-modules --cov=packages/ref-core/src
 
+.PHONY: test-celery
+test-celery:  ## run the tests
+	uv run --package ref-celery \
+		pytest packages/ref-celery \
+		-r a -v --doctest-modules --cov=packages/ref-celery/src
+
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
 	uv run --package ref-metrics-example \
@@ -70,7 +77,7 @@ test-integration:  ## run the integration tests
 		-r a -v
 
 .PHONY: test
-test: test-core test-ref test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
+test: test-core test-ref test-celery test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

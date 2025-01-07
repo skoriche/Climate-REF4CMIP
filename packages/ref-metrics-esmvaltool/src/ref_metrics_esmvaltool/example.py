@@ -105,4 +105,6 @@ class GlobalMeanTimeseries(Metric):
         result = next(result_dir.glob("work/timeseries/script1/*.nc"))
         annual_mean_global_mean_timeseries = xarray.open_dataset(result)
 
-        return MetricResult.build(definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries))
+        return MetricResult.build_from_output_bundle(
+            definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries)
+        )

@@ -17,13 +17,6 @@ class MetricExecutionDefinition:
     This represents the information needed by a metric to perform a single execution of the metric
     """
 
-    output_fragment: pathlib.Path
-    """
-    Relative directory to store the output of the metric execution
-
-    This is relative to the temporary directory which may differ by executor.
-    """
-
     key: str
     """
     A unique identifier for the metric execution
@@ -37,6 +30,43 @@ class MetricExecutionDefinition:
     Collection of datasets required for the metric execution
     """
 
+    output_fragment: pathlib.Path
+    """
+    Relative directory to store the output of the metric execution
+
+    This is relative to the temporary directory which may differ by executor.
+    """
+
+    output_directory: pathlib.Path | None = None
+    """
+    Root directory for output data
+
+    This will be resolved by the executor as the output directory may vary depending on where
+    the executor is being run.
+    """
+
+    def to_output_path(self, filename: str | None) -> pathlib.Path:
+        """
+        Get the absolute path for a file in the output directory
+
+        Parameters
+        ----------
+        filename
+            Name of the file to get the full path for
+
+        Returns
+        -------
+        :
+            Full path to the file in the output directory
+        """
+        if self.output_directory is None:
+            raise AssertionError("Output directory is not set")  # pragma: no cover
+
+        if filename is None:
+            return self.output_directory / self.output_fragment
+        else:
+            return self.output_directory / self.output_fragment / filename
+
 
 @frozen
 class MetricResult:
@@ -49,13 +79,22 @@ class MetricResult:
 
     # Do we want to load a serialised version of the output bundle here or just a file path?
 
-    output_bundle: pathlib.Path | None
+    definition: MetricExecutionDefinition
     """
-    Path to the output bundle file.
+    The definition of the metric execution that produced this result.
+    """
+
+    bundle_filename: pathlib.Path | None
+    """
+    Filename of the output bundle file relative to the execution directory.
+
+    The absolute path of the outputs may differ between executors
+    depending on where the output directory is mounted.
 
     The contents of this file are defined by
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-output-bundle-format-)
     """
+
     successful: bool
     """
     Whether the metric ran successfully.
@@ -63,14 +102,16 @@ class MetricResult:
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
-    def build(configuration: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]) -> "MetricResult":
+    def build_from_output_bundle(
+        definition: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]
+    ) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
 
         Parameters
         ----------
-        configuration
-            The configuration used to run the metric.
+        definition
+            The execution defintion.
         cmec_output_bundle
             An output bundle in the CMEC format.
 
@@ -82,12 +123,44 @@ class MetricResult:
             A prepared MetricResult object.
             The output bundle will be written to the output directory.
         """
-        with open(configuration.output_fragment / "output.json", "w") as file_handle:
+        definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
+        bundle_path = definition.to_output_path("output.json")
+
+        with open(bundle_path, "w") as file_handle:
             json.dump(cmec_output_bundle, file_handle)
         return MetricResult(
-            output_bundle=configuration.output_fragment / "output.json",
+            definition=definition,
+            bundle_filename=pathlib.Path("output.json"),
             successful=True,
         )
+
+    @staticmethod
+    def build_from_failure(definition: MetricExecutionDefinition) -> "MetricResult":
+        """
+        Build a failed metric result.
+
+        This is a placeholder.
+        Additional log information should still be captured in the output bundle.
+        """
+        return MetricResult(bundle_filename=None, successful=False, definition=definition)
+
+    def to_output_path(self, filename: str | None) -> pathlib.Path:
+        """
+        Get the absolute path for a file in the output directory
+
+        Parameters
+        ----------
+        filename
+            Name of the file to get the full path for
+
+            If None the path to the output bundle will be returned
+
+        Returns
+        -------
+        :
+            Full path to the file in the output directory
+        """
+        return self.definition.to_output_path(filename)
 
 
 @frozen(hash=True)
@@ -122,7 +195,7 @@ class DataRequirement:
     """
     The fields to group the datasets by.
 
-    This groupby operation is performed after the data catalog is filtered according to `filters`.
+    This group by operation is performed after the data catalog is filtered according to `filters`.
     Each group will contain a unique combination of values from the metadata fields,
     and will result in a separate execution of the metric.
     If `group_by=None`, all datasets will be processed together as a single execution.

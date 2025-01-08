@@ -1,3 +1,7 @@
+from attrs import evolve
+from loguru import logger
+
+from ref.config import Config
 from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
@@ -11,6 +15,9 @@ class LocalExecutor:
     """
 
     name = "local"
+
+    def __init__(self, config: Config | None = None):
+        self.config = Config.default() if config is None else config
 
     def run_metric(self, metric: Metric, definition: MetricExecutionDefinition) -> MetricResult:
         """
@@ -28,7 +35,14 @@ class LocalExecutor:
         :
             Results from running the metric
         """
-        # TODO: Update fragment use the output directory which may vary depending on the executor
-        definition.output_fragment.mkdir(parents=True, exist_ok=True)
+        # TODO: This should be changed to use executor specific configuration
+        definition = evolve(definition, output_directory=self.config.paths.tmp)
+        execution_output_path = definition.to_output_path(filename=None)
+        execution_output_path.mkdir(parents=True, exist_ok=True)
 
-        return metric.run(definition=definition)
+        try:
+            return metric.run(definition=definition)
+            # TODO: Copy results to the output directory
+        except Exception:
+            logger.exception(f"Error running metric {metric.slug}")
+            return MetricResult.build_from_failure(definition)

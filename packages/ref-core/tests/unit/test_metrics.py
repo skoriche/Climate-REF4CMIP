@@ -2,24 +2,42 @@ import re
 
 import pandas as pd
 import pytest
+from attr import evolve
 from ref_core.datasets import FacetFilter, SourceDatasetType
 from ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 
 
 class TestMetricResult:
-    def test_build(self, tmp_path):
-        config = MetricExecutionDefinition(
+    def test_build_from_output_bundle(self, tmp_path):
+        definition = MetricExecutionDefinition(
             output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=None
         )
-        result = MetricResult.build(config, {"data": "value"})
+        # Setting the output directory generally happens as a side effect of the executor
+        definition = evolve(definition, output_directory=tmp_path)
+
+        result = MetricResult.build_from_output_bundle(definition, {"data": "value"})
 
         assert result.successful
-        assert result.output_bundle.exists()
-        assert result.output_bundle.is_file()
-        with open(result.output_bundle) as f:
+
+        # Convert relative path to absolute path
+        output_filename = result.to_output_path(result.bundle_filename)
+
+        assert output_filename.exists()
+        assert output_filename.is_file()
+        with open(output_filename) as f:
             assert f.read() == '{"data": "value"}'
 
-        assert result.output_bundle.is_relative_to(tmp_path)
+        assert output_filename.is_relative_to(tmp_path)
+
+    def test_build_from_failure(self):
+        definition = MetricExecutionDefinition(
+            output_fragment="output", key="mocked-metric-slug", metric_dataset=None
+        )
+        result = MetricResult.build_from_failure(definition)
+
+        assert not result.successful
+        assert result.bundle_filename is None
+        assert result.definition == definition
 
 
 @pytest.fixture

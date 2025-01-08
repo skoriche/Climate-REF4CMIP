@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from ref_core.metrics import MetricExecutionDefinition
@@ -25,12 +27,18 @@ def test_annual_mean(esgf_data_dir, metric_dataset):
     assert annual_mean.time.size == 286
 
 
-def test_example_metric(tmp_path, metric_dataset, cmip6_data_catalog):
+def test_example_metric(tmp_path, metric_dataset, cmip6_data_catalog, mocker):
     metric = GlobalMeanTimeseries()
     ds = cmip6_data_catalog.groupby("instance_id").first()
+    output_directory = tmp_path / "output"
 
-    configuration = MetricExecutionDefinition(
-        output_fragment=tmp_path,
+    mock_calc = mocker.patch("ref_metrics_example.example.calculate_annual_mean_timeseries")
+
+    mock_calc.return_value.attrs.__getitem__.return_value = "ABC"
+
+    definition = MetricExecutionDefinition(
+        output_directory=output_directory,
+        output_fragment=pathlib.Path(metric.slug),
         key="global_mean_timeseries",
         metric_dataset=MetricDataset(
             {
@@ -39,9 +47,14 @@ def test_example_metric(tmp_path, metric_dataset, cmip6_data_catalog):
         ),
     )
 
-    result = metric.run(configuration)
+    result = metric.run(definition)
+
+    assert mock_calc.call_count == 1
+
+    assert str(result.bundle_filename) == "output.json"
+
+    output_bundle_path = definition.output_directory / definition.output_fragment / result.bundle_filename
 
     assert result.successful
-    assert result.output_bundle.exists()
-    assert result.output_bundle.is_file()
-    assert result.output_bundle.name == "output.json"
+    assert output_bundle_path.exists()
+    assert output_bundle_path.is_file()

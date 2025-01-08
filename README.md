@@ -101,11 +101,10 @@ as well as set up the configuration for the REF.
 
 ```bash
 make virtual-environment
-uv run esgpull self install $PWD/.esgpull
 uv run ref config list > $PWD/.ref/ref.toml
 export REF_CONFIGURATION=$PWD/.ref
 make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/.esgpull/data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
 ```
 
 The local `ref.toml` configuration file will make it easier to play around with settings.

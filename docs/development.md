@@ -107,7 +107,7 @@ pushing to other people's branches is often a recipe for disaster,
 is never required in our experience
 so is best avoided.
 
-Try and keep your merge requests as small as possible
+Try and keep your pull requests as small as possible
 (focus on one thing if you can).
 This makes life much easier for reviewers
 which allows contributions to be accepted at a faster rate.

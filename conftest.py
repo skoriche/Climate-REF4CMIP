@@ -4,12 +4,16 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
+import pathlib
 from pathlib import Path
 
 import esgpull
 import pandas as pd
 import pytest
 from click.testing import Result
+from ref_core.datasets import SourceDatasetType
+from ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
+from ref_core.providers import MetricsProvider
 from typer.testing import CliRunner
 
 from ref import cli
@@ -74,3 +78,46 @@ def invoke_cli():
         return result
 
     return _invoke_cli
+
+
+class MockMetric:
+    name = "mock"
+    slug = "mock"
+
+    def __init__(self, temp_dir: pathlib.Path) -> None:
+        self.temp_dir = temp_dir
+
+    # This runs on every dataset
+    data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
+
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+        # TODO: This doesn't write output.json, use build function?
+        return MetricResult(
+            bundle_filename=self.temp_dir / definition.output_fragment / "output.json",
+            successful=True,
+            definition=definition,
+        )
+
+
+class FailedMetric:
+    name = "failed"
+    slug = "failed"
+
+    data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
+
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+        return MetricResult.build_from_failure(definition)
+
+
+@pytest.fixture
+def provider(tmp_path) -> MetricsProvider:
+    provider = MetricsProvider("mock_provider", "v0.1.0")
+    provider.register(MockMetric(tmp_path))
+    provider.register(FailedMetric())
+
+    return provider
+
+
+@pytest.fixture
+def mock_metric(tmp_path) -> MockMetric:
+    return MockMetric(tmp_path)

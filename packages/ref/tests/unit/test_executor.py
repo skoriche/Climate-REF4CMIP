@@ -1,6 +1,17 @@
 import pytest
-from ref_core.executor import Executor, ExecutorManager, run_metric
-from ref_core.executor.local import LocalExecutor
+from ref_core.datasets import MetricDataset
+from ref_core.executor import Executor
+from ref_core.metrics import MetricExecutionDefinition
+
+from ref.executor import ExecutorManager, run_metric
+from ref.executor.local import LocalExecutor
+
+
+@pytest.fixture
+def metric_definition(tmp_path) -> MetricExecutionDefinition:
+    return MetricExecutionDefinition(
+        output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=MetricDataset({})
+    )
 
 
 class TestExecutorManager:

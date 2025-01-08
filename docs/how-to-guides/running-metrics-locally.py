@@ -34,11 +34,11 @@ import prettyprinter
 import ref_metrics_example
 from attr import evolve
 from ref_core.datasets import SourceDatasetType
-from ref_core.executor import run_metric
 
 from ref.config import Config
 from ref.database import Database
 from ref.datasets import get_dataset_adapter
+from ref.executor import run_metric
 from ref.provider_registry import ProviderRegistry
 from ref.solver import MetricSolver
 

@@ -16,7 +16,6 @@ from loguru import logger
 from ref_core.constraints import apply_constraint
 from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from ref_core.exceptions import InvalidMetricException
-from ref_core.executor import get_executor
 from ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from ref_core.providers import MetricsProvider
 
@@ -24,6 +23,7 @@ from ref.database import Database
 from ref.datasets import get_dataset_adapter
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
 from ref.env import env
+from ref.executor import get_executor
 from ref.models import Metric as MetricModel
 from ref.models import MetricExecution as MetricExecutionModel
 from ref.models import Provider as ProviderModel

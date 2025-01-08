@@ -27,11 +27,16 @@ This will install the required dependencies and fetch some test data,
 as well as set up the configuration for the REF.
 
 ```bash
+# Create a virtual environment containing the REF and its dependencies.
 make virtual-environment
-uv run esgpull self install $PWD/.esgpull
+
+# Configure the REF.
 mkdir $PWD/.ref
 uv run ref config list > $PWD/.ref/ref.toml
 export REF_CONFIGURATION=$PWD/.ref
+
+# Download the sample data and configure the REF to use it.
+uv run esgpull self install $PWD/.esgpull
 make fetch-test-data
 uv run ref datasets ingest --source-type cmip6 $PWD/.esgpull/data
 ```
@@ -56,8 +61,8 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/ref-core packages/ref packages/ref-metrics-*;
-     do pip install -e $package;
+for package in packages/ref-core packages/ref packages/ref-metrics-*; do
+     pip install -e $package;
 done
 ```
 
@@ -75,9 +80,9 @@ These tools can be run as usual after activating the virtual environment or
 using the makefile:
 
 ```bash
-make ruff-fixes
-make mypy
 make pre-commit
+make mypy
+make test
 ```
 
 ## Documentation

@@ -50,9 +50,9 @@ class TestIngest:
     def test_ingest(self, sample_data_dir, db, invoke_cli):
         invoke_cli(["datasets", "ingest", str(sample_data_dir / self.data_dir), "--source-type", "cmip6"])
 
-        assert db.session.query(Dataset).count() == 5
-        assert db.session.query(CMIP6Dataset).count() == 5
-        assert db.session.query(CMIP6File).count() == 9
+        assert db.session.query(Dataset).count() == 7
+        assert db.session.query(CMIP6Dataset).count() == 7
+        assert db.session.query(CMIP6File).count() == 7
 
     def test_ingest_and_solve(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(
@@ -81,7 +81,7 @@ class TestIngest:
             ],
         )
 
-        assert db.session.query(Dataset).count() == 1
+        assert db.session.query(Dataset).count() == 2
         assert db.session.query(CMIP6File).count() == 2
 
         invoke_cli(
@@ -94,7 +94,7 @@ class TestIngest:
             ],
         )
 
-        assert db.session.query(Dataset).count() == 1
+        assert db.session.query(Dataset).count() == 2
 
         invoke_cli(
             [
@@ -106,7 +106,7 @@ class TestIngest:
             ],
         )
 
-        assert db.session.query(Dataset).count() == 2
+        assert db.session.query(Dataset).count() == 4
 
     def test_ingest_missing(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(

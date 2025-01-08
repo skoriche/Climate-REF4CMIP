@@ -179,7 +179,7 @@ def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
     with db_seeded.session.begin():
         solve_metrics(db_seeded)
 
-    assert mock_executor.return_value.run_metric.call_count == 3
+    assert mock_executor.return_value.run_metric.call_count == 6
 
 
 @mock.patch("ref.solver.get_executor")
@@ -187,18 +187,29 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
     with db_seeded.session.begin():
         solve_metrics(db_seeded, dry_run=False, solver=solver)
 
-    assert mock_executor.return_value.run_metric.call_count == 2
-
     definitions = [call.kwargs["definition"] for call in mock_executor.return_value.run_metric.mock_calls]
 
+    # TODO: Handle versions smarter
     expected_instance_ids = [
-        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318"],
-        ["CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318"],
+        ["CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.tas.gn.v20191115"],
+        ["CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.rsut.gn.v20191115"],
+        [
+            "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20191115",
+            "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318",
+        ],
+        [
+            "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20191115",
+            "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318",
+        ],
     ]
     expected_keys = [
+        "ACCESS-ESM1-5_rsut_historical_r1i1p1f1",
+        "ACCESS-ESM1-5_tas_historical_r1i1p1f1",
         "ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1",
         "ACCESS-ESM1-5_tas_ssp126_r1i1p1f1",
     ]
+
+    assert mock_executor.return_value.run_metric.call_count == len(expected_instance_ids)
 
     for definition in definitions:
         assert definition.metric_dataset["cmip6"].instance_id.unique().tolist() in expected_instance_ids

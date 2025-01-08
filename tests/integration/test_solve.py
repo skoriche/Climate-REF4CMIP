@@ -27,10 +27,10 @@ class ExampleProviderRegistry(ProviderRegistry):
         return ProviderRegistry(providers=[example_provider])
 
 
-def test_solve(esgf_data_dir, config, invoke_cli, monkeypatch):
+def test_solve(sample_data_dir, config, invoke_cli, monkeypatch):
     db = Database.from_config(config)
     monkeypatch.setattr(ref.solver, "ProviderRegistry", ExampleProviderRegistry)
-    invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(esgf_data_dir)])
+    invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir)])
     assert db.session.query(Dataset).count() == 5
 
     result = invoke_cli(["--verbose", "solve"])

@@ -101,7 +101,7 @@ exclude = [
     "tests",
     "conftest.py"
 ]
-
+mypy_path = "stubs"
 
 [tool.jupytext]
 formats = "ipynb,py:percent"

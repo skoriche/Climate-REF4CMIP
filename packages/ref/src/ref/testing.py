@@ -14,7 +14,7 @@ from loguru import logger
 def _determine_test_directory() -> Path | None:
     expected = Path(__file__).parents[4] / "tests" / "test-data"
 
-    if not expected.exists():
+    if not expected.exists():  # pragma: no cover
         return None
     return expected
 
@@ -53,16 +53,16 @@ def fetch_sample_data(version: str = SAMPLE_DATA_VERSION) -> None:
 
     output_dir = None
 
-    if TEST_DATA_DIR:
+    if TEST_DATA_DIR:  # pragma: no branch
         output_dir = TEST_DATA_DIR / "sample-data"
-        if output_dir.exists():
+        if output_dir.exists():  # pragma: no branch
             logger.warning("Removing existing sample data")
             shutil.rmtree(output_dir)
 
     for key in sample_registry.registry.keys():
         fetch_file = sample_registry.fetch(key)
 
-        if output_dir:
+        if output_dir:  # pragma: no branch
             linked_file = output_dir / key
             linked_file.parent.mkdir(parents=True, exist_ok=True)
             logger.info(f"Creating symlink for {linked_file}")

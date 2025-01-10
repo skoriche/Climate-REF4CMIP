@@ -108,3 +108,7 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 .PHONY: fetch-test-data
 fetch-test-data:  ## Fetch test data
 	uv run python ./scripts/fetch_test_data.py
+
+.PHONY: update-test-data-registry
+update-test-data-registry:  ## Update the test data registry
+	curl --output packages/ref/src/ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt

@@ -14,12 +14,18 @@ from typer.testing import CliRunner
 from ref import cli
 from ref.config import Config
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
-from ref.testing import TEST_DATA_DIR
+from ref.testing import TEST_DATA_DIR, fetch_sample_data
 
 
 @pytest.fixture
 def sample_data_dir() -> Path:
     return TEST_DATA_DIR / "sample-data"
+
+
+@pytest.fixture(autouse=True)
+def sample_data() -> None:
+    # Downloads the sample data if it doesn't exist
+    fetch_sample_data()
 
 
 @pytest.fixture

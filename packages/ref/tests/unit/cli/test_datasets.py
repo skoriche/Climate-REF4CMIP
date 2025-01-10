@@ -47,21 +47,21 @@ class TestDatasetsListColumns:
 class TestIngest:
     data_dir = Path("CMIP6") / "ScenarioMIP" / "CSIRO" / "ACCESS-ESM1-5" / "ssp126" / "r1i1p1f1"
 
-    def test_ingest(self, esgf_data_dir, db, invoke_cli):
-        invoke_cli(["datasets", "ingest", str(esgf_data_dir / self.data_dir), "--source-type", "cmip6"])
+    def test_ingest(self, sample_data_dir, db, invoke_cli):
+        invoke_cli(["datasets", "ingest", str(sample_data_dir / self.data_dir), "--source-type", "cmip6"])
 
         assert db.session.query(Dataset).count() == 5
         assert db.session.query(CMIP6Dataset).count() == 5
-        assert db.session.query(CMIP6File).count() == 9
+        assert db.session.query(CMIP6File).count() == 8
 
-    def test_ingest_and_solve(self, esgf_data_dir, db, invoke_cli):
+    def test_ingest_and_solve(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(
             [
                 "--log-level",
                 "info",
                 "datasets",
                 "ingest",
-                str(esgf_data_dir / self.data_dir),
+                str(sample_data_dir / self.data_dir),
                 "--source-type",
                 "cmip6",
                 "--solve",
@@ -70,12 +70,12 @@ class TestIngest:
         )
         assert "Solving for metrics that require recalculation." in result.stderr
 
-    def test_ingest_multiple_times(self, esgf_data_dir, db, invoke_cli):
+    def test_ingest_multiple_times(self, sample_data_dir, db, invoke_cli):
         invoke_cli(
             [
                 "datasets",
                 "ingest",
-                str(esgf_data_dir / self.data_dir / "Amon" / "tas"),
+                str(sample_data_dir / self.data_dir / "Amon" / "tas"),
                 "--source-type",
                 "cmip6",
             ],
@@ -88,7 +88,7 @@ class TestIngest:
             [
                 "datasets",
                 "ingest",
-                str(esgf_data_dir / self.data_dir / "Amon" / "tas"),
+                str(sample_data_dir / self.data_dir / "Amon" / "tas"),
                 "--source-type",
                 "cmip6",
             ],
@@ -100,7 +100,7 @@ class TestIngest:
             [
                 "datasets",
                 "ingest",
-                str(esgf_data_dir / self.data_dir / "Amon" / "rsut"),
+                str(sample_data_dir / self.data_dir / "Amon" / "rsut"),
                 "--source-type",
                 "cmip6",
             ],
@@ -108,28 +108,28 @@ class TestIngest:
 
         assert db.session.query(Dataset).count() == 2
 
-    def test_ingest_missing(self, esgf_data_dir, db, invoke_cli):
+    def test_ingest_missing(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(
             [
                 "datasets",
                 "ingest",
-                str(esgf_data_dir / "missing"),
+                str(sample_data_dir / "missing"),
                 "--source-type",
                 "cmip6",
             ],
             expected_exit_code=1,
         )
         assert isinstance(result.exception, FileNotFoundError)
-        assert result.exception.filename == esgf_data_dir / "missing"
+        assert result.exception.filename == sample_data_dir / "missing"
 
-        assert f'File or directory {esgf_data_dir / "missing"} does not exist' in result.stderr
+        assert f'File or directory {sample_data_dir / "missing"} does not exist' in result.stderr
 
-    def test_ingest_dryrun(self, esgf_data_dir, db, invoke_cli):
+    def test_ingest_dryrun(self, sample_data_dir, db, invoke_cli):
         invoke_cli(
             [
                 "datasets",
                 "ingest",
-                str(esgf_data_dir),
+                str(sample_data_dir),
                 "--source-type",
                 "cmip6",
                 "--dry-run",

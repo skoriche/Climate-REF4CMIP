@@ -35,10 +35,9 @@ mkdir $PWD/.ref
 uv run ref config list > $PWD/.ref/ref.toml
 export REF_CONFIGURATION=$PWD/.ref
 
-# Download the sample data and configure the REF to use it.
-uv run esgpull self install $PWD/.esgpull
+# Download some test data and ingest the sample datasets.
 make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/.esgpull/data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing

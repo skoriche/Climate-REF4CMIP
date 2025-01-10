@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import pooch  # type: ignore[import-untyped]
+import pooch
 from ref_core.datasets import SourceDatasetType
 from ref_core.metrics import MetricExecutionDefinition
 from ruamel.yaml import YAML

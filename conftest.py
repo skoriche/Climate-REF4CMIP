@@ -6,7 +6,6 @@ See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing
 
 from pathlib import Path
 
-import esgpull
 import pandas as pd
 import pytest
 from click.testing import Result
@@ -15,19 +14,24 @@ from typer.testing import CliRunner
 from ref import cli
 from ref.config import Config
 from ref.datasets.cmip6 import CMIP6DatasetAdapter
+from ref.testing import TEST_DATA_DIR, fetch_sample_data
 
 
 @pytest.fixture
-def esgf_data_dir() -> Path:
-    pull = esgpull.Esgpull()
+def sample_data_dir() -> Path:
+    return TEST_DATA_DIR / "sample-data"
 
-    return pull.config.paths.data
+
+@pytest.fixture(autouse=True, scope="session")
+def sample_data() -> None:
+    # Downloads the sample data if it doesn't exist
+    fetch_sample_data()
 
 
 @pytest.fixture
-def cmip6_data_catalog(esgf_data_dir) -> pd.DataFrame:
+def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = CMIP6DatasetAdapter()
-    return adapter.find_local_datasets(esgf_data_dir)
+    return adapter.find_local_datasets(sample_data_dir / "CMIP6")
 
 
 @pytest.fixture(autouse=True)

@@ -48,6 +48,9 @@ ignore = [
 "scripts/*" = [
     "S101" # S101 Use of `assert` detected
 ]
+"stubs/*" = [
+    "PLR0913",  # Too many arguments in function definition
+]
 
 [lint.isort]
 known-first-party = ["ref", "ref-core"]

@@ -17,7 +17,7 @@ build:
     - asdf global uv latest
     - uv sync --frozen
     # Fetch test data from ESGF (needed by notebooks)
-    - uv run python scripts/fetch_test_data.py
+    - make fetch-test-data
     - uv run ref datasets ingest --source-type cmip6 $READTHEDOCS_REPOSITORY_PATH/tests/test-data/sample-data
     # Run a strict build
     - NO_COLOR=1 REF_DATA_ROOT=$READTHEDOCS_REPOSITORY_PATH/tests/test-data/sample-data uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html

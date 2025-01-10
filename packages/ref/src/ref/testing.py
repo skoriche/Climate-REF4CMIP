@@ -1,3 +1,7 @@
+"""
+Testing utilities
+"""
+
 import importlib.resources
 import os
 import shutil
@@ -34,6 +38,17 @@ SAMPLE_DATA_VERSION = "v0.2.0"
 
 
 def fetch_sample_data(version: str = SAMPLE_DATA_VERSION) -> None:
+    """
+    Fetch the sample data for the given version.
+
+    Parameters
+    ----------
+    version
+        The version tag of the sample data to fetch.
+
+        This will fail if the version is not found in the sample data registry
+        or if the sample data registry file is incompatible with this version.
+    """
     sample_registry = _build_sample_data_registry(version)
 
     output_dir = TEST_DATA_DIR / "sample-data"

@@ -45,7 +45,6 @@ dev-dependencies = [
     "myst-nb>=1.1.1",
     "jupyterlab>=4.2.0",
     "jupytext>=1.16.3",
-    "esgpull>=0.7.3",
     "pandas-stubs>=2.2.3.241009",
     "pytest-loguru>=0.4.0",
     "notebook>=7",
@@ -101,7 +100,7 @@ exclude = [
     "tests",
     "conftest.py"
 ]
-
+mypy_path = "stubs"
 
 [tool.jupytext]
 formats = "ipynb,py:percent"
@@ -113,9 +112,6 @@ addopts = [
 filterwarnings = [
     # Need to update ecgtools to remove this warning
     'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
-    # Need to update esgpull/myproxyclient to remove these warnings
-    'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
-    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
 
 # We currently check for GPL licensed code, but this restriction may be removed

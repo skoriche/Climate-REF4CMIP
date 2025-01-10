@@ -29,10 +29,10 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	MYPYPATH=stubs uv run --package ref-core mypy packages/ref-core
-	MYPYPATH=stubs uv run --package ref mypy packages/ref
-	MYPYPATH=stubs uv run --package ref-metrics-example mypy packages/ref-metrics-example
-	MYPYPATH=stubs uv run --package ref-metrics-esmvaltool mypy packages/ref-metrics-esmvaltool
+	uv run --package ref-core mypy packages/ref-core
+	uv run --package ref mypy packages/ref
+	uv run --package ref-metrics-example mypy packages/ref-metrics-example
+	uv run --package ref-metrics-esmvaltool mypy packages/ref-metrics-esmvaltool
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -106,5 +106,9 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 	uv run pre-commit install
 
 .PHONY: fetch-test-data
-fetch-test-data:  ## Fetch test data
-	uv run python ./scripts/fetch_test_data.py
+fetch-test-data:  ## Download any data needed by the test suite
+	uv run python ./scripts/fetch-sample-data.py
+
+.PHONY: update-test-data-registry
+update-test-data-registry:  ## Update the test data registry
+	curl --output packages/ref/src/ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt

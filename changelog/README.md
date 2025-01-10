@@ -17,7 +17,7 @@ Improved verbose diff output with sequences.
 Terminal summary statistics now use multiple colors.
 ```
 
-Each file should have a name of the form `<MR>.<TYPE>.md`, where `<MR>` is the merge request number, and `<TYPE>` is one of:
+Each file should have a name of the form `<PR>.<TYPE>.md`, where `<PR>` is the pull request number, and `<TYPE>` is one of:
 
 * `feature`: new user facing features, like new command-line options and new behaviour.
 * `improvement`: improvement of existing functionality, usually without requiring user intervention
@@ -29,12 +29,12 @@ Each file should have a name of the form `<MR>.<TYPE>.md`, where `<MR>` is the m
 
 So for example: `123.feature.md`, `456.fix.md`.
 
-Since you need the merge request number for the filename, you must submit a MR first.
-From this MR, you can get the MR number and then create the news file.
-A single MR can also have multiple news items,
-for example a given MR may add a feature as well as deprecate some existing functionality.
+Since you need the pull request number for the filename, you must submit a pull request first.
+From this pull request, you can get the pull request number and then create the news file.
+A single pull request can also have multiple news items,
+for example a given pull request may add a feature as well as deprecate some existing functionality.
 
-If you are not sure what issue type to use, don't hesitate to ask in your MR.
+If you are not sure what issue type to use, don't hesitate to ask in your pull request.
 
 `towncrier` preserves multiple paragraphs and formatting (code blocks, lists, and so on),
 but for entries other than features

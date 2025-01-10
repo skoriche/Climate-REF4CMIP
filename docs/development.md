@@ -11,6 +11,93 @@ We welcome all kinds of contributions, for example:
 - pull requests
 - tutorials
 
+## Development Installation
+
+For development, we rely on [uv](https://docs.astral.sh/uv) for all our
+dependency management. To get started, you will need to make sure that uv
+is installed
+([instructions here](https://docs.astral.sh/uv/getting-started/installation/)).
+
+We use our `Makefile` to provide an easy way to run common developer commands.
+You can read the instructions out and run the commands by hand if you wish,
+but we generally discourage this because it can be error prone.
+
+The following steps are required to set up a development environment.
+This will install the required dependencies and fetch some test data,
+as well as set up the configuration for the REF.
+
+```bash
+# Create a virtual environment containing the REF and its dependencies.
+make virtual-environment
+
+# Configure the REF.
+mkdir $PWD/.ref
+uv run ref config list > $PWD/.ref/ref.toml
+export REF_CONFIGURATION=$PWD/.ref
+
+# Download some test data and ingest the sample datasets.
+make fetch-test-data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
+```
+
+`uv` will create a virtual Python environment in the directory `.venv` containing
+the REF and its (development) dependencies.
+To use the software installed in this environment without starting every command
+with `uv run`, activate it by calling `. .venv/bin/activate`.
+It can be deactivated with the command `deactivate`.
+
+The local `ref.toml` configuration file will make it easier to play around with settings.
+By default, the database will be stored in your home directory,
+this can be modified by changing the `db.database_url` setting in the `ref.toml` file.
+
+If there are any issues, the messages from the `Makefile` should guide you
+through. If not, please raise an issue in the
+[issue tracker](https://github.com/CMIP-REF/cmip-ref/issues).
+
+### Pip editable installation
+
+If you would like to install the REF into an existing (conda) environment
+without using `uv`, run the command
+
+```bash
+for package in packages/ref-core packages/ref packages/ref-metrics-*; do
+     pip install -e $package;
+done
+```
+
+## Tests and code quality
+
+The test suite can then be run using `make test`.
+This will run the test suites for each package and finally the integration test suite.
+
+We make use of [`ruff`](https://docs.astral.sh/ruff/) (code formatting and
+linting) and [`mypy`](https://mypy.readthedocs.io/en/stable/) (type checking)
+and [`pre-commit`](https://pre-commit.com/) (checks before committing) to
+maintain good code quality.
+
+These tools can be run as usual after activating the virtual environment or
+using the makefile:
+
+```bash
+make pre-commit
+make mypy
+make test
+```
+
+## Documentation
+
+Our documentation is written in Markdown and built using
+[`mkdocs`](https://www.mkdocs.org/).
+It can be viewed while editing by running `make docs-serve`.
+
+It is hosted by
+[Read the Docs (RtD)](https://www.readthedocs.org/),
+a service for which we are very grateful.
+The RtD configuration can be found in the `.readthedocs.yaml` file
+in the root of this repository.
+The docs are automatically deployed at
+[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+
 ## Workflows
 
 We don't mind whether you use a branching or forking workflow.
@@ -19,7 +106,7 @@ pushing to other people's branches is often a recipe for disaster,
 is never required in our experience
 so is best avoided.
 
-Try and keep your merge requests as small as possible
+Try and keep your pull requests as small as possible
 (focus on one thing if you can).
 This makes life much easier for reviewers
 which allows contributions to be accepted at a faster rate.
@@ -93,13 +180,3 @@ The steps required are the following:
    else
 
 1. Enjoy the newly available version
-
-## Read the Docs
-
-Our documentation is hosted by
-[Read the Docs (RtD)](https://www.readthedocs.org/),
-a service for which we are very grateful.
-The RtD configuration can be found in the `.readthedocs.yaml` file
-in the root of this repository.
-The docs are automatically deployed at
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).

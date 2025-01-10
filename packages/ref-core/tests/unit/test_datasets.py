@@ -24,8 +24,11 @@ class TestMetricDataset:
         with pytest.raises(KeyError):
             metric_dataset["cmip7"]
 
-    def test_hash(self, metric_dataset, cmip6_data_catalog):
+    def test_python_hash(self, metric_dataset, cmip6_data_catalog, data_regression):
         dataset_hash = hash(metric_dataset)
+
+        # The python hash is different to the hash of the dataset
+        assert hash(metric_dataset.hash) == dataset_hash
         assert isinstance(dataset_hash, int)
 
         assert dataset_hash == hash(
@@ -40,9 +43,7 @@ class TestMetricDataset:
                 }
             )
         )
-
-    def test_slug(self, metric_dataset):
-        assert metric_dataset.hash == "33cf5324201ff57067b548077f3bb26d9a7d9def"
+        data_regression.check(metric_dataset.hash, basename="metric_dataset_hash")
 
 
 class TestDatasetCollection:
@@ -54,12 +55,13 @@ class TestDatasetCollection:
         expected = dataset_collection.datasets.instance_id
         assert dataset_collection.instance_id.equals(expected)
 
-    def test_hash(self, dataset_collection, cmip6_data_catalog):
+    def test_hash(self, dataset_collection, cmip6_data_catalog, data_regression):
         dataset_hash = hash(dataset_collection)
         assert isinstance(dataset_hash, int)
-        assert dataset_hash == 1411607912180158146
 
         assert dataset_hash == hash(DatasetCollection(cmip6_data_catalog, "instance_id"))
         assert dataset_hash != hash(
             DatasetCollection(cmip6_data_catalog[cmip6_data_catalog.variable_id == "tas"], "instance_id")
         )
+
+        data_regression.check(dataset_hash, basename="dataset_collection_hash")

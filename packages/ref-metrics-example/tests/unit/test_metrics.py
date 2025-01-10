@@ -9,7 +9,8 @@ from ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_m
 @pytest.fixture
 def metric_dataset(cmip6_data_catalog) -> MetricDataset:
     selected_dataset = cmip6_data_catalog[
-        cmip6_data_catalog["instance_id"] == cmip6_data_catalog.instance_id.iloc[0]
+        cmip6_data_catalog["instance_id"]
+        == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318"
     ]
     return MetricDataset(
         {

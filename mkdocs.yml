@@ -3,7 +3,7 @@ site_description: Rapid Evalutation Framework
 site_url: https://cmip-ref.readthedocs.io
 edit_uri: blob/master/docs/
 
-repo_name: CMIP-REF/cmip-ref
+repo_name: CMIP-REF/cmip-cmip_ref
 repo_url: https://github.com/CMIP-REF/cmip-ref
 
 nav:
@@ -93,7 +93,7 @@ plugins:
         python:
           paths: [packages]
           import:
-            # Cross-ref helpers (lots included here, remove what you don't want)
+            # Cross-cmip_ref helpers (lots included here, remove what you don't want)
             - https://www.attrs.org/en/stable/objects.inv
             - https://unidata.github.io/cftime/objects.inv
             - https://ipython.readthedocs.io/en/stable/objects.inv

@@ -1,7 +1,7 @@
 import pytest
-from ref_core.exceptions import InvalidMetricException
-from ref_core.metrics import Metric
-from ref_core.providers import MetricsProvider
+from cmip_ref_core.exceptions import InvalidMetricException
+from cmip_ref_core.metrics import Metric
+from cmip_ref_core.providers import MetricsProvider
 
 
 class TestMetricsProvider:

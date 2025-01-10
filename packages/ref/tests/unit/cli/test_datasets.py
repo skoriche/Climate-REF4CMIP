@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from ref.datasets.cmip6 import CMIP6DatasetAdapter
-from ref.models import Dataset
-from ref.models.dataset import CMIP6Dataset, CMIP6File
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.models import Dataset
+from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File
 
 
 def test_ingest_help(invoke_cli):

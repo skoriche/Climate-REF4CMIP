@@ -31,13 +31,13 @@ as well as set up the configuration for the REF.
 make virtual-environment
 
 # Configure the REF.
-mkdir $PWD/.ref
-uv run ref config list > $PWD/.ref/ref.toml
-export REF_CONFIGURATION=$PWD/.ref
+mkdir $PWD/.cmip_ref
+uv run cmip_ref config list > $PWD/.cmip_ref/cmip_ref.toml
+export REF_CONFIGURATION=$PWD/.cmip_ref
 
 # Download some test data and ingest the sample datasets.
 make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
+uv run cmip_ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing
@@ -60,7 +60,7 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/ref-core packages/ref packages/ref-metrics-*; do
+for package in packages/cmip_ref-core packages/cmip_ref packages/cmip_ref-metrics-*; do
      pip install -e $package;
 done
 ```

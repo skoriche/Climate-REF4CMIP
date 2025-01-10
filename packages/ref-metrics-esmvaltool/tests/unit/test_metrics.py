@@ -1,8 +1,8 @@
+import cmip_ref_metrics_esmvaltool
 import pytest
-import ref_metrics_esmvaltool
-from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from ref_core.metrics import MetricExecutionDefinition
-from ref_metrics_esmvaltool.example import GlobalMeanTimeseries
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from cmip_ref_core.metrics import MetricExecutionDefinition
+from cmip_ref_metrics_esmvaltool.example import GlobalMeanTimeseries
 
 
 @pytest.fixture
@@ -44,14 +44,14 @@ def test_example_metric(tmp_path, mocker, metric_dataset, cmip6_data_catalog):
         result.touch()
 
     mocker.patch.object(
-        ref_metrics_esmvaltool.recipe.subprocess,
+        cmip_ref_metrics_esmvaltool.recipe.subprocess,
         "check_call",
         autospec=True,
         spec_set=True,
         side_effect=mock_check_call,
     )
     open_dataset = mocker.patch.object(
-        ref_metrics_esmvaltool.example.xarray,
+        cmip_ref_metrics_esmvaltool.example.xarray,
         "open_dataset",
         autospec=True,
         spec_set=True,

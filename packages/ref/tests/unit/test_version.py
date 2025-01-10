@@ -1,4 +1,4 @@
-from ref import __version__ as version
+from cmip_ref import __version__ as version
 
 
 # Placeholder to get CI working

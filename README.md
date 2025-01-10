@@ -47,7 +47,7 @@ but the REF can still be used to evaluate it.
 TODO: Docs for that workflow
 
 ```bash
-ref datasets ingest {data_path} --solve
+cmip_ref datasets ingest {data_path} --solve
 ```
 
 ### As a devops engineer
@@ -75,9 +75,9 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
 The following commands don't work yet, but will be updated when we have a release.
 
 ```bash
-pip install cmip-ref
-mamba install -c conda-forge cmip-ref
-conda install -c conda-forge cmip-ref
+pip install cmip-cmip_ref
+mamba install -c conda-forge cmip-cmip_ref
+conda install -c conda-forge cmip-cmip_ref
 ```
 
 <!--- --8<-- [end:installation] -->

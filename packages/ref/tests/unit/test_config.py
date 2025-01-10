@@ -2,26 +2,25 @@ from pathlib import Path
 
 import cattrs
 import pytest
-
-from ref.config import Config, Paths
+from cmip_ref.config import Config, Paths
 
 
 class TestConfig:
     def test_load_missing(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "ref"))
+        monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
 
         # The configuration file doesn't exist
         # so it should default to some sane defaults
-        assert not (tmp_path / "ref.toml").exists()
+        assert not (tmp_path / "cmip_ref.toml").exists()
 
-        loaded = Config.load(Path("ref.toml"))
+        loaded = Config.load(Path("cmip_ref.toml"))
 
-        assert loaded.paths.data == tmp_path / "ref" / "data"
+        assert loaded.paths.data == tmp_path / "cmip_ref" / "data"
 
         # The results aren't serialised back to disk
-        assert not (tmp_path / "ref.toml").exists()
+        assert not (tmp_path / "cmip_ref.toml").exists()
         assert loaded._raw is None
-        assert loaded._config_file == Path("ref.toml")
+        assert loaded._config_file == Path("cmip_ref.toml")
 
     def test_default(self, config):
         config.paths.data = "data"
@@ -34,10 +33,10 @@ class TestConfig:
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)
 
-        with open(tmp_path / "ref.toml", "w") as fh:
+        with open(tmp_path / "cmip_ref.toml", "w") as fh:
             fh.write(res.as_string())
 
-        loaded = Config.load(tmp_path / "ref.toml")
+        loaded = Config.load(tmp_path / "cmip_ref.toml")
 
         assert config.dumps() == loaded.dumps()
 
@@ -47,10 +46,10 @@ data = "data"
 extra = "extra"
 
 [db]
-filename = "sqlite://ref.db"
+filename = "sqlite://cmip_ref.db"
 """
 
-        with open(tmp_path / "ref.toml", "w") as fh:
+        with open(tmp_path / "cmip_ref.toml", "w") as fh:
             fh.write(content)
 
         # cattrs exceptions are a bit ugly, but you get an exception like this:
@@ -58,9 +57,9 @@ filename = "sqlite://ref.db"
         #   | cattrs.errors.ClassValidationError: While structuring Config (1 sub-exception)
         #   +-+---------------- 1 ----------------
         #     | Exception Group Traceback (most recent call last):
-        #     |   File "<cattrs generated structure ref.config.Config>", line 6, in structure_Config
+        #     |   File "<cattrs generated structure cmip_ref.config.Config>", line 6, in structure_Config
         #     |     res['paths'] = __c_structure_paths(o['paths'], __c_type_paths)
-        #     |   File "<cattrs generated structure ref.config.Paths>", line 31, in structure_Paths
+        #     |   File "<cattrs generated structure cmip_ref.config.Paths>", line 31, in structure_Paths
         #     |     if errors: raise __c_cve('While structuring ' + 'Paths', errors, __cl)
         #     | cattrs.errors.ClassValidationError: While structuring Paths (1 sub-exception)
         #     | Structuring class Config @ attribute paths
@@ -68,7 +67,7 @@ filename = "sqlite://ref.db"
         #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for Paths: extra
 
         with pytest.raises(cattrs.errors.ClassValidationError):
-            Config.load(tmp_path / "ref.toml")
+            Config.load(tmp_path / "cmip_ref.toml")
 
     def test_save(self, tmp_path):
         config = Config(paths=Paths(data=Path("data")))
@@ -77,9 +76,9 @@ filename = "sqlite://ref.db"
             # The configuration file hasn't been set as it was created directly
             config.save()
 
-        config.save(tmp_path / "ref.toml")
+        config.save(tmp_path / "cmip_ref.toml")
 
-        assert (tmp_path / "ref.toml").exists()
+        assert (tmp_path / "cmip_ref.toml").exists()
 
     def test_defaults(self, monkeypatch):
         monkeypatch.setenv("REF_CONFIGURATION", "test")
@@ -98,5 +97,5 @@ filename = "sqlite://ref.db"
                 "tmp": "test/tmp",
                 "allow_out_of_tree_datasets": True,
             },
-            "db": {"database_url": "sqlite:///test/db/ref.db", "run_migrations": True},
+            "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }

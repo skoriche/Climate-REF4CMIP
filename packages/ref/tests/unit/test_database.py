@@ -1,17 +1,16 @@
 import pytest
 import sqlalchemy
-from ref_core.datasets import SourceDatasetType
-
-from ref.database import Database, validate_database_url
-from ref.models.dataset import CMIP6Dataset, Dataset
+from cmip_ref.database import Database, validate_database_url
+from cmip_ref.models.dataset import CMIP6Dataset, Dataset
+from cmip_ref_core.datasets import SourceDatasetType
 
 
 @pytest.mark.parametrize(
     "database_url",
     [
         "sqlite:///:memory:",
-        "sqlite:///{tmp_path}/ref.db",
-        "postgresql://localhost:5432/ref",
+        "sqlite:///{tmp_path}/cmip_ref.db",
+        "postgresql://localhost:5432/cmip_ref",
     ],
 )
 def test_validate_database_url(config, database_url, tmp_path):
@@ -81,7 +80,7 @@ def test_transaction_cleanup(db):
 
 
 def test_database_invalid_url(config, monkeypatch):
-    monkeypatch.setenv("REF_DATABASE_URL", "postgresql:///localhost:12323/ref")
+    monkeypatch.setenv("REF_DATABASE_URL", "postgresql:///localhost:12323/cmip_ref")
 
     with pytest.raises(sqlalchemy.exc.OperationalError):
         Database.from_config(config, run_migrations=True)

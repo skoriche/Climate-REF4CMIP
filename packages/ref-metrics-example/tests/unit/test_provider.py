@@ -1,4 +1,4 @@
-from ref_metrics_example import __core_version__, __version__, provider
+from cmip_ref_metrics_example import __core_version__, __version__, provider
 
 
 # Placeholder to get CI working

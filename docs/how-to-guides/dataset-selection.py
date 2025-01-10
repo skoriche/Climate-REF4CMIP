@@ -21,13 +21,12 @@
 
 # %% tags=["remove_input"]
 import pandas as pd
+from cmip_ref.config import Config
+from cmip_ref.database import Database
+from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
+from cmip_ref_core.metrics import DataRequirement
 from IPython.display import display
 from loguru import logger
-from ref_core.datasets import FacetFilter, SourceDatasetType
-from ref_core.metrics import DataRequirement
-
-from ref.config import Config
-from ref.database import Database
 
 logger.remove()
 
@@ -43,7 +42,7 @@ db = Database.from_config(config)
 # and querying datasets across different dataset types.
 # It contains information such as the columns that are expected.
 # %%
-from ref.datasets import get_dataset_adapter
+from cmip_ref.datasets import get_dataset_adapter
 
 adapter = get_dataset_adapter("cmip6")
 adapter
@@ -98,14 +97,14 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 #
 # Each group that passes the constraints is a valid group for the metric to be executed.
 #
-# [ref.solver.extract_covered_datasets](/api/ref/solver/#ref.solver.extract_covered_datasets)
+# [cmip_ref.solver.extract_covered_datasets](/api/cmip_ref/solver/#cmip_ref.solver.extract_covered_datasets)
 # extracts the different groups
 # of datasets within the data catalog that that match the requirements.
 # Below are some examples showing different data requests
 # and the corresponding groups of datasets that would be executed.
 
 # %%
-from ref.solver import extract_covered_datasets
+from cmip_ref.solver import extract_covered_datasets
 
 
 # %% tags=["remove_input"]

@@ -1,13 +1,13 @@
 import pandas as pd
 import pytest
-from ref_core.constraints import (
+from cmip_ref_core.constraints import (
     GroupOperation,
     GroupValidator,
     RequireFacets,
     SelectParentExperiment,
     apply_constraint,
 )
-from ref_core.exceptions import ConstraintNotSatisfied
+from cmip_ref_core.exceptions import ConstraintNotSatisfied
 
 
 @pytest.fixture

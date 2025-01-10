@@ -1,9 +1,8 @@
 from pathlib import Path
 
 import pytest
-from ref_core.exceptions import OutOfTreeDatasetException
-
-from ref.datasets.utils import validate_path
+from cmip_ref.datasets.utils import validate_path
+from cmip_ref_core.exceptions import OutOfTreeDatasetException
 
 
 def test_validate_prefix_with_valid_relative_path(config):

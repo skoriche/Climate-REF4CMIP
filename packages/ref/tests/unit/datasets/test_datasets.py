@@ -2,10 +2,9 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from ref_core.datasets import SourceDatasetType
-
-from ref.datasets import get_dataset_adapter
-from ref.datasets.base import DatasetAdapter
+from cmip_ref.datasets import get_dataset_adapter
+from cmip_ref.datasets.base import DatasetAdapter
+from cmip_ref_core.datasets import SourceDatasetType
 
 
 class MockDatasetAdapter(DatasetAdapter):
@@ -86,7 +85,7 @@ def test_validate_data_catalog_metadata_variance(caplog):
 @pytest.mark.parametrize(
     "source_type, expected_adapter",
     [
-        (SourceDatasetType.CMIP6.value, "ref.datasets.cmip6.CMIP6DatasetAdapter"),
+        (SourceDatasetType.CMIP6.value, "cmip_ref.datasets.cmip6.CMIP6DatasetAdapter"),
     ],
 )
 def test_get_dataset_adapter_valid(source_type, expected_adapter):

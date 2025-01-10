@@ -127,10 +127,10 @@ def write_module_page(
     return PackageInfo(package_full_name, package_name, summary)
 
 
-write_module_page("ref")
-write_module_page("ref_core")
-write_module_page("ref_metrics_example")
-write_module_page("ref_metrics_esmvaltool")
+write_module_page("cmip_ref")
+write_module_page("cmip_ref_core")
+write_module_page("cmip_ref_metrics_example")
+write_module_page("cmip_ref_metrics_esmvaltool")
 
 with mkdocs_gen_files.open(ROOT_DIR / "NAVIGATION.md", "w") as fh:
     fh.writelines(nav.build_literate_nav())

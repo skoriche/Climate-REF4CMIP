@@ -1,8 +1,8 @@
 from attrs import evolve
 from loguru import logger
+from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 from ref.config import Config
-from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
 class LocalExecutor:

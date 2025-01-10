@@ -13,55 +13,20 @@ This is a placeholder implementation and will be expanded in the future.
 """
 
 import os
-from typing import Protocol, runtime_checkable
 
-from ref_core.executor.local import LocalExecutor
-from ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
+from ref_core.executor import Executor
+from ref_core.metrics import MetricExecutionDefinition, MetricResult
 from ref_core.providers import MetricsProvider
 
-
-@runtime_checkable
-class Executor(Protocol):
-    """
-    An executor is responsible for running a metric.
-
-    The metric may be run locally in the same process or in a separate process or container.
-
-    Notes
-    -----
-    This is an extremely basic interface and will be expanded in the future, as we figure out
-    our requirements.
-    """
-
-    name: str
-
-    def run_metric(self, metric: Metric, definition: MetricExecutionDefinition) -> MetricResult:
-        """
-        Execute a metric
-
-        Parameters
-        ----------
-        metric
-            Metric to run
-        definition
-            Definition of the information needed to execute a metric
-
-            This
-
-        Returns
-        -------
-        :
-            Results from running the metric
-        """
-        ...
+from ref.executor.local import LocalExecutor
 
 
 class ExecutorManager:
     """
     Enables the registration of executors and retrieval by name.
 
-    This is exposed as a singleton instance `ref_core.executor.get_executor`
-     and `ref_core.executor.register_executor`,
+    This is exposed as a singleton instance `ref.executor.get_executor`
+     and `ref.executor.register_executor`,
      but for testability, you can create your own instance.
     """
 

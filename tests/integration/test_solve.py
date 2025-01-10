@@ -31,17 +31,17 @@ def test_solve(sample_data_dir, config, invoke_cli, monkeypatch):
     db = Database.from_config(config)
     monkeypatch.setattr(ref.solver, "ProviderRegistry", ExampleProviderRegistry)
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir)])
-    assert db.session.query(Dataset).count() == 5
+    assert db.session.query(Dataset).count() == 10
 
     result = invoke_cli(["--verbose", "solve"])
     assert "Created metric execution ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1" in result.stderr
     assert "Running metric" in result.stderr
-    assert db.session.query(MetricExecution).count() == 2
+    assert db.session.query(MetricExecution).count() == 4
 
     # Running solve again should not trigger any new metric executions
     result = invoke_cli(["--verbose", "solve"])
     assert "Created metric execution ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1" not in result.stderr
-    assert db.session.query(MetricExecution).count() == 2
+    assert db.session.query(MetricExecution).count() == 4
     execution = db.session.query(MetricExecution).filter_by(key="ACCESS-ESM1-5_rsut_ssp126_r1i1p1f1").one()
 
     assert len(execution.results[0].datasets) == 1

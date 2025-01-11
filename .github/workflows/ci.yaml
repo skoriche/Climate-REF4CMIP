@@ -39,13 +39,8 @@ jobs:
       - name: Run tests
         run: |
           make fetch-test-data
-          uv run --package ref pytest packages/ref -r a -v --doctest-modules --cov=packages/ref/src --cov-report=term
-          uv run --package ref-core pytest packages/ref-core -r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
-          uv run --package ref-metrics-example pytest packages/ref-metrics-example -r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
-          uv run --package ref-metrics-esmvaltool pytest packages/ref-metrics-esmvaltool -r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src --cov-report=term --cov-append
+          make test
           uv run coverage xml
-          # Run integration tests (without adding to the coverage)
-          uv run pytest tests -r a -v
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
         env:
@@ -65,7 +60,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run --package cmip_ref-core python scripts/test-install.py
+        run: uv run --package cmip_ref_core python scripts/test-install.py
 
   # Check if a changelog message was added to the PR
   # Only runs on pull requests

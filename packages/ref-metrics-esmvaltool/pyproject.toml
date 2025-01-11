@@ -1,5 +1,5 @@
 [project]
-name = "ref-metrics-esmvaltool"
+name = "cmip_ref_metrics_esmvaltool"
 version = "0.1.0"
 description = "ESMValTool metrics provider for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
@@ -22,7 +22,7 @@ classifiers = [
 ]
 dependencies = [
     "pooch >= 1.8",
-    "ref-core",
+    "cmip_ref_core",
     "ruamel.yaml >= 0.18",
     "xarray >= 2022",
 ]

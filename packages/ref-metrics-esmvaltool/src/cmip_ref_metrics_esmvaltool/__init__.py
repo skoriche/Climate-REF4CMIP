@@ -8,8 +8,7 @@ from cmip_ref_core.providers import MetricsProvider
 
 from cmip_ref_metrics_esmvaltool.example import GlobalMeanTimeseries
 
-__version__ = importlib.metadata.version("ref_metrics_esmvaltool")
-__core_version__ = importlib.metadata.version("ref_core")
+__version__ = importlib.metadata.version("cmip_ref_metrics_esmvaltool")
 
 # Initialise the metrics manager and register the example metric
 provider = MetricsProvider("ESMValTool", __version__)

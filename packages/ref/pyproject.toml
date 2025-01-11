@@ -1,5 +1,5 @@
 [project]
-name = "ref"
+name = "cmip_ref"
 version = "0.1.0"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "ref-core",
+    "cmip_ref_core",
     "attrs>=24.2.0",
     "cattrs>=24.1.2",
     "environs>=11.0.0",
@@ -42,7 +42,7 @@ postgres = [
 text = "Apache-2.0"
 
 [project.scripts]
-ref = "ref.cli:app"
+ref = "cmip_ref.cli:app"
 
 [tool.uv]
 dev-dependencies = [

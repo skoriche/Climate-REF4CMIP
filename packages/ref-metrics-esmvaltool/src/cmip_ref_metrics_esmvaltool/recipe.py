@@ -58,7 +58,7 @@ def as_timerange(group: pd.DataFrame) -> str | None:
         return None
     end_times = group.end_time.dropna()
     if end_times.empty:
-        return None
+        return None  # pragma: no cover
     return f"{as_isodate(start_times.min())}/{as_isodate(end_times.max())}"
 
 
@@ -154,10 +154,10 @@ def prepare_climate_data(datasets: pd.DataFrame, climate_data_dir: Path) -> None
         The directory where ESMValTool should look for input data.
     """
     for row in datasets.itertuples():
-        if not isinstance(row.instance_id, str):
+        if not isinstance(row.instance_id, str):  # pragma: no branch
             msg = f"Invalid instance_id encountered in {row}"
             raise ValueError(msg)
-        if not isinstance(row.path, str):
+        if not isinstance(row.path, str):  # pragma: no branch
             msg = f"Invalid path encountered in {row}"
             raise ValueError(msg)
         tgt = climate_data_dir.joinpath(*row.instance_id.split(".")) / Path(row.path).name

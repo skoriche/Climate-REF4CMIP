@@ -29,10 +29,15 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	uv run --package ref-core mypy packages/ref-core
-	uv run --package ref mypy packages/ref
-	uv run --package ref-metrics-example mypy packages/ref-metrics-example
-	uv run --package ref-metrics-esmvaltool mypy packages/ref-metrics-esmvaltool
+	uv run --package cmip_ref_core mypy packages/ref-core
+	uv run --package cmip_ref mypy packages/ref
+	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
+	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
+
+.PHONY: clean
+clean:  ## clean up temporary files
+	rm -rf site dist build
+	rm -rf .coverage
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -41,27 +46,27 @@ ruff-fixes:  ## fix the code using ruff
 
 .PHONY: test-ref
 test-ref:  ## run the tests
-	uv run --package ref \
+	uv run --package cmip_ref \
 		pytest packages/ref \
-		-r a -v --doctest-modules --cov=packages/ref/src
+		-r a -v --doctest-modules --cov=packages/ref/src --cov-report=term --cov-append
 
 .PHONY: test-core
 test-core:  ## run the tests
-	uv run --package ref-core \
+	uv run --package cmip_ref_core \
 		pytest packages/ref-core \
-		-r a -v --doctest-modules --cov=packages/ref-core/src
+		-r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
-	uv run --package ref-metrics-example \
+	uv run --package cmip_ref_metrics_example \
 		pytest packages/ref-metrics-example \
-		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src
+		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-esmvaltool
 test-metrics-esmvaltool:  ## run the tests
-	uv run --package ref-metrics-esmvaltool \
+	uv run --package cmip_ref_metrics_esmvaltool \
 		pytest packages/ref-metrics-esmvaltool \
-		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src
+		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src --cov-report=term --cov-append
 
 .PHONY: test-integration
 test-integration:  ## run the integration tests
@@ -70,7 +75,7 @@ test-integration:  ## run the integration tests
 		-r a -v
 
 .PHONY: test
-test: test-core test-ref test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
+test: clean test-core test-ref test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

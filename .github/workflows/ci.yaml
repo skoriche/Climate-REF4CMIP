@@ -76,6 +76,8 @@ jobs:
       - name: Check installable
         run: |
           uv pip install dist/*.whl
+          uv pip freeze
+          ref config list
 
   # Check if a changelog message was added to the PR
   # Only runs on pull requests

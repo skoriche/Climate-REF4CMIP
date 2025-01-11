@@ -1,9 +1,10 @@
 from alembic import context
+from loguru import logger
+
 from cmip_ref.cli import capture_logging
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.models import Base
-from loguru import logger
 
 # Setup logging
 capture_logging()

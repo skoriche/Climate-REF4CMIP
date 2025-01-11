@@ -1,8 +1,9 @@
 import cmip_ref_metrics_esmvaltool
 import pytest
+from cmip_ref_metrics_esmvaltool.example import GlobalMeanTimeseries
+
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import MetricExecutionDefinition
-from cmip_ref_metrics_esmvaltool.example import GlobalMeanTimeseries
 
 
 @pytest.fixture

@@ -33,6 +33,7 @@ import cmip_ref_metrics_example
 import pandas as pd
 import prettyprinter
 from attr import evolve
+
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter

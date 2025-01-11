@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from cmip_ref.datasets.utils import validate_path
 from cmip_ref_core.exceptions import OutOfTreeDatasetException
 

@@ -1,10 +1,10 @@
 from typing import Any
 
 import xarray
-from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 from ruamel.yaml import YAML
 
+from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 from cmip_ref_metrics_esmvaltool.recipe import dataframe_to_recipe, load_recipe, run_recipe
 
 yaml = YAML()

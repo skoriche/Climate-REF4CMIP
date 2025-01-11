@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from cmip_ref_core.exceptions import OutOfTreeDatasetException
 from loguru import logger
 
 from cmip_ref.config import Config
+from cmip_ref_core.exceptions import OutOfTreeDatasetException
 
 
 def validate_path(config: Config, raw_path: str) -> Path:

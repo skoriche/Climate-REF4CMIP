@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cattrs
 import pytest
+
 from cmip_ref.config import Config, Paths
 
 

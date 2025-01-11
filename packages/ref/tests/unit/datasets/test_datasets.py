@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.base import DatasetAdapter
 from cmip_ref_core.datasets import SourceDatasetType

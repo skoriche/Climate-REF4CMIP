@@ -1,8 +1,8 @@
 from attrs import evolve
-from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 from loguru import logger
 
 from cmip_ref.config import Config
+from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 
 
 class LocalExecutor:

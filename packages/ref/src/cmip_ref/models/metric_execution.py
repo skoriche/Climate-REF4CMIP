@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING
 
-from cmip_ref_core.datasets import MetricDataset
 from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from cmip_ref.models import Dataset
 from cmip_ref.models.base import Base, CreatedUpdatedMixin
+from cmip_ref_core.datasets import MetricDataset
 
 if TYPE_CHECKING:
     from cmip_ref.database import Database

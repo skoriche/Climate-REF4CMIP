@@ -1,11 +1,11 @@
 import datetime
 from typing import Any, ClassVar
 
-from cmip_ref_core.datasets import SourceDatasetType
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from cmip_ref.models.base import Base
+from cmip_ref_core.datasets import SourceDatasetType
 
 
 class Dataset(Base):

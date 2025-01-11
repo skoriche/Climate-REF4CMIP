@@ -10,10 +10,10 @@ These metrics cannot be run locally, but can be executed using other executors.
 """
 
 from attrs import field, frozen
-from cmip_ref_core.providers import MetricsProvider
 from loguru import logger
 
 from cmip_ref.database import Database
+from cmip_ref_core.providers import MetricsProvider
 
 
 def _register_provider(db: Database, provider: MetricsProvider) -> None:

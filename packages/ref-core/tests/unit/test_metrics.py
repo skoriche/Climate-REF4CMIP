@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import pytest
 from attr import evolve
+
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 

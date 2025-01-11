@@ -2,12 +2,13 @@ from unittest import mock
 
 import pandas as pd
 import pytest
+from cmip_ref_metrics_example import provider
+
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import MetricSolver, extract_covered_datasets, solve_metrics
 from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, FacetFilter
-from cmip_ref_metrics_example import provider
 
 
 @pytest.fixture

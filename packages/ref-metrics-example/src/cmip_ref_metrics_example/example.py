@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
+
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 

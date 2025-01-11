@@ -7,7 +7,6 @@ from typing import Annotated, Optional
 
 import typer
 from attrs import define
-from cmip_ref_core import __version__ as __core_version__
 from loguru import logger
 
 from cmip_ref import __version__
@@ -16,6 +15,7 @@ from cmip_ref.cli._logging import capture_logging
 from cmip_ref.config import Config
 from cmip_ref.constants import config_filename
 from cmip_ref.database import Database
+from cmip_ref_core import __version__ as __core_version__
 
 
 class LogLevel(str, Enum):

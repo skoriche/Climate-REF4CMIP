@@ -1,4 +1,5 @@
 import pytest
+
 from cmip_ref.executor import ExecutorManager, run_metric
 from cmip_ref.executor.local import LocalExecutor
 from cmip_ref_core.datasets import MetricDataset

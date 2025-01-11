@@ -1,4 +1,5 @@
 import pytest
+
 from cmip_ref_core.exceptions import InvalidMetricException
 from cmip_ref_core.metrics import Metric
 from cmip_ref_core.providers import MetricsProvider

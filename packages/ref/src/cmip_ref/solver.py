@@ -12,11 +12,6 @@ import typing
 
 import pandas as pd
 from attrs import define, frozen
-from cmip_ref_core.constraints import apply_constraint
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.exceptions import InvalidMetricException
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
-from cmip_ref_core.providers import MetricsProvider
 from loguru import logger
 
 from cmip_ref.database import Database
@@ -29,6 +24,11 @@ from cmip_ref.models import MetricExecution as MetricExecutionModel
 from cmip_ref.models import Provider as ProviderModel
 from cmip_ref.models.metric_execution import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
+from cmip_ref_core.constraints import apply_constraint
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from cmip_ref_core.exceptions import InvalidMetricException
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
+from cmip_ref_core.providers import MetricsProvider
 
 
 @frozen

@@ -6,9 +6,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pooch
+from ruamel.yaml import YAML
+
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import MetricExecutionDefinition
-from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     import pandas as pd

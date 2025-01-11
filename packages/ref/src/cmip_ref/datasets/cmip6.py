@@ -6,7 +6,6 @@ from typing import Any
 
 import ecgtools.parsers
 import pandas as pd
-from cmip_ref_core.exceptions import RefException
 from ecgtools import Builder
 from loguru import logger
 from sqlalchemy.orm import joinedload
@@ -16,6 +15,7 @@ from cmip_ref.database import Database
 from cmip_ref.datasets.base import DatasetAdapter
 from cmip_ref.datasets.utils import validate_path
 from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File, Dataset
+from cmip_ref_core.exceptions import RefException
 
 
 def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:

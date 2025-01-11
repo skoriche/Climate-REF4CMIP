@@ -10,6 +10,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from click.testing import Result
+from typer.testing import CliRunner
+
 from cmip_ref import cli
 from cmip_ref.config import Config
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
@@ -17,7 +19,6 @@ from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
-from typer.testing import CliRunner
 
 
 @pytest.fixture

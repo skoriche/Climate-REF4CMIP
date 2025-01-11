@@ -14,11 +14,10 @@ This is a placeholder implementation and will be expanded in the future.
 
 import os
 
+from cmip_ref.executor.local import LocalExecutor
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
-
-from cmip_ref.executor.local import LocalExecutor
 
 
 class ExecutorManager:

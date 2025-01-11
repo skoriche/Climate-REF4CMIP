@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+
 from cmip_ref_core.constraints import (
     GroupOperation,
     GroupValidator,

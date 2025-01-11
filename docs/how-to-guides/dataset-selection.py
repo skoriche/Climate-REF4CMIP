@@ -21,12 +21,13 @@
 
 # %% tags=["remove_input"]
 import pandas as pd
+from IPython.display import display
+from loguru import logger
+
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement
-from IPython.display import display
-from loguru import logger
 
 logger.remove()
 

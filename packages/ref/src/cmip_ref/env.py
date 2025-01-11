@@ -7,7 +7,7 @@ from environs import Env
 
 
 def _set_defaults() -> None:
-    os.environ.setdefault("REF_CONFIGURATION", str(platformdirs.user_config_path("cmip-cmip_ref")))
+    os.environ.setdefault("REF_CONFIGURATION", str(platformdirs.user_config_path("cmip_ref")))
 
 
 def get_env() -> Env:

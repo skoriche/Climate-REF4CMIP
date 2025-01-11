@@ -14,7 +14,7 @@ def main() -> None:
     They are printed to stdout
     """
     CHANGELOG = Path("docs") / "changelog.md"
-    PACKAGE_NAME = "cmip-cmip_ref"
+    PACKAGE_NAME = "cmip_ref"
 
     lead_in = f"## {PACKAGE_NAME}"
 

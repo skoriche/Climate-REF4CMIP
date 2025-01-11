@@ -3,7 +3,7 @@ site_description: Rapid Evalutation Framework
 site_url: https://cmip-ref.readthedocs.io
 edit_uri: blob/master/docs/
 
-repo_name: CMIP-REF/cmip-cmip_ref
+repo_name: CMIP-REF/cmip_ref
 repo_url: https://github.com/CMIP-REF/cmip-ref
 
 nav:

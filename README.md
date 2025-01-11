@@ -72,9 +72,9 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
 The following commands don't work yet, but will be updated when we have a release.
 
 ```bash
-pip install cmip_cmip_ref
-mamba install -c conda-forge cmip_cmip_ref
-conda install -c conda-forge cmip_cmip_ref
+pip install cmip_ref
+mamba install -c conda-forge cmip_ref
+conda install -c conda-forge cmip_ref
 ```
 
 <!--- --8<-- [end:installation] -->

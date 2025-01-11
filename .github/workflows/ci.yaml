@@ -77,7 +77,7 @@ jobs:
         run: |
           uv pip install dist/*.whl
           uv pip freeze
-          ref config list
+          uv run --no-sync ref config list
 
   # Check if a changelog message was added to the PR
   # Only runs on pull requests

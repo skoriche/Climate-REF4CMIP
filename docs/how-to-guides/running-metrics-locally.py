@@ -18,7 +18,7 @@
 # Metric providers can be run locally without requiring the rest of the REF infrastructure.
 # This is useful for testing and debugging metrics.
 #
-# Running a metric locally requires that the target REF metrics package, e.g. `cmip_ref-metrics-example`,
+# Running a metric locally requires that the target REF metrics package, e.g. `cmip_ref_metrics_example`,
 # and its dependencies are installed in the current Python environment.
 #
 # This guide will walk you through how to run a metric provider locally.

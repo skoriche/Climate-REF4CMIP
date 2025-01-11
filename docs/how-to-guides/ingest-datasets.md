@@ -33,7 +33,7 @@ This will walk through the provided directory looking for `*.nc` files to ingest
 Each file will be loaded and its metadata extracted.
 
 ```bash
->>> cmip_ref --log-level INFO datasets ingest --source-type cmip6 /path/to/cmip6
+>>> ref --log-level INFO datasets ingest --source-type cmip6 /path/to/cmip6
 2024-12-05 12:00:05.979 | INFO     | cmip_ref.database:__init__:77 - Connecting to database at sqlite:///.cmip_ref/db/cmip_ref.db
 2024-12-05 12:00:05.987 | INFO     | alembic.runtime.migration:__init__:215 - Context impl SQLiteImpl.
 2024-12-05 12:00:05.987 | INFO     | alembic.runtime.migration:__init__:218 - Will assume non-transactional DDL.
@@ -69,7 +69,7 @@ The `--column` flag allows you to specify which columns to display (defaults to 
 See `ref datasets list-columns` for a list of available columns.
 
 ```bash
->>> cmip_ref datasets list --column instance_id --column variable_id
+>>> ref datasets list --column instance_id --column variable_id
 
   instance_id                                                             variable_id
  ─────────────────────────────────────────────────────────────────────────────────────

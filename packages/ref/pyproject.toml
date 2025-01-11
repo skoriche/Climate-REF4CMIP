@@ -31,6 +31,7 @@ dependencies = [
     "alembic>=1.13.3",
     "loguru>=0.7.2",
     "ecgtools>=2024.7.31",
+    "platformdirs>=4.3.6",
 ]
 
 [project.optional-dependencies]

@@ -62,6 +62,21 @@ jobs:
       - name: Check importable without extras
         run: uv run --package cmip_ref_core python scripts/test-install.py
 
+  check-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Check build
+        run: |
+          make build
+          tar -tvf dist/cmip_ref-*.tar.gz --wildcards '*ref/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/cmip_ref_core-*.tar.gz --wildcards '*ref_core/py.typed' '*/LICENCE' '*/NOTICE'
+      - name: Check installable
+        run: |
+          uv pip install dist/*.whl
+
   # Check if a changelog message was added to the PR
   # Only runs on pull requests
   check-for-changelog:

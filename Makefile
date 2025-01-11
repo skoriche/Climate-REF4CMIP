@@ -39,6 +39,13 @@ clean:  ## clean up temporary files
 	rm -rf site dist build
 	rm -rf .coverage
 
+.PHONY: build
+build: clean  ## build the packages to be deployed to PyPI
+	cp LICENCE NOTICE packages/ref
+	cp LICENCE NOTICE packages/ref-core
+	uv build --package cmip_ref --no-sources
+	uv build --package cmip_ref_core --no-sources
+
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
 	uv run ruff check --fix

@@ -6,6 +6,9 @@ from yaml.representer import SafeRepresenter
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
+# Ignore the alembic folder
+collect_ignore = ["src/cmip_ref/migrations"]
+
 # Add a representer for pandas Timestamps/NaT in the regression tests
 RegressionYamlDumper.add_representer(
     pd.Timestamp, lambda dumper, data: SafeRepresenter.represent_datetime(dumper, data.to_pydatetime())

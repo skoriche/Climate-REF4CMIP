@@ -78,6 +78,10 @@ exclude_also = [
     # Exclude ... literals
     "\\.\\.\\."
 ]
+omit = [
+    # Skip alembic migration files
+    "*/migrations/*",
+]
 
 [tool.mypy]
 strict = true

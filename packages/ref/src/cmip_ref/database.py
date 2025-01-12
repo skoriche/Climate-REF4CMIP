@@ -8,6 +8,7 @@ The `Database` class is the main entry point for interacting with the database.
 It provides a session object that can be used to interact with the database and run queries.
 """
 
+import importlib.resources
 from pathlib import Path
 from typing import Any
 from urllib import parse as urlparse
@@ -82,10 +83,9 @@ class Database:
             self._migrate()
 
     def _migrate(self) -> None:
-        root_dir = Path(__file__).parents[4]
-
-        alembic_config = AlembicConfig(root_dir / "alembic.ini")
-        alembic_config.attributes["connection"] = self._engine
+        with importlib.resources.path("cmip_ref", "alembic.ini") as fspath:
+            alembic_config = AlembicConfig(fspath)
+            alembic_config.attributes["connection"] = self._engine
 
         script = ScriptDirectory.from_config(alembic_config)
         head = script.get_current_head()

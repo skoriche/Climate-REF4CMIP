@@ -144,6 +144,32 @@ This mono-repo approach might change once the packages become more mature,
 but since we are in the early stages of development,
 there will be a lot of refactoring of the interfaces to find the best approach.
 
+## Database management
+
+The REF uses a local Sqlite database to store state information.
+We use [alembic](https://alembic.sqlalchemy.org/en/latest/) to manage our database migrations
+as the schema of this database changes.
+
+When making changes to the database models (`cmip_ref.models`),
+a migration must also be added (see below).
+
+The migration definitions (and the alembic configuration file)
+are included in the `cmip_ref` package (`packages/ref/src/cmip_ref/migrations`)
+to enable users to apply these migrations transparently.
+Any new migrations are performed automatically when using the `ref` command line tool.
+
+### Adding a database migration
+
+If you have made changes to the database models,
+you will need to create a new migration to apply these changes.
+Alembic can autogenerate these migrations for you,
+but they will need to be reviewed to ensure they are correct.
+
+```
+uv run alembic -c packages/ref/src/cmip_ref/alembic.ini \
+   revision --autogenerate --message "your_migration_message"
+```
+
 [](){releasing-reference}
 ## Releasing
 

@@ -91,7 +91,7 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
-    "alembic",
+    "migrations",
     "build",
     "dist",
     "notebooks",

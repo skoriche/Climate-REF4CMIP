@@ -78,6 +78,10 @@ exclude_also = [
     # Exclude ... literals
     "\\.\\.\\."
 ]
+omit = [
+    # Skip alembic migration files
+    "*/migrations/*",
+]
 
 [tool.mypy]
 strict = true
@@ -91,7 +95,7 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
-    "alembic",
+    "migrations",
     "build",
     "dist",
     "notebooks",

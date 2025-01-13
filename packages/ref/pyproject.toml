@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref"
-version = "0.1.1"
+version = "0.1.2"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [

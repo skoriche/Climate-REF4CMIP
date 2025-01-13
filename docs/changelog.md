@@ -21,6 +21,13 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip-ref 0.1.2 (2025-01-13)
+
+### Trivial/Internal Changes
+
+- [#55](https://github.com/CMIP-REF/cmip-ref/pulls/55)
+
+
 ## cmip-ref 0.1.1 (2025-01-13)
 
 ### Breaking Changes

@@ -7,7 +7,7 @@ ci:
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v4.5.0'
+    rev: 'v5.0.0'
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -37,7 +37,20 @@ repos:
         args: [ --fix, --exit-non-zero-on-fix ]
       - id: ruff-format
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.4.20
+    rev: 0.5.17
     hooks:
       # Update the uv lockfile
       - id: uv-lock
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: "make mypy"
+        # This uses local uv installation
+        language: system
+        types: [ python ]
+        pass_filenames: false
+        # use require_serial so that script is only called once per commit
+        require_serial: true
+        verbose: false
+        always_run: true

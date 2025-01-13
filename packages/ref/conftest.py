@@ -3,12 +3,11 @@ import pytest
 from pytest_regressions.data_regression import RegressionYamlDumper
 from yaml.representer import SafeRepresenter
 
-from ref.database import Database
-from ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.database import Database
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
 # Ignore the alembic folder
-collect_ignore = ["alembic"]
-
+collect_ignore = ["src/cmip_ref/migrations"]
 
 # Add a representer for pandas Timestamps/NaT in the regression tests
 RegressionYamlDumper.add_representer(

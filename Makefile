@@ -29,11 +29,24 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	MYPYPATH=stubs uv run --package ref-core mypy packages/ref-core
-	MYPYPATH=stubs uv run --package ref mypy packages/ref
-	MYPYPATH=stubs uv run --package ref-celery mypy packages/ref-celery
-	MYPYPATH=stubs uv run --package ref-metrics-example mypy packages/ref-metrics-example
-	MYPYPATH=stubs uv run --package ref-metrics-esmvaltool mypy packages/ref-metrics-esmvaltool
+	uv run --package cmip_ref mypy packages/ref
+	uv run --package cmip_ref_core mypy packages/ref-core
+	uv run --package cmip_ref_celery mypy packages/ref
+	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
+	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
+
+.PHONY: clean
+clean:  ## clean up temporary files
+	rm -rf site dist build
+	rm -rf .coverage
+
+.PHONY: build
+build: clean  ## build the packages to be deployed to PyPI
+	cp LICENCE NOTICE packages/ref
+	cp LICENCE NOTICE packages/ref-core
+	uv build --package cmip_ref --no-sources
+	uv build --package cmip_ref_core --no-sources
+	uv build --package cmip_ref_celery --no-sources
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -42,33 +55,33 @@ ruff-fixes:  ## fix the code using ruff
 
 .PHONY: test-ref
 test-ref:  ## run the tests
-	uv run --package ref \
+	uv run --package cmip_ref \
 		pytest packages/ref \
-		-r a -v --doctest-modules --cov=packages/ref/src
+		-r a -v --doctest-modules --cov=packages/ref/src --cov-report=term --cov-append
 
 .PHONY: test-core
 test-core:  ## run the tests
-	uv run --package ref-core \
+	uv run --package cmip_ref_core \
 		pytest packages/ref-core \
-		-r a -v --doctest-modules --cov=packages/ref-core/src
+		-r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
 
 .PHONY: test-celery
 test-celery:  ## run the tests
-	uv run --package ref-celery \
+	uv run --package cmip_ref_celery \
 		pytest packages/ref-celery \
 		-r a -v --doctest-modules --cov=packages/ref-celery/src
 
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
-	uv run --package ref-metrics-example \
+	uv run --package cmip_ref_metrics_example \
 		pytest packages/ref-metrics-example \
-		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src
+		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-esmvaltool
 test-metrics-esmvaltool:  ## run the tests
-	uv run --package ref-metrics-esmvaltool \
+	uv run --package cmip_ref_metrics_esmvaltool \
 		pytest packages/ref-metrics-esmvaltool \
-		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src
+		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src --cov-report=term --cov-append
 
 .PHONY: test-integration
 test-integration:  ## run the integration tests
@@ -77,7 +90,7 @@ test-integration:  ## run the integration tests
 		-r a -v
 
 .PHONY: test
-test: test-core test-ref test-celery test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
+test: clean test-core test-ref test-celery test-metrics-example test-metrics-esmvaltool test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found
@@ -113,5 +126,9 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 	uv run pre-commit install
 
 .PHONY: fetch-test-data
-fetch-test-data:  ## Fetch test data
-	uv run python ./scripts/fetch_test_data.py
+fetch-test-data:  ## Download any data needed by the test suite
+	uv run python ./scripts/fetch-sample-data.py
+
+.PHONY: update-test-data-registry
+update-test-data-registry:  ## Update the test data registry
+	curl --output packages/ref/src/ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt

@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
 
 
 @pytest.fixture
-def catalog_regression(data_regression, esgf_data_dir):
+def catalog_regression(data_regression, sample_data_dir):
     def check(df: pd.DataFrame, basename: str):
         # Strip the path to make the test more robust
-        df["path"] = df["path"].str.replace(str(esgf_data_dir), "{esgf_data_dir}")
+        df["path"] = df["path"].str.replace(str(sample_data_dir), "{esgf_data_dir}")
 
         data_regression.check(df.to_dict(orient="records"), basename=basename)
 
@@ -34,24 +34,24 @@ class TestCMIP6Adapter:
         df = adapter.load_catalog(db)
         assert df.empty
 
-    def test_load_catalog(self, db_seeded, catalog_regression, esgf_data_dir):
+    def test_load_catalog(self, db_seeded, catalog_regression, sample_data_dir):
         adapter = CMIP6DatasetAdapter()
         df = adapter.load_catalog(db_seeded)
 
         for k in adapter.dataset_specific_metadata + adapter.file_specific_metadata:
             assert k in df.columns
 
-        assert len(df) == 9  # unique files
-        assert df.groupby("instance_id").ngroups == 5  # unique datasets
+        assert len(df) == 13  # unique files
+        assert df.groupby("instance_id").ngroups == 10  # unique datasets
 
         # The order of the rows may be flakey due to sqlite ordering and the created time resolution
         catalog_regression(df.sort_values(["instance_id", "start_time"]), basename="cmip6_catalog_db")
 
-    def test_round_trip(self, db_seeded, esgf_data_dir):
+    def test_round_trip(self, db_seeded, sample_data_dir):
         # Indexes and ordering may be different
         adapter = CMIP6DatasetAdapter()
         local_data_catalog = (
-            adapter.find_local_datasets(esgf_data_dir)
+            adapter.find_local_datasets(sample_data_dir)
             .drop(columns=["time_range"])
             .sort_values(["instance_id", "start_time"])
             .reset_index(drop=True)
@@ -65,9 +65,9 @@ class TestCMIP6Adapter:
         db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)
         pd.testing.assert_frame_equal(local_data_catalog, db_data_catalog, check_like=True)
 
-    def test_load_local_datasets(self, esgf_data_dir, catalog_regression):
+    def test_load_local_datasets(self, sample_data_dir, catalog_regression):
         adapter = CMIP6DatasetAdapter()
-        data_catalog = adapter.find_local_datasets(esgf_data_dir)
+        data_catalog = adapter.find_local_datasets(sample_data_dir)
 
         # TODO: add time_range to the db?
         assert sorted(data_catalog.columns.tolist()) == sorted(

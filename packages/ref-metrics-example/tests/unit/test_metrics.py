@@ -1,15 +1,17 @@
 import pathlib
 
 import pytest
-from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from ref_core.metrics import MetricExecutionDefinition
-from ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
+from cmip_ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
+
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from cmip_ref_core.metrics import MetricExecutionDefinition
 
 
 @pytest.fixture
 def metric_dataset(cmip6_data_catalog) -> MetricDataset:
     selected_dataset = cmip6_data_catalog[
-        cmip6_data_catalog["instance_id"] == cmip6_data_catalog.instance_id.iloc[0]
+        cmip6_data_catalog["instance_id"]
+        == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318"
     ]
     return MetricDataset(
         {
@@ -21,7 +23,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
     )
 
 
-def test_annual_mean(esgf_data_dir, metric_dataset):
+def test_annual_mean(sample_data_dir, metric_dataset):
     annual_mean = calculate_annual_mean_timeseries(metric_dataset["cmip6"].path.to_list())
 
     assert annual_mean.time.size == 286
@@ -32,7 +34,7 @@ def test_example_metric(tmp_path, metric_dataset, cmip6_data_catalog, mocker):
     ds = cmip6_data_catalog.groupby("instance_id").first()
     output_directory = tmp_path / "output"
 
-    mock_calc = mocker.patch("ref_metrics_example.example.calculate_annual_mean_timeseries")
+    mock_calc = mocker.patch("cmip_ref_metrics_example.example.calculate_annual_mean_timeseries")
 
     mock_calc.return_value.attrs.__getitem__.return_value = "ABC"
 

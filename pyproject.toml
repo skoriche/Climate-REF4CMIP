@@ -1,6 +1,6 @@
 [project]
-name = "cmip-ref"
-version = "0.1.0"
+name = "cmip-ref-root"
+version = "0.1.5"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -8,11 +8,11 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "ref[postgres]",
-    "ref-core",
-    "ref-celery",
-    "ref-metrics-example",
-    "ref-metrics-esmvaltool",
+    "cmip_ref[postgres]",
+    "cmip_ref_core",
+    "cmip_ref_celery",
+    "cmip_ref_metrics_example",
+    "cmip_ref_metrics_esmvaltool",
 ]
 
 [project.license]
@@ -46,7 +46,6 @@ dev-dependencies = [
     "myst-nb>=1.1.1",
     "jupyterlab>=4.2.0",
     "jupytext>=1.16.3",
-    "esgpull>=0.7.3",
     "pandas-stubs>=2.2.3.241009",
     "pytest-loguru>=0.4.0",
     "notebook>=7",
@@ -60,11 +59,11 @@ dev-dependencies = [
 members = ["packages/*"]
 
 [tool.uv.sources]
-ref = { workspace = true }
-ref-celery = { workspace = true }
-ref-core = { workspace = true }
-ref-metrics-example = { workspace = true }
-ref-metrics-esmvaltool = { workspace = true }
+cmip_ref = { workspace = true }
+cmip_ref_core = { workspace = true }
+cmip_ref_celery = { workspace = true }
+cmip_ref_metrics_example = { workspace = true }
+cmip_ref_metrics_esmvaltool = { workspace = true }
 
 [tool.coverage.run]
 source = ["packages"]
@@ -81,6 +80,10 @@ exclude_also = [
     # Exclude ... literals
     "\\.\\.\\."
 ]
+omit = [
+    # Skip alembic migration files
+    "*/migrations/*",
+]
 
 [tool.mypy]
 strict = true
@@ -94,7 +97,7 @@ warn_unreachable = true
 # importing following uses default settings
 follow_imports = "normal"
 exclude = [
-    "alembic",
+    "migrations",
     "build",
     "dist",
     "notebooks",
@@ -103,7 +106,7 @@ exclude = [
     "tests",
     "conftest.py"
 ]
-
+mypy_path = "stubs"
 
 [tool.jupytext]
 formats = "ipynb,py:percent"
@@ -115,9 +118,6 @@ addopts = [
 filterwarnings = [
     # Need to update ecgtools to remove this warning
     'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
-    # Need to update esgpull/myproxyclient to remove these warnings
-    'ignore:Deprecated call to `pkg_resources.:DeprecationWarning',
-    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
 ]
 
 # We currently check for GPL licensed code, but this restriction may be removed

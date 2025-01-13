@@ -23,23 +23,6 @@ from the examples given in that link.
 
 ## cmip-ref 0.1.4 (2025-01-13)
 
-No significant changes.
-
-
-## cmip-ref 0.1.3 (2025-01-13)
-
-No significant changes.
-
-
-## cmip-ref 0.1.2 (2025-01-13)
-
-### Trivial/Internal Changes
-
-- [#55](https://github.com/CMIP-REF/cmip-ref/pulls/55)
-
-
-## cmip-ref 0.1.1 (2025-01-13)
-
 ### Breaking Changes
 
 - Adds an `ingest` CLI command to ingest a new set of data into the database.
@@ -122,4 +105,4 @@ No significant changes.
 
 ### Trivial/Internal Changes
 
-- [#41](https://github.com/CMIP-REF/cmip-ref/pulls/41), [#44](https://github.com/CMIP-REF/cmip-ref/pulls/44), [#48](https://github.com/CMIP-REF/cmip-ref/pulls/48), [#52](https://github.com/CMIP-REF/cmip-ref/pulls/52)
+- [#41](https://github.com/CMIP-REF/cmip-ref/pulls/41), [#44](https://github.com/CMIP-REF/cmip-ref/pulls/44), [#48](https://github.com/CMIP-REF/cmip-ref/pulls/48), [#52](https://github.com/CMIP-REF/cmip-ref/pulls/52), [#55](https://github.com/CMIP-REF/cmip-ref/pulls/55)

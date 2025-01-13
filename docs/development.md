@@ -60,7 +60,7 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/ref-core packages/ref packages/ref-metrics-*; do
+for package in packages/cmip_ref_core packages/cmip_ref packages/cmip_ref_metrics-*; do
      pip install -e $package;
 done
 ```

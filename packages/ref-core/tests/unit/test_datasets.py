@@ -1,5 +1,6 @@
 import pytest
-from ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
 @pytest.fixture

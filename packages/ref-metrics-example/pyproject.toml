@@ -1,5 +1,5 @@
 [project]
-name = "ref-metrics-example"
+name = "cmip_ref_metrics_example"
 version = "0.1.0"
 description = "Example metrics provider for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "ref-core",
+    "cmip_ref_core",
     "xarray >= 2022",
     "netcdf4>=1.5.0",
     "dask>=2024.10.0",

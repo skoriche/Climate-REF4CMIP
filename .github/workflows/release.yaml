@@ -26,9 +26,7 @@ jobs:
           PROJECT_VERSION=`sed -ne 's/^version = "\([0-9\.abrc]*\)"/\1/p' pyproject.toml`
           echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
       - name: Build package for PyPI
-        run: |
-          uv build --package ref -o dist
-          uv build --package ref-core -o dist
+        run: make build
       - name: Generate Release Notes
         run: |
           echo "" >> ".github/release_template.md"

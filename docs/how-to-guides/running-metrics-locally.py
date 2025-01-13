@@ -18,7 +18,7 @@
 # Metric providers can be run locally without requiring the rest of the REF infrastructure.
 # This is useful for testing and debugging metrics.
 #
-# Running a metric locally requires that the target REF metrics package, e.g. `ref-metrics-example`,
+# Running a metric locally requires that the target REF metrics package, e.g. `cmip_ref_metrics_example`,
 # and its dependencies are installed in the current Python environment.
 #
 # This guide will walk you through how to run a metric provider locally.
@@ -29,23 +29,23 @@ import json
 from pathlib import Path
 
 import attrs
+import cmip_ref_metrics_example
 import pandas as pd
 import prettyprinter
-import ref_metrics_example
 from attr import evolve
-from ref_core.datasets import SourceDatasetType
 
-from ref.config import Config
-from ref.database import Database
-from ref.datasets import get_dataset_adapter
-from ref.executor import run_metric
-from ref.provider_registry import ProviderRegistry
-from ref.solver import MetricSolver
+from cmip_ref.config import Config
+from cmip_ref.database import Database
+from cmip_ref.datasets import get_dataset_adapter
+from cmip_ref.executor import run_metric
+from cmip_ref.provider_registry import ProviderRegistry
+from cmip_ref.solver import MetricSolver
+from cmip_ref_core.datasets import SourceDatasetType
 
 prettyprinter.install_extras(["attrs"])
 
 # %%
-provider = ref_metrics_example.provider
+provider = cmip_ref_metrics_example.provider
 provider
 
 # %% [markdown]
@@ -148,13 +148,13 @@ definition.output_fragment
 # %% [markdown]
 # ## Metric calculations
 #
-# Metric calculations are typically run using an [Executor](ref_core.executor.Executor)
+# Metric calculations are typically run using an [Executor](cmip_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 #
 # The simplest executor is the `LocalExecutor`.
 # This executor runs a given metric synchronously in the current process.
 #
-# The `LocalExecutor` is the default executor when using the  `ref_core.executor.run_metric` function.
+# The `LocalExecutor` is the default executor when using the  `cmip_ref_core.executor.run_metric` function.
 # This can be overridden by specifying the `REF_EXECUTOR` environment variable.
 
 # %%

@@ -53,7 +53,7 @@ ignore = [
 ]
 
 [lint.isort]
-known-first-party = ["ref", "ref-core"]
+known-first-party = ["cmip_ref", "cmip_ref_core"]
 
 [lint.pydocstyle]
 convention = "numpy"

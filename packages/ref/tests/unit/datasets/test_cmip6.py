@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
 
 
 @pytest.fixture

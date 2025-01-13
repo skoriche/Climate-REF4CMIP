@@ -2,13 +2,13 @@ from unittest import mock
 
 import pandas as pd
 import pytest
-from ref_core.constraints import RequireFacets, SelectParentExperiment
-from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import DataRequirement, FacetFilter
-from ref_metrics_example import provider
+from cmip_ref_metrics_example import provider
 
-from ref.provider_registry import ProviderRegistry
-from ref.solver import MetricSolver, extract_covered_datasets, solve_metrics
+from cmip_ref.provider_registry import ProviderRegistry
+from cmip_ref.solver import MetricSolver, extract_covered_datasets, solve_metrics
+from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
+from cmip_ref_core.datasets import SourceDatasetType
+from cmip_ref_core.metrics import DataRequirement, FacetFilter
 
 
 @pytest.fixture
@@ -174,7 +174,7 @@ def test_data_coverage(requirement, data_catalog, expected):
     assert len(result) == len(expected)
 
 
-@mock.patch("ref.solver.get_executor")
+@mock.patch("cmip_ref.solver.get_executor")
 def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
     with db_seeded.session.begin():
         solve_metrics(db_seeded)
@@ -182,7 +182,7 @@ def test_solve_metrics_default_solver(mock_executor, db_seeded, solver):
     assert mock_executor.return_value.run_metric.call_count == 6
 
 
-@mock.patch("ref.solver.get_executor")
+@mock.patch("cmip_ref.solver.get_executor")
 def test_solve_metrics(mock_executor, db_seeded, solver):
     with db_seeded.session.begin():
         solve_metrics(db_seeded, dry_run=False, solver=solver)
@@ -209,7 +209,7 @@ def test_solve_metrics(mock_executor, db_seeded, solver):
         assert definition.key in expected_keys
 
 
-@mock.patch("ref.solver.get_executor")
+@mock.patch("cmip_ref.solver.get_executor")
 def test_solve_metrics_dry_run(mock_executor, db_seeded, solver):
     solve_metrics(db_seeded, dry_run=True, solver=solver)
 

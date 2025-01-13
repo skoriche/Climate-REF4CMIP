@@ -3,8 +3,8 @@ import pytest
 from pytest_regressions.data_regression import RegressionYamlDumper
 from yaml.representer import SafeRepresenter
 
-from ref.database import Database
-from ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.database import Database
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
 # Ignore the alembic folder
 collect_ignore = ["alembic"]

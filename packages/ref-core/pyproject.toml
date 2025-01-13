@@ -1,5 +1,5 @@
 [project]
-name = "ref-core"
+name = "cmip_ref_core"
 version = "0.1.0"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"

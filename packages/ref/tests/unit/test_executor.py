@@ -1,10 +1,10 @@
 import pytest
-from ref_core.datasets import MetricDataset
-from ref_core.executor import Executor
-from ref_core.metrics import MetricExecutionDefinition
 
-from ref.executor import ExecutorManager, run_metric
-from ref.executor.local import LocalExecutor
+from cmip_ref.executor import ExecutorManager, run_metric
+from cmip_ref.executor.local import LocalExecutor
+from cmip_ref_core.datasets import MetricDataset
+from cmip_ref_core.executor import Executor
+from cmip_ref_core.metrics import MetricExecutionDefinition
 
 
 @pytest.fixture

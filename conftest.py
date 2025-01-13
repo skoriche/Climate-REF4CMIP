@@ -10,15 +10,15 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from click.testing import Result
-from ref_core.datasets import SourceDatasetType
-from ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
-from ref_core.providers import MetricsProvider
 from typer.testing import CliRunner
 
-from ref import cli
-from ref.config import Config
-from ref.datasets.cmip6 import CMIP6DatasetAdapter
-from ref.testing import TEST_DATA_DIR, fetch_sample_data
+from cmip_ref import cli
+from cmip_ref.config import Config
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
+from cmip_ref_core.datasets import SourceDatasetType
+from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.providers import MetricsProvider
 
 
 @pytest.fixture
@@ -40,10 +40,10 @@ def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
 
 @pytest.fixture(autouse=True)
 def config(tmp_path, monkeypatch) -> Config:
-    monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "ref"))
+    monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
 
     # Uses the default configuration
-    cfg = Config.load(tmp_path / "ref" / "ref.toml")
+    cfg = Config.load(tmp_path / "cmip_ref" / "cmip_ref.toml")
 
     # Allow adding datasets from outside the tree for testing
     cfg.paths.allow_out_of_tree_datasets = True

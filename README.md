@@ -17,9 +17,8 @@ CMIP REF is a community project, and we welcome contributions from anyone.
 [![Docs](https://readthedocs.org/projects/cmip-ref/badge/?version=latest)](https://cmip-ref.readthedocs.io)
 
 **PyPI :**
-[![PyPI](https://img.shields.io/pypi/v/cmip-ref.svg)](https://pypi.org/project/cmip-ref/)
-[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/cmip-ref.svg)](https://pypi.org/project/cmip-ref/)
-[![PyPI install](https://github.com/CMIP-REF/cmip-ref/actions/workflows/install.yaml/badge.svg?branch=main)](https://github.com/CMIP-REF/cmip-ref/actions/workflows/install.yaml)
+[![PyPI](https://img.shields.io/pypi/v/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
+[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
 
 **Other info :**
 [![Licence](https://img.shields.io/github/license/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/blob/main/LICENCE)
@@ -34,9 +33,7 @@ Metrics providers are the core of the REF.
 They define the metrics that will be calculated and the data that will be used to calculate them,
 by providing a consistent interface for the REF to interact with.
 
-
 These metrics providers can be run as standalone applications or as part of the REF.
-See
 
 ### As a modelling center
 
@@ -75,9 +72,9 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
 The following commands don't work yet, but will be updated when we have a release.
 
 ```bash
-pip install cmip-ref
-mamba install -c conda-forge cmip-ref
-conda install -c conda-forge cmip-ref
+pip install cmip_ref
+mamba install -c conda-forge cmip_ref
+conda install -c conda-forge cmip_ref
 ```
 
 <!--- --8<-- [end:installation] -->

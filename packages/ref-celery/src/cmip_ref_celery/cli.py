@@ -41,7 +41,7 @@ def start_worker(
     try:
         provider = imp.provider
     except AttributeError:
-        typer.echo("The package must define a 'provider' variable")
+        typer.echo("The package must define a 'provider' attribute")
         raise typer.Abort()
 
     # Wrap each metrics in the provider with a celery tasks

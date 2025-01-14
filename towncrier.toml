@@ -3,7 +3,7 @@ package = "cmip_ref_core"
 package_dir = "src"
 filename = "docs/changelog.md"
 directory = "changelog/"
-title_format = "## cmip-ref {version} ({project_date})"
+title_format = "## cmip_ref {version} ({project_date})"
 underlines = ["", "", ""]
 issue_format = "[#{issue}](https://github.com/CMIP-REF/cmip-ref/pulls/{issue})"
 

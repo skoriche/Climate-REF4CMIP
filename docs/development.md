@@ -195,11 +195,11 @@ The steps required are the following:
    This will then trigger a draft release.
 
 1. Edit the draft release which has been created
-   (see here:
-   [project releases](https://github.com/CMIP-REF/cmip-ref/releases)).
+   (see here: [project releases](https://github.com/CMIP-REF/cmip-ref/releases)).
    Once you are happy with the release (removed placeholders, added key
-   announcements etc.) then hit 'Publish release'. This triggers the `release` workflow to
-   PyPI (which you can then add to the release if you want).
+   announcements etc.) then hit 'Publish release'.
+   This triggers the [deploy workflow](https://github.com/CMIP-REF/cmip-ref/actions/workflows/deploy.yaml).
+   This workflow deploys the built wheels and source distributions from the release to PyPI.
 
 
 1. That's it, release done, make noise on social media of choice, do whatever

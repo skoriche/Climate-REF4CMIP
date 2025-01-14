@@ -67,9 +67,9 @@ don't render correctly on GitHub's viewer.
 
 <!--- --8<-- [start:description] -->
 
-CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda:
+CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
+(mamba and conda releases are not yet implemented):
 
-The following commands don't work yet, but will be updated when we have a release.
 
 ```bash
 pip install cmip_ref

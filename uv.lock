@@ -562,11 +562,15 @@ name = "cmip-ref-metrics-ilamb3"
 version = "0.1.5"
 source = { editable = "packages/ref-metrics-ilamb3" }
 dependencies = [
+    { name = "cmip-ref-core" },
     { name = "ilamb3" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3" }]
+requires-dist = [
+    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3" },
+]
 
 [package.metadata.requires-dev]
 dev = []

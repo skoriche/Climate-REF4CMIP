@@ -21,6 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
+    "cmip_ref_core",
     "ilamb3"
 ]
 

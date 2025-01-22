@@ -1,7 +1,7 @@
 import pathlib
 
 import pytest
-from cmip_ref_metrics_ilamb3.example import GlobalMeanTimeseries, calculate_global_mean_timeseries
+from cmip_ref_metrics_ilamb.example import GlobalMeanTimeseries, calculate_global_mean_timeseries
 
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import MetricExecutionDefinition
@@ -33,7 +33,7 @@ def test_example_metric(tmp_path, cmip6_data_catalog, mocker):
     ds = cmip6_data_catalog.groupby("instance_id").first()
     output_directory = tmp_path / "output"
 
-    mock_calc = mocker.patch("cmip_ref_metrics_ilamb3.example.calculate_global_mean_timeseries")
+    mock_calc = mocker.patch("cmip_ref_metrics_ilamb.example.calculate_global_mean_timeseries")
     mock_calc.return_value.attrs.__getitem__.return_value = "ABC"
 
     definition = MetricExecutionDefinition(

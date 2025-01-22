@@ -33,7 +33,7 @@ mypy:  ## run mypy on the codebase
 	uv run --package cmip_ref mypy packages/ref
 	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
 	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
-	uv run --package cmip_ref_metrics_ilamb3 mypy packages/ref-metrics-ilamb3
+	uv run --package cmip_ref_metrics_ilamb mypy packages/ref-metrics-ilamb
 
 .PHONY: clean
 clean:  ## clean up temporary files
@@ -76,11 +76,11 @@ test-metrics-esmvaltool:  ## run the tests
 		pytest packages/ref-metrics-esmvaltool \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src --cov-report=term --cov-append
 
-.PHONY: test-metrics-ilamb3
-test-metrics-ilamb3:  ## run the tests
-	uv run --package cmip_ref_metrics_ilamb3 \
-		pytest packages/ref-metrics-ilamb3 \
-		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb3/src --cov-report=term --cov-append
+.PHONY: test-metrics-ilamb
+test-metrics-ilamb:  ## run the tests
+	uv run --package cmip_ref_metrics_ilamb \
+		pytest packages/ref-metrics-ilamb \
+		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append
 
 .PHONY: test-integration
 test-integration:  ## run the integration tests
@@ -89,7 +89,7 @@ test-integration:  ## run the integration tests
 		-r a -v
 
 .PHONY: test
-test: clean test-core test-ref test-metrics-example test-metrics-esmvaltool test-metrics-ilamb3 test-integration ## run the tests
+test: clean test-core test-ref test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

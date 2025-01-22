@@ -13,7 +13,7 @@ members = [
     "cmip-ref-core",
     "cmip-ref-metrics-esmvaltool",
     "cmip-ref-metrics-example",
-    "cmip-ref-metrics-ilamb3",
+    "cmip-ref-metrics-ilamb",
     "cmip-ref-root",
 ]
 
@@ -558,9 +558,9 @@ requires-dist = [
 dev = []
 
 [[package]]
-name = "cmip-ref-metrics-ilamb3"
+name = "cmip-ref-metrics-ilamb"
 version = "0.1.5"
-source = { editable = "packages/ref-metrics-ilamb3" }
+source = { editable = "packages/ref-metrics-ilamb" }
 dependencies = [
     { name = "cmip-ref-core" },
     { name = "ilamb3" },

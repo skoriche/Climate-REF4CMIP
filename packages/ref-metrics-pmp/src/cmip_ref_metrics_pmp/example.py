@@ -79,8 +79,8 @@ class AnnualCycle(Metric):
     Calculate the annual cycle for a dataset
     """
 
-    name = "Annual Cycle"
-    slug = "annual-cycle"
+    name = "PMP Annual Cycle"
+    slug = "pmp-annual-cycle"
 
     data_requirements = (
         DataRequirement(

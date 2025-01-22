@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas
 import xarray
 
+from cmip_ref_core.constraints import RequireContiguousTimerange, RequireFacets, RequireOverlappingTimerange
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement
 from cmip_ref_metrics_esmvaltool._version import __version__
@@ -20,30 +21,36 @@ class EquilibriumClimateSensitivity(ESMValToolMetric):
     slug = "esmvaltool-equilibrium-climate-sensitivity"
     base_recipe = "recipe_ecs.yml"
 
+    variables = (
+        "rlut",
+        "rsdt",
+        "rsut",
+        "tas",
+    )
+    experiments = (
+        "abrupt-4xCO2",
+        "piControl",
+    )
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": (
-                            "rlut",
-                            "rsdt",
-                            "rsut",
-                            "tas",
-                        ),
-                        "experiment_id": (
-                            "abrupt-4xCO2",
-                            "piControl",
-                        ),
+                        "variable_id": variables,
+                        "experiment_id": experiments,
                     },
                 ),
             ),
-            # TODO: Select only datasets that have both experiments and all four variables
-            # TODO: Select only datasets that have a contiguous, shared timerange
-            # TODO: Add cell areas to the groups
-            # constraints=(AddCellAreas(),),
-            group_by=("source_id", "variant_label"),
+            group_by=("source_id", "member_id"),
+            constraints=(
+                RequireFacets("variable_id", list(variables)),
+                RequireFacets("experiment_id", list(experiments)),
+                RequireContiguousTimerange(group_by=["instance_id"]),
+                RequireOverlappingTimerange(group_by=["instance_id"]),
+                # TODO: Add cell areas to the groups
+                # constraints=(AddCellAreas(),),
+            ),
         ),
     )
 

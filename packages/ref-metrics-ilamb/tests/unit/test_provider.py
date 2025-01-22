@@ -2,7 +2,7 @@ from cmip_ref_metrics_ilamb import __version__, provider
 
 
 def test_provider():
-    assert provider.name == "ilamb"
+    assert provider.name == "ILAMB"
     assert provider.slug == "ilamb"
     assert provider.version == __version__
 

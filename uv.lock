@@ -584,6 +584,7 @@ dependencies = [
     { name = "cmip-ref-core" },
     { name = "cmip-ref-metrics-esmvaltool" },
     { name = "cmip-ref-metrics-example" },
+    { name = "cmip-ref-metrics-ilamb" },
 ]
 
 [package.dev-dependencies]
@@ -624,6 +625,7 @@ requires-dist = [
     { name = "cmip-ref-core", editable = "packages/ref-core" },
     { name = "cmip-ref-metrics-esmvaltool", editable = "packages/ref-metrics-esmvaltool" },
     { name = "cmip-ref-metrics-example", editable = "packages/ref-metrics-example" },
+    { name = "cmip-ref-metrics-ilamb", editable = "packages/ref-metrics-ilamb" },
 ]
 
 [package.metadata.requires-dev]

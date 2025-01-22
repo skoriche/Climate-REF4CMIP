@@ -7,7 +7,7 @@ from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 
 
-def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
+def calculate_annual_cycle(input_files: list[Path]) -> xr.Dataset:
     """
     Calculate the annual mean timeseries for a dataset.
 
@@ -74,13 +74,13 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_output
 
 
-class GlobalMeanTimeseries(Metric):
+class AnnualCycle(Metric):
     """
-    Calculate the annual mean global mean timeseries for a dataset
+    Calculate the annual cycle for a dataset
     """
 
-    name = "Global Mean Timeseries"
-    slug = "global-mean-timeseries"
+    name = "Annual Cycle"
+    slug = "annual-cycle"
 
     data_requirements = (
         DataRequirement(
@@ -88,7 +88,7 @@ class GlobalMeanTimeseries(Metric):
             filters=(
                 FacetFilter(facets={"variable_id": ("tas", "rsut")}),
                 # Ignore some experiments because they are not relevant
-                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+                FacetFilter(facets={"experiment_id": ("hist*")}, keep=False),
             ),
             # Add cell areas to the groups
             # constraints=(AddCellAreas(),),
@@ -117,7 +117,7 @@ class GlobalMeanTimeseries(Metric):
 
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
 
-        annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(
+        annual_mean_global_mean_timeseries = calculate_annual_cycle(
             input_files=input_datasets.path.to_list()
         )
 

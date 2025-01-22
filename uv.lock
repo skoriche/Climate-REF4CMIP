@@ -576,6 +576,24 @@ requires-dist = [
 dev = []
 
 [[package]]
+name = "cmip-ref-metrics-pmp"
+version = "0.1.5"
+source = { editable = "packages/ref-metrics-pmp" }
+dependencies = [
+    { name = "cmip-ref-core" },
+    { name = "pmp" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "pmp", git = "https://github.com/PCMDI/pcmdi_metrics" },
+]
+
+[package.metadata.requires-dev]
+dev = []
+
+[[package]]
 name = "cmip-ref-root"
 version = "0.1.5"
 source = { virtual = "." }

@@ -1,6 +1,5 @@
-# ref-metrics-example
+# ref-metrics-pmp
 
-An example of a basic REF metrics provider.
+Use [PCMDI Metrics Package (PMP)](https://github.com/PCMDI/pcmdi_metrics) as a REF metrics provider. See [http://pcmdi.github.io/pcmdi_metrics/](http://pcmdi.github.io/pcmdi_metrics/) for more information on project goals and resources.
 
-This package provides an example of how to implement a REF metrics provider,
-that exposes a single metric, `example_metric`, which is a simple counter.
+See [running-metrics-locally](https://cmip-ref.readthedocs.io/en/latest/how-to-guides/running-metrics-locally/) for usage instructions.

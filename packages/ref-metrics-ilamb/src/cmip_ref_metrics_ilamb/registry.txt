@@ -1,0 +1,5 @@
+gpp/FLUXNET2015/gpp.nc sha1:e4918f6ce9f1266e1041e83d485c9f04a0e0098d
+gpp/WECANN/gpp.nc sha1:6e864a6ae201195cdf995a3a81720188af441e13
+regions/GlobalLand.nc sha1:2f987d44fdba6ad0e72d14d6a2fecb7e8df2a9c5
+tas/FLUXNET2015/tas.nc sha1:000e9b9070fc3ab830426c8922c4622cf6adb2b0
+tas/CRU4.02/tas.nc sha1:2674da18a1a93483b50b1626e7a7ab741bf53d09

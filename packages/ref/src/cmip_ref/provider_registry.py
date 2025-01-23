@@ -83,10 +83,12 @@ class ProviderRegistry:
         # TODO: We don't yet have any tables to represent metrics providers
         from cmip_ref_metrics_esmvaltool import provider as esmvaltool_provider
         from cmip_ref_metrics_example import provider as example_provider
+        from cmip_ref_metrics_ilamb import provider as ilamb_provider
         from cmip_ref_metrics_pmp import provider as pmp_provider
 
         with db.session.begin_nested():
             _register_provider(db, example_provider)
             _register_provider(db, esmvaltool_provider)
+            _register_provider(db, ilamb_provider)
             _register_provider(db, pmp_provider)
-        return ProviderRegistry(providers=[example_provider, esmvaltool_provider, pmp_provider])
+        return ProviderRegistry(providers=[example_provider, esmvaltool_provider, ilamb_provider, pmp_provider])

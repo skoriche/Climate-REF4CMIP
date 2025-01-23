@@ -137,4 +137,4 @@ fetch-test-data:  ## Download any data needed by the test suite
 
 .PHONY: update-test-data-registry
 update-test-data-registry:  ## Update the test data registry
-	curl --output packages/ref/src/ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt
+	curl --output packages/ref/src/cmip_ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt

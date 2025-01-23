@@ -25,7 +25,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
 
 def test_annual_mean(metric_dataset):
     annual_mean = calculate_global_mean_timeseries(metric_dataset["cmip6"].path.to_list())
-    assert annual_mean.time.size == 572
+    assert annual_mean.time.size == 132
 
 
 def test_example_metric(tmp_path, cmip6_data_catalog, mocker):

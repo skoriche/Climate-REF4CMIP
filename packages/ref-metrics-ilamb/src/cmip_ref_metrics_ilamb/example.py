@@ -71,8 +71,8 @@ class GlobalMeanTimeseries(Metric):
     Calculate the global mean timeseries for a dataset
     """
 
-    name = "Global Mean Timeseries"
-    slug = "global-mean-timeseries"
+    name = "ILAMB Global Mean Timeseries"
+    slug = "ilamb-global-mean-timeseries"
 
     data_requirements = (
         DataRequirement(

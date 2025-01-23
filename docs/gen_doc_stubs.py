@@ -131,6 +131,7 @@ write_module_page("cmip_ref")
 write_module_page("cmip_ref_core")
 write_module_page("cmip_ref_metrics_example")
 write_module_page("cmip_ref_metrics_esmvaltool")
+write_module_page("cmip_ref_metrics_ilamb")
 
 with mkdocs_gen_files.open(ROOT_DIR / "NAVIGATION.md", "w") as fh:
     fh.writelines(nav.build_literate_nav())

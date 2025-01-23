@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-pmp = { git = "https://github.com/PCMDI/pcmdi_metrics" }
+pcmdi_metrics = { git = "https://github.com/PCMDI/pcmdi_metrics" }
 
 [project.license]
 text = "Apache-2.0"

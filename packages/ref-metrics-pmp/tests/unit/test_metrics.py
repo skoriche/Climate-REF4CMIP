@@ -1,7 +1,7 @@
 import pathlib
 
 import pytest
-from cmip_ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
+from cmip_ref_metrics_pmp.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
 
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import MetricExecutionDefinition

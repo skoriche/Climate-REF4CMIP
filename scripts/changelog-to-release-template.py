@@ -14,7 +14,8 @@ def main() -> None:
     They are printed to stdout
     """
     CHANGELOG = Path("docs") / "changelog.md"
-    lead_in = "## cmip-ref"
+
+    lead_in = "## cmip_ref"
 
     with open(CHANGELOG) as fh:
         changelog_raw = fh.read()

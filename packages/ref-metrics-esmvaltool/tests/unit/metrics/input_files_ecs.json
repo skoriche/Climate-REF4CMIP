@@ -1,0 +1,362 @@
+{
+    "start_time": {
+        "108": "0101-01-16T12:00:00.000",
+        "109": "0101-01-16T12:00:00.000",
+        "110": "0101-01-16T12:00:00.000",
+        "111": "0101-01-16T12:00:00.000",
+        "20": "0101-01-16T12:00:00.000",
+        "21": "0101-01-16T12:00:00.000",
+        "22": "0101-01-16T12:00:00.000",
+        "23": "0101-01-16T12:00:00.000"
+    },
+    "end_time": {
+        "108": "0600-12-16T12:00:00.000",
+        "109": "0600-12-16T12:00:00.000",
+        "110": "0600-12-16T12:00:00.000",
+        "111": "0600-12-16T12:00:00.000",
+        "20": "0250-12-16T12:00:00.000",
+        "21": "0250-12-16T12:00:00.000",
+        "22": "0250-12-16T12:00:00.000",
+        "23": "0250-12-16T12:00:00.000"
+    },
+    "path": {
+        "108": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/piControl/r1i1p1f1/Amon/rlut/gn/v20210316/rlut_Amon_ACCESS-ESM1-5_piControl_r1i1p1f1_gn_010101-060012.nc",
+        "109": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/piControl/r1i1p1f1/Amon/rsdt/gn/v20210316/rsdt_Amon_ACCESS-ESM1-5_piControl_r1i1p1f1_gn_010101-060012.nc",
+        "110": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/piControl/r1i1p1f1/Amon/rsut/gn/v20210316/rsut_Amon_ACCESS-ESM1-5_piControl_r1i1p1f1_gn_010101-060012.nc",
+        "111": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/piControl/r1i1p1f1/Amon/tas/gn/v20210316/tas_Amon_ACCESS-ESM1-5_piControl_r1i1p1f1_gn_010101-060012.nc",
+        "20": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/abrupt-4xCO2/r1i1p1f1/Amon/rlut/gn/v20191115/rlut_Amon_ACCESS-ESM1-5_abrupt-4xCO2_r1i1p1f1_gn_010101-025012.nc",
+        "21": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/abrupt-4xCO2/r1i1p1f1/Amon/rsdt/gn/v20191115/rsdt_Amon_ACCESS-ESM1-5_abrupt-4xCO2_r1i1p1f1_gn_010101-025012.nc",
+        "22": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/abrupt-4xCO2/r1i1p1f1/Amon/rsut/gn/v20191115/rsut_Amon_ACCESS-ESM1-5_abrupt-4xCO2_r1i1p1f1_gn_010101-025012.nc",
+        "23": "/home/bandela/climate_data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/abrupt-4xCO2/r1i1p1f1/Amon/tas/gn/v20191115/tas_Amon_ACCESS-ESM1-5_abrupt-4xCO2_r1i1p1f1_gn_010101-025012.nc"
+    },
+    "activity_id": {
+        "108": "CMIP",
+        "109": "CMIP",
+        "110": "CMIP",
+        "111": "CMIP",
+        "20": "CMIP",
+        "21": "CMIP",
+        "22": "CMIP",
+        "23": "CMIP"
+    },
+    "branch_method": {
+        "108": "standard",
+        "109": "standard",
+        "110": "standard",
+        "111": "standard",
+        "20": "standard",
+        "21": "standard",
+        "22": "standard",
+        "23": "standard"
+    },
+    "branch_time_in_child": {
+        "108": 0.0,
+        "109": 0.0,
+        "110": 0.0,
+        "111": 0.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0
+    },
+    "branch_time_in_parent": {
+        "108": 36524.0,
+        "109": 36524.0,
+        "110": 36524.0,
+        "111": 36524.0,
+        "20": 0.0,
+        "21": 0.0,
+        "22": 0.0,
+        "23": 0.0
+    },
+    "experiment": {
+        "108": "pre-industrial control",
+        "109": "pre-industrial control",
+        "110": "pre-industrial control",
+        "111": "pre-industrial control",
+        "20": "abrupt quadrupling of CO2",
+        "21": "abrupt quadrupling of CO2",
+        "22": "abrupt quadrupling of CO2",
+        "23": "abrupt quadrupling of CO2"
+    },
+    "experiment_id": {
+        "108": "piControl",
+        "109": "piControl",
+        "110": "piControl",
+        "111": "piControl",
+        "20": "abrupt-4xCO2",
+        "21": "abrupt-4xCO2",
+        "22": "abrupt-4xCO2",
+        "23": "abrupt-4xCO2"
+    },
+    "frequency": {
+        "108": "mon",
+        "109": "mon",
+        "110": "mon",
+        "111": "mon",
+        "20": "mon",
+        "21": "mon",
+        "22": "mon",
+        "23": "mon"
+    },
+    "grid": {
+        "108": "native atmosphere N96 grid (145x192 latxlon)",
+        "109": "native atmosphere N96 grid (145x192 latxlon)",
+        "110": "native atmosphere N96 grid (145x192 latxlon)",
+        "111": "native atmosphere N96 grid (145x192 latxlon)",
+        "20": "native atmosphere N96 grid (145x192 latxlon)",
+        "21": "native atmosphere N96 grid (145x192 latxlon)",
+        "22": "native atmosphere N96 grid (145x192 latxlon)",
+        "23": "native atmosphere N96 grid (145x192 latxlon)"
+    },
+    "grid_label": {
+        "108": "gn",
+        "109": "gn",
+        "110": "gn",
+        "111": "gn",
+        "20": "gn",
+        "21": "gn",
+        "22": "gn",
+        "23": "gn"
+    },
+    "institution_id": {
+        "108": "CSIRO",
+        "109": "CSIRO",
+        "110": "CSIRO",
+        "111": "CSIRO",
+        "20": "CSIRO",
+        "21": "CSIRO",
+        "22": "CSIRO",
+        "23": "CSIRO"
+    },
+    "nominal_resolution": {
+        "108": "250 km",
+        "109": "250 km",
+        "110": "250 km",
+        "111": "250 km",
+        "20": "250 km",
+        "21": "250 km",
+        "22": "250 km",
+        "23": "250 km"
+    },
+    "parent_activity_id": {
+        "108": "CMIP",
+        "109": "CMIP",
+        "110": "CMIP",
+        "111": "CMIP",
+        "20": "CMIP",
+        "21": "CMIP",
+        "22": "CMIP",
+        "23": "CMIP"
+    },
+    "parent_experiment_id": {
+        "108": "piControl-spinup",
+        "109": "piControl-spinup",
+        "110": "piControl-spinup",
+        "111": "piControl-spinup",
+        "20": "piControl",
+        "21": "piControl",
+        "22": "piControl",
+        "23": "piControl"
+    },
+    "parent_source_id": {
+        "108": "ACCESS-ESM1-5",
+        "109": "ACCESS-ESM1-5",
+        "110": "ACCESS-ESM1-5",
+        "111": "ACCESS-ESM1-5",
+        "20": "ACCESS-ESM1-5",
+        "21": "ACCESS-ESM1-5",
+        "22": "ACCESS-ESM1-5",
+        "23": "ACCESS-ESM1-5"
+    },
+    "parent_time_units": {
+        "108": "days since 0001-01-01",
+        "109": "days since 0001-01-01",
+        "110": "days since 0001-01-01",
+        "111": "days since 0001-01-01",
+        "20": "days since 0101-01-01",
+        "21": "days since 0101-01-01",
+        "22": "days since 0101-01-01",
+        "23": "days since 0101-01-01"
+    },
+    "parent_variant_label": {
+        "108": "r1i1p1f1",
+        "109": "r1i1p1f1",
+        "110": "r1i1p1f1",
+        "111": "r1i1p1f1",
+        "20": "r1i1p1f1",
+        "21": "r1i1p1f1",
+        "22": "r1i1p1f1",
+        "23": "r1i1p1f1"
+    },
+    "product": {
+        "108": "model-output",
+        "109": "model-output",
+        "110": "model-output",
+        "111": "model-output",
+        "20": "model-output",
+        "21": "model-output",
+        "22": "model-output",
+        "23": "model-output"
+    },
+    "realm": {
+        "108": "atmos",
+        "109": "atmos",
+        "110": "atmos",
+        "111": "atmos",
+        "20": "atmos",
+        "21": "atmos",
+        "22": "atmos",
+        "23": "atmos"
+    },
+    "source_id": {
+        "108": "ACCESS-ESM1-5",
+        "109": "ACCESS-ESM1-5",
+        "110": "ACCESS-ESM1-5",
+        "111": "ACCESS-ESM1-5",
+        "20": "ACCESS-ESM1-5",
+        "21": "ACCESS-ESM1-5",
+        "22": "ACCESS-ESM1-5",
+        "23": "ACCESS-ESM1-5"
+    },
+    "source_type": {
+        "108": "AOGCM",
+        "109": "AOGCM",
+        "110": "AOGCM",
+        "111": "AOGCM",
+        "20": "AOGCM",
+        "21": "AOGCM",
+        "22": "AOGCM",
+        "23": "AOGCM"
+    },
+    "sub_experiment": {
+        "108": "none",
+        "109": "none",
+        "110": "none",
+        "111": "none",
+        "20": "none",
+        "21": "none",
+        "22": "none",
+        "23": "none"
+    },
+    "sub_experiment_id": {
+        "108": "none",
+        "109": "none",
+        "110": "none",
+        "111": "none",
+        "20": "none",
+        "21": "none",
+        "22": "none",
+        "23": "none"
+    },
+    "table_id": {
+        "108": "Amon",
+        "109": "Amon",
+        "110": "Amon",
+        "111": "Amon",
+        "20": "Amon",
+        "21": "Amon",
+        "22": "Amon",
+        "23": "Amon"
+    },
+    "variable_id": {
+        "108": "rlut",
+        "109": "rsdt",
+        "110": "rsut",
+        "111": "tas",
+        "20": "rlut",
+        "21": "rsdt",
+        "22": "rsut",
+        "23": "tas"
+    },
+    "variant_label": {
+        "108": "r1i1p1f1",
+        "109": "r1i1p1f1",
+        "110": "r1i1p1f1",
+        "111": "r1i1p1f1",
+        "20": "r1i1p1f1",
+        "21": "r1i1p1f1",
+        "22": "r1i1p1f1",
+        "23": "r1i1p1f1"
+    },
+    "member_id": {
+        "108": "r1i1p1f1",
+        "109": "r1i1p1f1",
+        "110": "r1i1p1f1",
+        "111": "r1i1p1f1",
+        "20": "r1i1p1f1",
+        "21": "r1i1p1f1",
+        "22": "r1i1p1f1",
+        "23": "r1i1p1f1"
+    },
+    "standard_name": {
+        "108": "toa_outgoing_longwave_flux",
+        "109": "toa_incoming_shortwave_flux",
+        "110": "toa_outgoing_shortwave_flux",
+        "111": "air_temperature",
+        "20": "toa_outgoing_longwave_flux",
+        "21": "toa_incoming_shortwave_flux",
+        "22": "toa_outgoing_shortwave_flux",
+        "23": "air_temperature"
+    },
+    "long_name": {
+        "108": "TOA Outgoing Longwave Radiation",
+        "109": "TOA Incident Shortwave Radiation",
+        "110": "TOA Outgoing Shortwave Radiation",
+        "111": "Near-Surface Air Temperature",
+        "20": "TOA Outgoing Longwave Radiation",
+        "21": "TOA Incident Shortwave Radiation",
+        "22": "TOA Outgoing Shortwave Radiation",
+        "23": "Near-Surface Air Temperature"
+    },
+    "units": {
+        "108": "W m-2",
+        "109": "W m-2",
+        "110": "W m-2",
+        "111": "K",
+        "20": "W m-2",
+        "21": "W m-2",
+        "22": "W m-2",
+        "23": "K"
+    },
+    "vertical_levels": {
+        "108": 1,
+        "109": 1,
+        "110": 1,
+        "111": 1,
+        "20": 1,
+        "21": 1,
+        "22": 1,
+        "23": 1
+    },
+    "init_year": {
+        "108": null,
+        "109": null,
+        "110": null,
+        "111": null,
+        "20": null,
+        "21": null,
+        "22": null,
+        "23": null
+    },
+    "version": {
+        "108": "v20210316",
+        "109": "v20210316",
+        "110": "v20210316",
+        "111": "v20210316",
+        "20": "v20191115",
+        "21": "v20191115",
+        "22": "v20191115",
+        "23": "v20191115"
+    },
+    "instance_id": {
+        "108": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rlut.gn.v20210316",
+        "109": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rsdt.gn.v20210316",
+        "110": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rsut.gn.v20210316",
+        "111": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.tas.gn.v20210316",
+        "20": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rlut.gn.v20191115",
+        "21": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rsdt.gn.v20191115",
+        "22": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rsut.gn.v20191115",
+        "23": "CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.tas.gn.v20191115"
+    }
+}

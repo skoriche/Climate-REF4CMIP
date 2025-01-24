@@ -2,13 +2,12 @@
 Rapid evaluating CMIP data with ESMValTool.
 """
 
-import importlib.metadata
-
+import cmip_ref_metrics_esmvaltool.metrics
 from cmip_ref_core.providers import MetricsProvider
-from cmip_ref_metrics_esmvaltool.example import GlobalMeanTimeseries
+from cmip_ref_metrics_esmvaltool._version import __version__
 
-__version__ = importlib.metadata.version("cmip_ref_metrics_esmvaltool")
-
-# Initialise the metrics manager and register the example metric
+# Initialise the metrics manager and register the metrics
 provider = MetricsProvider("ESMValTool", __version__)
-provider.register(GlobalMeanTimeseries())
+for _metric_cls_name in cmip_ref_metrics_esmvaltool.metrics.__all__:
+    _metric_cls = getattr(cmip_ref_metrics_esmvaltool.metrics, _metric_cls_name)
+    provider.register(_metric_cls())

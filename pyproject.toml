@@ -13,6 +13,7 @@ dependencies = [
     "cmip_ref_celery",
     "cmip_ref_metrics_example",
     "cmip_ref_metrics_esmvaltool",
+    "cmip_ref_metrics_ilamb",
 ]
 
 [project.license]
@@ -64,6 +65,7 @@ cmip_ref_core = { workspace = true }
 cmip_ref_celery = { workspace = true }
 cmip_ref_metrics_example = { workspace = true }
 cmip_ref_metrics_esmvaltool = { workspace = true }
+cmip_ref_metrics_ilamb = { workspace = true }
 
 [tool.coverage.run]
 source = ["packages"]

@@ -86,8 +86,7 @@ class AnnualCycle(Metric):
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
-                FacetFilter(facets={"frequency": "mon",
-                                    "experiment_id": ("historical", "amip")}),
+                FacetFilter(facets={"frequency": "mon", "experiment_id": ("historical", "amip")}),
                 # Ignore some experiments because they are not relevant
                 FacetFilter(facets={"experiment_id": ("hist-*")}, keep=False),
             ),
@@ -118,9 +117,7 @@ class AnnualCycle(Metric):
 
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
 
-        annual_mean_global_mean_timeseries = calculate_annual_cycle(
-            input_files=input_datasets.path.to_list()
-        )
+        annual_mean_global_mean_timeseries = calculate_annual_cycle(input_files=input_datasets.path.to_list())
 
         return MetricResult.build_from_output_bundle(
             definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries)

@@ -91,4 +91,6 @@ class ProviderRegistry:
             _register_provider(db, esmvaltool_provider)
             _register_provider(db, ilamb_provider)
             _register_provider(db, pmp_provider)
-        return ProviderRegistry(providers=[example_provider, esmvaltool_provider, ilamb_provider, pmp_provider])
+        return ProviderRegistry(
+            providers=[example_provider, esmvaltool_provider, ilamb_provider, pmp_provider]
+        )

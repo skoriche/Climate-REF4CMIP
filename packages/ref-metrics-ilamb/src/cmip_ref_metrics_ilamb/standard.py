@@ -56,7 +56,7 @@ class ILAMBStandard(Metric):
         self.variable_id = variable_id
         self.collection_key = collection_key
         self.name = f"ILAMB Standard {collection_key}"
-        self.slug = self.name.lower().replace(" ", "_")
+        self.slug = self.name.lower().replace(" ", "-")
         self.data_requirements = (
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
@@ -102,9 +102,10 @@ class ILAMBStandard(Metric):
         # Phase 1: loop over each model in the group and run an analysis function
         df = []
         ds_com = {}
+        ds_ref = None
         for _, row in definition.metric_dataset[SourceDatasetType.CMIP6].datasets.iterrows():
             # Define what we will call the output artifacts
-            source_name = "{source_id}_{member_id}_{grid_label}".format(**row.to_dict())
+            source_name = "{source_id}-{member_id}-{grid_label}".format(**row.to_dict())
             csv_file = definition.to_output_path(f"{source_name}.csv")
             ref_file = definition.to_output_path("Reference.nc")
             com_file = definition.to_output_path(f"{source_name}.nc")
@@ -122,6 +123,16 @@ class ILAMBStandard(Metric):
             if not ref_file.is_file():
                 ds_ref.to_netcdf(ref_file)
             ds_com[source_name].to_netcdf(com_file)
+        if ds_ref is None:
+            raise ValueError("Reference intermediate data was not generated.")
 
-        # Phase 2:
+        # Phase 2: get plots and combine scalars and save
+        df = pd.concat(df).drop_duplicates(subset=["source", "region", "analysis", "name"])
+        df_plots = analysis.plots(df, ds_ref, ds_com)
+        for _, row in df_plots.iterrows():
+            row["axis"].get_figure().savefig(
+                definition.to_output_path(f"{row['source']}_{row['region']}_{row['name']}.png")
+            )
+
+        print(df_plots)
         return MetricResult.build_from_output_bundle(definition, {})

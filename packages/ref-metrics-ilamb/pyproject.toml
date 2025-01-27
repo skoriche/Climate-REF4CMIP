@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3" }
+ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "1c32151eb7c61ff2b7dfb806ab271337754fa39c" }
 
 [project.license]
 text = "Apache-2.0"

@@ -1,10 +1,19 @@
+import sys
+from collections import defaultdict
+from collections.abc import Mapping
 from typing import Protocol, runtime_checkable
+
+if sys.version_info < (3, 11):
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 import numpy as np
 import pandas as pd
 from attrs import frozen
 from loguru import logger
 
+from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.exceptions import ConstraintNotSatisfied
 
 
@@ -89,17 +98,21 @@ but may also include validators that check if the group satisfies a certain cond
 
 
 def apply_constraint(
-    dataframe: pd.DataFrame, constraint: GroupConstraint, data_catalog: pd.DataFrame
+    dataframe: pd.DataFrame,
+    constraint: GroupConstraint,
+    data_catalog: pd.DataFrame,
 ) -> pd.DataFrame | None:
     """
     Apply a constraint to a group of datasets
 
     Parameters
     ----------
+    dataframe:
+        The group of datasets to apply the constraint to.
     constraint
-        The constraint to apply
+        The constraint to apply.
     data_catalog
-        The data catalog of datasets
+        The data catalog of all datasets.
 
     Returns
     -------
@@ -129,7 +142,7 @@ class RequireFacets:
     """
 
     dimension: str
-    required_facets: list[str]
+    required_facets: tuple[str, ...]
 
     def validate(self, group: pd.DataFrame) -> bool:
         """
@@ -142,12 +155,114 @@ class RequireFacets:
 
 
 @frozen
+class AddSupplementaryDataset:
+    """
+    Include e.g. a cell measure or ancillary variable in the selection.
+    """
+
+    supplementary_facets: Mapping[str, str | tuple[str, ...]]
+    """
+    Facets describing the supplementary dataset.
+    """
+
+    matching_facets: tuple[str, ...]
+    """
+    Facets that must match with datasets in the selection.
+    """
+
+    optional_matching_facets: tuple[str, ...]
+    """
+    Select only the best matching datasets based on similarity with these facets.
+    """
+
+    def apply(
+        self,
+        group: pd.DataFrame,
+        data_catalog: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Add a supplementary dataset to the group.
+        """
+        supplementary_facets: defaultdict[str, tuple[str, ...]] = defaultdict(tuple)
+        for facet, values in self.supplementary_facets.items():
+            supplementary_facets[facet] = values if isinstance(values, tuple) else (values,)
+
+        for facet in self.matching_facets:
+            values = tuple(group[facet].unique())
+            supplementary_facets[facet] += values
+
+        supplementary_group = data_catalog
+        for facet, values in supplementary_facets.items():
+            mask = supplementary_group[facet].isin(values)
+            supplementary_group = supplementary_group[mask]
+
+        if not supplementary_group.empty and self.optional_matching_facets:
+            facets = list(self.matching_facets + self.optional_matching_facets)
+            datasets = group[facets].drop_duplicates()
+            indices = set()
+            for i in range(len(datasets)):
+                scores = (supplementary_group[facets] == datasets.iloc[i]).sum(axis=1)
+                matches = supplementary_group[scores == scores.max()]
+                # Select the latest version if there are multiple matches
+                matches = matches[matches["version"] == matches["version"].max()]
+                indices.add(matches.index[0])
+            supplementary_group = supplementary_group.loc[list(indices)].drop_duplicates()
+
+        return pd.concat([group, supplementary_group])
+
+    @classmethod
+    def from_defaults(
+        cls,
+        variable: str,
+        source_type: SourceDatasetType,
+    ) -> Self:
+        """
+        Include e.g. a cell measure or ancillary variable in the selection.
+
+        The constraint is created using the defaults for the source_type.
+
+        Parameters
+        ----------
+        variable:
+            The name of the variable to add.
+        source_type:
+            The source_type of the variable to add.
+
+        Returns
+        -------
+        :
+            A constraint to include a supplementary variable.
+
+        """
+        kwargs = {
+            SourceDatasetType.CMIP6: {
+                "matching_facets": (
+                    "source_id",
+                    "grid_label",
+                ),
+                "optional_matching_facets": (
+                    "table_id",
+                    "experiment_id",
+                    "member_id",
+                    "version",
+                ),
+            }
+        }
+        variable_facet = {
+            SourceDatasetType.CMIP6: "variable_id",
+        }
+
+        supplementary_facets = {variable_facet[source_type]: variable}
+        return cls(supplementary_facets, **kwargs[source_type])
+
+
+@frozen
 class RequireContiguousTimerange:
     """
     A constraint that requires datasets to have a contiguous timerange.
     """
 
-    group_by: list[str]
+    group_by: tuple[str, ...]
     """
     The fields to group the datasets by. Each group must be contiguous in time
     to fulfill the constraint.
@@ -167,7 +282,7 @@ class RequireContiguousTimerange:
         if len(group) < 2:  # noqa: PLR2004
             return True
 
-        for _, subgroup in group.groupby(self.group_by):
+        for _, subgroup in group.groupby(list(self.group_by)):
             if len(subgroup) < 2:  # noqa: PLR2004
                 continue
             sorted_group = subgroup.sort_values("start_time", kind="stable")
@@ -205,7 +320,7 @@ class RequireOverlappingTimerange:
     A constraint that requires datasets to have an overlapping timerange.
     """
 
-    group_by: list[str]
+    group_by: tuple[str, ...]
     """
     The fields to group the datasets by. There must be overlap in time between
     the groups to fulfill the constraint.
@@ -219,8 +334,8 @@ class RequireOverlappingTimerange:
         if len(group) < 2:  # noqa: PLR2004
             return True
 
-        starts = group.groupby(self.group_by)["start_time"].min()
-        ends = group.groupby(self.group_by)["end_time"].max()
+        starts = group.groupby(list(self.group_by))["start_time"].min()
+        ends = group.groupby(list(self.group_by))["end_time"].max()
         return starts.max() < ends.min()  # type: ignore[no-any-return]
 
 

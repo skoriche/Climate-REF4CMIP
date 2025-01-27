@@ -27,10 +27,10 @@ def test_register_celery_tasks(mocker):
     # Mock Celery app and MetricsProvider
     mock_app = Mock(spec=Celery)
     mock_provider = Mock(spec=MetricsProvider)
-    mock_provider.name = "test_provider"
+    mock_provider.slug = "test_provider"
     mock_provider.metrics.return_value = [Mock(), Mock()]
-    mock_provider.metrics.return_value[0].name = "metric1"
-    mock_provider.metrics.return_value[1].name = "metric2"
+    mock_provider.metrics.return_value[0].slug = "metric1"
+    mock_provider.metrics.return_value[1].slug = "metric2"
 
     # Register tasks
     register_celery_tasks(mock_app, mock_provider)

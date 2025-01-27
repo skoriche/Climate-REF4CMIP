@@ -8,6 +8,10 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
 LABEL description="Docker image with the execution environment for the ref-metrics-example package"
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
 
@@ -24,15 +28,16 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Allow celery to run as root
 ENV C_FORCE_ROOT=false
+ENV PATH="/app/.venv/bin:${PATH}"
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --package ref-metrics-example
+    uv sync --frozen --no-dev --package cmip-ref-metrics-example
 # Add the ref-celery package to the worker
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv add ref-celery
+    uv add cmip-ref-celery
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []

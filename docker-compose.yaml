@@ -29,7 +29,7 @@ services:
       dockerfile: packages/ref-metrics-example/Dockerfile
       platforms:
         - linux/amd64
-#    command: ref-celery --package ref-metrics-example
+    command: ref-celery --package cmip-ref-metrics-example
     volumes:
       - .esgpull/data:/esgf
       - ./out:/output

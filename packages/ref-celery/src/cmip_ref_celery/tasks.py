@@ -17,7 +17,6 @@ from collections.abc import Callable
 
 from celery import Celery
 from loguru import logger
-from mypy_extensions import Arg
 
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
@@ -26,9 +25,7 @@ from cmip_ref_core.providers import MetricsProvider
 def metric_task_factory(
     metric: Metric,
 ) -> Callable[
-    [
-        Arg(MetricExecutionDefinition, "definition"),
-    ],
+    [MetricExecutionDefinition],
     MetricResult,
 ]:
     """
@@ -61,4 +58,4 @@ def register_celery_tasks(app: Celery, provider: MetricsProvider) -> None:
     """
     for metric in provider.metrics():
         print(f"Registering task for metric {metric.name}")
-        app.task(metric_task_factory(metric), name=f"{provider.name}_{metric.name}", queue=provider.name)
+        app.task(metric_task_factory(metric), name=f"{provider.slug}_{metric.slug}", queue=provider.slug)

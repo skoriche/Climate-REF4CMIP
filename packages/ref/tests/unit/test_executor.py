@@ -16,7 +16,7 @@ def metric_definition(tmp_path) -> MetricExecutionDefinition:
 
 
 def test_import_executor():
-    executor = import_executor("cmip_ref.executors.local.LocalExecutor")
+    executor = import_executor("cmip_ref.executor.local.LocalExecutor")
 
     assert isinstance(executor, Executor)
     assert isinstance(executor, LocalExecutor)

@@ -113,7 +113,7 @@ filename = "sqlite://cmip_ref.db"
                     "config": {},
                 },
             ],
-            "executor": {"executor": "cmip_ref.executor.LocalExecutor", "config": {}},
+            "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "data": "test/data",
                 "log": "test/log",

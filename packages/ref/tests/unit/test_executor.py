@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref.executor import ExecutorManager, run_metric
+from cmip_ref.executor import import_executor
 from cmip_ref.executor.local import LocalExecutor
 from cmip_ref_core.datasets import MetricDataset
 from cmip_ref_core.executor import Executor
@@ -14,14 +14,19 @@ def metric_definition(tmp_path) -> MetricExecutionDefinition:
     )
 
 
-class TestExecutorManager:
-    def test_executor_register(self):
-        manager = ExecutorManager()
-        manager.register(LocalExecutor())
+def test_import_executor():
+    executor = import_executor("cmip_ref.executors.local.LocalExecutor")
 
-        assert len(manager._executors) == 1
-        assert "local" in manager._executors
-        assert isinstance(manager.get("local"), LocalExecutor)
+    assert isinstance(executor, Executor)
+    assert isinstance(executor, LocalExecutor)
+
+
+def test_import_executor_missing():
+    with pytest.raises(ImportError):
+        import_executor("cmip_ref.executors.local.WrongExecutor")
+
+    with pytest.raises(ImportError):
+        import_executor("missing.executors.local.WrongExecutor")
 
 
 class TestLocalExecutor:
@@ -46,22 +51,3 @@ class TestLocalExecutor:
         result = executor.run_metric(mock_metric, metric_definition)
         assert result.successful is False
         assert result.bundle_filename is None
-
-
-@pytest.mark.parametrize("executor_name", ["local", None])
-def test_run_metric_local(monkeypatch, executor_name, mock_metric, provider, metric_definition):
-    if executor_name:
-        monkeypatch.setenv("REF_EXECUTOR", executor_name)
-    result = run_metric("mock", provider, definition=metric_definition)
-    assert result.successful
-
-
-def test_run_metric_unknown_executor(monkeypatch, provider):
-    monkeypatch.setenv("REF_EXECUTOR", "missing")
-    with pytest.raises(KeyError):
-        run_metric("mock", metrics_provider=provider, definition=None)
-
-
-def test_run_metric_unknown_metric(monkeypatch, provider):
-    with pytest.raises(KeyError):
-        run_metric("missing", metrics_provider=provider, definition=None)

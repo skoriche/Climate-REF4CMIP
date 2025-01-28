@@ -15,7 +15,7 @@ def test_version(invoke_cli):
 
 
 def test_verbose(invoke_cli):
-    exp_log = "| DEBUG    | cmip_ref.config:default:178 - Loading default configuration from"
+    exp_log = "| DEBUG    | cmip_ref.config:default:245 - Loading default configuration from"
     result = invoke_cli(
         ["--verbose", "config", "list"],
     )

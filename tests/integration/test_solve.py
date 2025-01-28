@@ -5,7 +5,7 @@ from cmip_ref.provider_registry import ProviderRegistry, _register_provider
 
 
 class ExampleProviderRegistry(ProviderRegistry):
-    def build_from_db(db: Database) -> "ExampleProviderRegistry":
+    def build_from_config(db: Database) -> "ExampleProviderRegistry":
         """
         Create a ProviderRegistry instance containing only the Example provider.
 

@@ -8,6 +8,24 @@ class RefException(Exception):
     pass
 
 
+class InvalidExecutorException(RefException):
+    """Exception raised when an invalid executor is used"""
+
+    def __init__(self, executor: Any, message: str) -> None:
+        message = f"Invalid executor: '{executor}'\n {message}"
+
+        super().__init__(message)
+
+
+class InvalidProviderException(RefException):
+    """Exception raised when an invalid metric is registered"""
+
+    def __init__(self, provider: Any, message: str) -> None:
+        message = f"Invalid provider: '{provider}'\n {message}"
+
+        super().__init__(message)
+
+
 class InvalidMetricException(RefException):
     """Exception raised when an invalid metric is registered"""
 

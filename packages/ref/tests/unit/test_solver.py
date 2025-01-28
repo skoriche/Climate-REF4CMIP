@@ -12,11 +12,11 @@ from cmip_ref_core.metrics import DataRequirement, FacetFilter, MetricExecutionD
 
 
 @pytest.fixture
-def solver(db_seeded) -> MetricSolver:
+def solver(db_seeded, config) -> MetricSolver:
     registry = ProviderRegistry(providers=[provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
     with db_seeded.session.begin():
-        metric_solver = MetricSolver.build_from_db(db_seeded)
+        metric_solver = MetricSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
 
     return metric_solver
@@ -236,8 +236,8 @@ def test_solve_metrics(mock_build_solver, mock_executor, db_seeded, solver, data
 
 
 @mock.patch("cmip_ref.solver.get_executor")
-def test_solve_metrics_dry_run(mock_executor, db_seeded, solver):
-    solve_metrics(db_seeded, dry_run=True, solver=solver)
+def test_solve_metrics_dry_run(mock_executor, db_seeded, config, solver):
+    solve_metrics(config=config, db=db_seeded, dry_run=True, solver=solver)
 
     assert mock_executor.return_value.run_metric.call_count == 0
 

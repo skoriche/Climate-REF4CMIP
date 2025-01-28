@@ -37,7 +37,6 @@ from attr import evolve
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
-from cmip_ref.executor import run_metric
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import MetricSolver
 from cmip_ref_core.datasets import SourceDatasetType
@@ -151,14 +150,19 @@ definition.output_fragment
 # Metric calculations are typically run using an [Executor](cmip_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 #
-# The simplest executor is the `LocalExecutor`.
+# The simplest executor is the [LocalExecutor](cmip_ref.executor.local.LocalExecutor).
 # This executor runs a given metric synchronously in the current process.
 #
-# The `LocalExecutor` is the default executor when using the  `cmip_ref_core.executor.run_metric` function.
-# This can be overridden by specifying the `REF_EXECUTOR` environment variable.
+# The executor can be specified in the configuration, or
+# using the `REF_EXECUTOR` environment variable which takes precedence.
+# The [LocalExecutor](cmip_ref.executor.local.LocalExecutor) is the default executor,
+# if no other configuration is provided.
 
 # %%
-result = run_metric("global-mean-timeseries", provider, definition=definition)
+executor = config.executor.as_executor()
+metric = provider.get("global-mean-timeseries")
+
+result = executor.run_metric(metric, definition=definition)
 result
 
 # %%

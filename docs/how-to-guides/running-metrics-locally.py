@@ -159,7 +159,7 @@ definition.output_fragment
 # if no other configuration is provided.
 
 # %%
-executor = config.executor.as_executor()
+executor = config.executor.build()
 metric = provider.get("global-mean-timeseries")
 
 result = executor.run_metric(metric, definition=definition)

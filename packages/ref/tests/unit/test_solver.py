@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 from cmip_ref_metrics_example import provider
 
+from cmip_ref.config import ExecutorConfig
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import MetricExecution, MetricSolver, extract_covered_datasets, solve_metrics
 from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
@@ -191,7 +192,7 @@ def test_data_coverage(requirement, data_catalog, expected):
 
 
 def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):
-    mock_executor = mocker.patch("cmip_ref.solver.import_executor_cls")
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
     mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
 
     # Create a mock solver that "solves" to create a single execution
@@ -213,7 +214,7 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
 
 
 def test_solve_metrics(mocker, db_seeded, solver, data_regression):
-    mock_executor = mocker.patch("cmip_ref.solver.import_executor_cls")
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
     mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
 
     with db_seeded.session.begin():
@@ -236,7 +237,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
 
 
 def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
-    mock_executor = mocker.patch("cmip_ref.solver.import_executor_cls")
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
 
     solve_metrics(config=config, db=db_seeded, dry_run=True, solver=solver)
 

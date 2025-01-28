@@ -17,7 +17,7 @@ from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 
 
-def import_executor(fqn: str) -> Executor:
+def import_executor_cls(fqn: str) -> type[Executor]:
     """
     Import an executor using a fully qualified module path
 
@@ -45,9 +45,12 @@ def import_executor(fqn: str) -> Executor:
 
     try:
         imp = importlib.import_module(module)
-        executor = getattr(imp, attribute_name)
-        if not isinstance(executor, Executor):
-            raise InvalidExecutorException(fqn, f"Expected Executor, got {type(executor)}")
+        executor: type[Executor] = getattr(imp, attribute_name)
+
+        # We can't really check if the executor is a subclass of Executor here
+        # Protocols can't be used with issubclass if they have non-method members
+        # We have to check this at class instantiation time
+
         return executor
     except ModuleNotFoundError:
         logger.error(f"Package '{fqn}' not found")

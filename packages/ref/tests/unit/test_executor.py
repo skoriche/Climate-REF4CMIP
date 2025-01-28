@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref.executor import import_executor
+from cmip_ref.executor import import_executor_cls
 from cmip_ref.executor.local import LocalExecutor
 from cmip_ref_core.datasets import MetricDataset
 from cmip_ref_core.exceptions import InvalidExecutorException
@@ -16,27 +16,22 @@ def metric_definition(tmp_path) -> MetricExecutionDefinition:
 
 
 def test_import_executor():
-    executor = import_executor("cmip_ref.executor.local.LocalExecutor")
+    executor = import_executor_cls("cmip_ref.executor.local.LocalExecutor")
 
     assert isinstance(executor, Executor)
-    assert isinstance(executor, LocalExecutor)
+    assert executor == LocalExecutor
 
 
 def test_import_executor_missing():
     fqn = "cmip_ref.executor.local.WrongExecutor"
     match = f"Invalid executor: '{fqn}'\n Executor 'WrongExecutor' not found in cmip_ref.executor.local"
     with pytest.raises(InvalidExecutorException, match=match):
-        import_executor(fqn)
+        import_executor_cls(fqn)
 
     fqn = "missing.executor.local.WrongExecutor"
     match = f"Invalid executor: '{fqn}'\n Module 'missing.executor.local' not found"
     with pytest.raises(InvalidExecutorException, match=match):
-        import_executor(fqn)
-
-    fqn = "cmip_ref.executor.local.logger"
-    match = f"Invalid executor: '{fqn}'\n Expected Executor, got <class 'loguru._logger.Logger'>"
-    with pytest.raises(InvalidExecutorException, match=match):
-        import_executor(fqn)
+        import_executor_cls(fqn)
 
 
 class TestLocalExecutor:

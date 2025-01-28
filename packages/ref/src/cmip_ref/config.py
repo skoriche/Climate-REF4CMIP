@@ -16,7 +16,8 @@ from tomlkit import TOMLDocument
 
 from cmip_ref.constants import config_filename
 from cmip_ref.env import env
-from cmip_ref.executor import import_executor
+from cmip_ref.executor import import_executor_cls
+from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 
 
@@ -85,16 +86,21 @@ class ExecutorConfig:
     def _executor_default(self) -> str:
         return env.str("REF_EXECUTOR", default="cmip_ref.executor.local.LocalExecutor")
 
-    def as_executor(self) -> Executor:
+    def build(self) -> Executor:
         """
-        Load the executor class
+        Create an instance of the executor
 
         Returns
         -------
         :
-            The executor class
+            An executor that can be used to run metrics
         """
-        return import_executor(self.executor)
+        ExecutorCls = import_executor_cls(self.executor)
+        executor = ExecutorCls(**self.config)
+
+        if not isinstance(executor, Executor):
+            raise InvalidExecutorException(executor, f"Expected an Executor, got {type(executor)}")
+        return executor
 
 
 @define

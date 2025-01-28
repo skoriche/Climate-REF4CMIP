@@ -18,7 +18,6 @@ from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.executor import import_executor
 from cmip_ref.models import Metric as MetricModel
 from cmip_ref.models import MetricExecution as MetricExecutionModel
 from cmip_ref.models import Provider as ProviderModel
@@ -221,7 +220,7 @@ def solve_metrics(
 
     logger.info("Solving for metrics that require recalculation...")
 
-    executor = import_executor(config.executor.executor)
+    executor = config.executor.build()
 
     for metric_execution in solver.solve():
         info = metric_execution.build_metric_execution_info()

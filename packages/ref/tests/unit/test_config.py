@@ -1,9 +1,12 @@
+import re
 from pathlib import Path
 
 import cattrs
 import pytest
+from attr import evolve
 
 from cmip_ref.config import Config, PathConfig
+from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 
 
@@ -123,7 +126,21 @@ filename = "sqlite://cmip_ref.db"
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }
 
-    def test_as_executor(self, config):
-        executor = config.executor.as_executor()
+    def test_executor_build(self, config):
+        executor = config.executor.build()
         assert executor.name == "local"
         assert isinstance(executor, Executor)
+
+        # None of the executors support initialisation arguments yet so this is a bit of a placeholder
+        config.executor.config["test"] = "value"
+
+        match = re.escape("LocalExecutor.__init__() got an unexpected keyword argument 'test'")
+        with pytest.raises(TypeError, match=match):
+            config.executor.build()
+
+    def test_executor_build_invalid(self, config):
+        config.executor = evolve(config.executor, executor="cmip_ref.config.DbConfig")
+
+        match = "Expected an Executor, got <class 'cmip_ref.config.DbConfig'>"
+        with pytest.raises(InvalidExecutorException, match=match):
+            config.executor.build()

@@ -70,6 +70,8 @@ def import_provider(fqn: str) -> MetricsProvider:
         For example: `cmip_ref_metrics_example.provider` will use the `provider` attribute from the
         `cmip_ref_metrics_example` package.
 
+        If only a package name is provided, the default attribute name is `provider`.
+
     Raises
     ------
     InvalidProviderException
@@ -87,6 +89,7 @@ def import_provider(fqn: str) -> MetricsProvider:
     else:
         module = fqn
         name = "provider"
+
     try:
         imp = importlib.import_module(module)
         provider = getattr(imp, name)
@@ -94,8 +97,8 @@ def import_provider(fqn: str) -> MetricsProvider:
             raise InvalidProviderException(fqn, f"Expected MetricsProvider, got {type(provider)}")
         return provider
     except ModuleNotFoundError:
-        logger.error(f"Package '{fqn}' not found")
-        raise InvalidProviderException(fqn, f"Package '{fqn}' not found")
+        logger.error(f"Module '{fqn}' not found")
+        raise InvalidProviderException(fqn, f"Module '{module}' not found")
     except AttributeError:
         logger.error(f"Provider '{fqn}' not found")
         raise InvalidProviderException(fqn, f"Provider '{name}' not found in {module}")

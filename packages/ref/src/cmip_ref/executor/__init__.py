@@ -51,7 +51,7 @@ def import_executor(fqn: str) -> Executor:
         return executor
     except ModuleNotFoundError:
         logger.error(f"Package '{fqn}' not found")
-        raise InvalidExecutorException(fqn, f"Package '{fqn}' not found")
+        raise InvalidExecutorException(fqn, f"Module '{module}' not found")
     except AttributeError:
         logger.error(f"Provider '{fqn}' not found")
         raise InvalidExecutorException(fqn, f"Executor '{attribute_name}' not found in {module}")

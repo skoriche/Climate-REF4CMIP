@@ -13,4 +13,4 @@ __version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
 # Initialise the metrics manager and register the example metric
 provider = MetricsProvider("ILAMB", __version__)
 provider.register(GlobalMeanTimeseries())
-provider.register(ILAMBStandard("tas", "tas_CRU4.02"))
+provider.register(ILAMBStandard("tas", "tas_Fluxnet2015"))

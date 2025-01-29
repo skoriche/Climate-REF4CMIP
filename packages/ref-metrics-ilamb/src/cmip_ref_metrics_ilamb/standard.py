@@ -1,5 +1,8 @@
 import importlib
+from typing import Any
 
+import ilamb3  # type: ignore
+import ilamb3.regions as ilr  # type: ignore
 import pandas as pd
 import pooch
 import xarray as xr
@@ -44,11 +47,80 @@ def _build_ilamb_collection(version: str) -> DatasetCollection:
     return collection
 
 
+def _add_overall_score(df: pd.DataFrame) -> pd.DataFrame:
+    add = (
+        df[df["type"] == "score"].groupby(["source", "region", "name"]).mean(numeric_only=True).reset_index()
+    )
+    add["name"] = "Overall Score [1]"
+    add["type"] = "score"
+    add["units"] = "1"
+    df = pd.concat([df, add]).reset_index(drop=True)
+    return df
+
+
+def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
+    ilamb_regions = ilr.Regions()
+    bundle = {
+        "SCHEMA": {"name": "CMEC", "version": "v1", "package": "ILAMB"},
+        "DIMENSIONS": {
+            "json_structure": ["region", "model", "metric", "statistic"],
+            "dimensions": {
+                "region": {
+                    r: {
+                        "LongName": "None" if r == "None" else ilamb_regions.get_name(r),
+                        "Description": "Reference data extents" if r == "None" else ilamb_regions.get_name(r),
+                        "Generator": "N/A" if r == "None" else ilamb_regions.get_source(r),
+                    }
+                    for r in df["region"].unique()
+                },
+                "model": {
+                    m: {"Description": m, "Source": m} for m in df["source"].unique() if m != "Reference"
+                },
+                "metric": {
+                    name: {
+                        "Name": name,
+                        "Abstract": "benchmark score",
+                        "URI": [
+                            "https://www.osti.gov/biblio/1330803",
+                            "https://doi.org/10.1029/2018MS001354",
+                        ],
+                        "Contact": "forrest AT climatemodeling.org",
+                    }
+                },
+                "statistic": {
+                    "indices": list(df["name"].unique()),
+                    "short_names": list(df["name"].unique()),
+                },
+            },
+        },
+        "RESULTS": {
+            r: {
+                m: {
+                    name: {
+                        s: float(
+                            df[(df["source"] == m) & (df["region"] == r) & (df["name"] == s)].iloc[0]["value"]
+                        )
+                        for s in df["name"].unique()
+                    }
+                }
+                for m in df["source"].unique()
+                if m != "Reference"
+            }
+            for r in df["region"].unique()
+        },
+    }
+    return bundle
+
+
 class ILAMBStandard(Metric):
     """
     Apply the standard ILAMB analysis with respect to a given reference dataset.
     """
 
+    # I could make this function take in the registry filename in order to keep
+    # a separate test registry. However, when all the ILAMB metrics are
+    # initialized, all the data will have to be downloaded which seems to
+    # negatively impact testing. For now I will keep the registry minimal.
     ilamb_data: DatasetCollection = _build_ilamb_collection(_ILAMB_DATA_VERSION)
 
     def __init__(self, variable_id: str, collection_key: str):
@@ -98,9 +170,10 @@ class ILAMBStandard(Metric):
         """
         reference_dataset = xr.open_dataset(self.reference_data["path"])
         analysis = bias_analysis(self.variable_id)
+        ilamb3.conf.set(regions=[None, "euro"])
 
         # Phase 1: loop over each model in the group and run an analysis function
-        df = []
+        dfs = []
         ds_com = {}
         ds_ref = None
         for _, row in definition.metric_dataset[SourceDatasetType.CMIP6].datasets.iterrows():
@@ -112,11 +185,13 @@ class ILAMBStandard(Metric):
 
             # Run the analysis on the data/model pair
             com = xr.open_mfdataset(row["path"])
-            df_scalars, ds_ref, ds_com[source_name] = analysis(reference_dataset, com)
+            df_scalars, ds_ref, ds_com[source_name] = analysis(
+                reference_dataset, com, regions=ilamb3.conf["regions"]
+            )
             ds_ref = ds_ref.pint.dequantify()  # FIX this in ilamb3
             ds_com[source_name] = ds_com[source_name].pint.dequantify()
             df_scalars["source"] = df_scalars["source"].str.replace("Comparison", source_name)
-            df += [df_scalars]
+            dfs += [df_scalars]
 
             # Write out the artifacts to the output directories
             df_scalars.to_csv(csv_file, index=False)
@@ -127,12 +202,14 @@ class ILAMBStandard(Metric):
             raise ValueError("Reference intermediate data was not generated.")
 
         # Phase 2: get plots and combine scalars and save
-        df = pd.concat(df).drop_duplicates(subset=["source", "region", "analysis", "name"])
+        df = pd.concat(dfs).drop_duplicates(subset=["source", "region", "analysis", "name"])
         df_plots = analysis.plots(df, ds_ref, ds_com)
         for _, row in df_plots.iterrows():
             row["axis"].get_figure().savefig(
                 definition.to_output_path(f"{row['source']}_{row['region']}_{row['name']}.png")
             )
 
-        print(df_plots)
-        return MetricResult.build_from_output_bundle(definition, {})
+        # Write out the bundle
+        df = _add_overall_score(df)
+        bundle = _build_cmec_bundle(definition.key, df)
+        return MetricResult.build_from_output_bundle(definition, bundle)

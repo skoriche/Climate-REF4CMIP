@@ -3,12 +3,11 @@ from typing import Any
 
 import xarray as xr
 
-from cmip_ref_core.constraints import AddSupplementaryDataset
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 
 
-def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
+def calculate_annual_cycle(input_files: list[Path]) -> xr.Dataset:
     """
     Calculate the annual mean timeseries for a dataset.
 
@@ -31,7 +30,7 @@ def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
     xr_ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, use_cftime=True)
 
     annual_mean = xr_ds.resample(time="YS").mean()
-    return annual_mean.weighted(xr_ds.areacella).mean(dim=["lat", "lon"], keep_attrs=True)
+    return annual_mean.mean(dim=["lat", "lon"], keep_attrs=True)
 
 
 def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
@@ -75,28 +74,26 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_output
 
 
-class GlobalMeanTimeseries(Metric):
+class AnnualCycle(Metric):
     """
-    Calculate the annual mean global mean timeseries for a dataset
+    Calculate the annual cycle for a dataset
     """
 
-    name = "Global Mean Timeseries"
-    slug = "global-mean-timeseries"
+    name = "PMP Annual Cycle"
+    slug = "pmp-annual-cycle"
 
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
-                FacetFilter(facets={"variable_id": ("tas", "rsut")}),
+                FacetFilter(facets={"frequency": "mon", "experiment_id": ("historical", "amip")}),
                 # Ignore some experiments because they are not relevant
-                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+                FacetFilter(facets={"experiment_id": ("hist-*")}, keep=False),
             ),
+            # Add cell areas to the groups
+            # constraints=(AddCellAreas(),),
             # Run the metric on each unique combination of model, variable, experiment, and variant
-            group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
-            constraints=(
-                # Add cell areas to the groups
-                AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
-            ),
+            group_by=("source_id", "variable_id", "experiment_id", "variant_label", "member_id"),
         ),
     )
 
@@ -120,9 +117,7 @@ class GlobalMeanTimeseries(Metric):
 
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
 
-        annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(
-            input_files=input_datasets.path.to_list()
-        )
+        annual_mean_global_mean_timeseries = calculate_annual_cycle(input_files=input_datasets.path.to_list())
 
         return MetricResult.build_from_output_bundle(
             definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries)

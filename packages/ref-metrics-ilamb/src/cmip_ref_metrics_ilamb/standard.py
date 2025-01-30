@@ -194,11 +194,11 @@ class ILAMBStandard(Metric):
 
             # Write out the artifacts to the output directories
             df_scalars.to_csv(csv_file, index=False)
-            if not ref_file.is_file():
+            if not ref_file.is_file():  # pragma: no cover
                 ds_ref.to_netcdf(ref_file)
             ds_com[source_name].to_netcdf(com_file)
         if ds_ref is None:
-            raise ValueError("Reference intermediate data was not generated.")
+            raise ValueError("Reference intermediate data was not generated.")  # pragma: no cover
 
         # Phase 2: get plots and combine scalars and save
         df = pd.concat(dfs).drop_duplicates(subset=["source", "region", "analysis", "name"])

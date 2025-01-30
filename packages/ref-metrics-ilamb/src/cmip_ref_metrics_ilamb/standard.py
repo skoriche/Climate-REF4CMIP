@@ -170,7 +170,6 @@ class ILAMBStandard(Metric):
         """
         reference_dataset = xr.open_dataset(self.reference_data["path"])
         analysis = bias_analysis(self.variable_id)
-        ilamb3.conf.set(regions=[None, "euro"])
 
         # Phase 1: loop over each model in the group and run an analysis function
         dfs = []

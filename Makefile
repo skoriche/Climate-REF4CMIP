@@ -79,6 +79,7 @@ test-metrics-esmvaltool:  ## run the tests
 
 .PHONY: test-metrics-ilamb
 test-metrics-ilamb:  ## run the tests
+	uv run --package cmip_ref_metrics_ilamb python ./scripts/fetch-ilamb-data.py test.txt
 	uv run --package cmip_ref_metrics_ilamb \
 		pytest packages/ref-metrics-ilamb \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append
@@ -134,6 +135,7 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 .PHONY: fetch-test-data
 fetch-test-data:  ## Download any data needed by the test suite
 	uv run python ./scripts/fetch-sample-data.py
+	uv run python ./scripts/fetch-ilamb-data.py test.txt
 
 .PHONY: update-test-data-registry
 update-test-data-registry:  ## Update the test data registry

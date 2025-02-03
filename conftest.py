@@ -43,7 +43,7 @@ def config(tmp_path, monkeypatch) -> Config:
     monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
 
     # Uses the default configuration
-    cfg = Config.load(tmp_path / "cmip_ref" / "cmip_ref.toml")
+    cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
 
     # Allow adding datasets from outside the tree for testing
     cfg.paths.allow_out_of_tree_datasets = True

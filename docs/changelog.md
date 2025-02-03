@@ -21,6 +21,35 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.1.6 (2025-02-03)
+
+### Features
+
+- Added Equilibrium Climate Sensitivity (ECS) to the ESMValTool metrics package. ([#51](https://github.com/CMIP-REF/cmip-ref/pulls/51))
+- Added Transient Climate Response (TCS) to the ESMValTool metrics package. ([#62](https://github.com/CMIP-REF/cmip-ref/pulls/62))
+- Added the possibility to request datasets with complete and overlapping timeranges. ([#64](https://github.com/CMIP-REF/cmip-ref/pulls/64))
+- Added a constraint for selecting supplementary variables, e.g. cell measures or
+  ancillary variables. ([#65](https://github.com/CMIP-REF/cmip-ref/pulls/65))
+- Added a sample metric to the ilamb metrics package. ([#66](https://github.com/CMIP-REF/cmip-ref/pulls/66))
+- Added a sample metric to the PMP metrics package. ([#72](https://github.com/CMIP-REF/cmip-ref/pulls/72))
+- - Added the standard ILAMB bias analysis as a metric. ([#74](https://github.com/CMIP-REF/cmip-ref/pulls/74))
+
+### Bug Fixes
+
+- - Added overlooked code to fully integrate ilamb into ref. ([#73](https://github.com/CMIP-REF/cmip-ref/pulls/73))
+- Correct the expected configuration name to `ref.toml` as per the documentation. ([#82](https://github.com/CMIP-REF/cmip-ref/pulls/82))
+
+### Improved Documentation
+
+- Update the package name in the changelog.
+
+  This will simplify the release process by fixing the extraction of changelog entries. ([#61](https://github.com/CMIP-REF/cmip-ref/pulls/61))
+
+### Trivial/Internal Changes
+
+- [#68](https://github.com/CMIP-REF/cmip-ref/pulls/68)
+
+
 ## cmip_ref 0.1.5 (2025-01-13)
 
 ### Trivial/Internal Changes

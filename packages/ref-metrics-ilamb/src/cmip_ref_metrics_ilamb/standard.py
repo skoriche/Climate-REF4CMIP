@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Any
 
 import ilamb3  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
@@ -15,6 +15,7 @@ from cmip_ref_core.metrics import (
 )
 from cmip_ref_metrics_ilamb.datasets import (
     ILAMB_DATA_VERSION,
+    ILAMBRegistryFile,
     build_ilamb_data_registry,
     registry_to_collection,
 )
@@ -94,7 +95,7 @@ class ILAMBStandard(Metric):
         self,
         variable_id: str,
         collection_key: str,
-        registry_file: Literal["ilamb.txt", "iomb.txt", "test.txt"],
+        registry_file: ILAMBRegistryFile,
     ):
         # Programatically setup the metric
         self.variable_id = variable_id

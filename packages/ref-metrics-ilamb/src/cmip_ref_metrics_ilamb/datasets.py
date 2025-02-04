@@ -12,11 +12,10 @@ from cmip_ref_core.datasets import DatasetCollection
 
 ILAMB_DATA_VERSION = "0.1"  # we don't really have data versions for the collection :/
 ILAMB_REGISTRIES = [f.name for f in importlib.resources.files("cmip_ref_metrics_ilamb.registry").iterdir()]
+ILAMBRegistryFile = Literal["ilamb.txt", "iomb.txt", "test.txt"]
 
 
-def build_ilamb_data_registry(
-    registry_file: Literal["ilamb.txt", "iomb.txt", "test.txt"], version: str
-) -> pooch.Pooch:
+def build_ilamb_data_registry(registry_file: ILAMBRegistryFile, version: str) -> pooch.Pooch:
     """
     Build a pooch data registry associated with ILAMB/IOMB.
 

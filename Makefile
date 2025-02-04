@@ -29,8 +29,9 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	uv run --package cmip_ref_core mypy packages/ref-core
 	uv run --package cmip_ref mypy packages/ref
+	uv run --package cmip_ref_core mypy packages/ref-core
+	uv run --package cmip_ref_celery mypy packages/ref
 	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
 	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
 	uv run --package cmip_ref_metrics_ilamb mypy packages/ref-metrics-ilamb
@@ -47,6 +48,7 @@ build: clean  ## build the packages to be deployed to PyPI
 	cp LICENCE NOTICE packages/ref-core
 	uv build --package cmip_ref --no-sources
 	uv build --package cmip_ref_core --no-sources
+	uv build --package cmip_ref_celery --no-sources
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -64,6 +66,12 @@ test-core:  ## run the tests
 	uv run --package cmip_ref_core \
 		pytest packages/ref-core \
 		-r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
+
+.PHONY: test-celery
+test-celery:  ## run the tests
+	uv run --package cmip_ref_celery \
+		pytest packages/ref-celery \
+		-r a -v --doctest-modules --cov=packages/ref-celery/src
 
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
@@ -95,8 +103,14 @@ test-integration:  ## run the integration tests
 		pytest tests \
 		-r a -v
 
+.PHONY: test-metric-packages
+test-metric-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
+
+.PHONY: test-executors
+test-executors: test-celery
+
 .PHONY: test
-test: clean test-core test-ref test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp test-integration ## run the tests
+test: clean test-core test-ref test-executors test-metric-packages test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

@@ -15,7 +15,7 @@ from loguru import logger
 from tomlkit import TOMLDocument
 
 from cmip_ref.constants import config_filename
-from cmip_ref.env import env
+from cmip_ref_core.env import env
 
 
 def _pop_empty(d: dict[str, Any]) -> None:

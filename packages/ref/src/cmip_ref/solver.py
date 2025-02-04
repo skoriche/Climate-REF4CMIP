@@ -17,7 +17,6 @@ from loguru import logger
 from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.env import env
 from cmip_ref.executor import get_executor
 from cmip_ref.models import Metric as MetricModel
 from cmip_ref.models import MetricExecution as MetricExecutionModel
@@ -26,6 +25,7 @@ from cmip_ref.models.metric_execution import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref_core.constraints import apply_constraint
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from cmip_ref_core.env import env
 from cmip_ref_core.exceptions import InvalidMetricException
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider

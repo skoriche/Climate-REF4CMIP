@@ -81,7 +81,7 @@ def create_sub_packages_table(sub_packages: Iterable[PackageInfo]) -> str:
         sub_packages_table_l.append(line)
 
         if i == 0:
-            underline = f"| {'-'*sub_package_width} | {'-'*description_width} |"
+            underline = f"| {'-' * sub_package_width} | {'-' * description_width} |"
             sub_packages_table_l.append(underline)
 
     sub_packages_table = "\n".join(sub_packages_table_l)
@@ -129,6 +129,7 @@ def write_module_page(
 
 write_module_page("cmip_ref")
 write_module_page("cmip_ref_core")
+write_module_page("cmip_ref_celery")
 write_module_page("cmip_ref_metrics_example")
 write_module_page("cmip_ref_metrics_esmvaltool")
 write_module_page("cmip_ref_metrics_ilamb")

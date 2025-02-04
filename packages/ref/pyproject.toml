@@ -32,13 +32,22 @@ dependencies = [
     "loguru>=0.7.2",
     "ecgtools>=2024.7.31",
     "platformdirs>=4.3.6",
+    "setuptools>=75.8.0",
 ]
 
 [project.optional-dependencies]
 postgres = [
     "psycopg2-binary>=2.9.2",
 ]
-
+celery = [
+    "cmip_ref_celery>=0.1.6",
+]
+metrics = [
+    "cmip_ref_metrics_example>=0.1.6",
+    "cmip_ref_metrics_esmvaltool>=0.1.6",
+    "cmip_ref_metrics_pmp>=0.1.6",
+    "cmip_ref_metrics_ilamb>=0.1.6",
+]
 [project.license]
 text = "Apache-2.0"
 

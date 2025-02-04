@@ -122,7 +122,7 @@ class TestIngest:
         assert isinstance(result.exception, FileNotFoundError)
         assert result.exception.filename == sample_data_dir / "missing"
 
-        assert f'File or directory {sample_data_dir / "missing"} does not exist' in result.stderr
+        assert f"File or directory {sample_data_dir / 'missing'} does not exist" in result.stderr
 
     def test_ingest_dryrun(self, sample_data_dir, db, invoke_cli):
         invoke_cli(

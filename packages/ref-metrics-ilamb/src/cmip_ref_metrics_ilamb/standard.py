@@ -1,50 +1,24 @@
-import importlib
 from typing import Any
 
 import ilamb3  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
 import pandas as pd
-import pooch
 import xarray as xr
 from ilamb3.analysis import bias_analysis  # type: ignore
 
-from cmip_ref_core.datasets import DatasetCollection, FacetFilter, SourceDatasetType
+from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
     Metric,
     MetricExecutionDefinition,
     MetricResult,
 )
-
-_ILAMB_DATA_VERSION = "0.1"  # we don't really have data versions for the collection :/
-
-
-def _build_ilamb_data_registry(version: str) -> pooch.Pooch:
-    registry = pooch.create(
-        path=pooch.os_cache("cmip_ref_metrics_ilamb"),
-        base_url="https://www.ilamb.org/ILAMB-Data/DATA",
-        version=version,
-        env="REF_METRICS_ILAMB_DATA_DIR",
-    )
-    registry.load_registry(importlib.resources.open_binary("cmip_ref_metrics_ilamb", "registry.txt"))
-    return registry
-
-
-def _build_ilamb_collection(version: str) -> DatasetCollection:
-    ilamb_registry = _build_ilamb_data_registry(version)
-    df = pd.DataFrame(
-        [
-            {
-                "variable_id": key.split("/")[0],
-                "source_id": key.split("/")[1].replace(".nc", ""),
-                "path": ilamb_registry.fetch(key),
-            }
-            for key in ilamb_registry.registry.keys()
-        ]
-    )
-    df["instance_id"] = df["variable_id"] + "_" + df["source_id"]
-    collection = DatasetCollection(df, "instance_id")
-    return collection
+from cmip_ref_metrics_ilamb.datasets import (
+    ILAMB_DATA_VERSION,
+    ILAMBRegistryFile,
+    build_ilamb_data_registry,
+    registry_to_collection,
+)
 
 
 def _add_overall_score(df: pd.DataFrame) -> pd.DataFrame:
@@ -117,13 +91,12 @@ class ILAMBStandard(Metric):
     Apply the standard ILAMB analysis with respect to a given reference dataset.
     """
 
-    # I could make this function take in the registry filename in order to keep
-    # a separate test registry. However, when all the ILAMB metrics are
-    # initialized, all the data will have to be downloaded which seems to
-    # negatively impact testing. For now I will keep the registry minimal.
-    ilamb_data: DatasetCollection = _build_ilamb_collection(_ILAMB_DATA_VERSION)
-
-    def __init__(self, variable_id: str, collection_key: str):
+    def __init__(
+        self,
+        variable_id: str,
+        collection_key: str,
+        registry_file: ILAMBRegistryFile,
+    ):
         # Programatically setup the metric
         self.variable_id = variable_id
         self.collection_key = collection_key
@@ -140,6 +113,8 @@ class ILAMBStandard(Metric):
                 group_by=("experiment_id",),
             ),
         )
+
+        self.ilamb_data = registry_to_collection(build_ilamb_data_registry(registry_file, ILAMB_DATA_VERSION))
 
         # Check that the collection key exists and associate it with this class instance
         df = self.ilamb_data.datasets.set_index(self.ilamb_data.slug_column)

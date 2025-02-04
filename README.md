@@ -41,10 +41,9 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-TODO: Docs for that workflow
-
 ```bash
-ref datasets ingest {data_path} --solve
+ref datasets ingest {data_path}
+ref solve
 ```
 
 ### As a devops engineer
@@ -52,9 +51,22 @@ ref datasets ingest {data_path} --solve
 The REF can also be deployed as a standalone set of services that don't require any user interaction.
 This is useful for running the REF to automatically evaluate data as it is published to ESGF.
 
-TODO: Docs for that workflow
+The REF can be run as a set of docker containers, with each service running in its own container.
+This allows for easy scaling and deployment of the REF.
+These docker containers are not yet published, but can be built from the source code.
 
-Each service in the REF is designed to be run as a separate docker container.
+```
+docker-compose build
+```
+
+An example docker-compose file is provided in the repository for the CMIP7 FastTrack deployment of the REF,
+using the Celery executor and Redis as the message broker.
+This can be run with:
+
+```
+docker-compose up
+```
+
 
 <!--- --8<-- [end:description] -->
 

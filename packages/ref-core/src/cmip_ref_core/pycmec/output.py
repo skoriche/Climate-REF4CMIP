@@ -32,7 +32,7 @@ class OutputProvenance(BaseModel):
     environment: dict[
         str, str
     ]  # Key/value pairs listing all relevant diagnostic and framework environment variables.
-    modeldata: list[str, ...]  # type: ignore # Path to the model data used in this analysis.
+    modeldata: list[str]  # Path to the model data used in this analysis.
     obsdata: (
         dict[
             str, Any

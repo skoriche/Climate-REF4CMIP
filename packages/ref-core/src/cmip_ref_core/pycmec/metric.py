@@ -169,10 +169,9 @@ class CMECMetric(BaseModel):
     @model_validator(mode="after")
     def validate_results(self) -> Self:
         """Validate a CMECMetric object"""
-        if self.DIMENSIONS and self.RESULTS:
-            # validate results data
-            results = self.RESULTS
-            MetricResults.model_validate(results, context=self.DIMENSIONS)
+        # validate results data
+        results = self.RESULTS
+        MetricResults.model_validate(results, context=self.DIMENSIONS)
         return self
 
     @validate_call
@@ -187,7 +186,6 @@ class CMECMetric(BaseModel):
         Create CMECMetric object from a compatiable json file
         """
         json_str = pathlib.Path(jsonfile).read_text()
-
         metric_obj = cls.model_validate_json(json_str)
 
         return metric_obj

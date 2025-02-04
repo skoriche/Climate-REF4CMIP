@@ -17,8 +17,9 @@ services:
       - "5555:5555"
     depends_on:
       - redis
-  metrics-example:
-    image: ref-metrics-example
+  # Worker to track the results of async tasks
+  ref-worker:
+    image: ref
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
@@ -26,9 +27,21 @@ services:
       - REF_DATA_ROOT=/esgf
     build:
       context: .
-      dockerfile: packages/ref-metrics-example/Dockerfile
+      dockerfile: packages/ref/Dockerfile
       platforms:
         - linux/amd64
+    command: ref-celery
+    volumes:
+      - .esgpull/data:/esgf
+      - ./out:/output
+      - ./.ref:/app/.ref
+  metrics-example:
+    image: ref
+    restart: always
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - REF_OUTPUT_ROOT=/output
+      - REF_DATA_ROOT=/esgf
     command: ref-celery --package cmip-ref-metrics-example
     volumes:
       - .esgpull/data:/esgf

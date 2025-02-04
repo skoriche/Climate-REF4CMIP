@@ -1,6 +1,6 @@
 [project]
 name = "cmip-ref-root"
-version = "0.1.5"
+version = "0.1.6"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "cmip_ref[postgres]",
     "cmip_ref_core",
+    "cmip_ref_celery",
     "cmip_ref_metrics_example",
     "cmip_ref_metrics_esmvaltool",
     "cmip_ref_metrics_ilamb",
@@ -62,6 +63,7 @@ members = ["packages/*"]
 [tool.uv.sources]
 cmip_ref = { workspace = true }
 cmip_ref_core = { workspace = true }
+cmip_ref_celery = { workspace = true }
 cmip_ref_metrics_example = { workspace = true }
 cmip_ref_metrics_esmvaltool = { workspace = true }
 cmip_ref_metrics_ilamb = { workspace = true }

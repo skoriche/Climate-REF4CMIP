@@ -15,8 +15,8 @@ from loguru import logger
 from tomlkit import TOMLDocument
 
 from cmip_ref.constants import config_filename
-from cmip_ref.env import env
 from cmip_ref.executor import import_executor_cls
+from cmip_ref_core.env import env
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 

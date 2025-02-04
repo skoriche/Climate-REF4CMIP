@@ -308,7 +308,7 @@ class RequireContiguousTimerange:
                     logger.debug(
                         f"Constraint {self.__class__.__name__} not satisfied "
                         f"because gap larger than {max_timedelta} found between "
-                        f"{paths.iloc[gap_idx]} and {paths.iloc[gap_idx+1]}"
+                        f"{paths.iloc[gap_idx]} and {paths.iloc[gap_idx + 1]}"
                     )
                 return False
         return True

@@ -64,7 +64,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
         # Is the schema tracked?
         "SCHEMA": {
             "name": "CMEC-REF",
-            "package": "example",
+            "provider_package": "example",
             "version": "v1",
         },
         "RESULTS": {

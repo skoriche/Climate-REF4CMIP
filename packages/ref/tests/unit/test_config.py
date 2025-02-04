@@ -16,16 +16,16 @@ class TestConfig:
 
         # The configuration file doesn't exist
         # so it should default to some sane defaults
-        assert not (tmp_path / "cmip_ref.toml").exists()
+        assert not (tmp_path / "ref.toml").exists()
 
-        loaded = Config.load(Path("cmip_ref.toml"))
+        loaded = Config.load(Path("ref.toml"))
 
         assert loaded.paths.data == tmp_path / "cmip_ref" / "data"
 
         # The results aren't serialised back to disk
-        assert not (tmp_path / "cmip_ref.toml").exists()
+        assert not (tmp_path / "ref.toml").exists()
         assert loaded._raw is None
-        assert loaded._config_file == Path("cmip_ref.toml")
+        assert loaded._config_file == Path("ref.toml")
 
     def test_default(self, config):
         config.paths.data = "data"
@@ -38,10 +38,10 @@ class TestConfig:
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)
 
-        with open(tmp_path / "cmip_ref.toml", "w") as fh:
+        with open(tmp_path / "ref.toml", "w") as fh:
             fh.write(res.as_string())
 
-        loaded = Config.load(tmp_path / "cmip_ref.toml")
+        loaded = Config.load(tmp_path / "ref.toml")
 
         assert config.dumps() == loaded.dumps()
 
@@ -54,7 +54,7 @@ extra = "extra"
 filename = "sqlite://cmip_ref.db"
 """
 
-        with open(tmp_path / "cmip_ref.toml", "w") as fh:
+        with open(tmp_path / "ref.toml", "w") as fh:
             fh.write(content)
 
         # cattrs exceptions are a bit ugly, but you get an exception like this:
@@ -72,7 +72,7 @@ filename = "sqlite://cmip_ref.db"
         #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for PathConfig: extra
 
         with pytest.raises(cattrs.errors.ClassValidationError):
-            Config.load(tmp_path / "cmip_ref.toml")
+            Config.load(tmp_path / "ref.toml")
 
     def test_save(self, tmp_path):
         config = Config(paths=PathConfig(data=Path("data")))
@@ -81,9 +81,9 @@ filename = "sqlite://cmip_ref.db"
             # The configuration file hasn't been set as it was created directly
             config.save()
 
-        config.save(tmp_path / "cmip_ref.toml")
+        config.save(tmp_path / "ref.toml")
 
-        assert (tmp_path / "cmip_ref.toml").exists()
+        assert (tmp_path / "ref.toml").exists()
 
     def test_defaults(self, monkeypatch):
         monkeypatch.setenv("REF_CONFIGURATION", "test")

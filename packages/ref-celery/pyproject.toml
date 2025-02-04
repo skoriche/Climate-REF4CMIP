@@ -1,10 +1,10 @@
 [project]
-name = "cmip_ref_metrics_ilamb"
+name = "cmip-ref-celery"
 version = "0.1.6"
-description = "ILAMB metrics provider for the CMIP Rapid Evaluation Framework"
+description = "Celery app for mananging tasks and workers"
 readme = "README.md"
 authors = [
-    { name = "Nathan Collier", email = "nathaniel.collier@gmail.com" }
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
 ]
 requires-python = ">=3.10"
 classifiers = [
@@ -21,19 +21,23 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "cmip_ref_core",
-    "ilamb3",
+    "cmip-ref-core",
+    "celery[redis]>=5.4.0",
+    "typer>=0.12.0",
+    "environs>=9",
+    "loguru>=0.7.2"
 ]
 
-[tool.uv.sources]
-ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "630d1c5016cf056317e70582ff05946b17c6c41b" }
+[project.scripts]
+ref-celery = "cmip_ref_celery.cli:app"
 
-[project.license]
-text = "Apache-2.0"
 
 [tool.uv]
 dev-dependencies = [
 ]
+
+[tool.uv.sources]
+ref-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

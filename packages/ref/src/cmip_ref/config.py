@@ -224,7 +224,7 @@ class Config:
 
 
 def _make_converter(omit_default: bool) -> Converter:
-    conv = Converter(omit_if_default=omit_default)
+    conv = Converter(omit_if_default=omit_default, forbid_extra_keys=True)
     conv.register_unstructure_hook(Path, str)
     conv.register_unstructure_hook(
         Config,

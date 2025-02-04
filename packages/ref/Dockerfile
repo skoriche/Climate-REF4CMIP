@@ -2,7 +2,7 @@
 # This docker container packages up the REF cli tool with the default set of metric providers
 # used as part of the CMIP7 FastTrack process.
 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS build
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -20,32 +20,29 @@ WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-workspace --no-dev
+    uv sync --frozen --no-install-workspace --no-editable --no-dev
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
+# Sync the project as non-editable installs
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install /app/packages/ref-core \
-    && uv pip install /app/packages/ref[celery,mqetrics]
+    uv sync --frozen --no-editable --no-dev
 
-
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM python:3.10-slim AS runtime
 
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
 LABEL description="Docker image for the CMIP REF compute engine"
-
-WORKDIR /app
 
 # Allow celery to run as root
 ENV C_FORCE_ROOT=false
 ENV PATH="/app/.venv/bin:${PATH}"
 
 # Copy the installed packages from the build stage
-COPY --from=build /app/.venv /app/.venv
+COPY --from=build --chown=app:app /app/.venv /app/.venv
 
 # Location of the REF configuration files
 ENV REF_CONFIGURATION=/app/.ref
 
 # Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT ["ref"]
+ENTRYPOINT ["/app/.venv/bin/ref"]

@@ -1,6 +1,6 @@
 [project]
 name = "cmip-ref-celery"
-version = "0.1.5"
+version = "0.1.6"
 description = "Celery app for mananging tasks and workers"
 readme = "README.md"
 authors = [

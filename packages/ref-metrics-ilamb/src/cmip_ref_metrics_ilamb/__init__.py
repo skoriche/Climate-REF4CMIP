@@ -12,5 +12,10 @@ __version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
 
 # Initialise the metrics manager and register the example metric
 provider = MetricsProvider("ILAMB", __version__)
+
+# Register test metrics
 provider.register(GlobalMeanTimeseries())
 provider.register(ILAMBStandard("tas", "test_Test", "test.txt"))
+
+# These will be replaced with a dynamic list
+provider.register(ILAMBStandard("gpp", "gpp_WECANN", "ilamb.txt"))

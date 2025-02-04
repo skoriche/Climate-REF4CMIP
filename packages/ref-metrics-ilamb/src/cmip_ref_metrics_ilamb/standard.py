@@ -1,10 +1,10 @@
 from typing import Any
 
-import ilamb3  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
 import pandas as pd
 import xarray as xr
 from ilamb3.analysis import bias_analysis  # type: ignore
+from ilamb3.run import generate_html_page, plot_analyses, run_analyses  # type: ignore
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
@@ -144,13 +144,17 @@ class ILAMBStandard(Metric):
 
         """
         reference_dataset = xr.open_dataset(self.reference_data["path"])
-        analysis = bias_analysis(self.variable_id)
+        analyses = {"Bias": bias_analysis(self.variable_id)}
 
         # Phase 1: loop over each model in the group and run an analysis function
         dfs = []
         ds_com = {}
         ds_ref = None
-        for _, row in definition.metric_dataset[SourceDatasetType.CMIP6].datasets.iterrows():
+        for _, grp in definition.metric_dataset[SourceDatasetType.CMIP6].datasets.groupby(
+            ["source_id", "member_id", "grid_label"]
+        ):
+            row = grp.iloc[0]
+
             # Define what we will call the output artifacts
             source_name = "{source_id}-{member_id}-{grid_label}".format(**row.to_dict())
             csv_file = definition.to_output_path(f"{source_name}.csv")
@@ -158,12 +162,8 @@ class ILAMBStandard(Metric):
             com_file = definition.to_output_path(f"{source_name}.nc")
 
             # Run the analysis on the data/model pair
-            com = xr.open_mfdataset(row["path"])
-            df_scalars, ds_ref, ds_com[source_name] = analysis(
-                reference_dataset, com, regions=ilamb3.conf["regions"]
-            )
-            ds_ref = ds_ref.pint.dequantify()  # FIX this in ilamb3
-            ds_com[source_name] = ds_com[source_name].pint.dequantify()
+            com = xr.open_mfdataset(sorted(grp["path"].to_list()))
+            df_scalars, ds_ref, ds_com[source_name] = run_analyses(reference_dataset, com, analyses)
             df_scalars["source"] = df_scalars["source"].str.replace("Comparison", source_name)
             dfs += [df_scalars]
 
@@ -174,16 +174,23 @@ class ILAMBStandard(Metric):
             ds_com[source_name].to_netcdf(com_file)
         if ds_ref is None:
             raise ValueError("Reference intermediate data was not generated.")  # pragma: no cover
+        ds_ref.attrs = reference_dataset.attrs
 
         # Phase 2: get plots and combine scalars and save
         df = pd.concat(dfs).drop_duplicates(subset=["source", "region", "analysis", "name"])
-        df_plots = analysis.plots(df, ds_ref, ds_com)
+        df = _add_overall_score(df)
+        df_plots = plot_analyses(df, ds_ref, ds_com, analyses, definition.output_directory)
         for _, row in df_plots.iterrows():
             row["axis"].get_figure().savefig(
                 definition.to_output_path(f"{row['source']}_{row['region']}_{row['name']}.png")
             )
 
+        # Generate an output page
+        ds_ref.attrs["header"] = f"{self.variable_id} | {self.reference_data['source_id']}"
+        html = generate_html_page(df, ds_ref, ds_com, df_plots)
+        with open(definition.to_output_path("index.html"), mode="w") as out:
+            out.write(html)
+
         # Write out the bundle
-        df = _add_overall_score(df)
         bundle = _build_cmec_bundle(definition.key, df)
         return MetricResult.build_from_output_bundle(definition, bundle)

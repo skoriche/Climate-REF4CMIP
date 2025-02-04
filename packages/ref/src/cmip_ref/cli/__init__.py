@@ -1,5 +1,6 @@
 """Entrypoint for the CLI"""
 
+import importlib
 import sys
 from enum import Enum
 from pathlib import Path
@@ -45,7 +46,7 @@ def _version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
-def load_config(configuration_directory: Path | None = None) -> Config:
+def _load_config(configuration_directory: Path | None = None) -> Config:
     """
     Load the configuration from the specified directory
 
@@ -74,11 +75,36 @@ def load_config(configuration_directory: Path | None = None) -> Config:
     return config
 
 
-app = typer.Typer(name="cmip_ref", no_args_is_help=True)
+def build_app() -> typer.Typer:
+    """
+    Build the CLI app
 
-app.command(name="solve")(solve.solve)
-app.add_typer(config.app, name="config")
-app.add_typer(datasets.app, name="datasets")
+    This registers all the commands and subcommands of the CLI app.
+    Some commands may not be available if certain dependencies are not installed,
+    for example the Celery CLI is only available if the `ref_cmip_celery` package is installed.
+
+    Returns
+    -------
+    :
+        The CLI app
+    """
+    app = typer.Typer(name="cmip_ref", no_args_is_help=True)
+
+    app.command(name="solve")(solve.solve)
+    app.add_typer(config.app, name="config")
+    app.add_typer(datasets.app, name="datasets")
+
+    try:
+        celery_app = importlib.import_module("cmip_ref_celery.cli").app
+
+        app.add_typer(celery_app, name="celery")
+    except ImportError:
+        logger.debug("Celery CLI not available")
+
+    return app
+
+
+app = build_app()
 
 
 @app.callback()
@@ -103,7 +129,7 @@ def main(
     logger.remove()
     logger.add(sys.stderr, level=log_level.value)
 
-    config = load_config(configuration_directory)
+    config = _load_config(configuration_directory)
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))
 
 

@@ -1,5 +1,5 @@
 """
-CLI for the ref-celery package.
+Managing remote execution workers
 """
 
 import importlib
@@ -10,7 +10,7 @@ from cmip_ref_celery.app import create_celery_app
 from cmip_ref_celery.tasks import register_celery_tasks
 from cmip_ref_core.providers import MetricsProvider
 
-app = typer.Typer()
+app = typer.Typer(help=__doc__)
 
 
 def import_provider(provider_package: str) -> MetricsProvider:
@@ -79,6 +79,16 @@ def start_worker(
 
     argv = ["worker", f"--loglevel={loglevel}", *(extra_args or [])]
     celery_app.worker_main(argv=argv)
+
+
+@app.command()
+def list_config() -> None:
+    """
+    List the celery configuration
+    """
+    celery_app = create_celery_app("cmip_ref_celery")
+
+    print(celery_app.conf.humanize())
 
 
 if __name__ == "__main__":  # pragma: no cover

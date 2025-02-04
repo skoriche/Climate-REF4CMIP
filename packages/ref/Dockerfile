@@ -25,10 +25,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
+
 # Sync the project as non-editable installs
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-editable --no-dev
 
+# Runtime container
+# Copy the installed packages from the build stage to decrease the size of the final image
 FROM python:3.10-slim AS runtime
 
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
@@ -44,5 +47,5 @@ COPY --from=build --chown=app:app /app/.venv /app/.venv
 # Location of the REF configuration files
 ENV REF_CONFIGURATION=/app/.ref
 
-# Reset the entrypoint, don't invoke `uv`
+# Run the REF CLI tool by default
 ENTRYPOINT ["/app/.venv/bin/ref"]

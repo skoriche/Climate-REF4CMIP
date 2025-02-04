@@ -1,9 +1,9 @@
+import pytest
 
 from cmip_ref_core.pycmec.output import (
     CMECOutput,
 )
-    
-import pytest
+
 
 @pytest.fixture
 def cmec_right_output_dict():
@@ -35,7 +35,5 @@ def cmec_right_output_dict():
 def test_output_right(cmec_right_output_dict):
     try:
         CMECOutput.model_validate(cmec_right_output_dict)
-    except Exception as ex:
+    except Exception:
         assert False, "test output object should be passed"
-
-

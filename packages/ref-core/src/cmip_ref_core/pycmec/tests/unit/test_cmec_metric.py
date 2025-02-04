@@ -1,11 +1,10 @@
-from cmip_ref_core.pycmec.metric import (
-    MetricCV,
-    MetricDimensions,
-    MetricResults,
-    CMECMetric,
-)
-
 import pytest
+from pydantic import ValidationError
+
+from cmip_ref_core.pycmec.metric import (
+    CMECMetric,
+    MetricDimensions,
+)
 
 
 @pytest.fixture
@@ -63,9 +62,7 @@ def cmec_right_dimen_data(request, cmec_right_metric_dict):
 
 @pytest.fixture
 def cmec_right_result_dimobj(cmec_right_metric_dict):
-    return cmec_right_metric_dict["RESULTS"], MetricDimensions(
-        **cmec_right_metric_dict["DIMENSIONS"]
-    )
+    return cmec_right_metric_dict["RESULTS"], MetricDimensions(**cmec_right_metric_dict["DIMENSIONS"])
 
 
 @pytest.fixture
@@ -97,14 +94,14 @@ def cmec_wrongdim_metric_dict(cmec_right_metric_dict):
 def test_metric_right(cmec_right_metric_data):
     try:
         CMECMetric.model_validate(cmec_right_metric_data)
-    except Exception as ex:
+    except Exception:
         assert False, "test metric object should be passed"
 
 
 def test_dimen_right(cmec_right_dimen_data):
     try:
         MetricDimensions.model_validate(cmec_right_dimen_data)
-    except Exception as ex:
+    except Exception:
         assert False, "test dimension object should be passed"
 
 

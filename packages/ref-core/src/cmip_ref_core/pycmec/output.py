@@ -1,13 +1,12 @@
-from enum import StrEnum
-from typing import Optional
+from enum import Enum
+from typing import Any, Optional
 
 from pydantic import (
     BaseModel,
 )
-from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 
 
-class OutputCV(StrEnum):
+class OutputCV(Enum):
     """CMEC output bundle controlled vocabulary"""
 
     INDEX = "index"
@@ -30,10 +29,14 @@ class OutputIndex(BaseModel):
 class OutputProvenance(BaseModel):
     """CMEC output bundle provenance object"""
 
-    environment: dict  # Key/value pairs listing all relevant diagnostic and framework environment variables.
+    environment: dict[
+        str, str
+    ]  # Key/value pairs listing all relevant diagnostic and framework environment variables.
     modeldata: list[str, ...]  # type: ignore # Path to the model data used in this analysis.
     obsdata: (
-        dict  # 	Key/value pairs containing short names and versions of all observational datasets used.
+        dict[
+            str, Any
+        ]  # 	Key/value pairs containing short names and versions of all observational datasets used.
     )
     log: str  # 	Filename of a free format log file written during execution.
 

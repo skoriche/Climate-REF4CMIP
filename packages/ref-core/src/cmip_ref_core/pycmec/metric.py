@@ -1,7 +1,7 @@
 import pathlib
 from collections import Counter
-from enum import StrEnum
-from typing import Any, Optional, Self
+from enum import Enum
+from typing import Any, Optional
 
 from pydantic import (
     BaseModel,
@@ -9,15 +9,17 @@ from pydantic import (
     Field,
     FilePath,
     RootModel,
-    ValidationError,
     ValidationInfo,
+    field_validator,
     model_validator,
     validate_call,
 )
-from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
+from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode, JsonSchemaValue
+from pydantic_core import CoreSchema
+from typing_extensions import Self
 
 
-class MetricCV(StrEnum):
+class MetricCV(Enum):
     """
     CMEC metric bundle controlled vocabulary
     """
@@ -31,17 +33,23 @@ class MetricCV(StrEnum):
 
 
 class MetricSchema(BaseModel):
+    """
+    A metric schema used by unified dasbboard, not required by CMEC
+    """
+
     name: str
     version: str
     package: str
 
 
-class MetricDimensions(RootModel):
+# class MetricDimensions(RootModel[dict[str, Union[list[str], dict[str, Any]]]]):
+class MetricDimensions(RootModel[Any]):
     """
     CMEC metric bundle DIMENSIONS object
     """
 
-    root: dict[str, list | dict[str, Any]] = Field(
+    root: dict[str, Any] = Field(
+        # root: TypedDict = Field(
         default={
             MetricCV.JSON_STRUCTURE.value: ["model", "metric"],
             "model": {},
@@ -51,18 +59,22 @@ class MetricDimensions(RootModel):
 
     @model_validator(mode="after")
     def validate_dimensions(self) -> Self:
+        """Validate a MetricDimensions object"""
         # assert the items in json_structure are same as the keys of dimensions
 
-        assert MetricCV.JSON_STRUCTURE.value in self.root.keys(), "Error: json_strucuture is required keyword"
+        if MetricCV.JSON_STRUCTURE.value not in self.root.keys():
+            raise ValueError("json_strucuture is required keyword")
 
-        assert Counter(self.root[MetricCV.JSON_STRUCTURE.value]) == Counter(
-            [k for k in self.root.keys() if k != MetricCV.JSON_STRUCTURE.value]
-        ), "Error: json_structure items are not in the keys of the DIMENSIONS"
+        if not (
+            Counter(self.root[MetricCV.JSON_STRUCTURE.value])
+            == Counter([k for k in self.root.keys() if k != MetricCV.JSON_STRUCTURE.value])
+        ):
+            raise ValueError("json_structure items are not in the keys of the DIMENSIONS")
 
         return self
 
     @validate_call
-    def add_dimension(self, dim_name: str, dim_content: dict[str, Any]):
+    def add_dimension(self, dim_name: str, dim_content: dict[str, Any]) -> None:
         """
         Add or update one dimension to MetricDimensions object
         """
@@ -74,13 +86,13 @@ class MetricDimensions(RootModel):
             self.root[dim_name] = dim_content
 
     @classmethod
-    def merge_dimension(cls, metric_dim1, metric_dim2):
+    def merge_dimension(cls, metric_dim1: Any, metric_dim2: Any) -> Self:
+        """Merge two MetricDimensions objects"""
         mdim1 = cls.model_validate(metric_dim1)
         mdim2 = cls.model_validate(metric_dim2)
 
-        assert mdim1.root[MetricCV.JSON_STRUCTURE.value] == mdim2.root[MetricCV.JSON_STRUCTURE.value], (
-            "Error: JSON_STRUCTURES are not same"
-        )
+        if not (mdim1.root[MetricCV.JSON_STRUCTURE.value] == mdim2.root[MetricCV.JSON_STRUCTURE.value]):
+            raise ValueError("JSON_STRUCTURES are not same")
 
         merged_dim = {}
         merged_dim = {MetricCV.JSON_STRUCTURE.value: mdim1.root[MetricCV.JSON_STRUCTURE.value]}
@@ -95,58 +107,47 @@ class MetricDimensions(RootModel):
         return cls(merged_dim)
 
 
-class MetricResults(RootModel):
+class MetricResults(RootModel[Any]):
     """
     CMEC metric bundle RESULTS object
     """
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, dict]
-
-    def __getitem__(self, key: str):
-        return self.root[key]
-
-    def __setitem__(self, key: str, value: dict):
-        self.root[key] = value
+    root: dict[str, dict[Any, Any]]
 
     @classmethod
-    def _check_nested_dict_keys(cls, nested, metdims, level=0, keylevs=None):
-        if keylevs is None:
-            keylevs = {}
-
+    def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:
         dim_name = metdims[MetricCV.JSON_STRUCTURE.value][level]
 
-        assert Counter(list(metdims[dim_name].keys())) == Counter(nested.keys()), "Error in dict"
+        if not (Counter(list(metdims[dim_name].keys())) == Counter(nested.keys())):
+            raise ValueError("Error in dicts of Results")
 
         for key, value in nested.items():
-            if level not in keylevs:
-                keylevs[level] = []
-            keylevs[level].append(key)
             if isinstance(value, dict) and level < len(metdims[MetricCV.JSON_STRUCTURE.value]) - 1:
-                cls._check_nested_dict_keys(value, metdims, level + 1, keylevs)
+                cls._check_nested_dict_keys(value, metdims, level + 1)
             elif isinstance(value, dict):
                 StrNumDict(value)
 
-        return keylevs
-
-    @model_validator(mode="after")
+    @field_validator("root", mode="after")
     @classmethod
-    def validate_results(cls, rlt, info: ValidationInfo) -> dict:
+    def validate_results(cls, rlt: Any, info: ValidationInfo) -> Any:
+        """Validate a MeticResults object"""
         if not isinstance(info.context, MetricDimensions):
-            print(
-                """To validate MetricResults object, MetricDimensions is needed,
-            please use model_validate(Results, context=MetricDimensions to instantiate"""
-            )
-            raise ValidationError
+            s = "\nTo validate MetricResults object, MetricDimensions is needed,\n"
+            s += "please use model_validate(Results, context=MetricDimensions to instantiate\n"
+            raise ValueError(s)
         else:
-            results = rlt.root
+            # results = rlt.root
+            results = rlt
             metdims = info.context.root
-            keylevs = cls._check_nested_dict_keys(results, metdims, level=0, keylevs=None)
+            cls._check_nested_dict_keys(results, metdims, level=0)
 
         return rlt
 
 
-class StrNumDict(RootModel):
+class StrNumDict(RootModel[Any]):
+    """A class contains string key and numeric value"""
+
     model_config = ConfigDict(strict=True)
     root: dict[str, float]
 
@@ -160,13 +161,14 @@ class CMECMetric(BaseModel):
 
     SCHEMA: Optional[MetricSchema] = None
     DIMENSIONS: MetricDimensions
-    RESULTS: dict
-    PROVENANCE: Optional[dict] = None
-    DISCLAIMER: Optional[dict] = None
-    NOTES: Optional[dict] = None
+    RESULTS: dict[str, Any]
+    PROVENANCE: Optional[dict[str, Any]] = None
+    DISCLAIMER: Optional[dict[str, Any]] = None
+    NOTES: Optional[dict[str, Any]] = None
 
     @model_validator(mode="after")
     def validate_results(self) -> Self:
+        """Validate a CMECMetric object"""
         if self.DIMENSIONS and self.RESULTS:
             # validate results data
             results = self.RESULTS
@@ -174,12 +176,13 @@ class CMECMetric(BaseModel):
         return self
 
     @validate_call
-    def dump_to_json(self, json_path: str = "./cmec.json"):
+    def dump_to_json(self, json_path: str = "./cmec.json") -> None:
+        """Save the CMECMetric object to a file in JSON format"""
         pathlib.Path(json_path).write_text(self.model_dump_json(indent=2))
 
     @classmethod
     @validate_call
-    def load_from_json(cls, jsonfile: FilePath):
+    def load_from_json(cls, jsonfile: FilePath) -> Self:
         """
         Create CMECMetric object from a compatiable json file
         """
@@ -190,7 +193,7 @@ class CMECMetric(BaseModel):
         return metric_obj
 
     @classmethod
-    def _merge(cls, dict1: dict, dict2: dict):
+    def _merge(cls, dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
         for key in dict2:
             if key in dict1:
                 if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
@@ -201,7 +204,7 @@ class CMECMetric(BaseModel):
         return dict1
 
     @classmethod
-    def _fill(cls, mdict: dict, mdims: dict, level=0):
+    def _fill(cls, mdict: dict[Any, Any], mdims: dict[Any, Any], level: int = 0) -> None:
         dim_name = mdims[MetricCV.JSON_STRUCTURE.value][level]
         for key in mdims[dim_name].keys():
             if key not in mdict:
@@ -213,7 +216,8 @@ class CMECMetric(BaseModel):
 
     @classmethod
     @validate_call
-    def merge(cls, metric_obj1, metric_obj2, nodata: float):
+    def merge(cls, metric_obj1: Any, metric_obj2: Any, nodata: float) -> Self:
+        """Merge two CMECMetric objects"""
         mobj1 = cls.model_validate(metric_obj1)
         mobj2 = cls.model_validate(metric_obj2)
 
@@ -237,7 +241,8 @@ class CMECGenerateJsonSchema(GenerateJsonSchema):
     Customized CMEC JSON schema generation
     """
 
-    def generate(self, schema, mode="validation") -> JsonSchemaValue:
+    def generate(self: Self, schema: CoreSchema, mode: JsonSchemaMode = "validation") -> JsonSchemaValue:
+        """Generate customized json schema"""
         json_schema = super().generate(schema, mode=mode)
         json_schema["title"] = "CMEC"
         json_schema["$schema"] = self.schema_dialect

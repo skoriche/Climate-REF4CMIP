@@ -19,3 +19,4 @@ provider.register(ILAMBStandard("tas", "test_Test", "test.txt"))
 
 # These will be replaced with a dynamic list
 provider.register(ILAMBStandard("gpp", "gpp_WECANN", "ilamb.txt"))
+provider.register(ILAMBStandard("gpp", "gpp_FLUXNET2015", "ilamb.txt"))

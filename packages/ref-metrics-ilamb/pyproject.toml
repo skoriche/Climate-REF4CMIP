@@ -21,7 +21,7 @@ classifiers = [
 dependencies = ["cmip_ref_core", "ilamb3"]
 
 [tool.uv.sources]
-ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "29e17bd870b49bc9d2b0f57f8ad4783e7ddfa260" }
+ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "51cc6d5ec98f07102e05b86e94d3be686b0f50ce" }
 
 [project.license]
 text = "Apache-2.0"

@@ -1,9 +1,11 @@
 from typing import Any
 
 import ilamb3.regions as ilr  # type: ignore
+import matplotlib.pyplot as plt
 import pandas as pd
 import xarray as xr
 from ilamb3.analysis import bias_analysis  # type: ignore
+from ilamb3.exceptions import AnalysisFailure  # type: ignore
 from ilamb3.run import generate_html_page, plot_analyses, run_analyses  # type: ignore
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
@@ -123,25 +125,6 @@ class ILAMBStandard(Metric):
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run the ILAMB standard analysis.
-
-        Note
-        ----
-        For the moment, this is implemented at a coarser granularity than
-        ideal. For a given `experiment_id`, the group will pass in all
-        (`source_id`, `member_id`, `grid_label`)s which have the target
-        `variable_id`. This means that if any of those models change, the whole
-        metric will have to recompute.
-
-        Instead, it would be better if, as an output, a Metric could insert into
-        a DataCollection which another Metric could depend on. I could then take
-        the below and separate it out:
-
-        MetricPhase1( model1, reference_data ) --> intermediate1
-        MetricPhase1( model2, reference_data ) --> intermediate2
-        MetricPhase1( model3, reference_data ) --> intermediate3
-
-        MetricPhase2( intermediate1,intermediate2,intermediate3 ) --> result
-
         """
         reference_dataset = xr.open_dataset(self.reference_data["path"])
         analyses = {"Bias": bias_analysis(self.variable_id)}
@@ -163,7 +146,10 @@ class ILAMBStandard(Metric):
 
             # Run the analysis on the data/model pair
             com = xr.open_mfdataset(sorted(grp["path"].to_list()))
-            df_scalars, ds_ref, ds_com[source_name] = run_analyses(reference_dataset, com, analyses)
+            try:
+                df_scalars, ds_ref, ds_com[source_name] = run_analyses(reference_dataset, com, analyses)
+            except Exception:
+                raise AnalysisFailure(self.name, source_name)
             df_scalars["source"] = df_scalars["source"].str.replace("Comparison", source_name)
             dfs += [df_scalars]
 
@@ -172,6 +158,8 @@ class ILAMBStandard(Metric):
             if not ref_file.is_file():  # pragma: no cover
                 ds_ref.to_netcdf(ref_file)
             ds_com[source_name].to_netcdf(com_file)
+
+        # Check that the reference intermediate data really was generated.
         if ds_ref is None:
             raise ValueError("Reference intermediate data was not generated.")  # pragma: no cover
         ds_ref.attrs = reference_dataset.attrs
@@ -179,11 +167,15 @@ class ILAMBStandard(Metric):
         # Phase 2: get plots and combine scalars and save
         df = pd.concat(dfs).drop_duplicates(subset=["source", "region", "analysis", "name"])
         df = _add_overall_score(df)
-        df_plots = plot_analyses(df, ds_ref, ds_com, analyses, definition.output_directory)
+        try:
+            df_plots = plot_analyses(df, ds_ref, ds_com, analyses, definition.output_directory)
+        except Exception:
+            raise AnalysisFailure(self.name, self.variable_id, "", "")
         for _, row in df_plots.iterrows():
             row["axis"].get_figure().savefig(
                 definition.to_output_path(f"{row['source']}_{row['region']}_{row['name']}.png")
             )
+        plt.close("all")
 
         # Generate an output page
         ds_ref.attrs["header"] = f"{self.variable_id} | {self.reference_data['source_id']}"

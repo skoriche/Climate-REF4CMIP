@@ -148,7 +148,7 @@ class ILAMBStandard(Metric):
             com = xr.open_mfdataset(sorted(grp["path"].to_list()))
             try:
                 df_scalars, ds_ref, ds_com[source_name] = run_analyses(reference_dataset, com, analyses)
-            except Exception:
+            except Exception:  # pragma: no cover
                 raise AnalysisFailure(self.name, source_name)
             df_scalars["source"] = df_scalars["source"].str.replace("Comparison", source_name)
             dfs += [df_scalars]
@@ -169,8 +169,8 @@ class ILAMBStandard(Metric):
         df = _add_overall_score(df)
         try:
             df_plots = plot_analyses(df, ds_ref, ds_com, analyses, definition.output_directory)
-        except Exception:
-            raise AnalysisFailure(self.name, self.variable_id, "", "")
+        except Exception:  # pragma: no cover
+            raise AnalysisFailure(self.name, "plotting")
         for _, row in df_plots.iterrows():
             row["axis"].get_figure().savefig(
                 definition.to_output_path(f"{row['source']}_{row['region']}_{row['name']}.png")

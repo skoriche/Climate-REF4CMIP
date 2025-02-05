@@ -74,4 +74,4 @@ The following environments are planned to be supported in the future:
 * Celery (for local testing)
 
 The selected executor is defined using the `REF_EXECUTOR` environment variable.
-See the [Configuration](configuration.md) page for more information.
+See the [Configuration](../configuration.md) page for more information.

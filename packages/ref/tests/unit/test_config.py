@@ -1,9 +1,13 @@
+import re
 from pathlib import Path
 
 import cattrs
 import pytest
+from attr import evolve
 
-from cmip_ref.config import Config, Paths
+from cmip_ref.config import Config, PathConfig
+from cmip_ref_core.exceptions import InvalidExecutorException
+from cmip_ref_core.executor import Executor
 
 
 class TestConfig:
@@ -60,18 +64,18 @@ filename = "sqlite://cmip_ref.db"
         #     | Exception Group Traceback (most recent call last):
         #     |   File "<cattrs generated structure cmip_ref.config.Config>", line 6, in structure_Config
         #     |     res['paths'] = __c_structure_paths(o['paths'], __c_type_paths)
-        #     |   File "<cattrs generated structure cmip_ref.config.Paths>", line 31, in structure_Paths
-        #     |     if errors: raise __c_cve('While structuring ' + 'Paths', errors, __cl)
-        #     | cattrs.errors.ClassValidationError: While structuring Paths (1 sub-exception)
+        #     |   File "<cattrs generated structure cmip_ref.config.PathConfig>", line 31, in structure_Paths
+        #     |     if errors: raise __c_cve('While structuring ' + 'PathConfig', errors, __cl)
+        #     | cattrs.errors.ClassValidationError: While structuring PathConfig (1 sub-exception)
         #     | Structuring class Config @ attribute paths
         #     +-+---------------- 1 ----------------
-        #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for Paths: extra
+        #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for PathConfig: extra
 
         with pytest.raises(cattrs.errors.ClassValidationError):
             Config.load(tmp_path / "ref.toml")
 
     def test_save(self, tmp_path):
-        config = Config(paths=Paths(data=Path("data")))
+        config = Config(paths=PathConfig(data=Path("data")))
 
         with pytest.raises(ValueError):
             # The configuration file hasn't been set as it was created directly
@@ -90,8 +94,29 @@ filename = "sqlite://cmip_ref.db"
 
         without_defaults = cfg.dump(defaults=False)
 
-        assert without_defaults == {}
+        assert without_defaults == {
+            "metric_providers": [
+                {"provider": "cmip_ref_metrics_esmvaltool.provider"},
+                {"provider": "cmip_ref_metrics_ilamb.provider"},
+                {"provider": "cmip_ref_metrics_pmp.provider"},
+            ],
+        }
         assert with_defaults == {
+            "metric_providers": [
+                {
+                    "provider": "cmip_ref_metrics_esmvaltool.provider",
+                    "config": {},
+                },
+                {
+                    "provider": "cmip_ref_metrics_ilamb.provider",
+                    "config": {},
+                },
+                {
+                    "provider": "cmip_ref_metrics_pmp.provider",
+                    "config": {},
+                },
+            ],
+            "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "data": "test/data",
                 "log": "test/log",
@@ -100,3 +125,22 @@ filename = "sqlite://cmip_ref.db"
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }
+
+    def test_executor_build(self, config):
+        executor = config.executor.build()
+        assert executor.name == "local"
+        assert isinstance(executor, Executor)
+
+        # None of the executors support initialisation arguments yet so this is a bit of a placeholder
+        config.executor.config["test"] = "value"
+
+        match = re.escape("LocalExecutor.__init__() got an unexpected keyword argument 'test'")
+        with pytest.raises(TypeError, match=match):
+            config.executor.build()
+
+    def test_executor_build_invalid(self, config):
+        config.executor = evolve(config.executor, executor="cmip_ref.config.DbConfig")
+
+        match = "Expected an Executor, got <class 'cmip_ref.config.DbConfig'>"
+        with pytest.raises(InvalidExecutorException, match=match):
+            config.executor.build()

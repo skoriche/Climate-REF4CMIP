@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 from cmip_ref_metrics_example import provider
 
+from cmip_ref.config import ExecutorConfig
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import MetricExecution, MetricSolver, extract_covered_datasets, solve_metrics
 from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
@@ -12,11 +13,11 @@ from cmip_ref_core.metrics import DataRequirement, FacetFilter, MetricExecutionD
 
 
 @pytest.fixture
-def solver(db_seeded) -> MetricSolver:
+def solver(db_seeded, config) -> MetricSolver:
     registry = ProviderRegistry(providers=[provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
     with db_seeded.session.begin():
-        metric_solver = MetricSolver.build_from_db(db_seeded)
+        metric_solver = MetricSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
 
     return metric_solver
@@ -190,11 +191,10 @@ def test_data_coverage(requirement, data_catalog, expected):
     assert len(result) == len(expected)
 
 
-@mock.patch("cmip_ref.solver.get_executor")
-@mock.patch.object(MetricSolver, "build_from_db")
-def test_solve_metrics_default_solver(
-    mock_build_solver, mock_executor, mock_metric_execution, db_seeded, solver
-):
+def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
+    mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
+
     # Create a mock solver that "solves" to create a single execution
     solver = mock.MagicMock(spec=MetricSolver)
     solver.solve.return_value = [mock_metric_execution]
@@ -213,9 +213,10 @@ def test_solve_metrics_default_solver(
     )
 
 
-@mock.patch("cmip_ref.solver.get_executor")
-@mock.patch.object(MetricSolver, "build_from_db")
-def test_solve_metrics(mock_build_solver, mock_executor, db_seeded, solver, data_regression):
+def test_solve_metrics(mocker, db_seeded, solver, data_regression):
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
+    mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
+
     with db_seeded.session.begin():
         solve_metrics(db_seeded, dry_run=False, solver=solver)
 
@@ -235,9 +236,10 @@ def test_solve_metrics(mock_build_solver, mock_executor, db_seeded, solver, data
     data_regression.check(output)
 
 
-@mock.patch("cmip_ref.solver.get_executor")
-def test_solve_metrics_dry_run(mock_executor, db_seeded, solver):
-    solve_metrics(db_seeded, dry_run=True, solver=solver)
+def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
+    mock_executor = mocker.patch.object(ExecutorConfig, "build")
+
+    solve_metrics(config=config, db=db_seeded, dry_run=True, solver=solver)
 
     assert mock_executor.return_value.run_metric.call_count == 0
 

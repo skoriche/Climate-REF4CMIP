@@ -37,8 +37,8 @@ def validate_database_url(database_url: str) -> str:
     database_url
         The database URL to validate
 
-        See [cmip_ref.config.Db.database_url][cmip_ref.config.Db.database_url] for more information
-        on the format of the URL.
+        See [cmip_ref.config.DbConfig.database_url][cmip_ref.config.DbConfig.database_url]
+        for more information on the format of the URL.
 
     Raises
     ------

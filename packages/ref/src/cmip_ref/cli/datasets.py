@@ -160,6 +160,7 @@ def ingest(  # noqa: PLR0913
 
     if solve:
         solve_metrics(
+            config=config,
             db=db,
             dry_run=dry_run,
         )

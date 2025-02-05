@@ -47,7 +47,14 @@ class PathConfig:
     This directory must be accessible by all the metric services that are used to run the metrics,
     but does not need to be mounted in the same location on all the metric services.
     """
+
     log: Path = field(converter=Path)
+    """
+    Directory to store log files from the compute engine
+
+    This is not currently used by the REF, but is included for future use.
+    """
+
     scratch: Path = field(converter=Path)
     """
     Shared scratch space for the REF.
@@ -68,6 +75,13 @@ class PathConfig:
     # TODO: this should probably default to False,
     # but we don't have an easy way to update cong
     allow_out_of_tree_datasets: bool = field(default=True)
+    """
+    Allow datasets that are not in the data tree
+
+    If True, datasets that are not in the data tree can be added to the data catalog.
+    This is useful for testing and development, but should be disabled when using a non-local
+    executor.
+    """
 
     @data.default
     def _data_factory(self) -> Path:

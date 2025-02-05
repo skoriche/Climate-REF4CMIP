@@ -120,7 +120,7 @@ filename = "sqlite://cmip_ref.db"
             "paths": {
                 "data": "test/data",
                 "log": "test/log",
-                "tmp": "test/tmp",
+                "scratch": "test/scratch",
                 "allow_out_of_tree_datasets": True,
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},

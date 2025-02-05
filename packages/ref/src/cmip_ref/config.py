@@ -37,9 +37,33 @@ class PathConfig:
     Common paths used by the REF application
     """
 
+    # TODO: split data into a per data source configuration
     data: Path = field(converter=Path)
+    """
+    Root data directory for input data
+
+    The paths used in the data catalogs are relative to this directory.
+
+    This directory must be accessible by all the metric services that are used to run the metrics,
+    but does not need to be mounted in the same location on all the metric services.
+    """
     log: Path = field(converter=Path)
-    tmp: Path = field(converter=Path)
+    scratch: Path = field(converter=Path)
+    """
+    Shared scratch space for the REF.
+
+    This directory is used to write the intermediate results of a metric execution.
+    After the metric has been run, the results will be copied to the results directory.
+
+    This directory must be accessible by all the metric services that are used to run the metrics,
+    but does not need to be mounted in the same location on all the metric services.
+    """
+
+    # TODO: This could be another data source option
+    results: Path = field(converter=Path)
+    """
+    Path to store the results of the metrics
+    """
 
     # TODO: this should probably default to False,
     # but we don't have an easy way to update cong
@@ -53,9 +77,13 @@ class PathConfig:
     def _log_factory(self) -> Path:
         return env.path("REF_CONFIGURATION") / "log"
 
-    @tmp.default
-    def _tmp_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "tmp"
+    @scratch.default
+    def _scratch_factory(self) -> Path:
+        return env.path("REF_CONFIGURATION") / "scratch"
+
+    @results.default
+    def _results_factory(self) -> Path:
+        return env.path("REF_CONFIGURATION") / "results"
 
 
 @frozen

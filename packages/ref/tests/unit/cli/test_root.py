@@ -1,4 +1,5 @@
 from cmip_ref import __version__
+from cmip_ref.cli import build_app
 from cmip_ref_core import __version__ as __core_version__
 
 
@@ -54,3 +55,24 @@ def test_config_directory_append(config, invoke_cli):
         ],
         expected_exit_code=2,
     )
+
+
+def test_build_app():
+    app = build_app()
+
+    registered_commands = [command.name for command in app.registered_commands]
+    registered_groups = [group.name for group in app.registered_groups]
+
+    assert ["solve"] == registered_commands
+    assert ["config", "datasets", "celery"] == registered_groups
+
+
+def test_build_app_without_celery(mocker):
+    mocker.patch("cmip_ref.cli.importlib.import_module", side_effect=ModuleNotFoundError)
+    app = build_app()
+
+    registered_commands = [command.name for command in app.registered_commands]
+    registered_groups = [group.name for group in app.registered_groups]
+
+    assert ["solve"] == registered_commands
+    assert ["config", "datasets"] == registered_groups

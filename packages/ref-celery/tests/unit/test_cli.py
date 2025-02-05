@@ -27,7 +27,7 @@ def test_start_worker_success(mocker, mock_create_celery_app, mock_register_cele
         "importlib.import_module", return_value=mocker.Mock(provider=mock_provider)
     )
 
-    result = runner.invoke(app, ["--package", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
 
     assert result.exit_code == 0
     mock_import_module.assert_called_once_with("test_package")
@@ -43,6 +43,7 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
     result = runner.invoke(
         app,
         [
+            "start-worker",
             "--loglevel",
             "error",
             "--package",
@@ -62,7 +63,7 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
 def test_start_worker_package_not_found(mocker, mock_create_celery_app):
     mock_import_module = mocker.patch("importlib.import_module", side_effect=ModuleNotFoundError)
 
-    result = runner.invoke(app, ["--package", "missing_package"])
+    result = runner.invoke(app, ["start-worker", "--package", "missing_package"])
 
     assert result.exit_code == 1
     assert "Package 'missing_package' not found" in result.output
@@ -75,8 +76,15 @@ def test_start_worker_missing_provider(mocker, mock_create_celery_app):
     del mock_module.provider
     mock_import_module = mocker.patch("importlib.import_module", return_value=mock_module)
 
-    result = runner.invoke(app, ["--package", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
 
     assert result.exit_code == 1, result.output
     assert "The package must define a 'provider' attribute" in result.output
     mock_import_module.assert_called_once_with("test_package")
+
+
+def test_list_config():
+    result = runner.invoke(app, ["list-config"])
+
+    assert result.exit_code == 0, result.output
+    assert "broker_url: 'redis://localhost:6379/1'" in result.stdout

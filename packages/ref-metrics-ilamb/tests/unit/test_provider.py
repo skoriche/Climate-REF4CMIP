@@ -6,4 +6,4 @@ def test_provider():
     assert provider.slug == "ilamb"
     assert provider.version == __version__
 
-    assert len(provider) == 2
+    assert len(provider) == 4

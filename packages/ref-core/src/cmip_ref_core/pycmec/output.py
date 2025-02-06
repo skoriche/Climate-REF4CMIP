@@ -1,9 +1,17 @@
+"""
+CMEC output bundle class
+"""
+
+import pathlib
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Literal
 
 from pydantic import (
     BaseModel,
+    FilePath,
+    validate_call,
 )
+from typing_extensions import Self
 
 
 class OutputCV(Enum):
@@ -18,6 +26,10 @@ class OutputCV(Enum):
     FILENAME = "filename"
     LONG_NAME = "long_name"
     DESCRIPTION = "description"
+    ENVIRONMENT = "environment"
+    MODELDATA = "modeldata"
+    OBSDATA = "obsdata"
+    LOG = "log"
 
 
 class OutputIndex(BaseModel):
@@ -29,16 +41,27 @@ class OutputIndex(BaseModel):
 class OutputProvenance(BaseModel):
     """CMEC output bundle provenance object"""
 
-    environment: dict[
-        str, str
-    ]  # Key/value pairs listing all relevant diagnostic and framework environment variables.
-    modeldata: list[str]  # Path to the model data used in this analysis.
-    obsdata: (
-        dict[
-            str, Any
-        ]  # 	Key/value pairs containing short names and versions of all observational datasets used.
-    )
-    log: str  # 	Filename of a free format log file written during execution.
+    environment: dict[str, str]
+    """
+    Key/value pairs listing all relevant diagnostic and
+    framework environment variables.
+    """
+
+    modeldata: list[str] | str | dict[str, Any]
+    """
+    Path to the model data used in this analysis.
+    """
+
+    obsdata: dict[str, Any]
+    """
+    Key/value pairs containing short names and versions of
+    all observational datasets used.
+    """
+
+    log: str
+    """
+    Filename of a free format log file written during execution.
+    """
 
 
 class _OutputDict(BaseModel):
@@ -46,13 +69,100 @@ class _OutputDict(BaseModel):
     long_name: str  # Human readable name describing the plot
     description: str  # Description of what is depicted in the plot
 
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        return setattr(self, key, value)
+
 
 class CMECOutput(BaseModel):
     """CMEC output bundle object"""
 
     index: str = "index.html"
+    """
+    Short name of the plot/html/metric that should be opened
+    when the user chooses to “open” the output bundle.
+    """
+
     provenance: OutputProvenance
-    data: Optional[dict[str, _OutputDict]] = None
-    plots: Optional[dict[str, _OutputDict]] = None
-    html: Optional[dict[str, _OutputDict]] = None
-    metrics: Optional[dict[str, _OutputDict]] = None
+    """
+    Command line and version information used to execute the DEM.
+    This includes environment variables and the observational
+    datasets used (including dataset versions).
+    """
+
+    data: dict[str, _OutputDict] | None = None
+    """
+    (optional) Dictionary of data files produced with the output.
+    """
+
+    plots: dict[str, _OutputDict] | None = None
+    """
+    (optional) Dictionary of plots produced with the output.
+    """
+
+    html: dict[str, _OutputDict] | None = None
+    """
+    (optional) Dictionary of html files produced with the output.
+    """
+
+    metrics: dict[str, _OutputDict] | None = None
+    """
+    (optional) Dictionary of metric files produced with the output.
+    """
+
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        return setattr(self, key, value)
+
+    @validate_call
+    def dump_to_json(self, json_path: str = "./cmec_output.json") -> None:
+        """Save the CMECOutput object to a JSON file in the CMEC format"""
+        pathlib.Path(json_path).write_text(self.model_dump_json(indent=2))
+
+    @classmethod
+    @validate_call
+    def load_from_json(cls, jsonfile: FilePath) -> Self:
+        """
+        Create a CMECOuput object from a CMEC standard JSON file
+        """
+        json_str = pathlib.Path(jsonfile).read_text()
+        output_obj = cls.model_validate_json(json_str)
+
+        return output_obj
+
+    # from PMP
+    @validate_call
+    def update(
+        self,
+        output_kw: Literal["data", "plots", "html", "metrics"],
+        *,
+        short_name: str,
+        dict_content: dict[str, Any],
+    ) -> None:
+        """Update the content of output_kw using short_name and dict_content pair"""
+        cmec_output = _OutputDict(**dict_content)
+
+        if self[output_kw] is None:
+            self[output_kw] = {}
+        self[output_kw].update({short_name: cmec_output})
+
+    @staticmethod
+    def create_template() -> dict[str, Any]:
+        """Return a empty dictionary in CMEC output bundle format"""
+        return {
+            OutputCV.INDEX.value: "index.html",
+            OutputCV.PROVENANCE.value: {
+                OutputCV.ENVIRONMENT.value: {},
+                OutputCV.MODELDATA.value: [],
+                OutputCV.OBSDATA.value: {},
+                OutputCV.LOG.value: "cmec_output.log",
+            },
+            OutputCV.DATA.value: {},
+            OutputCV.HTML.value: {},
+            OutputCV.METRICS.value: {},
+            OutputCV.PLOTS.value: {},
+        }

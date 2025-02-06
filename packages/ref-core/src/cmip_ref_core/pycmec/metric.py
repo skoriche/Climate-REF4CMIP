@@ -1,3 +1,7 @@
+"""
+CMEC metric bundle class
+"""
+
 import pathlib
 from collections import Counter
 from enum import Enum

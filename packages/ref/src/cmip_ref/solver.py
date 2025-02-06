@@ -14,11 +14,10 @@ import pandas as pd
 from attrs import define, frozen
 from loguru import logger
 
+from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.env import env
-from cmip_ref.executor import get_executor
 from cmip_ref.models import Metric as MetricModel
 from cmip_ref.models import MetricExecution as MetricExecutionModel
 from cmip_ref.models import Provider as ProviderModel
@@ -52,13 +51,9 @@ class MetricExecution:
 
             _subset = source_datasets[list(requirement.group_by)] if requirement.group_by else source_datasets
             unique_values = _subset.drop_duplicates()
-            if len(unique_values) != 1:
-                logger.error(f"Unique values: {unique_values}")
-                raise InvalidMetricException(
-                    self.metric,
-                    f"Expected a single group for {requirement.source_type} but got {len(unique_values)}",
-                )
-            key_values.extend(unique_values.iloc[0].to_list())
+            for i, row in enumerate(unique_values.itertuples(index=False), 1):
+                key_values.append(f"dataset{i}")
+                key_values.extend(row)
 
         key = "_".join(key_values)
 
@@ -122,7 +117,7 @@ class MetricSolver:
     data_catalog: dict[SourceDatasetType, pd.DataFrame]
 
     @staticmethod
-    def build_from_db(db: Database) -> "MetricSolver":
+    def build_from_db(config: Config, db: Database) -> "MetricSolver":
         """
         Initialise the solver using information from the database
 
@@ -137,7 +132,7 @@ class MetricSolver:
             A new MetricSolver instance
         """
         return MetricSolver(
-            provider_registry=ProviderRegistry.build_from_db(db),
+            provider_registry=ProviderRegistry.build_from_config(config, db),
             data_catalog={
                 SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
             },
@@ -209,19 +204,23 @@ class MetricSolver:
             )
 
 
-def solve_metrics(db: Database, dry_run: bool = False, solver: MetricSolver | None = None) -> None:
+def solve_metrics(
+    db: Database, dry_run: bool = False, solver: MetricSolver | None = None, config: Config | None = None
+) -> None:
     """
     Solve for metrics that require recalculation
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
     """
+    if config is None:
+        config = Config.default()
     if solver is None:
-        solver = MetricSolver.build_from_db(db)
+        solver = MetricSolver.build_from_db(config, db)
 
     logger.info("Solving for metrics that require recalculation...")
 
-    executor = get_executor(env.str("REF_EXECUTOR", "local"))
+    executor = config.executor.build()
 
     for metric_execution in solver.solve():
         info = metric_execution.build_metric_execution_info()

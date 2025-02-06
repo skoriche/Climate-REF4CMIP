@@ -21,8 +21,8 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from cmip_ref.config import Config
-from cmip_ref.env import env
 from cmip_ref.models import Table
+from cmip_ref_core.env import env
 
 
 def validate_database_url(database_url: str) -> str:
@@ -37,8 +37,8 @@ def validate_database_url(database_url: str) -> str:
     database_url
         The database URL to validate
 
-        See [cmip_ref.config.Db.database_url][cmip_ref.config.Db.database_url] for more information
-        on the format of the URL.
+        See [cmip_ref.config.DbConfig.database_url][cmip_ref.config.DbConfig.database_url]
+        for more information on the format of the URL.
 
     Raises
     ------

@@ -8,14 +8,17 @@ from pathlib import Path
 from typing import Any
 
 import tomlkit
-from attrs import Factory, define, field
+from attrs import Factory, define, field, frozen
 from cattrs import Converter
 from cattrs.gen import make_dict_unstructure_fn, override
 from loguru import logger
 from tomlkit import TOMLDocument
 
 from cmip_ref.constants import config_filename
-from cmip_ref.env import env
+from cmip_ref.executor import import_executor_cls
+from cmip_ref_core.env import env
+from cmip_ref_core.exceptions import InvalidExecutorException
+from cmip_ref_core.executor import Executor
 
 
 def _pop_empty(d: dict[str, Any]) -> None:
@@ -29,7 +32,7 @@ def _pop_empty(d: dict[str, Any]) -> None:
 
 
 @define
-class Paths:
+class PathConfig:
     """
     Common paths used by the REF application
     """
@@ -55,8 +58,76 @@ class Paths:
         return env.path("REF_CONFIGURATION") / "tmp"
 
 
+@frozen
+class ExecutorConfig:
+    """
+    Configuration to define the executor to use for running metrics
+    """
+
+    executor: str = field()
+    """
+    Executor to use for running metrics
+
+    This should be the fully qualified name of the executor class (e.g. `cmip_ref.executor.LocalExecutor`).
+    The default is to use the local executor.
+    The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
+
+    This class will be used for all executions of metrics.
+    """
+
+    config: dict[str, Any] = field(factory=dict)
+    """
+    Additional configuration for the executor.
+
+    See the documentation for the executor for the available configuration options.
+    """
+
+    @executor.default
+    def _executor_default(self) -> str:
+        return env.str("REF_EXECUTOR", default="cmip_ref.executor.local.LocalExecutor")
+
+    def build(self) -> Executor:
+        """
+        Create an instance of the executor
+
+        Returns
+        -------
+        :
+            An executor that can be used to run metrics
+        """
+        ExecutorCls = import_executor_cls(self.executor)
+        executor = ExecutorCls(**self.config)
+
+        if not isinstance(executor, Executor):
+            raise InvalidExecutorException(executor, f"Expected an Executor, got {type(executor)}")
+        return executor
+
+
 @define
-class Db:
+class MetricsProviderConfig:
+    """
+    Configuration for the metrics provider
+    """
+
+    provider: str
+    """
+    Package to use for metrics
+
+    This should be the fully qualified name of the metric provider.
+    """
+
+    config: dict[str, Any] = field(factory=dict)
+    """
+    Additional configuration for the metrics package.
+
+    See the documentation for the metrics package for the available configuration options.
+    """
+
+    # TODO: Additional configuration for narrowing down the metrics to run
+
+
+@frozen
+class DbConfig:
     """
     Database configuration
 
@@ -85,6 +156,24 @@ class Db:
         return sqlite_url
 
 
+def default_metric_providers() -> list[MetricsProviderConfig]:
+    """
+    Default metric provider values
+
+    Used if no metric providers are specified in the configuration
+
+    Returns
+    -------
+    :
+        List of default metric providers
+    """  # noqa: D401
+    return [
+        MetricsProviderConfig(provider="cmip_ref_metrics_esmvaltool.provider", config={}),
+        MetricsProviderConfig(provider="cmip_ref_metrics_ilamb.provider", config={}),
+        MetricsProviderConfig(provider="cmip_ref_metrics_pmp.provider", config={}),
+    ]
+
+
 @define
 class Config:
     """
@@ -93,8 +182,10 @@ class Config:
     This class is used to store the configuration of the REF application.
     """
 
-    paths: Paths = Factory(Paths)
-    db: Db = Factory(Db)
+    paths: PathConfig = Factory(PathConfig)
+    db: DbConfig = Factory(DbConfig)
+    executor: ExecutorConfig = Factory(ExecutorConfig)
+    metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)
     _raw: TOMLDocument | None = field(init=False, default=None)
     _config_file: Path | None = field(init=False, default=None)
 

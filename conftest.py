@@ -13,7 +13,7 @@ from click.testing import Result
 from typer.testing import CliRunner
 
 from cmip_ref import cli
-from cmip_ref.config import Config
+from cmip_ref.config import Config, MetricsProviderConfig
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import SourceDatasetType
@@ -43,10 +43,11 @@ def config(tmp_path, monkeypatch) -> Config:
     monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
 
     # Uses the default configuration
-    cfg = Config.load(tmp_path / "cmip_ref" / "cmip_ref.toml")
+    cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
 
     # Allow adding datasets from outside the tree for testing
     cfg.paths.allow_out_of_tree_datasets = True
+    cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
 
     # Use a SQLite in-memory database for testing
     # cfg.db.database_url = "sqlite:///:memory:"

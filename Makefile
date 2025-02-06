@@ -29,11 +29,13 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	uv run --package cmip_ref_core mypy packages/ref-core
 	uv run --package cmip_ref mypy packages/ref
+	uv run --package cmip_ref_core mypy packages/ref-core
+	uv run --package cmip_ref_celery mypy packages/ref
 	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
 	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
 	uv run --package cmip_ref_metrics_ilamb mypy packages/ref-metrics-ilamb
+	uv run --package cmip_ref_metrics_pmp mypy packages/ref-metrics-pmp
 
 .PHONY: clean
 clean:  ## clean up temporary files
@@ -46,6 +48,7 @@ build: clean  ## build the packages to be deployed to PyPI
 	cp LICENCE NOTICE packages/ref-core
 	uv build --package cmip_ref --no-sources
 	uv build --package cmip_ref_core --no-sources
+	uv build --package cmip_ref_celery --no-sources
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -64,6 +67,12 @@ test-core:  ## run the tests
 		pytest packages/ref-core \
 		-r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
 
+.PHONY: test-celery
+test-celery:  ## run the tests
+	uv run --package cmip_ref_celery \
+		pytest packages/ref-celery \
+		-r a -v --doctest-modules --cov=packages/ref-celery/src
+
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
 	uv run --package cmip_ref_metrics_example \
@@ -78,9 +87,16 @@ test-metrics-esmvaltool:  ## run the tests
 
 .PHONY: test-metrics-ilamb
 test-metrics-ilamb:  ## run the tests
+	uv run --package cmip_ref_metrics_ilamb python ./scripts/fetch-ilamb-data.py test.txt
 	uv run --package cmip_ref_metrics_ilamb \
 		pytest packages/ref-metrics-ilamb \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append
+
+.PHONY: test-metrics-pmp
+test-metrics-pmp:  ## run the tests
+	uv run --package cmip_ref_metrics_pmp \
+		pytest packages/ref-metrics-pmp \
+		-r a -v --doctest-modules --cov=packages/ref-metrics-pmp/src --cov-report=term --cov-append
 
 .PHONY: test-integration
 test-integration:  ## run the integration tests
@@ -88,8 +104,14 @@ test-integration:  ## run the integration tests
 		pytest tests \
 		-r a -v
 
+.PHONY: test-metric-packages
+test-metric-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
+
+.PHONY: test-executors
+test-executors: test-celery
+
 .PHONY: test
-test: clean test-core test-ref test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-integration ## run the tests
+test: clean test-core test-ref test-executors test-metric-packages test-integration ## run the tests
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found
@@ -127,6 +149,7 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 .PHONY: fetch-test-data
 fetch-test-data:  ## Download any data needed by the test suite
 	uv run python ./scripts/fetch-sample-data.py
+	uv run python ./scripts/fetch-ilamb-data.py test.txt
 
 .PHONY: update-test-data-registry
 update-test-data-registry:  ## Update the test data registry

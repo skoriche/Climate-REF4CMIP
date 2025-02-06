@@ -1,4 +1,7 @@
+import re
+
 from cmip_ref import __version__
+from cmip_ref.cli import build_app
 from cmip_ref_core import __version__ as __core_version__
 
 
@@ -15,17 +18,17 @@ def test_version(invoke_cli):
 
 
 def test_verbose(invoke_cli):
-    exp_log = "| DEBUG    | cmip_ref.config:default:178 - Loading default configuration from"
+    exp_log = r"\| DEBUG    \| cmip_ref\.config:default:\d+ - Loading default configuration from"
     result = invoke_cli(
         ["--verbose", "config", "list"],
     )
-    assert exp_log in result.stderr
+    assert re.search(exp_log, result.stderr)
 
     result = invoke_cli(
         ["config", "list"],
     )
     # Only info and higher messages logged
-    assert exp_log not in result.stderr
+    assert not re.search(exp_log, result.stderr)
 
 
 def test_config_directory_custom(config, invoke_cli):
@@ -54,3 +57,24 @@ def test_config_directory_append(config, invoke_cli):
         ],
         expected_exit_code=2,
     )
+
+
+def test_build_app():
+    app = build_app()
+
+    registered_commands = [command.name for command in app.registered_commands]
+    registered_groups = [group.name for group in app.registered_groups]
+
+    assert ["solve"] == registered_commands
+    assert ["config", "datasets", "celery"] == registered_groups
+
+
+def test_build_app_without_celery(mocker):
+    mocker.patch("cmip_ref.cli.importlib.import_module", side_effect=ModuleNotFoundError)
+    app = build_app()
+
+    registered_commands = [command.name for command in app.registered_commands]
+    registered_groups = [group.name for group in app.registered_groups]
+
+    assert ["solve"] == registered_commands
+    assert ["config", "datasets"] == registered_groups

@@ -1,9 +1,13 @@
+import re
 from pathlib import Path
 
 import cattrs
 import pytest
+from attr import evolve
 
-from cmip_ref.config import Config, Paths
+from cmip_ref.config import Config, PathConfig
+from cmip_ref_core.exceptions import InvalidExecutorException
+from cmip_ref_core.executor import Executor
 
 
 class TestConfig:
@@ -12,16 +16,16 @@ class TestConfig:
 
         # The configuration file doesn't exist
         # so it should default to some sane defaults
-        assert not (tmp_path / "cmip_ref.toml").exists()
+        assert not (tmp_path / "ref.toml").exists()
 
-        loaded = Config.load(Path("cmip_ref.toml"))
+        loaded = Config.load(Path("ref.toml"))
 
         assert loaded.paths.data == tmp_path / "cmip_ref" / "data"
 
         # The results aren't serialised back to disk
-        assert not (tmp_path / "cmip_ref.toml").exists()
+        assert not (tmp_path / "ref.toml").exists()
         assert loaded._raw is None
-        assert loaded._config_file == Path("cmip_ref.toml")
+        assert loaded._config_file == Path("ref.toml")
 
     def test_default(self, config):
         config.paths.data = "data"
@@ -34,10 +38,10 @@ class TestConfig:
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)
 
-        with open(tmp_path / "cmip_ref.toml", "w") as fh:
+        with open(tmp_path / "ref.toml", "w") as fh:
             fh.write(res.as_string())
 
-        loaded = Config.load(tmp_path / "cmip_ref.toml")
+        loaded = Config.load(tmp_path / "ref.toml")
 
         assert config.dumps() == loaded.dumps()
 
@@ -50,7 +54,7 @@ extra = "extra"
 filename = "sqlite://cmip_ref.db"
 """
 
-        with open(tmp_path / "cmip_ref.toml", "w") as fh:
+        with open(tmp_path / "ref.toml", "w") as fh:
             fh.write(content)
 
         # cattrs exceptions are a bit ugly, but you get an exception like this:
@@ -60,26 +64,26 @@ filename = "sqlite://cmip_ref.db"
         #     | Exception Group Traceback (most recent call last):
         #     |   File "<cattrs generated structure cmip_ref.config.Config>", line 6, in structure_Config
         #     |     res['paths'] = __c_structure_paths(o['paths'], __c_type_paths)
-        #     |   File "<cattrs generated structure cmip_ref.config.Paths>", line 31, in structure_Paths
-        #     |     if errors: raise __c_cve('While structuring ' + 'Paths', errors, __cl)
-        #     | cattrs.errors.ClassValidationError: While structuring Paths (1 sub-exception)
+        #     |   File "<cattrs generated structure cmip_ref.config.PathConfig>", line 31, in structure_Paths
+        #     |     if errors: raise __c_cve('While structuring ' + 'PathConfig', errors, __cl)
+        #     | cattrs.errors.ClassValidationError: While structuring PathConfig (1 sub-exception)
         #     | Structuring class Config @ attribute paths
         #     +-+---------------- 1 ----------------
-        #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for Paths: extra
+        #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for PathConfig: extra
 
         with pytest.raises(cattrs.errors.ClassValidationError):
-            Config.load(tmp_path / "cmip_ref.toml")
+            Config.load(tmp_path / "ref.toml")
 
     def test_save(self, tmp_path):
-        config = Config(paths=Paths(data=Path("data")))
+        config = Config(paths=PathConfig(data=Path("data")))
 
         with pytest.raises(ValueError):
             # The configuration file hasn't been set as it was created directly
             config.save()
 
-        config.save(tmp_path / "cmip_ref.toml")
+        config.save(tmp_path / "ref.toml")
 
-        assert (tmp_path / "cmip_ref.toml").exists()
+        assert (tmp_path / "ref.toml").exists()
 
     def test_defaults(self, monkeypatch):
         monkeypatch.setenv("REF_CONFIGURATION", "test")
@@ -90,8 +94,29 @@ filename = "sqlite://cmip_ref.db"
 
         without_defaults = cfg.dump(defaults=False)
 
-        assert without_defaults == {}
+        assert without_defaults == {
+            "metric_providers": [
+                {"provider": "cmip_ref_metrics_esmvaltool.provider"},
+                {"provider": "cmip_ref_metrics_ilamb.provider"},
+                {"provider": "cmip_ref_metrics_pmp.provider"},
+            ],
+        }
         assert with_defaults == {
+            "metric_providers": [
+                {
+                    "provider": "cmip_ref_metrics_esmvaltool.provider",
+                    "config": {},
+                },
+                {
+                    "provider": "cmip_ref_metrics_ilamb.provider",
+                    "config": {},
+                },
+                {
+                    "provider": "cmip_ref_metrics_pmp.provider",
+                    "config": {},
+                },
+            ],
+            "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "data": "test/data",
                 "log": "test/log",
@@ -100,3 +125,22 @@ filename = "sqlite://cmip_ref.db"
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }
+
+    def test_executor_build(self, config):
+        executor = config.executor.build()
+        assert executor.name == "local"
+        assert isinstance(executor, Executor)
+
+        # None of the executors support initialisation arguments yet so this is a bit of a placeholder
+        config.executor.config["test"] = "value"
+
+        match = re.escape("LocalExecutor.__init__() got an unexpected keyword argument 'test'")
+        with pytest.raises(TypeError, match=match):
+            config.executor.build()
+
+    def test_executor_build_invalid(self, config):
+        config.executor = evolve(config.executor, executor="cmip_ref.config.DbConfig")
+
+        match = "Expected an Executor, got <class 'cmip_ref.config.DbConfig'>"
+        with pytest.raises(InvalidExecutorException, match=match):
+            config.executor.build()

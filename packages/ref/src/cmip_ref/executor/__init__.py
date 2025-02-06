@@ -3,115 +3,58 @@ Execute metrics in different environments
 
 We support running metrics in different environments, such as locally,
 in a separate process, or in a container.
-These environments are represented by `Executor` classes.
-The `REF_EXECUTOR` environment variable determines which executor is used.
+These environments are represented by `cmip_ref.executor.Executor` classes.
 
 The simplest executor is the `LocalExecutor`, which runs the metric in the same process.
 This is useful for local testing and debugging.
-
-This is a placeholder implementation and will be expanded in the future.
 """
 
-import os
+import importlib
 
-from cmip_ref.executor.local import LocalExecutor
+from loguru import logger
+
+from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
-from cmip_ref_core.metrics import MetricExecutionDefinition, MetricResult
-from cmip_ref_core.providers import MetricsProvider
 
 
-class ExecutorManager:
+def import_executor_cls(fqn: str) -> type[Executor]:
     """
-    Enables the registration of executors and retrieval by name.
-
-    This is exposed as a singleton instance `cmip_ref.executor.get_executor`
-     and `cmip_ref.executor.register_executor`,
-     but for testability, you can create your own instance.
-    """
-
-    def __init__(self) -> None:
-        self._executors: dict[str, Executor] = {}
-
-    def register(self, executor: Executor) -> None:
-        """
-        Register an executor with the manager
-
-        Parameters
-        ----------
-        executor
-            The executor to register
-        """
-        if not isinstance(executor, Executor):  # pragma: no cover
-            raise ValueError("Executor must be an instance of Executor")
-        self._executors[executor.name.lower()] = executor
-
-    def get(self, name: str) -> Executor:
-        """
-        Get an executor by name
-
-        Parameters
-        ----------
-        name
-            Name of the executor (case-sensitive)
-
-        Raises
-        ------
-        KeyError
-            If the executor with the given name is not found
-
-        Returns
-        -------
-        :
-            The requested executor
-        """
-        return self._executors[name.lower()]
-
-
-_default_manager = ExecutorManager()
-
-register_executor = _default_manager.register
-get_executor = _default_manager.get
-
-
-def run_metric(
-    metric_name: str, /, metrics_provider: MetricsProvider, definition: MetricExecutionDefinition
-) -> MetricResult:
-    """
-    Run a metric using the default executor
-
-    The executor is determined by the `REF_EXECUTOR` environment variable.
-    The arguments will be updated in the future as the metric execution interface is expanded.
-
-    TODO: migrate to a configuration object rather than relying on environment variables.
+    Import an executor using a fully qualified module path
 
     Parameters
     ----------
-    metric_name
-        Name of the metric to run.
-    metrics_provider
-        Provider from where to retrieve the metric
-    definition
-        Information that describes a given metric execution.
+    fqn
+        Full package and attribute name of the executor to import
 
-        This includes the datasets that are needed to run the metric,
-        where the output should be stored, and any other information needed to run the metric.
+        For example: `cmip_ref_metrics_example.executor` will use the `executor` attribute from the
+        `cmip_ref_metrics_example` package.
+
+    Raises
+    ------
+    cmip_ref_core.exceptions.InvalidExecutorException
+        If the executor cannot be imported
+
+        If the executor isn't a valid `MetricsProvider`.
 
     Returns
     -------
     :
-        The result of the metric execution
+        Executor instance
     """
-    executor_name = os.environ.get("REF_EXECUTOR", "local")
+    module, attribute_name = fqn.rsplit(".", 1)
 
-    executor = get_executor(executor_name)
-    metric = metrics_provider.get(metric_name)
+    try:
+        imp = importlib.import_module(module)
+        executor: type[Executor] = getattr(imp, attribute_name)
 
-    result = executor.run_metric(metric, definition)
+        # We can't really check if the executor is a subclass of Executor here
+        # Protocols can't be used with issubclass if they have non-method members
+        # We have to check this at class instantiation time
 
-    # TODO: Validate the result
-    # TODO: Log the result
-
-    return result
-
-
-register_executor(LocalExecutor())
+        return executor
+    except ModuleNotFoundError:
+        logger.error(f"Package '{fqn}' not found")
+        raise InvalidExecutorException(fqn, f"Module '{module}' not found")
+    except AttributeError:
+        logger.error(f"Provider '{fqn}' not found")
+        raise InvalidExecutorException(fqn, f"Executor '{attribute_name}' not found in {module}")

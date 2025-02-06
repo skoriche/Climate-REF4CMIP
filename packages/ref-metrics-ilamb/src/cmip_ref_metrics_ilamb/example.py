@@ -43,7 +43,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     cmec_output = {
         "DIMENSIONS": {
             "dimensions": {
-                "source_id": {dataset.attrs["source_id"]: {}},
+                "source_id": {"blah": {}},
                 "region": {"global": {}},
                 "variable": {"tas": {}},
             },
@@ -59,7 +59,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
             "version": "v1",
         },
         "RESULTS": {
-            dataset.attrs["source_id"]: {"global": {"tas": 0}},
+            "blah": {"global": {"tas": 0}},
         },
     }
 
@@ -71,8 +71,8 @@ class GlobalMeanTimeseries(Metric):
     Calculate the global mean timeseries for a dataset
     """
 
-    name = "Global Mean Timeseries"
-    slug = "global-mean-timeseries"
+    name = "ILAMB Global Mean Timeseries"
+    slug = "ilamb-global-mean-timeseries"
 
     data_requirements = (
         DataRequirement(
@@ -101,7 +101,6 @@ class GlobalMeanTimeseries(Metric):
         """
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
         global_mean_timeseries = calculate_global_mean_timeseries(input_files=input_datasets.path.to_list())
-
         return MetricResult.build_from_output_bundle(
             definition, format_cmec_output_bundle(global_mean_timeseries)
         )

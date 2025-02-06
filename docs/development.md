@@ -107,7 +107,7 @@ make update-test-data-registry
 # Regenerate any failing regression tests that depend on the sample data catalog
 export PYTEST_ADDOPTS="--force-regen"
 make test
-````
+```
 
 Some other manual tweaks may be required to get the test suite to pass,
 but we should try and write tests that don't change when new data becomes available,

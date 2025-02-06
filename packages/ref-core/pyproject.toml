@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref_core"
-version = "0.1.5"
+version = "0.1.6"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -21,7 +21,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "attrs>=22.1.0"
+    "attrs>=22.1.0",
+    "typing_extensions",
 ]
 
 [project.license]

@@ -1,5 +1,6 @@
 import logging
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -90,10 +91,14 @@ filename = "sqlite://cmip_ref.db"
         assert "extra fields found (filename) @ $.db" in caplog.records[0].message
         assert caplog.records[0].levelname == "WARNING"
 
-        assert (
-            "invalid type (expected str, bytes or os.PathLike object, not Integer) @ $.paths.data"
-            in caplog.records[1].message
-        )
+        if sys.version_info >= (3, 12):
+            expected_msg = (
+                "argument should be a str or an os.PathLike object where __fspath__ returns a str, "
+                "not 'Integer'"
+            )
+        else:
+            expected_msg = "expected str, bytes or os.PathLike object, not Integer"
+        assert f"invalid type ({expected_msg}) @ $.paths.data" in caplog.records[1].message
         assert caplog.records[1].levelname == "ERROR"
 
     def test_save(self, tmp_path):

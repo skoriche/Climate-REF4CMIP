@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from pydantic import (
     BaseModel,
+    ConfigDict,
     FilePath,
     validate_call,
 )
@@ -32,27 +33,21 @@ class OutputCV(Enum):
     LOG = "log"
 
 
-class OutputIndex(BaseModel):
-    """CMEC output bundle index object"""
-
-    index: str = "index.html"
-
-
 class OutputProvenance(BaseModel):
     """CMEC output bundle provenance object"""
 
-    environment: dict[str, str]
+    environment: dict[str, str | None]
     """
     Key/value pairs listing all relevant diagnostic and
     framework environment variables.
     """
 
-    modeldata: list[str] | str | dict[str, Any]
+    modeldata: str | list[str] | dict[str, Any]
     """
     Path to the model data used in this analysis.
     """
 
-    obsdata: dict[str, Any]
+    obsdata: str | list[str] | dict[str, Any]
     """
     Key/value pairs containing short names and versions of
     all observational datasets used.
@@ -63,11 +58,15 @@ class OutputProvenance(BaseModel):
     Filename of a free format log file written during execution.
     """
 
+    model_config = ConfigDict(strict=True, extra="allow")
+
 
 class _OutputDict(BaseModel):
     filename: str  # Filename of plot produced (relative to output directory path)
     long_name: str  # Human readable name describing the plot
     description: str  # Description of what is depicted in the plot
+
+    model_config = ConfigDict(strict=True, extra="allow")
 
     def __getitem__(self, key: str) -> Any:
         return getattr(self, key)
@@ -111,6 +110,8 @@ class CMECOutput(BaseModel):
     """
     (optional) Dictionary of metric files produced with the output.
     """
+
+    model_config = ConfigDict(strict=True, extra="allow")
 
     def __getitem__(self, key: str) -> Any:
         return getattr(self, key)

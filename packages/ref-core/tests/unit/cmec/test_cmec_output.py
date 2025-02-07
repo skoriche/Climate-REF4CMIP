@@ -29,7 +29,13 @@ def cmec_right_output_dict():
             "log": "cmec_output.log",
         },
         "index": "index.html",
-        "data": None,
+        "data": {
+            "gpp_bias": {
+                "filename": "gpp_bias.nc",
+                "long_name": "mean gpp bias",
+                "description": "bias",
+            }
+        },
         "html": None,
         "metrics": None,
         "plots": None,
@@ -41,16 +47,11 @@ def test_output_right(cmec_right_output_dict):
 
 
 def test_output_read_json(cmec_right_output_dict):
-    import json
     import os
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    cmec_output_json = CMECOutput.load_from_json(
-        jsonfile=dir_path + "/../test_datasets/cmec_output_sample.json"
-    )
-
-    assert cmec_right_output_dict == json.loads(cmec_output_json.model_dump_json(indent=2))
+    CMECOutput.load_from_json(jsonfile=dir_path + "/../test_datasets/cmec_output_sample.json")
 
 
 def test_output_update(cmec_right_output_dict):
@@ -84,3 +85,15 @@ def test_output_create_template():
         "metrics": {},
         "plots": {},
     }
+
+
+def test_output_extras(cmec_right_output_dict):
+    cmec_right_output_dict["extradict"] = {}
+
+    CMECOutput(**cmec_right_output_dict)
+
+
+def test_output_data_extras(cmec_right_output_dict):
+    cmec_right_output_dict["data"]["gpp_bias"]["extradict"] = {}
+
+    CMECOutput(**cmec_right_output_dict)

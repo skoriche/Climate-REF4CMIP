@@ -79,7 +79,7 @@ class _OutputDict(BaseModel):
 class CMECOutput(BaseModel):
     """CMEC output bundle object"""
 
-    index: str = "index.html"
+    index: str | None = None
     """
     Short name of the plot/html/metric that should be opened
     when the user chooses to “open” the output bundle.

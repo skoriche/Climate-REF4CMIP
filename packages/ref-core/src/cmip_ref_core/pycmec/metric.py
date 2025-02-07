@@ -63,7 +63,7 @@ class MetricDimensions(RootModel[Any]):
     )
 
     @model_validator(mode="after")
-    def validate_dimensions(self) -> Self:
+    def _validate_dimensions(self) -> Self:
         """Validate a MetricDimensions object"""
         # assert the items in json_structure are same as the keys of dimensions
 
@@ -139,7 +139,7 @@ class MetricResults(RootModel[Any]):
 
     @field_validator("root", mode="after")
     @classmethod
-    def validate_results(cls, rlt: Any, info: ValidationInfo) -> Any:
+    def _validate_results(cls, rlt: Any, info: ValidationInfo) -> Any:
         """Validate a MeticResults object"""
         if not isinstance(info.context, MetricDimensions):
             s = "\nTo validate MetricResults object, MetricDimensions is needed,\n"
@@ -176,7 +176,7 @@ class CMECMetric(BaseModel):
     NOTES: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def validate_results(self) -> Self:
+    def _validate_metrics(self) -> Self:
         """Validate a CMECMetric object"""
         # validate results data
         results = self.RESULTS

@@ -48,7 +48,8 @@ def transform_error(
 ) -> list[str]:
     """Transform an exception into a list of error messages.
 
-    This is based on [cattrs.transform_errors][], but modified to be able to ignore errors
+    This is based on [cattrs.transform_error][cattrs.transform_error],
+     but modified to be able to ignore errors
 
     To get detailed error messages, the exception should be produced by a converter
     with `detailed_validation` set.

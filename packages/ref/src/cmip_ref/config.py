@@ -4,13 +4,15 @@
 # `esgpull` configuration management system with some of the extra complexity removed.
 # https://github.com/ESGF/esgf-download/blob/main/esgpull/config.py
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import tomlkit
 from attrs import Factory, define, field, frozen
-from cattrs import Converter
+from cattrs import ClassValidationError, Converter, ForbiddenExtraKeysError, IterableValidationError
 from cattrs.gen import make_dict_unstructure_fn, override
+from cattrs.v import format_exception as default_format_exception
 from loguru import logger
 from tomlkit import TOMLDocument
 
@@ -29,6 +31,77 @@ def _pop_empty(d: dict[str, Any]) -> None:
             _pop_empty(value)
             if not value:
                 d.pop(key)
+
+
+def _format_key_exception(exc: BaseException, _: type | None) -> str | None:
+    """Format a n error exception."""
+    if isinstance(exc, ForbiddenExtraKeysError):
+        return f"extra fields found ({', '.join(exc.extra_fields)})"
+    else:
+        return None
+
+
+def transform_error(
+    exc: ClassValidationError | IterableValidationError | BaseException,
+    path: str = "$",
+    format_exception: Callable[[BaseException, type | None], str | None] = default_format_exception,
+) -> list[str]:
+    """Transform an exception into a list of error messages.
+
+    This is based on [cattrs.transform_errors][], but modified to be able to ignore errors
+
+    To get detailed error messages, the exception should be produced by a converter
+    with `detailed_validation` set.
+
+    By default, the error messages are in the form of `{description} @ {path}`.
+
+    While traversing the exception and subexceptions, the path is formed:
+
+    * by appending `.{field_name}` for fields in classes
+    * by appending `[{int}]` for indices in iterables, like lists
+    * by appending `[{str}]` for keys in mappings, like dictionaries
+
+    Parameters
+    ----------
+    exc
+        The exception to transform into error messages.
+    path
+        The root path to use.
+    format_exception
+        A callable to use to transform `Exceptions` into string descriptions of errors.
+    """
+    errors = []
+
+    def _maybe_append_error(exc: BaseException, _: type | None, path: str) -> str | None:
+        error_message = format_exception(exc, None)
+        if error_message:
+            errors.append(f"{error_message} @ {path}")
+        return None
+
+    if isinstance(exc, IterableValidationError):
+        iterable_validation_notes, without = exc.group_exceptions()
+        for inner_exc, iterable_note in iterable_validation_notes:
+            p = f"{path}[{iterable_note.index!r}]"
+            if isinstance(inner_exc, ClassValidationError | IterableValidationError):
+                errors.extend(transform_error(inner_exc, p, format_exception))
+            else:
+                _maybe_append_error(inner_exc, iterable_note.type, p)
+        for inner_exc in without:
+            _maybe_append_error(inner_exc, None, path)
+    elif isinstance(exc, ClassValidationError):
+        class_validation_notes, without = exc.group_exceptions()
+        for inner_exc, class_note in class_validation_notes:
+            p = f"{path}.{class_note.name}"
+            if isinstance(inner_exc, ClassValidationError | IterableValidationError):
+                errors.extend(transform_error(inner_exc, p, format_exception))
+            else:
+                _maybe_append_error(inner_exc, class_note.type, p)
+        for inner_exc in without:
+            _maybe_append_error(inner_exc, None, path)
+    else:
+        _maybe_append_error(exc, None, path)
+
+    return errors
 
 
 @define
@@ -216,6 +289,20 @@ def default_metric_providers() -> list[MetricsProviderConfig]:
     ]
 
 
+def _load_config(config_file: str | Path, doc: dict[str, Any]) -> "Config":
+    # Try loading the configuration with strict validation
+    try:
+        return _converter_defaults.structure(doc, Config)
+    except Exception as exc:
+        # Find the extra key errors which are displayed as warnings
+        key_validation_errors = transform_error(exc, format_exception=_format_key_exception)
+        for key_error in key_validation_errors:
+            logger.warning(f"Error loading configuration from {config_file}: {key_error}")
+
+    # Try again with relaxed validation
+    return _converter_defaults_relaxed.structure(doc, Config)
+
+
 @define
 class Config:
     """
@@ -257,7 +344,19 @@ class Config:
 
             doc = TOMLDocument()
             raw = None
-        config = _converter_defaults.structure(doc, cls)
+
+        try:
+            config = _load_config(config_file, doc)
+        except Exception as exc:
+            # If that still fails, error out
+            key_validation_errors = transform_error(exc, format_exception=default_format_exception)
+            for key_error in key_validation_errors:
+                logger.error(f"Error loading configuration from {config_file}: {key_error}")
+
+            # Deliberately not raising "from exc" to avoid long tracebacks from cattrs
+            # The transformed error messages are sufficient for debugging
+            raise ValueError(f"Error loading configuration from {config_file}") from None
+
         config._raw = raw
         config._config_file = config_file
         return config
@@ -356,8 +455,8 @@ class Config:
         return doc
 
 
-def _make_converter(omit_default: bool) -> Converter:
-    conv = Converter(omit_if_default=omit_default, forbid_extra_keys=True)
+def _make_converter(omit_default: bool, forbid_extra_keys: bool) -> Converter:
+    conv = Converter(omit_if_default=omit_default, forbid_extra_keys=forbid_extra_keys)
     conv.register_unstructure_hook(Path, str)
     conv.register_unstructure_hook(
         Config,
@@ -371,5 +470,6 @@ def _make_converter(omit_default: bool) -> Converter:
     return conv
 
 
-_converter_defaults = _make_converter(omit_default=False)
-_converter_no_defaults = _make_converter(omit_default=True)
+_converter_defaults = _make_converter(omit_default=False, forbid_extra_keys=True)
+_converter_defaults_relaxed = _make_converter(omit_default=False, forbid_extra_keys=False)
+_converter_no_defaults = _make_converter(omit_default=True, forbid_extra_keys=True)

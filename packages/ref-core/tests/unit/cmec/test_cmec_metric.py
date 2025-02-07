@@ -186,6 +186,26 @@ def test_add_dimensions_new_dimen(cmec_right_dimen_data):
     }
 
 
+def test_metric_otherdicts(cmec_right_metric_dict):
+    cmec_right_metric_dict["otherdict1"] = {}
+    cmec_right_metric_dict["otherdict2"] = {}
+
+    CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_attributes_each_level(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["E3SM"]["attributes"] = "some information for model level"
+
+    CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_attributes_in_results(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["attributes"] = "some information for results level"
+
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
 def test_validate_result_wo_dim(cmec_right_metric_dict):
     with pytest.raises(ValidationError):
         MetricResults(cmec_right_metric_dict["RESULTS"])
@@ -295,6 +315,7 @@ def test_gen_json_schema():
                 "type": "object",
             },
         },
+        "additionalProperties": True,
         "description": "CMEC metric bundle object",
         "properties": {
             "SCHEMA": {

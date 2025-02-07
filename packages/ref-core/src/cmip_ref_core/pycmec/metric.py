@@ -5,7 +5,7 @@ CMEC metric bundle class
 import pathlib
 from collections import Counter
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import (
     BaseModel,
@@ -34,6 +34,7 @@ class MetricCV(Enum):
     PROVENANCE = "PROVENANCE"
     DISCLAIMER = "DISCLAMER"
     NOTES = "NOTES"
+    ATTRIBUTES = "attributes"
 
 
 class MetricSchema(BaseModel):
@@ -123,7 +124,11 @@ class MetricResults(RootModel[Any]):
     def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:
         dim_name = metdims[MetricCV.JSON_STRUCTURE.value][level]
 
-        if not (Counter(list(metdims[dim_name].keys())) == Counter(nested.keys())):
+        dict_key = list(nested.keys())
+        if MetricCV.ATTRIBUTES.value in dict_key:
+            dict_key.remove(MetricCV.ATTRIBUTES.value)
+
+        if not (Counter(list(metdims[dim_name].keys())) == Counter(dict_key)):
             raise ValueError("Error in dicts of Results")
 
         for key, value in nested.items():
@@ -161,14 +166,14 @@ class CMECMetric(BaseModel):
     CMEC metric bundle object
     """
 
-    model_config = ConfigDict(strict=True)
+    model_config = ConfigDict(strict=True, extra="allow")
 
-    SCHEMA: Optional[MetricSchema] = None
     DIMENSIONS: MetricDimensions
     RESULTS: dict[str, Any]
-    PROVENANCE: Optional[dict[str, Any]] = None
-    DISCLAIMER: Optional[dict[str, Any]] = None
-    NOTES: Optional[dict[str, Any]] = None
+    SCHEMA: MetricSchema | None = None
+    PROVENANCE: dict[str, Any] | None = None
+    DISCLAIMER: dict[str, Any] | None = None
+    NOTES: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def validate_results(self) -> Self:

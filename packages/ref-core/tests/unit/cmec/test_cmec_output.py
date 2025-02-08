@@ -69,7 +69,7 @@ def test_output_read_json(cmec_right_output_dict):
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    CMECOutput.load_from_json(jsonfile=dir_path + "/../test_datasets/cmec_output_sample.json")
+    CMECOutput.load_from_json(jsonfile=dir_path + "/cmec_testdata/cmec_output_sample.json")
 
 
 def test_output_update(cmec_right_output_dict):

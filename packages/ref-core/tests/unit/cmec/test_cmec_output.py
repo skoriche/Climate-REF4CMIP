@@ -6,6 +6,24 @@ from cmip_ref_core.pycmec.output import (
 
 
 @pytest.fixture
+def datadir():
+    import os
+    import pathlib
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return pathlib.Path(dir_path) / "cmec_testdata"
+
+
+@pytest.fixture
+def original_datadir():
+    import os
+    import pathlib
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return pathlib.Path(dir_path) / "cmec_testdata"
+
+
+@pytest.fixture
 def cmec_right_output_dict():
     return {
         "provenance": {
@@ -97,3 +115,13 @@ def test_output_data_extras(cmec_right_output_dict):
     cmec_right_output_dict["data"]["gpp_bias"]["extradict"] = {}
 
     CMECOutput(**cmec_right_output_dict)
+
+
+def test_output_json_schema(data_regression):
+    from cmip_ref_core.pycmec.metric import (
+        CMECGenerateJsonSchema,
+    )
+
+    cmec_model_schema = CMECOutput.model_json_schema(schema_generator=CMECGenerateJsonSchema)
+
+    data_regression.check(cmec_model_schema)

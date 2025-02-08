@@ -9,6 +9,24 @@ from cmip_ref_core.pycmec.metric import (
 
 
 @pytest.fixture
+def datadir():
+    import os
+    import pathlib
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return pathlib.Path(dir_path) / "cmec_testdata"
+
+
+@pytest.fixture
+def original_datadir():
+    import os
+    import pathlib
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return pathlib.Path(dir_path) / "cmec_testdata"
+
+
+@pytest.fixture
 def cmec_right_metric_dict():
     return {
         "SCHEMA": {"name": "cmec", "version": "v1", "package": "ilamb v3"},
@@ -284,64 +302,11 @@ def test_metric_merge():
     )
 
 
-def test_gen_json_schema():
+def test_metric_json_schema(data_regression):
     from cmip_ref_core.pycmec.metric import (
         CMECGenerateJsonSchema,
     )
 
     cmec_model_schema = CMECMetric.model_json_schema(schema_generator=CMECGenerateJsonSchema)
 
-    assert cmec_model_schema == {
-        "$defs": {
-            "MetricDimensions": {
-                "default": {
-                    "json_structure": ["model", "metric"],
-                    "model": {},
-                    "metric": {},
-                },
-                "description": "CMEC metric bundle DIMENSIONS object",
-                "title": "MetricDimensions",
-                "type": "object",
-            },
-            "MetricSchema": {
-                "description": "A metric schema used by unified dasbboard, not required by CMEC",
-                "properties": {
-                    "name": {"title": "Name", "type": "string"},
-                    "version": {"title": "Version", "type": "string"},
-                    "package": {"title": "Package", "type": "string"},
-                },
-                "required": ["name", "version", "package"],
-                "title": "MetricSchema",
-                "type": "object",
-            },
-        },
-        "additionalProperties": True,
-        "description": "CMEC metric bundle object",
-        "properties": {
-            "SCHEMA": {
-                "anyOf": [{"$ref": "#/$defs/MetricSchema"}, {"type": "null"}],
-                "default": None,
-            },
-            "DIMENSIONS": {"$ref": "#/$defs/MetricDimensions"},
-            "RESULTS": {"title": "Results", "type": "object"},
-            "PROVENANCE": {
-                "anyOf": [{"type": "object"}, {"type": "null"}],
-                "default": None,
-                "title": "Provenance",
-            },
-            "DISCLAIMER": {
-                "anyOf": [{"type": "object"}, {"type": "null"}],
-                "default": None,
-                "title": "Disclaimer",
-            },
-            "NOTES": {
-                "anyOf": [{"type": "object"}, {"type": "null"}],
-                "default": None,
-                "title": "Notes",
-            },
-        },
-        "required": ["DIMENSIONS", "RESULTS"],
-        "title": "CMEC",
-        "type": "object",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-    }
+    data_regression.check(cmec_model_schema)

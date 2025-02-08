@@ -174,15 +174,6 @@ class CMECOutput(BaseModel):
     def create_template() -> dict[str, Any]:
         """
         Return a empty dictionary in CMEC output bundle format
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        :
-           Empty dictionay in CMEC output bundle format
         """
         return {
             OutputCV.INDEX.value: "index.html",

@@ -3,6 +3,12 @@ CMEC metric bundle class
 
 Following the CMEC metric bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
+
+To validate that a dictionary is compatible with the CMEC
+metric bundle standards, please use:
+ - class instantiation: cmec = CMECMetric(**result_dict)
+ - class model_validate method: cmec = CMECMetric.model_validate(result_dict)
+Both ways will create the CMECMetric instance (cmec)
 """
 
 import pathlib

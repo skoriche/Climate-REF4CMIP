@@ -3,6 +3,12 @@ CMEC output bundle class
 
 Following the CMEC output bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
+
+To validate that a dictionary is compatible with the CMEC
+output bundle standards, please use:
+ - class instantiation: cmec = CMECOutput(**result_dict)
+ - class model_validate method: cmec = CMECOutput.model_validate(result_dict)
+Both ways will create the CMECOutput instance (cmec)
 """
 
 import pathlib

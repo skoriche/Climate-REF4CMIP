@@ -36,7 +36,7 @@ class LocalExecutor:
             Results from running the metric
         """
         # TODO: This should be changed to use executor specific configuration
-        definition = evolve(definition, output_directory=self.config.paths.tmp)
+        definition = evolve(definition, output_directory=self.config.paths.scratch)
         execution_output_path = definition.to_output_path(filename=None)
         execution_output_path.mkdir(parents=True, exist_ok=True)
 

@@ -1,7 +1,8 @@
+import logging
 import re
+import sys
 from pathlib import Path
 
-import cattrs
 import pytest
 from attr import evolve
 
@@ -45,10 +46,11 @@ class TestConfig:
 
         assert config.dumps() == loaded.dumps()
 
-    def test_load_extra_keys(self, tmp_path):
+    def test_load_extra_keys(self, tmp_path, caplog):
         content = """[paths]
 data = "data"
-extra = "extra"
+extra_key = "extra"
+another_key = "extra"
 
 [db]
 filename = "sqlite://cmip_ref.db"
@@ -57,22 +59,47 @@ filename = "sqlite://cmip_ref.db"
         with open(tmp_path / "ref.toml", "w") as fh:
             fh.write(content)
 
-        # cattrs exceptions are a bit ugly, but you get an exception like this:
-        #
-        #   | cattrs.errors.ClassValidationError: While structuring Config (1 sub-exception)
-        #   +-+---------------- 1 ----------------
-        #     | Exception Group Traceback (most recent call last):
-        #     |   File "<cattrs generated structure cmip_ref.config.Config>", line 6, in structure_Config
-        #     |     res['paths'] = __c_structure_paths(o['paths'], __c_type_paths)
-        #     |   File "<cattrs generated structure cmip_ref.config.PathConfig>", line 31, in structure_Paths
-        #     |     if errors: raise __c_cve('While structuring ' + 'PathConfig', errors, __cl)
-        #     | cattrs.errors.ClassValidationError: While structuring PathConfig (1 sub-exception)
-        #     | Structuring class Config @ attribute paths
-        #     +-+---------------- 1 ----------------
-        #       | cattrs.errors.ForbiddenExtraKeysError: Extra fields in constructor for PathConfig: extra
-
-        with pytest.raises(cattrs.errors.ClassValidationError):
+        with caplog.at_level(logging.WARNING):
             Config.load(tmp_path / "ref.toml")
+
+        assert len(caplog.records) == 2
+        # The order for multiple keys isn't stable
+        assert "@ $.paths" in caplog.records[0].message
+        assert "extra_key" in caplog.records[0].message
+        assert "another_key" in caplog.records[0].message
+        assert "extra fields found (filename) @ $.db" in caplog.records[1].message
+
+        for record in caplog.records:
+            assert record.levelname == "WARNING"
+
+    def test_invalid(self, tmp_path, caplog):
+        content = """[paths]
+    data = 1
+
+    [db]
+    filename = "sqlite://cmip_ref.db"
+    """
+
+        with open(tmp_path / "ref.toml", "w") as fh:
+            fh.write(content)
+
+        with caplog.at_level(logging.WARNING):
+            with pytest.raises(ValueError, match=f"Error loading configuration from {tmp_path / 'ref.toml'}"):
+                Config.load(tmp_path / "ref.toml")
+
+        assert len(caplog.records) == 2
+        assert "extra fields found (filename) @ $.db" in caplog.records[0].message
+        assert caplog.records[0].levelname == "WARNING"
+
+        if sys.version_info >= (3, 12):
+            expected_msg = (
+                "argument should be a str or an os.PathLike object where __fspath__ returns a str, "
+                "not 'Integer'"
+            )
+        else:
+            expected_msg = "expected str, bytes or os.PathLike object, not Integer"
+        assert f"invalid type ({expected_msg}) @ $.paths.data" in caplog.records[1].message
+        assert caplog.records[1].levelname == "ERROR"
 
     def test_save(self, tmp_path):
         config = Config(paths=PathConfig(data=Path("data")))
@@ -120,7 +147,8 @@ filename = "sqlite://cmip_ref.db"
             "paths": {
                 "data": "test/data",
                 "log": "test/log",
-                "tmp": "test/tmp",
+                "scratch": "test/scratch",
+                "results": "test/results",
                 "allow_out_of_tree_datasets": True,
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},

@@ -17,7 +17,8 @@ nav:
     - how-to-guides/running-metrics-locally.py
   - Tutorials: tutorials.md
   - Further background:
-    - Explanation: explanation.md
+    - Architecture: background/architecture.md
+    - Explanation: background/explanation.md
   - API: api/
   - Development: development.md
   - Changelog: changelog.md

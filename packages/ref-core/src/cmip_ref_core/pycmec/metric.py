@@ -1,5 +1,8 @@
 """
 CMEC metric bundle class
+
+Following the CMEC metric bundle standards at
+https://github.com/Earth-System-Diagnostics-Standards/EMDS
 """
 
 import pathlib
@@ -82,6 +85,18 @@ class MetricDimensions(RootModel[Any]):
     def add_dimension(self, dim_name: str, dim_content: dict[str, Any]) -> None:
         """
         Add or update one dimension to MetricDimensions object
+
+        Parameters
+        ----------
+        dim_name
+            Name of new dimension to be added
+        dim_content
+            Dictionary contains contents associated with dim_name
+
+        Returns
+        -------
+        :
+            CMEC MetricDimensions object with dim_name added
         """
         if dim_name in self.root[MetricCV.JSON_STRUCTURE.value]:
             self.root[dim_name].update(dim_content)
@@ -92,7 +107,21 @@ class MetricDimensions(RootModel[Any]):
 
     @classmethod
     def merge_dimension(cls, metric_dim1: Any, metric_dim2: Any) -> Self:
-        """Merge two MetricDimensions objects"""
+        """
+        Merge two MetricDimensions objects
+
+        Parameters
+        ----------
+        metric_dim1
+            First CMEC MetricDimensions object to be merged
+        metric_dim2
+            Second CMEC MetricDimensions object to be merged
+
+        Returns
+        -------
+        :
+            Return a merged CMEC MetricDimensions object
+        """
         mdim1 = cls.model_validate(metric_dim1)
         mdim2 = cls.model_validate(metric_dim2)
 
@@ -184,17 +213,39 @@ class CMECMetric(BaseModel):
         return self
 
     @validate_call
-    def dump_to_json(self, json_path: str = "./cmec.json") -> None:
-        """Save the CMECMetric object to a file in JSON format"""
-        pathlib.Path(json_path).write_text(self.model_dump_json(indent=2))
+    def dump_to_json(self, json_file: str = "./cmec.json") -> None:
+        """
+        Save the CMECMetric object to a file in JSON format
+
+        Parameters
+        ----------
+        json_file
+            JSON file path in the CMEC format to be saved
+
+        Returns
+        -------
+        :
+            None
+        """
+        pathlib.Path(json_file).write_text(self.model_dump_json(indent=2))
 
     @classmethod
     @validate_call
-    def load_from_json(cls, jsonfile: FilePath) -> Self:
+    def load_from_json(cls, json_file: FilePath) -> Self:
         """
         Create CMECMetric object from a compatiable json file
+
+        Parameters
+        ----------
+        json_file
+            JSON file path to be read
+
+        Returns
+        -------
+        :
+            CMEC Metric object if the file is CMEC-compatible
         """
-        json_str = pathlib.Path(jsonfile).read_text()
+        json_str = pathlib.Path(json_file).read_text()
         metric_obj = cls.model_validate_json(json_str)
 
         return metric_obj
@@ -224,7 +275,21 @@ class CMECMetric(BaseModel):
     @classmethod
     @validate_call
     def merge(cls, metric_obj1: Any, metric_obj2: Any, nodata: float) -> Self:
-        """Merge two CMECMetric objects"""
+        """
+        Merge two CMECMetric objects with the same json_struture
+
+        Parameters
+        ----------
+        metric_obj1
+            First CMECMetric object to be merged
+        metric_obj2
+            Second CMECMetric object to be merged
+
+        Returns
+        -------
+        :
+            Merged CMEC Metric object
+        """
         mobj1 = cls.model_validate(metric_obj1)
         mobj2 = cls.model_validate(metric_obj2)
 

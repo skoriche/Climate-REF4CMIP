@@ -1,5 +1,8 @@
 """
 CMEC output bundle class
+
+Following the CMEC output bundle standards at
+https://github.com/Earth-System-Diagnostics-Standards/EMDS
 """
 
 import pathlib
@@ -144,7 +147,23 @@ class CMECOutput(BaseModel):
         short_name: str,
         dict_content: dict[str, Any],
     ) -> None:
-        """Update the content of output_kw using short_name and dict_content pair"""
+        """
+        Update the content of output_kw using short_name and dict_content pair
+
+        Parameters
+        ----------
+        output_kw
+            CMEC output bundle keywords, one of [data, plots, html, metrics]
+        short_name
+            Key name of the dictionary nested in the output_kw dictionary
+        dict_content
+            Value of the dictionary with the key of short_name
+
+        Returns
+        -------
+        :
+            CMECOutput object with content updated
+        """
         cmec_output = _OutputDict(**dict_content)
 
         if self[output_kw] is None:
@@ -153,7 +172,18 @@ class CMECOutput(BaseModel):
 
     @staticmethod
     def create_template() -> dict[str, Any]:
-        """Return a empty dictionary in CMEC output bundle format"""
+        """
+        Return a empty dictionary in CMEC output bundle format
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        :
+           Empty dictionay in CMEC output bundle format
+        """
         return {
             OutputCV.INDEX.value: "index.html",
             OutputCV.PROVENANCE.value: {

@@ -22,11 +22,17 @@ from attr import Factory
 from attrs import define, field
 from cattrs import Converter
 from cattrs.gen import make_dict_unstructure_fn, override
-from cattrs.v import format_exception as default_format_exception
 from loguru import logger
 from tomlkit import TOMLDocument
 
-from cmip_ref._config_helpers import _format_key_exception, _pop_empty, config, env_field, transform_error
+from cmip_ref._config_helpers import (
+    _format_exception,
+    _format_key_exception,
+    _pop_empty,
+    config,
+    env_field,
+    transform_error,
+)
 from cmip_ref.constants import config_filename
 from cmip_ref.executor import import_executor_cls
 from cmip_ref_core.env import env
@@ -281,7 +287,7 @@ class Config:
             config = _load_config(config_file, doc)
         except Exception as exc:
             # If that still fails, error out
-            key_validation_errors = transform_error(exc, format_exception=default_format_exception)
+            key_validation_errors = transform_error(exc, format_exception=_format_exception)
             for key_error in key_validation_errors:
                 logger.error(f"Error loading configuration from {config_file}: {key_error}")
 

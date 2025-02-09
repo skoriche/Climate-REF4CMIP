@@ -6,6 +6,7 @@ import attr
 from attrs import fields
 from cattrs import ClassValidationError, ForbiddenExtraKeysError, IterableValidationError
 from cattrs.v import format_exception as default_format_exception
+from environs.exceptions import EnvError
 from loguru import logger
 
 from cmip_ref_core.env import env
@@ -32,10 +33,27 @@ def _format_key_exception(exc: BaseException, _: type | None) -> str | None:
         return None
 
 
+def _format_exception(exc: BaseException, type: type | None) -> str:
+    """Format an exception into a string description of the error.
+
+    Parameters
+    ----------
+    exc
+        The exception to format into an error message.
+    type
+        The type that the value was expected to be.
+    """
+    # Any custom handling of error goes here before falling back to the default
+    if isinstance(exc, EnvError):  # pragma: no cover
+        return str(exc)
+
+    return default_format_exception(exc, type)
+
+
 def transform_error(
     exc: ClassValidationError | IterableValidationError | BaseException,
     path: str = "$",
-    format_exception: Callable[[BaseException, type | None], str | None] = default_format_exception,
+    format_exception: Callable[[BaseException, type | None], str | None] = _format_exception,
 ) -> list[str]:
     """Transform an exception into a list of error messages.
 
@@ -99,7 +117,7 @@ def transform_error(
 def _environment_override(value: T, env_name: str, convertor: Callable[[Any], T] | None = None) -> T:
     try:
         env_value = env.str(env_name)
-    except KeyError:
+    except EnvError:
         return value
 
     logger.debug(f"Overriding {env_name} with {env_value}")

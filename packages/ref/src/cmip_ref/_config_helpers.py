@@ -123,6 +123,7 @@ def _environment_override(value: T, env_name: str, convertor: Callable[[Any], T]
     logger.debug(f"Overriding {env_name} with {env_value}")
     if convertor:
         return convertor(env_value)
+
     return typing.cast(T, env_value)
 
 
@@ -167,12 +168,9 @@ def config(
     Parameters
     ----------
     prefix:
-        The prefix that is used for the env variables.  If you have an
-        `var` attribute on the class and you leave the default argument
-        value of *PREFIX_NOT_SET*, the *DEFAULT_PREFIX* value of ``APP``
-        will be used and *environ-config* will look for an environment
-        variable called ``APP_VAR``.
+        The prefix that is used for the env variables.
 
+        This is be prepended to all the fields that use an `env_field`.
     frozen:
         The configuration will be immutable after instantiation, if `True`.
     """
@@ -197,6 +195,7 @@ def env_field(name: str, **kwargs: Any) -> Any:
 
     This field will use a value from the environment if it is set.
 
+    This field requires the class to be decorated with `config` to work.
     The environment variable name is constructed by prefixing the field name with the class prefix.
 
     Parameters

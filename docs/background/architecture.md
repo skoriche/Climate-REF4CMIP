@@ -130,7 +130,7 @@ The sections below provide some additional detail for the key components shown i
 
 ![Compute Engine](images/container_compute_engine.png)
 /// caption
-Figure 4:  Compute Engine
+Figure 4:  Compute Engine - responsible for tracking input data and metric executions
 ///
 
 The compute engine is responsible for orchestrating the workflow to execute metrics.
@@ -145,9 +145,10 @@ This component will include a few key abstractions to ensure that multiple diffe
 This allows the framework to retain some flexibility in places that we know will change between environments.
 
 These abstractions include:
-·	[Executor](../api/cmip_ref_core/executor/index.md#cmip_ref_core.executor.Executor) - Allows for different task execution styles to be used
-·	[Database](../api/cmip_ref/database/#cmip_ref.database.Database) - Enables switching between different databases, and keeps the database layer separate from the rest of the code
-·	DatastoreManager - The underlying datastores may be POSIX file systems or S3-compatible object stores
+
+-	[Executor][cmip_ref_core.executor.Executor] - Allows for different task execution styles to be used
+-	[Database][cmip_ref.database.Database] - Enables switching between different databases, and keeps the database layer separate from the rest of the code
+-	DatastoreManager - The underlying datastores may be POSIX file systems or S3-compatible object stores
 
 ### Metrics service
 
@@ -186,7 +187,7 @@ Decoupling these environments makes it easy to update each metrics package indep
 
 ![Compute Engine](images/container_data_api.png)
 /// caption
-Figure 6:  Data API
+Figure 6:  Data API - serves results to users
 ///
 
 The Data API service is the main interface that the public will interact with.

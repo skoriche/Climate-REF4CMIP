@@ -32,7 +32,7 @@ def test_verbose(invoke_cli):
 
 
 def test_config_directory_custom(config, invoke_cli):
-    config.paths.tmp = "test-value"
+    config.paths.scratch = "test-value"
     config.save()
 
     result = invoke_cli(
@@ -43,7 +43,7 @@ def test_config_directory_custom(config, invoke_cli):
             "list",
         ],
     )
-    assert 'tmp = "test-value"\n' in result.output
+    assert 'scratch = "test-value"\n' in result.output
 
 
 def test_config_directory_append(config, invoke_cli):

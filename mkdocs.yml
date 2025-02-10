@@ -10,6 +10,7 @@ nav:
   - CMIP REF: index.md
   - Installation: installation.md
   - Configuration: configuration.md
+  - Roadmap: roadmap.md
   - How-to guides:
     - how-to-guides/index.md
     - how-to-guides/ingest-datasets.md
@@ -120,6 +121,10 @@ plugins:
   - search
   # https://oprypin.github.io/mkdocs-section-index/
   - section-index
+  # https://github.com/PLAYG0N/mkdocs-panzoom
+  - panzoom:
+      full_screen: true
+
 
 markdown_extensions:
   # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#attribute-lists
@@ -151,6 +156,12 @@ markdown_extensions:
   # Ensure that there are links to table of contents items
   - toc:
       permalink: "#"
+  # Support for mermaid diagrams
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format # yamllint disable-line
 
 watch:
   - README.md

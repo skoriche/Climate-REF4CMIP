@@ -9,6 +9,7 @@ repo_url: https://github.com/CMIP-REF/cmip-ref
 nav:
   - CMIP REF: index.md
   - Installation: installation.md
+  - Getting Started: getting_started.md
   - Configuration: configuration.md
   - Roadmap: roadmap.md
   - How-to guides:
@@ -132,6 +133,9 @@ markdown_extensions:
   # Allow admonitions, useful for deprecation warnings
   # https://facelessuser.github.io/pymdown-extensions/extensions/blocks/plugins/admonition/
   - pymdownx.blocks.admonition
+  # Allow captions on blocks
+  # https://facelessuser.github.io/pymdown-extensions/extensions/blocks/plugins/caption/
+  - pymdownx.blocks.caption
   # Code highlighting handiness
   # https://facelessuser.github.io/pymdown-extensions/extensions/highlight/
   - pymdownx.highlight:

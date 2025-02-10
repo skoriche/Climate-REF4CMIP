@@ -151,7 +151,7 @@ class TestFetchSampleData:
             ]
         )
 
-        assert mock_fetch.called_once_with(SAMPLE_DATA_VERSION, False, False)
+        mock_fetch.assert_called_once_with(SAMPLE_DATA_VERSION, False, False)
 
     def test_fetch(self, mocker, invoke_cli):
         mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_sample_data")
@@ -166,4 +166,4 @@ class TestFetchSampleData:
             ]
         )
 
-        assert mock_fetch.called_once_with("v0.1.0", True, True)
+        mock_fetch.assert_called_once_with("v0.1.0", True, True)

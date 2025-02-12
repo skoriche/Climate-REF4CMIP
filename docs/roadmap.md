@@ -1,6 +1,6 @@
 # Roadmap
 
-Below is a high-level roadmap for the CMIP REF for AR7 Fast Track project towards the goal of a public release in October 2025.
+Below is a high-level roadmap for the CMIP AR7 Fast Track REF  project towards the goal of a public release in October 2025.
 This roadmap outlines the key milestones and tasks that need to be completed to achieve this goal.
 
 We have broken down the roadmap into several sections to provide a clear overview of the project's progress.
@@ -13,7 +13,7 @@ Namely,
 - Deployment
 - Community Engagement
 
-- The roadmap is subject to change as the project progresses, and adjustments may be made based on new insights, feedback, and evolving project requirements.
+The roadmap is subject to change as the project progresses, and adjustments may be made based on new insights, feedback, and evolving project requirements.
 
 /// admonition | Note
 
@@ -78,26 +78,37 @@ gantt
     section Deployment
     Discuss options with ESGF deployment          :active, esgf, 2024-12-01, 70d
     Build K8 helm charts                          :helm, after esgf, 4w
-    Staging deployment for testing                :staging, after helm, 1w
+    ESGF Staging deployment for testing                :staging, after helm, 1w
     CMIP6 stress-test                             :after staging, 4w
     ESGF index integration                        :crit, after beta, 4w
-    Production deployment                         :crit, prod, 2025-08-01, 1w
+    ESGF Production deployment                         :crit, prod, 2025-08-01, 1w
     Crunch CMIP6 results                          :crit, after prod, 30d
 
     section Community Engagement
+    Model Evaluation Survey                       :done, 2024-05-01, 4w
+    Modelling Centre Survey                       :done, 2024-06-01, 4w
+    AOGS                                          :done, 2024-06-25, 5d
+    Diagnostics Survey                            :done, survey, 2024-10-01, 4w
+    ESA CMUG Colocation                           :done, 2024-10-16, 3d
+    Project Launch                                :done, 2024-11-04, 1d
+    AGU                                           :done, 2024-12-01, 1w
     Hackathon                                     :hackathon, 2025-03-10, 5d
+    EGU                                           :egu, 2025-04-20, 1w
     Beta feature freeze                           :milestone, beta, 2025-05-01, 1d
     Beta Release                                  :milestone, beta, 2025-05-30, 1d
     Drop-ins/Engagement                           :engagement, after beta, 2w
     Incorporate feedback                          :after engagement, 6w
+    ESA Living Planet Symposium                   :lps, 2025-06-23, 1w
     Public Release                                :milestone, public, 2025-10-30, 1d
+
 ```
 
 
 ## Metrics
 
-An overview of the current state of the selected metrics can be found in the [Metrics Github board](https://github.com/orgs/CMIP-REF/projects/2/views/2) document.
-This is being updated as the new metrics are integrated into the CMIP REF.
+An overview of the current state of the selected metrics can be found in the
+[Metrics Github board](https://github.com/orgs/CMIP-REF/projects/2/views/2) document.
+This is being updated as the new metrics are integrated into the CMIP AR7 Fast Track REF.
 
 
 ## What will be in the beta:

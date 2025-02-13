@@ -16,7 +16,7 @@ from cmip_ref import cli
 from cmip_ref.config import Config, MetricsProviderConfig
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
-from cmip_ref_core.datasets import SourceDatasetType
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
@@ -46,7 +46,6 @@ def config(tmp_path, monkeypatch) -> Config:
     cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
 
     # Allow adding datasets from outside the tree for testing
-    cfg.paths.allow_out_of_tree_datasets = True
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
 
     # Use a SQLite in-memory database for testing
@@ -98,7 +97,7 @@ class MockMetric:
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         # TODO: This doesn't write output.json, use build function?
         return MetricResult(
-            bundle_filename=self.temp_dir / definition.output_fragment / "output.json",
+            bundle_filename=definition.output_directory / "output.json",
             successful=True,
             definition=definition,
         )
@@ -126,3 +125,42 @@ def provider(tmp_path) -> MetricsProvider:
 @pytest.fixture
 def mock_metric(tmp_path) -> MockMetric:
     return MockMetric(tmp_path)
+
+
+@pytest.fixture
+def definition_factory(tmp_path: Path):
+    def _create_definition(
+        *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
+    ) -> MetricExecutionDefinition:
+        if metric_dataset is None:
+            metric_dataset = MetricDataset({SourceDatasetType.CMIP6: cmip6})
+
+        return MetricExecutionDefinition(
+            key="key",
+            metric_dataset=metric_dataset,
+            root_directory=tmp_path,
+            output_directory=tmp_path / "output_fragment",
+        )
+
+    return _create_definition
+
+
+@pytest.fixture
+def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
+    selected_dataset = cmip6_data_catalog[
+        cmip6_data_catalog["instance_id"].isin(
+            {
+                "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318",
+                "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318",
+            }
+        )
+    ]
+    metric_dataset = MetricDataset(
+        {
+            SourceDatasetType.CMIP6: DatasetCollection(
+                selected_dataset,
+                "instance_id",
+            )
+        }
+    )
+    return definition_factory(metric_dataset=metric_dataset)

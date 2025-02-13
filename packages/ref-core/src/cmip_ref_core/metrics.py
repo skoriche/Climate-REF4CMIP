@@ -1,4 +1,3 @@
-import json
 import pathlib
 from typing import Any, Protocol, runtime_checkable
 
@@ -7,6 +6,8 @@ from attrs import field, frozen
 
 from cmip_ref_core.constraints import GroupConstraint
 from cmip_ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
+from cmip_ref_core.pycmec.metric import CMECMetric
+from cmip_ref_core.pycmec.output import CMECOutput
 
 
 @frozen
@@ -84,7 +85,7 @@ class MetricResult:
     The definition of the metric execution that produced this result.
     """
 
-    bundle_filename: pathlib.Path | None
+    output_bundle_filename: pathlib.Path | None = None
     """
     Filename of the output bundle file relative to the execution directory.
 
@@ -95,7 +96,18 @@ class MetricResult:
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-output-bundle-format-)
     """
 
-    successful: bool
+    metric_bundle_filename: pathlib.Path | None = None
+    """
+    Filename of the mertic bundle file relative to the execution directory.
+
+    The absolute path of the outputs may differ between executors
+    depending on where the output directory is mounted.
+
+    The contents of this file are defined by
+    [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-metric-output-format-)
+    """
+
+    successful: bool = False
     """
     Whether the metric ran successfully.
     """
@@ -103,7 +115,7 @@ class MetricResult:
 
     @staticmethod
     def build_from_output_bundle(
-        definition: MetricExecutionDefinition, cmec_output_bundle: dict[str, Any]
+        definition: MetricExecutionDefinition, cmec_output_bundle: CMECOutput | dict[str, Any]
     ) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
@@ -123,14 +135,62 @@ class MetricResult:
             A prepared MetricResult object.
             The output bundle will be written to the output directory.
         """
+        if isinstance(cmec_output_bundle, dict):
+            cmec_output = CMECOutput.model_validate(cmec_output_bundle)
+        else:
+            cmec_output = cmec_output_bundle
+
         definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
         bundle_path = definition.to_output_path("output.json")
 
-        with open(bundle_path, "w") as file_handle:
-            json.dump(cmec_output_bundle, file_handle)
+        # with open(bundle_path, "w") as file_handle:
+        #    json.dump(cmec_output_bundle, file_handle)
+
+        cmec_output.dump_to_json(bundle_path)
+
         return MetricResult(
             definition=definition,
-            bundle_filename=pathlib.Path("output.json"),
+            output_bundle_filename=pathlib.Path("output.json"),
+            successful=True,
+        )
+
+    @staticmethod
+    def build_from_metric_bundle(
+        definition: MetricExecutionDefinition, cmec_metric_bundle: CMECMetric | dict[str, Any]
+    ) -> "MetricResult":
+        """
+        Build a MetricResult from a CMEC output bundle.
+
+        Parameters
+        ----------
+        definition
+            The execution defintion.
+        cmec_output_bundle
+            An output bundle in the CMEC format.
+
+            TODO: This needs a better type hint
+
+        Returns
+        -------
+        :
+            A prepared MetricResult object.
+            The output bundle will be written to the output directory.
+        """
+        if isinstance(cmec_metric_bundle, dict):
+            cmec_metric = CMECMetric.model_validate(cmec_metric_bundle)
+        else:
+            cmec_metric = cmec_metric_bundle
+
+        definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
+        bundle_path = definition.to_output_path("metric.json")
+
+        # with open(bundle_path, "w") as file_handle:
+        #    json.dump(cmec_metric_bundle, file_handle)
+        cmec_metric.dump_to_json(bundle_path)
+
+        return MetricResult(
+            definition=definition,
+            metric_bundle_filename=pathlib.Path("metric.json"),
             successful=True,
         )
 
@@ -142,7 +202,9 @@ class MetricResult:
         This is a placeholder.
         Additional log information should still be captured in the output bundle.
         """
-        return MetricResult(bundle_filename=None, successful=False, definition=definition)
+        return MetricResult(
+            output_bundle_filename=None, metric_bundle_filename=None, successful=False, definition=definition
+        )
 
     def to_output_path(self, filename: str | None) -> pathlib.Path:
         """

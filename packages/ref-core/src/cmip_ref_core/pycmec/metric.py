@@ -219,7 +219,7 @@ class CMECMetric(BaseModel):
         return self
 
     @validate_call
-    def dump_to_json(self, json_file: str = "./cmec.json") -> None:
+    def dump_to_json(self, json_file: str | pathlib.Path = "./cmec.json") -> None:
         """
         Save the CMECMetric object to a file in JSON format
 
@@ -233,7 +233,10 @@ class CMECMetric(BaseModel):
         :
             None
         """
-        pathlib.Path(json_file).write_text(self.model_dump_json(indent=2))
+        if isinstance(json_file, str):
+            pathlib.Path(json_file).write_text(self.model_dump_json(indent=2))
+        else:
+            json_file.write_text(self.model_dump_json(indent=2))
 
     @classmethod
     @validate_call

@@ -20,7 +20,8 @@ def test_validate_prefix(raw, expected, mocker):
     assert validate_path(raw) == expected
 
 
-def test_validate_prefix_with_relative_path():
+def test_validate_prefix_with_relative_path(mocker):
+    mocker.patch.object(Path, "exists", return_value=True)
     raw_path = "data/subfolder/file.csv"
 
     with pytest.raises(ValueError):

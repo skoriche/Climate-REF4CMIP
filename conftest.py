@@ -4,7 +4,6 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
-import pathlib
 from pathlib import Path
 
 import pandas as pd
@@ -88,9 +87,6 @@ class MockMetric:
     name = "mock"
     slug = "mock"
 
-    def __init__(self, temp_dir: pathlib.Path) -> None:
-        self.temp_dir = temp_dir
-
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
@@ -116,15 +112,15 @@ class FailedMetric:
 @pytest.fixture
 def provider(tmp_path) -> MetricsProvider:
     provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(MockMetric(tmp_path))
+    provider.register(MockMetric())
     provider.register(FailedMetric())
 
     return provider
 
 
 @pytest.fixture
-def mock_metric(tmp_path) -> MockMetric:
-    return MockMetric(tmp_path)
+def mock_metric() -> MockMetric:
+    return MockMetric()
 
 
 @pytest.fixture

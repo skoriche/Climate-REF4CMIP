@@ -13,7 +13,8 @@ from cmip_ref_core.executor import Executor
 
 class TestConfig:
     def test_load_missing(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
+        ref_configuration_value = str(tmp_path / "cmip_ref")
+        monkeypatch.setenv("REF_CONFIGURATION", ref_configuration_value)
 
         # The configuration file doesn't exist
         # so it should default to some sane defaults
@@ -21,7 +22,10 @@ class TestConfig:
 
         loaded = Config.load(Path("ref.toml"))
 
-        assert loaded.paths.data == tmp_path / "cmip_ref" / "data"
+        assert loaded.paths.log == tmp_path / "cmip_ref" / "log"
+        assert loaded.paths.scratch == tmp_path / "cmip_ref" / "scratch"
+        assert loaded.paths.results == tmp_path / "cmip_ref" / "results"
+        assert loaded.db.database_url == f"sqlite:///{ref_configuration_value}/db/cmip_ref.db"
 
         # The results aren't serialised back to disk
         assert not (tmp_path / "ref.toml").exists()
@@ -98,7 +102,7 @@ filename = "sqlite://cmip_ref.db"
             )
         else:
             expected_msg = "expected str, bytes or os.PathLike object, not Integer"
-        assert f"invalid type ({expected_msg}) @ $.paths.data" in caplog.records[1].message
+        assert f"invalid type ({expected_msg}) @ $.paths.scratch" in caplog.records[1].message
         assert caplog.records[1].levelname == "ERROR"
 
     def test_save(self, tmp_path):

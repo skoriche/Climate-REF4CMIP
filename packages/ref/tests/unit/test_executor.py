@@ -36,6 +36,8 @@ class TestLocalExecutor:
         executor = LocalExecutor()
 
         result = executor.run_metric(mock_metric, metric_definition)
+        # This directory is created by the executor
+        assert metric_definition.output_directory.exists()
         assert result.successful
         assert result.bundle_filename == metric_definition.output_directory / "output.json"
 

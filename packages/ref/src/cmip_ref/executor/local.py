@@ -34,6 +34,8 @@ class LocalExecutor:
         :
             Results from running the metric
         """
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+
         try:
             return metric.run(definition=definition)
             # TODO: Copy results to the output directory

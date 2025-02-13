@@ -25,6 +25,7 @@ def test_example_metric(mocker, metric_dataset, cmip6_data_catalog, definition_f
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
 
     definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
+    definition.output_directory.mkdir(parents=True)
 
     result_dir = definition.output_directory / "results" / "recipe_test_a"
     result = result_dir / "work" / "timeseries" / "script1" / "result.nc"

@@ -115,7 +115,7 @@ test-metrics-packages: test-metrics-example test-metrics-esmvaltool test-metrics
 test-executors: test-celery
 
 .PHONY: test
-test: clean test-core test-ref test-executors test-metric-packages test-integration ## run the tests
+test: clean test-core test-ref test-executors test-metrics-packages test-integration ## run the tests
 
 .PHONY: test-quick
 test-quick: clean  ## run all the tests at once

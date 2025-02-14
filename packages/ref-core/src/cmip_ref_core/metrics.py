@@ -115,7 +115,10 @@ class MetricResult:
 
     @staticmethod
     def build_from_output_bundle(
-        definition: MetricExecutionDefinition, cmec_output_bundle: CMECOutput | dict[str, Any]
+        definition: MetricExecutionDefinition,
+        *,
+        cmec_output_bundle: CMECOutput | dict[str, Any],
+        cmec_metric_bundle: CMECMetric | dict[str, Any],
     ) -> "MetricResult":
         """
         Build a MetricResult from a CMEC output bundle.
@@ -126,6 +129,8 @@ class MetricResult:
             The execution defintion.
         cmec_output_bundle
             An output bundle in the CMEC format.
+        cmec_metric_bundle
+            An metric bundle in the CMEC format.
 
             TODO: This needs a better type hint
 
@@ -140,56 +145,22 @@ class MetricResult:
         else:
             cmec_output = cmec_output_bundle
 
-        definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
-        bundle_path = definition.to_output_path("output.json")
-
-        # with open(bundle_path, "w") as file_handle:
-        #    json.dump(cmec_output_bundle, file_handle)
-
-        cmec_output.dump_to_json(bundle_path)
-
-        return MetricResult(
-            definition=definition,
-            output_bundle_filename=pathlib.Path("output.json"),
-            successful=True,
-        )
-
-    @staticmethod
-    def build_from_metric_bundle(
-        definition: MetricExecutionDefinition, cmec_metric_bundle: CMECMetric | dict[str, Any]
-    ) -> "MetricResult":
-        """
-        Build a MetricResult from a CMEC output bundle.
-
-        Parameters
-        ----------
-        definition
-            The execution defintion.
-        cmec_output_bundle
-            An output bundle in the CMEC format.
-
-            TODO: This needs a better type hint
-
-        Returns
-        -------
-        :
-            A prepared MetricResult object.
-            The output bundle will be written to the output directory.
-        """
         if isinstance(cmec_metric_bundle, dict):
             cmec_metric = CMECMetric.model_validate(cmec_metric_bundle)
         else:
             cmec_metric = cmec_metric_bundle
 
         definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
-        bundle_path = definition.to_output_path("metric.json")
+        bundle_path = definition.to_output_path("output.json")
+        cmec_output.dump_to_json(bundle_path)
 
-        # with open(bundle_path, "w") as file_handle:
-        #    json.dump(cmec_metric_bundle, file_handle)
+        definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
+        bundle_path = definition.to_output_path("metric.json")
         cmec_metric.dump_to_json(bundle_path)
 
         return MetricResult(
             definition=definition,
+            output_bundle_filename=pathlib.Path("output.json"),
             metric_bundle_filename=pathlib.Path("metric.json"),
             successful=True,
         )

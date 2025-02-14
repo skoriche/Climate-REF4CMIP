@@ -5,7 +5,12 @@ import xarray as xr
 
 from cmip_ref_core.constraints import AddSupplementaryDataset
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import (
+    DataRequirement,
+    Metric,
+    MetricExecutionDefinition,
+    MetricResult,
+)
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 
@@ -167,17 +172,8 @@ class GlobalMeanTimeseries(Metric):
             input_files=input_datasets.path.to_list()
         )
 
-        output_result = MetricResult.build_from_output_bundle(
-            definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries)
-        )
-
-        metric_result = MetricResult.build_from_metric_bundle(
-            definition, format_cmec_metric_bundle(annual_mean_global_mean_timeseries)
-        )
-
-        return MetricResult(
-            definition=definition,
-            output_bundle_filename=output_result.output_bundle_filename,
-            metric_bundle_filename=metric_result.metric_bundle_filename,
-            successful=True,
+        return MetricResult.build_from_output_bundle(
+            definition,
+            cmec_output_bundle=format_cmec_output_bundle(annual_mean_global_mean_timeseries),
+            cmec_metric_bundle=format_cmec_metric_bundle(annual_mean_global_mean_timeseries),
         )

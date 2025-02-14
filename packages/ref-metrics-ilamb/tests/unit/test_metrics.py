@@ -61,8 +61,8 @@ def test_example_metric(tmp_path, cmip6_data_catalog, mocker):
     assert output_bundle_path.is_file()
 
 
-def test_standard_metric(tmp_path, cmip6_data_catalog):
-    metric = ILAMBStandard(registry_file="test.txt", sources={"tas": "test/Test/tas.nc"})
+def test_standard_site(tmp_path, cmip6_data_catalog):
+    metric = ILAMBStandard(registry_file="test.txt", sources={"tas": "test/Site/tas.nc"})
     ds = (
         cmip6_data_catalog[
             (cmip6_data_catalog["experiment_id"] == "historical")
@@ -71,6 +71,37 @@ def test_standard_metric(tmp_path, cmip6_data_catalog):
         .groupby("instance_id")
         .first()
     )
+    output_directory = tmp_path / "output"
+    (output_directory / metric.slug).mkdir(parents=True, exist_ok=True)
+
+    definition = MetricExecutionDefinition(
+        output_directory=output_directory,
+        output_fragment=pathlib.Path(metric.slug),
+        key="ilamb-standard-test_test",
+        metric_dataset=MetricDataset(
+            {
+                SourceDatasetType.CMIP6: DatasetCollection(ds, "instance_id"),
+            }
+        ),
+    )
+
+    result = metric.run(definition)
+
+    assert str(result.bundle_filename) == "output.json"
+
+    output_bundle_path = definition.output_directory / definition.output_fragment / result.bundle_filename
+
+    assert result.successful
+    assert output_bundle_path.exists()
+    assert output_bundle_path.is_file()
+
+
+def test_standard_grid(tmp_path, cmip6_data_catalog):
+    metric = ILAMBStandard(
+        registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc"}, relationships={"pr": "test/Grid/pr.nc"}
+    )
+    ds = cmip6_data_catalog[(cmip6_data_catalog["experiment_id"] == "historical")]
+    print(ds[["variable_id", "experiment_id"]])
     output_directory = tmp_path / "output"
     (output_directory / metric.slug).mkdir(parents=True, exist_ok=True)
 

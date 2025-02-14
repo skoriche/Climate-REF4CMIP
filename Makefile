@@ -108,14 +108,22 @@ test-integration:  ## run the integration tests
 		pytest tests \
 		-r a -v
 
-.PHONY: test-metric-packages
-test-metric-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
+.PHONY: test-metrics-packages
+test-metrics-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
 
 .PHONY: test-executors
 test-executors: test-celery
 
 .PHONY: test
 test: clean test-core test-ref test-executors test-metric-packages test-integration ## run the tests
+
+.PHONY: test-quick
+test-quick: clean  ## run all the tests at once
+	# This is a quicker way of running all the tests
+	# It doesn't execute each test using the target package as above
+	uv run \
+		pytest tests packages \
+		-r a -v  --cov-report=term
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

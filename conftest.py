@@ -49,8 +49,6 @@ def config(tmp_path, monkeypatch) -> Config:
     cfg.paths.allow_out_of_tree_datasets = True
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
 
-    # Use a SQLite in-memory database for testing
-    # cfg.db.database_url = "sqlite:///:memory:"
     cfg.save()
 
     return cfg

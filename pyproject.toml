@@ -123,8 +123,9 @@ addopts = [
     "--import-mode=importlib",
 ]
 filterwarnings = [
-    # Need to update ecgtools to remove this warning
+    # Need to update ecgtools/intake_esm to remove this warning
     'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
+    "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
 ]
 
 # We currently check for GPL licensed code, but this restriction may be removed

@@ -1,8 +1,14 @@
+import shutil
+import tempfile
+from pathlib import Path
+from urllib import parse as urlparse
+
 import pandas as pd
 import pytest
 from pytest_regressions.data_regression import RegressionYamlDumper
 from yaml.representer import SafeRepresenter
 
+from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
@@ -18,14 +24,31 @@ RegressionYamlDumper.add_representer(
 )
 
 
+def _clone_db(target_db_url: str, template_db_path: Path) -> None:
+    split_url = urlparse.urlsplit(target_db_url)
+    target_db_path = Path(split_url.path[1:])
+    target_db_path.parent.mkdir(parents=True)
+
+    shutil.copy(template_db_path, target_db_path)
+
+
+@pytest.fixture(scope="session")
+def tmp_path_session():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
+
+
 @pytest.fixture
 def db(config) -> Database:
     return Database.from_config(config, run_migrations=True)
 
 
-@pytest.fixture
-def db_seeded(config, cmip6_data_catalog) -> Database:
-    database = Database.from_config(config, run_migrations=True)
+@pytest.fixture(scope="session")
+def db_seeded_template(tmp_path_session, cmip6_data_catalog) -> Path:
+    template_db_path = tmp_path_session / "cmip_ref_template_seeded.db"
+
+    config = Config.default()  # This is just dummy config
+    database = Database(f"sqlite:///{template_db_path}", run_migrations=True)
 
     adapter = CMIP6DatasetAdapter()
 
@@ -35,4 +58,12 @@ def db_seeded(config, cmip6_data_catalog) -> Database:
         for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
             adapter.register_dataset(config, database, data_catalog_dataset)
 
-    return database
+    return template_db_path
+
+
+@pytest.fixture
+def db_seeded(db_seeded_template, config) -> Database:
+    # Copy the template database to the location in the config
+    _clone_db(config.db.database_url, db_seeded_template)
+
+    return Database.from_config(config, run_migrations=True)

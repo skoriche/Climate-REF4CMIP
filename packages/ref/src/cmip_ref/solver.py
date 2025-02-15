@@ -269,7 +269,7 @@ def solve_metrics(
                 metric_execution_result = MetricExecutionResult(
                     metric_execution=metric_execution_model,
                     dataset_hash=definition.metric_dataset.hash,
-                    output_fragment=str(definition.output_directory),
+                    output_fragment=str(definition.output_fragment()),
                 )
                 db.session.add(metric_execution_result)
                 db.session.flush()

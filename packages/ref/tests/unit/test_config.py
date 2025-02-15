@@ -179,7 +179,7 @@ filename = "sqlite://cmip_ref.db"
         # None of the executors support initialisation arguments yet so this is a bit of a placeholder
         config.executor.config["test"] = "value"
 
-        match = re.escape("LocalExecutor.__init__() got an unexpected keyword argument 'test'")
+        match = re.escape("LocalExecutor() takes no arguments")
         with pytest.raises(TypeError, match=match):
             config.executor.build()
 

@@ -129,7 +129,7 @@ class ExecutorConfig:
             An executor that can be used to run metrics
         """
         ExecutorCls = import_executor_cls(self.executor)
-        executor = ExecutorCls()
+        executor = ExecutorCls(**self.config)
 
         if not isinstance(executor, Executor):
             raise InvalidExecutorException(executor, f"Expected an Executor, got {type(executor)}")

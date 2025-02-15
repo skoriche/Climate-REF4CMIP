@@ -29,7 +29,7 @@ def generate_task_name(provider: MetricsProvider, metric: Metric) -> str:
     return f"{provider.slug}.{metric.slug}"
 
 
-def metric_task_factory(
+def _metric_task_factory(
     metric: Metric,
 ) -> Callable[
     [MetricExecutionDefinition],
@@ -65,4 +65,4 @@ def register_celery_tasks(app: Celery, provider: MetricsProvider) -> None:
     """
     for metric in provider.metrics():
         print(f"Registering task for metric {metric.name}")
-        app.task(metric_task_factory(metric), name=generate_task_name(provider, metric), queue=provider.slug)
+        app.task(_metric_task_factory(metric), name=generate_task_name(provider, metric), queue=provider.slug)

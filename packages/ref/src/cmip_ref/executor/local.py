@@ -41,7 +41,6 @@ class LocalExecutor:
 
         try:
             result = metric.run(definition=definition)
-            # TODO: Copy results to the output directory
         except Exception:
             logger.exception(f"Error running metric {metric.slug}")
             result = MetricResult.build_from_failure(definition)

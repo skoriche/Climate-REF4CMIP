@@ -22,6 +22,13 @@ from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResul
 from cmip_ref_core.providers import MetricsProvider
 
 
+def generate_task_name(provider: MetricsProvider, metric: Metric) -> str:
+    """
+    Generate the name of the task for the given provider and metric
+    """
+    return f"{provider.slug}.{metric.slug}"
+
+
 def metric_task_factory(
     metric: Metric,
 ) -> Callable[
@@ -58,4 +65,4 @@ def register_celery_tasks(app: Celery, provider: MetricsProvider) -> None:
     """
     for metric in provider.metrics():
         print(f"Registering task for metric {metric.name}")
-        app.task(metric_task_factory(metric), name=f"{provider.slug}_{metric.slug}", queue=provider.slug)
+        app.task(metric_task_factory(metric), name=generate_task_name(provider, metric), queue=provider.slug)

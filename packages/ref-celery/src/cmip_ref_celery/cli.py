@@ -75,7 +75,7 @@ def start_worker(
         register_celery_tasks(celery_app, provider)
     else:
         # This might need some tweaking in later PRs to pull in the appropriate tasks
-        import cmip_ref_celery.tasks  # noqa: F401
+        import cmip_ref_celery.worker_tasks  # noqa: F401
 
     argv = ["worker", f"--loglevel={loglevel}", *(extra_args or [])]
     celery_app.worker_main(argv=argv)

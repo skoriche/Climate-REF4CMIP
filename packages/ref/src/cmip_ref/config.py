@@ -129,7 +129,7 @@ class ExecutorConfig:
             An executor that can be used to run metrics
         """
         ExecutorCls = import_executor_cls(self.executor)
-        executor = ExecutorCls(**self.config)
+        executor = ExecutorCls()
 
         if not isinstance(executor, Executor):
             raise InvalidExecutorException(executor, f"Expected an Executor, got {type(executor)}")
@@ -233,8 +233,8 @@ class Config:
     db: DbConfig = Factory(DbConfig)
     executor: ExecutorConfig = Factory(ExecutorConfig)
     metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)
-    _raw: TOMLDocument | None = field(init=False, default=None)
-    _config_file: Path | None = field(init=False, default=None)
+    _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
+    _config_file: Path | None = field(init=False, default=None, repr=False)
 
     @classmethod
     def load(cls, config_file: Path, allow_missing: bool = True) -> "Config":

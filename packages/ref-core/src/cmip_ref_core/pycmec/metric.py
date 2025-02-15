@@ -233,10 +233,7 @@ class CMECMetric(BaseModel):
         :
             None
         """
-        if isinstance(json_file, str):
-            pathlib.Path(json_file).write_text(self.model_dump_json(indent=2))
-        else:
-            json_file.write_text(self.model_dump_json(indent=2))
+        pathlib.Path(json_file).write_text(self.model_dump_json(indent=2))
 
     @classmethod
     @validate_call

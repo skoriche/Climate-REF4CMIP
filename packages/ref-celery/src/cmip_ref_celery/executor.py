@@ -53,7 +53,7 @@ class CeleryExecutor(Executor):
         The results will be stored in the database when the task completes if `metric_execution_result`
         is specified.
         No result will be returned from this function.
-        Instead, you can peridically check the status of the task in the database.
+        Instead, you can periodically check the status of the task in the database.
 
         Parameters
         ----------

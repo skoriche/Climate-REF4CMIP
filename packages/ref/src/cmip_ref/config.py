@@ -200,6 +200,10 @@ def default_metric_providers() -> list[MetricsProviderConfig]:
     :
         List of default metric providers
     """  # noqa: D401
+    env_metric_providers = env.list("REF_METRIC_PROVIDERS", default=None)
+    if env_metric_providers:
+        return [MetricsProviderConfig(provider=provider) for provider in env_metric_providers]
+
     return [
         MetricsProviderConfig(provider="cmip_ref_metrics_esmvaltool.provider", config={}),
         MetricsProviderConfig(provider="cmip_ref_metrics_ilamb.provider", config={}),

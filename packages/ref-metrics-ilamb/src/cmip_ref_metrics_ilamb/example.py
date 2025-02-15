@@ -22,7 +22,8 @@ def calculate_global_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
     :
         The annual mean timeseries of the dataset
     """
-    ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, use_cftime=True)
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, decode_times=time_coder)
     mean: xr.Dataset = integrate_space(ds, "tas", mean=True).to_dataset()
     return mean
 

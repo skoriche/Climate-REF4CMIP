@@ -20,7 +20,7 @@ from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, Me
 from cmip_ref_core.providers import MetricsProvider
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def sample_data_dir() -> Path:
     return TEST_DATA_DIR / "sample-data"
 
@@ -31,7 +31,7 @@ def sample_data() -> None:
     fetch_sample_data(force_cleanup=False, symlink=False)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = CMIP6DatasetAdapter()
     return adapter.find_local_datasets(sample_data_dir / "CMIP6")
@@ -47,8 +47,6 @@ def config(tmp_path, monkeypatch) -> Config:
     # Allow adding datasets from outside the tree for testing
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
 
-    # Use a SQLite in-memory database for testing
-    # cfg.db.database_url = "sqlite:///:memory:"
     cfg.save()
 
     return cfg

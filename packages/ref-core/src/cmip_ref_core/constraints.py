@@ -1,4 +1,5 @@
 import sys
+import warnings
 from collections import defaultdict
 from collections.abc import Mapping
 from typing import Protocol, runtime_checkable
@@ -292,14 +293,18 @@ class RequireContiguousTimerange:
             # and sometimes its elements are of type datetime.datetime.
             # Convert both arrays to datetime.datetime objects to make sure they
             # can be subtracted.
-            if hasattr(start_series, "dt"):
-                start_array = np.array(start_series.dt.to_pydatetime())
-            else:
-                start_array = start_series.values  # type: ignore[assignment]
-            if hasattr(end_series, "dt"):
-                end_array = np.array(end_series.dt.to_pydatetime())
-            else:
-                end_array = end_series.values  # type: ignore[assignment]
+            with warnings.catch_warnings():
+                # We have already mitigated the future change in behaviour of DatetimeProperties.to_pydatetime
+                warnings.simplefilter("ignore", FutureWarning)
+
+                if hasattr(start_series, "dt"):
+                    start_array = np.array(start_series.dt.to_pydatetime())
+                else:
+                    start_array = start_series.values  # type: ignore[assignment]
+                if hasattr(end_series, "dt"):
+                    end_array = np.array(end_series.dt.to_pydatetime())
+                else:
+                    end_array = end_series.values  # type: ignore[assignment]
             diff = start_array[1:] - end_array[:-1]
             gap_indices = diff > max_timedelta
             if gap_indices.any():

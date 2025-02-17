@@ -1,6 +1,8 @@
+import pathlib
+
 import pytest
 
-from cmip_ref.executor import handle_execution_result, import_executor_cls
+from cmip_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
 from cmip_ref.executor.local import LocalExecutor
 from cmip_ref.models import MetricExecutionResult
 from cmip_ref_core.exceptions import InvalidExecutorException
@@ -53,3 +55,33 @@ def test_handle_execution_result_failed(config, metric_execution_result, definit
     handle_execution_result(config, metric_execution_result, result)
 
     metric_execution_result.mark_failed.assert_called_once()
+
+
+def test_copy_file_to_results_success(mocker):
+    scratch_directory = pathlib.Path("/scratch")
+    results_directory = pathlib.Path("/results")
+    fragment = "output_fragment"
+    filename = "bundle.zip"
+
+    mocker.patch("pathlib.Path.exists", return_value=True)
+    mock_copy = mocker.patch("shutil.copy")
+
+    _copy_file_to_results(scratch_directory, results_directory, fragment, filename)
+
+    mock_copy.assert_called_once_with(
+        scratch_directory / fragment / filename, results_directory / fragment / filename
+    )
+
+
+def test_copy_file_to_results_file_not_found(mocker):
+    scratch_directory = pathlib.Path("/scratch")
+    results_directory = pathlib.Path("/results")
+    fragment = "output_fragment"
+    filename = "bundle.zip"
+
+    mocker.patch("pathlib.Path.exists", return_value=False)
+
+    with pytest.raises(
+        FileNotFoundError, match=f"Could not find {filename} in {scratch_directory / fragment}"
+    ):
+        _copy_file_to_results(scratch_directory, results_directory, fragment, filename)

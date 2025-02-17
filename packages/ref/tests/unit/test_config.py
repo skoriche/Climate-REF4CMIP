@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 from attr import evolve
+from cattrs import IterableValidationError
 
-from cmip_ref.config import Config, PathConfig
+from cmip_ref.config import Config, PathConfig, transform_error
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 
@@ -189,3 +190,10 @@ filename = "sqlite://cmip_ref.db"
         match = "Expected an Executor, got <class 'cmip_ref.config.DbConfig'>"
         with pytest.raises(InvalidExecutorException, match=match):
             config.executor.build()
+
+
+def test_transform_error():
+    assert transform_error(ValueError("Test error"), "test") == ["invalid value @ test"]
+
+    err = IterableValidationError("Validation error", [ValueError("Test error"), KeyError()], Config)
+    assert transform_error(err, "test") == ["invalid value @ test", "required field missing @ test"]

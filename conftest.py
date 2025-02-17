@@ -19,6 +19,8 @@ from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatas
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
+pytest_plugins = ("celery.contrib.pytest",)
+
 
 @pytest.fixture(scope="session")
 def sample_data_dir() -> Path:

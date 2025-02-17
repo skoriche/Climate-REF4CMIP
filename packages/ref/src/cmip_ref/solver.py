@@ -283,4 +283,5 @@ def solve_metrics(
                     definition=definition,
                     metric_execution_result=metric_execution_result,
                 )
-    executor.join(timeout=timeout)
+    if timeout > 0:
+        executor.join(timeout=timeout)

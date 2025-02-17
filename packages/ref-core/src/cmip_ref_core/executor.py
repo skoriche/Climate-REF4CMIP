@@ -63,7 +63,7 @@ class Executor(Protocol):
         """
         ...
 
-    def join(self, timeout: int) -> None:
+    def join(self, timeout: float) -> None:
         """
         Wait for all metrics to finish executing
 

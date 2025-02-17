@@ -13,12 +13,6 @@ from cmip_ref_core.metrics import Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
 
-def _log_progress(results: list[celery.result.AsyncResult]) -> None:
-    for result in results[:]:  # Iterate over a copy of the list
-        if result.ready():
-            results.remove(result)
-
-
 class CeleryExecutor(Executor):
     """
     Run a metric asynchronously
@@ -88,7 +82,7 @@ class CeleryExecutor(Executor):
         logger.debug(f"Celery task {async_result.id} submitted")
         self._results.append(async_result)
 
-    def join(self, timeout: int) -> None:
+    def join(self, timeout: float) -> None:
         """
         Wait for all executions to finish
 
@@ -108,7 +102,7 @@ class CeleryExecutor(Executor):
             If all executions aren't completed within the specified timeout
         """
         start_time = time.time()
-        refresh_time = 1  # Time to wait between checking for completed tasks in seconds
+        refresh_time = 0.5  # Time to wait between checking for completed tasks in seconds
 
         results = self._results.copy()
         t = tqdm(total=len(results), desc="Waiting for executions to complete", unit="execution")

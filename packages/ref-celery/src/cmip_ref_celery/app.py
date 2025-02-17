@@ -31,7 +31,7 @@ def create_celery_app(name: str) -> Celery:
 
 
 @setup_logging.connect
-def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:
+def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:  # pragma: no cover
     """Set up logging for the Celery worker using the celery signal"""
     from cmip_ref.cli._logging import capture_logging
 
@@ -48,7 +48,7 @@ def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:
 
 
 @worker_ready.connect
-def worker_ready_handler(**kwargs: Any) -> None:
+def worker_ready_handler(**kwargs: Any) -> None:  # pragma: no cover
     """
     Log a message when the worker is ready
     """

@@ -48,7 +48,7 @@ class LocalExecutor:
         if metric_execution_result:
             handle_execution_result(Config.default(), metric_execution_result, result)
 
-    def join(self, timeout: int) -> None:
+    def join(self, timeout: float) -> None:
         """
         Wait for all metrics to finish
 

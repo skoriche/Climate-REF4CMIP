@@ -61,3 +61,9 @@ class TestLocalExecutor:
         config, metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False
         assert result.bundle_filename is None
+
+    def test_join(self):
+        executor = LocalExecutor()
+
+        executor.join(1)
+        # This method should return immediately

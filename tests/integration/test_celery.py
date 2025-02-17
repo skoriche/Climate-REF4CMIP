@@ -24,6 +24,7 @@ ROOT_DIR = Path(__file__).parents[2]
 class RedisContainer(wrappers.Container):
     def ready(self):
         if super().ready() and len(self.ports["6379/tcp"]) > 0:
+            print(f"Redis using port:{self.ports['6379/tcp'][0]}")
             # Perform a simple ping to check if the server is ready
             r = redis.Redis(host="localhost", port=self.ports["6379/tcp"][0])
             try:

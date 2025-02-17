@@ -1,9 +1,34 @@
 import pytest
 from cmip_ref_celery.executor import CeleryExecutor
+from cmip_ref_celery.worker_tasks import handle_result
 
 
-def test_run_metric():
-    pass
+@pytest.mark.parametrize("include_execution_result", [True, False])
+def test_run_metric(provider, mock_metric, metric_definition, mocker, include_execution_result):
+    executor = CeleryExecutor()
+    mock_app = mocker.patch("cmip_ref_celery.executor.app")
+    mock_execution_result = mocker.MagicMock()
+
+    if include_execution_result:
+        executor.run_metric(provider, mock_metric, metric_definition, mock_execution_result)
+
+        mock_app.send_task.assert_called_once_with(
+            "mock_provider.mock",
+            args=[metric_definition],
+            link=handle_result.s(metric_execution_result_id=mock_execution_result.id).set(queue="celery"),
+            queue="mock_provider",
+        )
+    else:
+        executor.run_metric(provider, mock_metric, metric_definition, None)
+
+        mock_app.send_task.assert_called_once_with(
+            "mock_provider.mock",
+            args=[metric_definition],
+            link=None,
+            queue="mock_provider",
+        )
+
+    assert executor._results == [mock_app.send_task.return_value]
 
 
 def test_join_empty():

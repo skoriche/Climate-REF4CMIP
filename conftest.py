@@ -4,6 +4,7 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +21,12 @@ from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, Me
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
+
+
+@pytest.fixture(scope="session")
+def tmp_path_session():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 
 @pytest.fixture(scope="session")

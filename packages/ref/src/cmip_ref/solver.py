@@ -241,7 +241,12 @@ def solve_metrics(
 
         logger.debug(f"Identified candidate metric execution {definition.key}")
 
-        if not dry_run:
+        if dry_run:
+            continue
+
+        # Use a transaction to make sure that the models
+        # are created correctly before potentially executing out of process
+        with db.session.begin(nested=True):
             metric_execution_model, created = db.get_or_create(
                 MetricExecutionModel,
                 key=definition.key,
@@ -277,11 +282,11 @@ def solve_metrics(
                 # Add links to the datasets used in the execution
                 metric_execution_result.register_datasets(db, definition.metric_dataset)
 
-                executor.run_metric(
-                    provider=metric_execution.provider,
-                    metric=metric_execution.metric,
-                    definition=definition,
-                    metric_execution_result=metric_execution_result,
-                )
+            executor.run_metric(
+                provider=metric_execution.provider,
+                metric=metric_execution.metric,
+                definition=definition,
+                metric_execution_result=metric_execution_result,
+            )
     if timeout > 0:
         executor.join(timeout=timeout)

@@ -31,11 +31,14 @@ class LocalExecutor:
         Parameters
         ----------
         provider
+            The provider of the metric
         metric
             Metric to run
         definition
             A description of the information needed for this execution of the metric
         metric_execution_result
+            A database model representing the execution of the metric.
+            If provided, the result will be updated in the database when completed.
         """
         definition.output_directory.mkdir(parents=True, exist_ok=True)
 

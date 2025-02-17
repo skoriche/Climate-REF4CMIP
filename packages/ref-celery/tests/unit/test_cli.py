@@ -39,6 +39,15 @@ def test_start_worker_success(mocker, mock_create_celery_app, mock_register_cele
     )
 
 
+def test_start_core_worker_success(mock_create_celery_app, mock_register_celery_tasks):
+    mock_celery_app = mock_create_celery_app.return_value
+
+    result = runner.invoke(app, ["start-worker"])
+
+    assert result.exit_code == 0
+    mock_celery_app.worker_main.assert_called_once_with(argv=["worker", "--loglevel=info", "--queues=celery"])
+
+
 def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_register_celery_tasks):
     mock_worker_main = mock_create_celery_app.return_value
     mock_provider = mocker.Mock()

@@ -224,8 +224,7 @@ class ILAMBStandard(Metric):
                     ds_ref.to_netcdf(ref_file)
                 ds_com[source_name].to_netcdf(com_file)
                 df_all.append(dfs)
-            except Exception:
-                # pragma: no cover
+            except Exception:  # pragma: no cover
                 logger.exception(f"ILAMB analysis {self.slug} failed for {source_name}.")
                 continue
 

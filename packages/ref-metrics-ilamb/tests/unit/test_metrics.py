@@ -100,8 +100,11 @@ def test_standard_grid(tmp_path, cmip6_data_catalog):
     metric = ILAMBStandard(
         registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc"}, relationships={"pr": "test/Grid/pr.nc"}
     )
-    ds = cmip6_data_catalog[(cmip6_data_catalog["experiment_id"] == "historical")]
-    print(ds[["variable_id", "experiment_id"]])
+    grp = cmip6_data_catalog[
+        (cmip6_data_catalog["experiment_id"] == "historical")
+        & ((cmip6_data_catalog["variable_id"] == "gpp") | (cmip6_data_catalog["variable_id"] == "pr"))
+    ].groupby(["source_id", "member_id", "grid_label"])
+    _, ds = next(iter(grp))
     output_directory = tmp_path / "output"
     (output_directory / metric.slug).mkdir(parents=True, exist_ok=True)
 

@@ -1,8 +1,9 @@
 import pathlib
 
+import ilamb3
 import pytest
 from cmip_ref_metrics_ilamb.example import GlobalMeanTimeseries, calculate_global_mean_timeseries
-from cmip_ref_metrics_ilamb.standard import ILAMBStandard
+from cmip_ref_metrics_ilamb.standard import ILAMBStandard, _set_ilamb3_options
 
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import MetricExecutionDefinition
@@ -128,3 +129,16 @@ def test_standard_grid(tmp_path, cmip6_data_catalog):
     assert result.successful
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
+
+
+def test_standard_fail():
+    try:
+        ILAMBStandard(registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc", "pr": "test/Grid/pr.nc"})
+        assert False
+    except ValueError:
+        pass
+
+
+def test_options():
+    _set_ilamb3_options("ilamb.txt")
+    assert set(["global", "tropical", "arid", "temperate", "cold"]).issubset(ilamb3.conf["regions"])

@@ -733,8 +733,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cmip-ref-core", editable = "packages/ref-core" },
-    { name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3?rev=v2025.2.13" },
-    { name = "types-pyyaml" },
+    { name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3?rev=4c4fc4d4df8e4c04bc519da586240b3921ddea71" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
 ]
 
 [package.metadata.requires-dev]
@@ -1429,8 +1429,8 @@ wheels = [
 
 [[package]]
 name = "ilamb3"
-version = "2025.2.13"
-source = { git = "https://github.com/rubisco-sfa/ilamb3?rev=v2025.2.13#caaa99f13cb8ce1a4f7123a61e80d3631e74b5bd" }
+version = "2025.2.13.post1.dev2+g4c4fc4d"
+source = { git = "https://github.com/rubisco-sfa/ilamb3?rev=4c4fc4d4df8e4c04bc519da586240b3921ddea71#4c4fc4d4df8e4c04bc519da586240b3921ddea71" }
 dependencies = [
     { name = "cartopy" },
     { name = "cf-xarray" },

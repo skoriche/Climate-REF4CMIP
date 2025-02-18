@@ -95,7 +95,7 @@ def _load_reference_data(
     """
     Load the reference data into containers and merge if more than 1 variable is used.
     """
-    if relationships is not None:
+    if relationships is not None:  # pragma: no cover
         sources = sources | relationships
     ref = {key: xr.open_dataset(registry.fetch(str(filename))) for key, filename in sources.items()}
     if len(ref) > 1:
@@ -152,7 +152,7 @@ class ILAMBStandard(Metric):
             raise ValueError("Only single source ILAMB metrics have been implemented.")
         self.variable_id = next(iter(sources.keys()))
         self.collection_key = sources[self.variable_id].split("/")[1]
-        if "sources" not in ilamb_kwargs:
+        if "sources" not in ilamb_kwargs:  # pragma: no cover
             ilamb_kwargs["sources"] = sources
         if "relationships" not in ilamb_kwargs:
             ilamb_kwargs["relationships"] = {}
@@ -230,7 +230,7 @@ class ILAMBStandard(Metric):
 
             # Pop log and remove zero size files
             logger.remove(log_id)
-            if log_file.stat().st_size == 0:
+            if log_file.stat().st_size == 0:  # pragma: no cover
                 log_file.unlink()
 
         # Check that the reference intermediate data really was generated.

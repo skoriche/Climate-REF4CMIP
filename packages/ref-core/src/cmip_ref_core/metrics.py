@@ -98,7 +98,7 @@ class MetricResult:
 
     metric_bundle_filename: pathlib.Path | None = None
     """
-    Filename of the mertic bundle file relative to the execution directory.
+    Filename of the metric bundle file relative to the execution directory.
 
     The absolute path of the outputs may differ between executors
     depending on where the output directory is mounted.

@@ -39,7 +39,8 @@ class TestLocalExecutor:
         # This directory is created by the executor
         assert metric_definition.output_directory.exists()
         assert result.successful
-        assert result.bundle_filename == metric_definition.output_directory / "output.json"
+        assert result.output_bundle_filename == metric_definition.output_directory / "output.json"
+        assert result.metric_bundle_filename == metric_definition.output_directory / "metric.json"
 
     def test_raises_exception(self, metric_definition, mock_metric):
         executor = LocalExecutor()
@@ -48,4 +49,5 @@ class TestLocalExecutor:
 
         result = executor.run_metric(mock_metric, metric_definition)
         assert result.successful is False
-        assert result.bundle_filename is None
+        assert result.output_bundle_filename is None
+        assert result.metric_bundle_filename is None

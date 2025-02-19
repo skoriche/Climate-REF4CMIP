@@ -91,7 +91,8 @@ class MockMetric:
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         # TODO: This doesn't write output.json, use build function?
         return MetricResult(
-            bundle_filename=definition.output_directory / "output.json",
+            output_bundle_filename=definition.output_directory / "output.json",
+            metric_bundle_filename=definition.output_directory / "metric.json",
             successful=True,
             definition=definition,
         )

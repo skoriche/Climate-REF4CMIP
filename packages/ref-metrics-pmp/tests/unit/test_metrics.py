@@ -50,9 +50,7 @@ def test_example_metric(metric_dataset, cmip6_data_catalog, mocker, definition_f
 
     assert str(result.metric_bundle_filename) == "metric.json"
 
-    metric_bundle_path = (
-        definition.output_directory / definition.output_fragment / result.metric_bundle_filename
-    )
+    metric_bundle_path = definition.output_directory / result.metric_bundle_filename
 
     assert result.successful
     assert metric_bundle_path.exists()

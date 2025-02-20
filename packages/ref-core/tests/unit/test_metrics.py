@@ -117,10 +117,8 @@ class TestMetricResult:
         tmp_path,
     ):
         definition = MetricExecutionDefinition(
-            output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=None
+            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
         )
-        # Setting the output directory generally happens as a side effect of the executor
-        definition = evolve(definition, output_directory=tmp_path)
 
         result = MetricResult.build_from_output_bundle(
             definition,
@@ -143,14 +141,13 @@ class TestMetricResult:
 
     def test_build_from_metric_bundle(
         self,
+        definition_factory,
         cmec_right_metric_data,
         cmec_right_metric_dict,
         cmec_right_output_dict,
         tmp_path,
     ):
-        definition = MetricExecutionDefinition(
-            output_fragment=tmp_path, key="mocked-metric-slug", metric_dataset=None
-        )
+        definition = definition_factory()
         # Setting the output directory generally happens as a side effect of the executor
         definition = evolve(definition, output_directory=tmp_path)
 
@@ -174,9 +171,9 @@ class TestMetricResult:
 
         assert output_filename.is_relative_to(tmp_path)
 
-    def test_build_from_failure(self):
+    def test_build_from_failure(self, tmp_path):
         definition = MetricExecutionDefinition(
-            output_fragment="output", key="mocked-metric-slug", metric_dataset=None
+            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
         )
         result = MetricResult.build_from_failure(definition)
 

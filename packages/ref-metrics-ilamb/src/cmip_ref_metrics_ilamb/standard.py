@@ -220,6 +220,9 @@ class ILAMBStandard(Metric):
                 df_all.append(dfs)
             except Exception:  # pragma: no cover
                 logger.exception(f"ILAMB analysis {self.slug} failed for {source_name}.")
+                # Ensure that the failed model is not part of the comparison dataset dictionary
+                if source_name in ds_com:
+                    ds_com.pop(source_name)
                 continue
 
             # Pop log and remove zero size files
@@ -228,8 +231,9 @@ class ILAMBStandard(Metric):
                 log_file.unlink()
 
         # Check that the reference intermediate data really was generated.
-        if ds_ref is None:
-            raise ValueError("Reference intermediate data was not generated.")  # pragma: no cover
+        if ds_ref is None or not ds_com:  # pragma: no cover
+            logger.exception("Reference intermediate data was not generated.")
+            return MetricResult.build_from_failure(definition)
         ds_ref.attrs = ref.attrs
 
         # Phase 2: get plots and combine scalars and save

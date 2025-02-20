@@ -18,14 +18,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [
-    "cmip_ref_core",
-    "ilamb3",
-    "types-pyyaml>=6.0.12.20241230",
-]
+dependencies = ["cmip_ref_core", "ilamb3", "types-pyyaml>=6.0.12.20241230"]
 
 [tool.uv.sources]
-ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "4c4fc4d4df8e4c04bc519da586240b3921ddea71" }
+ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "57dbb4db3cd7d0fcec4a720f60ac5ddd12c80109" }
 
 [project.license]
 text = "Apache-2.0"

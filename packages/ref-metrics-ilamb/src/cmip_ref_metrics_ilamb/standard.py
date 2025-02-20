@@ -5,7 +5,6 @@ import ilamb3.compare as cmp  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
 import matplotlib.pyplot as plt
 import pandas as pd
-import pooch
 import xarray as xr
 from ilamb3 import run
 from ilamb3.analysis import add_overall_score  # type: ignore
@@ -82,16 +81,21 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
 
 def _load_reference_data(
     variable_id: str,
-    registry: pooch.Pooch,
+    reference_data: pd.DataFrame,
     sources: dict[str, str],
     relationships: dict[str, str] | None = None,
 ) -> xr.Dataset:
     """
     Load the reference data into containers and merge if more than 1 variable is used.
     """
+    if reference_data.index.name != "key":
+        reference_data = reference_data.set_index("key")
     if relationships is not None:  # pragma: no cover
         sources = sources | relationships
-    ref = {key: xr.open_dataset(registry.fetch(str(filename))) for key, filename in sources.items()}
+    ref = {
+        key: xr.open_dataset(str(reference_data.loc[str(filename), "path"]))
+        for key, filename in sources.items()
+    }
     if len(ref) > 1:
         ref = cmp.trim_time(**ref)
         ref = cmp.same_spatial_grid(ref[variable_id], **ref)
@@ -176,8 +180,9 @@ class ILAMBStandard(Metric):
 
         # Setup ILAMB data and options
         self.registry_file = registry_file
-        self.registry = build_ilamb_data_registry(registry_file, ILAMB_DATA_VERSION)
-        self.ilamb_data = registry_to_collection(self.registry)
+        self.ilamb_data = registry_to_collection(
+            build_ilamb_data_registry(self.registry_file, ILAMB_DATA_VERSION)
+        )
 
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
@@ -186,7 +191,7 @@ class ILAMBStandard(Metric):
         plt.rcParams.update({"figure.max_open_warning": 0})
         _set_ilamb3_options(self.registry_file)
         setup = self.ilamb_kwargs
-        variable, analyses = run.setup_analyses(self.registry, **setup)
+        variable, analyses = run.setup_analyses(self.ilamb_data.datasets, **setup)
 
         # Phase I: loop over each model in the group and run an analysis function
         df_all = []
@@ -207,7 +212,9 @@ class ILAMBStandard(Metric):
 
             try:
                 # Load data and run comparison
-                ref = _load_reference_data(variable, self.registry, setup["sources"], setup["relationships"])
+                ref = _load_reference_data(
+                    variable, self.ilamb_data.datasets, setup["sources"], setup["relationships"]
+                )
                 com = _load_comparison_data(variable, grp)
                 dfs, ds_ref, ds_com[source_name] = run.run_analyses(ref, com, analyses)
                 dfs["source"] = dfs["source"].str.replace("Comparison", source_name)

@@ -57,7 +57,7 @@ class CeleryExecutor(Executor):
             Metric to run
         definition
             A description of the information needed for this execution of the metric
-            This include relative paths to the data files,
+            This includes relative paths to the data files,
             which will be converted to absolute paths when being executed
         metric_execution_result
             Result of the metric execution

@@ -115,7 +115,7 @@ class CeleryExecutor(Executor):
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > timeout:
-                    raise TimeoutError("All tasks did not complete within the specified timeout")
+                    raise TimeoutError("Not all tasks completed within the specified timeout")
 
                 # Iterate over a copy of the list and remove finished tasks
                 for result in results[:]:

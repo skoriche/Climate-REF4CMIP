@@ -123,11 +123,8 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
 
 
 def test_standard_fail():
-    try:
+    with pytest.raises(ValueError):
         ILAMBStandard(registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc", "pr": "test/Grid/pr.nc"})
-        assert False
-    except ValueError:
-        pass
 
 
 def test_options():

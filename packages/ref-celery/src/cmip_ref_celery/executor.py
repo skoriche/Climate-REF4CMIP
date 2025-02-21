@@ -49,6 +49,9 @@ class CeleryExecutor(Executor):
         No result will be returned from this function.
         Instead, you can periodically check the status of the task in the database.
 
+        Tasks may not execute immediately if the correct workers are not available.
+        The task will be queued and executed when a worker becomes available.
+
         Parameters
         ----------
         provider

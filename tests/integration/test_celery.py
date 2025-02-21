@@ -4,6 +4,7 @@ Runs an integration test for the Celery executor with a Redis broker.
 This test requires a running Redis server, which is started as a Docker container.
 """
 
+import gc
 from pathlib import Path
 
 import pytest
@@ -101,3 +102,6 @@ def test_celery_solving(db_seeded, config, celery_worker, redis_container, monke
     assert len(results)
     for result in results:
         assert result.successful
+        assert (config.paths.results / result.output_fragment / result.path).exists()
+
+    gc.collect()

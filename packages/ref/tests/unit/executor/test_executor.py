@@ -37,7 +37,9 @@ def metric_execution_result(mocker):
 
 
 def test_handle_execution_result_successful(config, metric_execution_result, mocker, definition_factory):
-    result = MetricResult(definition=definition_factory(), successful=True, bundle_filename="bundle.zip")
+    result = MetricResult(
+        definition=definition_factory(), successful=True, metric_bundle_filename=pathlib.Path("bundle.zip")
+    )
     mock_copy = mocker.patch("cmip_ref.executor._copy_file_to_results")
 
     handle_execution_result(config, metric_execution_result, result)
@@ -50,7 +52,7 @@ def test_handle_execution_result_successful(config, metric_execution_result, moc
 
 
 def test_handle_execution_result_failed(config, metric_execution_result, definition_factory):
-    result = MetricResult(definition=definition_factory(), successful=False, bundle_filename=None)
+    result = MetricResult(definition=definition_factory(), successful=False, metric_bundle_filename=None)
 
     handle_execution_result(config, metric_execution_result, result)
 

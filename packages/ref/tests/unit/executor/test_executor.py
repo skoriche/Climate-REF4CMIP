@@ -37,17 +37,21 @@ def metric_execution_result(mocker):
 
 
 def test_handle_execution_result_successful(config, metric_execution_result, mocker, definition_factory):
+    metric_bundle_filename = pathlib.Path("bundle.zip")
     result = MetricResult(
-        definition=definition_factory(), successful=True, metric_bundle_filename=pathlib.Path("bundle.zip")
+        definition=definition_factory(), successful=True, metric_bundle_filename=metric_bundle_filename
     )
     mock_copy = mocker.patch("cmip_ref.executor._copy_file_to_results")
 
     handle_execution_result(config, metric_execution_result, result)
 
     mock_copy.assert_called_once_with(
-        config.paths.scratch, config.paths.results, metric_execution_result.output_fragment, "bundle.zip"
+        config.paths.scratch,
+        config.paths.results,
+        metric_execution_result.output_fragment,
+        metric_bundle_filename,
     )
-    metric_execution_result.mark_successful.assert_called_once_with("bundle.zip")
+    metric_execution_result.mark_successful.assert_called_once_with(metric_bundle_filename)
     assert not metric_execution_result.metric_execution.dirty
 
 

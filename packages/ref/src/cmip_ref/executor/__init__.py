@@ -128,6 +128,7 @@ def handle_execution_result(
             metric_execution_result.output_fragment,
             result.metric_bundle_filename,
         )
+        metric_execution_result.mark_successful(result.metric_bundle_filename)
 
         if result.output_bundle_filename:
             _copy_file_to_results(
@@ -136,8 +137,6 @@ def handle_execution_result(
                 metric_execution_result.output_fragment,
                 result.output_bundle_filename,
             )
-
-            metric_execution_result.mark_successful(result.output_bundle_filename)
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields

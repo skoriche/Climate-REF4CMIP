@@ -45,6 +45,8 @@ def test_join_returns_on_completion(mocker):
 
     executor.join(2)
 
+    assert len(executor._results) == 0
+
 
 def test_join_raises(mocker):
     executor = CeleryExecutor()

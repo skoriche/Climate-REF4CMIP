@@ -104,7 +104,7 @@ class CeleryExecutor(Executor):
         start_time = time.time()
         refresh_time = 0.5  # Time to wait between checking for completed tasks in seconds
 
-        results = self._results.copy()
+        results = self._results
         t = tqdm(total=len(results), desc="Waiting for executions to complete", unit="execution")
 
         try:

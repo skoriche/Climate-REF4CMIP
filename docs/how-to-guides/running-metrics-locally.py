@@ -174,7 +174,6 @@ metric = provider.get("global-mean-timeseries")
 executor.run_metric(provider, metric, definition=definition)
 
 # %%
-
 output_file = definition.to_output_path("output.json")
 with open(output_file) as fh:
     # Load the output bundle and pretty print

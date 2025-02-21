@@ -156,6 +156,7 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
         """
         Mark the metric execution as successful
         """
+        # TODO: this needs to accept both a metric and output bundle
         self.successful = True
         self.path = str(path)
 

@@ -46,7 +46,8 @@ class TestLocalExecutor:
 
         assert metric_execution_result == mock_execution_result
         assert result.successful
-        assert result.bundle_filename == metric_definition.output_directory / "output.json"
+        assert result.output_bundle_filename == metric_definition.output_directory / "output.json"
+        assert result.metric_bundle_filename == metric_definition.output_directory / "metric.json"
 
     def test_raises_exception(self, mocker, provider, metric_definition, mock_metric):
         mock_handle_result = mocker.patch("cmip_ref.executor.local.handle_execution_result")
@@ -60,7 +61,8 @@ class TestLocalExecutor:
 
         config, metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False
-        assert result.bundle_filename is None
+        assert result.output_bundle_filename is None
+        assert result.metric_bundle_filename is None
 
     def test_join(self):
         executor = LocalExecutor()

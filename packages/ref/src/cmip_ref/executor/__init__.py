@@ -117,20 +117,27 @@ def handle_execution_result(
     result
         The result of the metric execution, either successful or failed
     """
-    if result.successful and result.bundle_filename is not None:
+    if result.successful and result.metric_bundle_filename is not None:
         logger.info(f"{metric_execution_result} successful")
 
         # TODO: Iterate over the files in the bundle and copy them
         # TODO: Add files to db
-        # Rework after #99
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
             metric_execution_result.output_fragment,
-            result.bundle_filename,
+            result.metric_bundle_filename,
         )
 
-        metric_execution_result.mark_successful(result.bundle_filename)
+        if result.output_bundle_filename:
+            _copy_file_to_results(
+                config.paths.scratch,
+                config.paths.results,
+                metric_execution_result.output_fragment,
+                result.output_bundle_filename,
+            )
+
+            metric_execution_result.mark_successful(result.output_bundle_filename)
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields

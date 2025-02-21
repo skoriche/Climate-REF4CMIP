@@ -40,10 +40,18 @@ def test_example_metric(metric_dataset, cmip6_data_catalog, mocker, definition_f
 
     assert mock_calc.call_count == 1
 
-    assert str(result.bundle_filename) == "output.json"
+    assert str(result.output_bundle_filename) == "output.json"
 
-    output_bundle_path = definition.output_directory / result.bundle_filename
+    output_bundle_path = definition.output_directory / result.output_bundle_filename
 
     assert result.successful
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
+
+    assert str(result.metric_bundle_filename) == "metric.json"
+
+    metric_bundle_path = definition.output_directory / result.metric_bundle_filename
+
+    assert result.successful
+    assert metric_bundle_path.exists()
+    assert metric_bundle_path.is_file()

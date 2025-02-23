@@ -96,14 +96,17 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
 
 
 def _execution_panel(execution: MetricExecution) -> Panel:
-    result: MetricExecutionResult = execution.results[-1]
+    if len(execution.results) == 0:
+        result = None
+    else:
+        result = execution.results[-1]
 
     panel = Panel(
         f"Key: [bold]{execution.key}[/]\n"
         f"Metric: [bold]{execution.metric.slug}[/]\n"
         f"Provider: [bold]{execution.metric.provider.slug}[/]\n"
         f"Dirty: [bold]{execution.dirty}[/]\n"
-        f"Successful: [bold]{result.successful}[/]\n"
+        f"Successful: [bold]{result.successful if result else 'not-started'}[/]\n"
         f"Created At: [bold]{execution.created_at}[/]\n"
         f"Updated At: [bold]{execution.updated_at}[/]\n"
         f"Number of attempted executions: [bold]{len(execution.results)}[/]",

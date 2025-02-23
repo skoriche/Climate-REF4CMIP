@@ -16,7 +16,7 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.tree import Tree
 
-from cmip_ref.cli._utils import pretty_print_df
+from cmip_ref.cli._utils import df_to_table, pretty_print_df
 from cmip_ref.models import MetricExecution, MetricExecutionResult
 from cmip_ref.models.metric_execution import get_execution_and_latest_result
 
@@ -31,9 +31,7 @@ def list_(
     limit: int = typer.Option(100, help="Limit the number of rows to display"),
 ) -> None:
     """
-    List the datasets that have been ingested
-
-    The data catalog is sorted by the date that the dataset was ingested (first = newest).
+    List the metric executions that have been identified
     """
     session = ctx.obj.database.session
 
@@ -114,6 +112,22 @@ def _execution_panel(execution: MetricExecution) -> Panel:
     return panel
 
 
+def _datasets_panel(result: MetricExecutionResult) -> Panel:
+    datasets = result.datasets
+
+    datasets_df = pd.DataFrame(
+        [
+            {"id": dataset.id, "slug": dataset.slug, "dataset_type": dataset.dataset_type}
+            for dataset in datasets
+        ]
+    )
+
+    return Panel(
+        df_to_table(datasets_df),
+        title=f"Datasets hash: {result.dataset_hash}",
+    )
+
+
 def _results_directory_panel(result_directory: pathlib.Path) -> Panel:
     if result_directory.exists():
         tree = Tree(
@@ -151,7 +165,12 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
 
     console.print(_execution_panel(execution))
 
+    if not execution.results:
+        logger.error(f"No results found for execution: {execution_id}")
+        return
+
     result: MetricExecutionResult = execution.results[-1]
     result_directory = config.paths.results / result.output_fragment
 
+    console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))

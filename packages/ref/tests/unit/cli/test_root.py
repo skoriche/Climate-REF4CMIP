@@ -66,7 +66,7 @@ def test_build_app():
     registered_groups = [group.name for group in app.registered_groups]
 
     assert ["solve"] == registered_commands
-    assert ["config", "datasets", "celery"] == registered_groups
+    assert ["config", "datasets", "executions", "celery"] == registered_groups
 
 
 def test_build_app_without_celery(mocker):

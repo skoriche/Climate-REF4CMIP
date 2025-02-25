@@ -28,11 +28,9 @@
 import json
 from pathlib import Path
 
-import attrs
 import cmip_ref_metrics_example
 import pandas as pd
 import prettyprinter
-from attr import evolve
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
@@ -135,54 +133,52 @@ metric_executions[0].metric_dataset["cmip6"]
 # and which datasets should be used for the metric calculation.
 
 # %%
-output_directory = Path("out")
-definition = metric_executions[0].build_metric_execution_info()
+output_directory = Path("./out")
+definition = metric_executions[0].build_metric_execution_info(output_directory)
 prettyprinter.pprint(definition)
 
+
+# %% [markdown]
+# ### Running directly locally
+#
+# A metric can be run directly if you want to run a calculation synchronously
+# without any additional infrastructure.
+#
+# This will not perform and validation/verification of the output results.
+
 # %%
-# Update the output fragment to be a subdirectory of the current working directory
-definition = attrs.evolve(definition, output_fragment=output_directory / definition.output_fragment)
-definition.output_fragment
+direct_result = metric.run(definition=definition)
+assert direct_result.successful
+
+prettyprinter.pprint(direct_result)
 
 # %% [markdown]
 # ## Metric calculations
 #
 # Metric calculations are typically run using an [Executor](cmip_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
+# These executors can run metrics locally, on a cluster, or on a remote service
 #
 # The simplest executor is the [LocalExecutor](cmip_ref.executor.local.LocalExecutor).
 # This executor runs a given metric synchronously in the current process.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor](cmip_ref.executor.local.LocalExecutor) is the default executor,
+# The [LocalExecutor][cmip_ref.executor.local.LocalExecutor] is the default executor,
 # if no other configuration is provided.
 
 # %%
 executor = config.executor.build()
 metric = provider.get("global-mean-timeseries")
 
-result = executor.run_metric(metric, definition=definition)
-result
+executor.run_metric(provider, metric, definition=definition)
 
 # %%
-
-output_file = result.definition.to_output_path(result.bundle_filename)
+output_file = definition.to_output_path("output.json")
 with open(output_file) as fh:
     # Load the output bundle and pretty print
     loaded_result = json.loads(fh.read())
     print(json.dumps(loaded_result, indent=2))
 
-# %% [markdown]
-# ### Running directly
-#
-# The local executor can be bypassed if you need access to running the metric calculation directly.
-# This will not perform and validation/verification of the output results.
-
-# %%
-direct_result = metric.run(definition=evolve(definition, output_directory=output_directory))
-assert direct_result.successful
-
-prettyprinter.pprint(direct_result)
 
 # %%

@@ -42,6 +42,10 @@ clean:  ## clean up temporary files
 	rm -rf site dist build
 	rm -rf .coverage
 
+.PHONY: clean-sample-data
+clean-sample-data:  ## clean up the sample data
+	rm -rf tests/test-data/sample-data
+
 .PHONY: build
 build: clean  ## build the packages to be deployed to PyPI
 	cp LICENCE NOTICE packages/ref
@@ -104,14 +108,22 @@ test-integration:  ## run the integration tests
 		pytest tests \
 		-r a -v
 
-.PHONY: test-metric-packages
-test-metric-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
+.PHONY: test-metrics-packages
+test-metrics-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
 
 .PHONY: test-executors
 test-executors: test-celery
 
 .PHONY: test
-test: clean test-core test-ref test-executors test-metric-packages test-integration ## run the tests
+test: clean test-core test-ref test-executors test-metrics-packages test-integration ## run the tests
+
+.PHONY: test-quick
+test-quick: clean  ## run all the tests at once
+	# This is a quicker way of running all the tests
+	# It doesn't execute each test using the target package as above
+	uv run \
+		pytest tests packages \
+		-r a -v  --cov-report=term
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found
@@ -148,9 +160,9 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 
 .PHONY: fetch-test-data
 fetch-test-data:  ## Download any data needed by the test suite
-	uv run python ./scripts/fetch-sample-data.py
+	uv run ref datasets fetch-sample-data
 	uv run python ./scripts/fetch-ilamb-data.py test.txt
 
-.PHONY: update-test-data-registry
-update-test-data-registry:  ## Update the test data registry
+.PHONY: update-sample-data-registry
+update-sample-data-registry:  ## Update the sample data registry
 	curl --output packages/ref/src/cmip_ref/datasets/sample_data.txt https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/heads/main/registry.txt

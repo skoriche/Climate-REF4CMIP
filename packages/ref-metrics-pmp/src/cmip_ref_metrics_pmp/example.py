@@ -8,6 +8,8 @@ from pcmdi_metrics.io.base import download_sample_data_files
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.pycmec.metric import CMECMetric
+from cmip_ref_core.pycmec.output import CMECOutput
 
 
 def load_ref_data():
@@ -63,7 +65,8 @@ def calculate_annual_cycle(input_files: list[Path]) -> xr.Dataset:
     :
         The annual mean timeseries of the dataset
     """
-    xr_ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, use_cftime=True)
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    xr_ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, decode_times=time_coder)
 
     annual_mean = xr_ds.resample(time="YS").mean()
     return annual_mean.mean(dim=["lat", "lon"], keep_attrs=True)
@@ -85,15 +88,13 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     # TODO: Check how timeseries data are generally serialised
     cmec_output = {
         "DIMENSIONS": {
-            "dimensions": {
-                "source_id": {dataset.attrs["source_id"]: {}},
-                "region": {"global": {}},
-                "variable": {"tas": {}},
-            },
+            "model": {dataset.attrs["source_id"]: {}},
+            "region": {"global": {}},
+            "metric": {"tas": {}},
             "json_structure": [
                 "model",
                 "region",
-                "statistic",
+                "metric",
             ],
         },
         # Is the schema tracked?
@@ -206,8 +207,16 @@ class ExtratropicalModesOfVariability_PDO(Metric):
 
         result_dict = SOMETHING()
 
+        # the format function actually returns the metric bundle
+        cmec_metric = format_cmec_output_bundle(annual_mean_global_mean_timeseries)
+        CMECMetric.model_validate(cmec_metric)
+
+        # create a empty CMEC output dictionary
+        cmec_output = CMECOutput.create_template()
+        CMECOutput.model_validate(cmec_output)
+
+        # the cmec_output_bundle and cmec_metric_bundle are required keywords, cannot be omitted
         return MetricResult.build_from_output_bundle(
-            # definition, format_cmec_output_bundle(annual_mean_global_mean_timeseries)
             definition,
             result_dict,
         )

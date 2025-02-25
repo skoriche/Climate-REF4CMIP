@@ -13,14 +13,8 @@ Executor to use for running the metrics.
 
 Defaults to use the local executor ("cmip_ref.executor.local.LocalExecutor").
 
-### `REF_DATA_ROOT`
 
-Path to the root of the input data directory.
-
-This directory may be different between the orchestrator and the workers,
-so it is important to ensure that this is set correctly.
-
-### `REF_OUTPUT_ROOT`
+### `REF_RESULTS_ROOT`
 
 Path to the root directory where data should be stored.
 This has to be shared between any workers and the parent

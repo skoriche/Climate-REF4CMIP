@@ -1,4 +1,14 @@
-"""Configuration management"""
+"""
+Configuration management
+
+The REF uses a tiered configuration model,
+where configuration is sourced from a hierarchy of different places.
+
+Each configuration value has a default which is used if not other configuration is available.
+Then configuration is loaded from a `.toml` file which overrides any default values.
+Finally, some configuration can be overridden at runtime using environment variables,
+which always take precedence over any other configuration values.
+"""
 
 # The basics of the configuration management takes a lot of inspiration from the
 # `esgpull` configuration management system with some of the extra complexity removed.
@@ -8,67 +18,94 @@ from pathlib import Path
 from typing import Any
 
 import tomlkit
-from attrs import Factory, define, field, frozen
+from attr import Factory
+from attrs import define, field
 from cattrs import Converter
 from cattrs.gen import make_dict_unstructure_fn, override
 from loguru import logger
 from tomlkit import TOMLDocument
 
+from cmip_ref._config_helpers import (
+    _format_exception,
+    _format_key_exception,
+    _pop_empty,
+    config,
+    env_field,
+    transform_error,
+)
 from cmip_ref.constants import config_filename
 from cmip_ref.executor import import_executor_cls
 from cmip_ref_core.env import env
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 
-
-def _pop_empty(d: dict[str, Any]) -> None:
-    keys = list(d.keys())
-    for key in keys:
-        value = d[key]
-        if isinstance(value, dict):
-            _pop_empty(value)
-            if not value:
-                d.pop(key)
+env_prefix = "REF"
+"""
+Prefix for the environment variables used by the REF
+"""
 
 
-@define
+@config(prefix=env_prefix)
 class PathConfig:
     """
     Common paths used by the REF application
+
+    /// admonition | Warning
+        type: warning
+
+    These paths must be common across all systems that the REF is being run
+    ///
     """
 
-    data: Path = field(converter=Path)
-    log: Path = field(converter=Path)
-    tmp: Path = field(converter=Path)
+    log: Path = env_field(name="LOG_ROOT", converter=Path)
+    """
+    Directory to store log files from the compute engine
 
-    # TODO: this should probably default to False,
-    # but we don't have an easy way to update cong
-    allow_out_of_tree_datasets: bool = field(default=True)
+    This is not currently used by the REF, but is included for future use.
+    """
 
-    @data.default
-    def _data_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "data"
+    scratch: Path = env_field(name="SCRATCH_ROOT", converter=Path)
+    """
+    Shared scratch space for the REF.
+
+    This directory is used to write the intermediate results of a metric execution.
+    After the metric has been run, the results will be copied to the results directory.
+
+    This directory must be accessible by all the metric services that are used to run the metrics,
+    but does not need to be mounted in the same location on all the metric services.
+    """
+
+    # TODO: This could be another data source option
+    results: Path = env_field(name="RESULTS_ROOT", converter=Path)
+    """
+    Path to store the results of the metrics
+    """
 
     @log.default
     def _log_factory(self) -> Path:
         return env.path("REF_CONFIGURATION") / "log"
 
-    @tmp.default
-    def _tmp_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "tmp"
+    @scratch.default
+    def _scratch_factory(self) -> Path:
+        return env.path("REF_CONFIGURATION") / "scratch"
+
+    @results.default
+    def _results_factory(self) -> Path:
+        return env.path("REF_CONFIGURATION") / "results"
 
 
-@frozen
+@config(prefix=env_prefix)
 class ExecutorConfig:
     """
     Configuration to define the executor to use for running metrics
     """
 
-    executor: str = field()
+    executor: str = env_field(name="EXECUTOR", default="cmip_ref.executor.local.LocalExecutor")
     """
     Executor to use for running metrics
 
-    This should be the fully qualified name of the executor class (e.g. `cmip_ref.executor.LocalExecutor`).
+    This should be the fully qualified name of the executor class
+    (e.g. `cmip_ref.executor.local.LocalExecutor`).
     The default is to use the local executor.
     The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
 
@@ -81,10 +118,6 @@ class ExecutorConfig:
 
     See the documentation for the executor for the available configuration options.
     """
-
-    @executor.default
-    def _executor_default(self) -> str:
-        return env.str("REF_EXECUTOR", default="cmip_ref.executor.local.LocalExecutor")
 
     def build(self) -> Executor:
         """
@@ -126,7 +159,7 @@ class MetricsProviderConfig:
     # TODO: Additional configuration for narrowing down the metrics to run
 
 
-@frozen
+@config(prefix=env_prefix)
 class DbConfig:
     """
     Database configuration
@@ -135,7 +168,7 @@ class DbConfig:
     although only SQLite is currently implemented and tested.
     """
 
-    database_url: str = field()
+    database_url: str = env_field(name="DATABASE_URL")
     """
     Database URL that describes the connection to the database.
 
@@ -167,11 +200,29 @@ def default_metric_providers() -> list[MetricsProviderConfig]:
     :
         List of default metric providers
     """  # noqa: D401
+    env_metric_providers = env.list("REF_METRIC_PROVIDERS", default=None)
+    if env_metric_providers:
+        return [MetricsProviderConfig(provider=provider) for provider in env_metric_providers]
+
     return [
         MetricsProviderConfig(provider="cmip_ref_metrics_esmvaltool.provider", config={}),
         MetricsProviderConfig(provider="cmip_ref_metrics_ilamb.provider", config={}),
         MetricsProviderConfig(provider="cmip_ref_metrics_pmp.provider", config={}),
     ]
+
+
+def _load_config(config_file: str | Path, doc: dict[str, Any]) -> "Config":
+    # Try loading the configuration with strict validation
+    try:
+        return _converter_defaults.structure(doc, Config)
+    except Exception as exc:
+        # Find the extra key errors which are displayed as warnings
+        key_validation_errors = transform_error(exc, format_exception=_format_key_exception)
+        for key_error in key_validation_errors:
+            logger.warning(f"Error loading configuration from {config_file}: {key_error}")
+
+    # Try again with relaxed validation
+    return _converter_defaults_relaxed.structure(doc, Config)
 
 
 @define
@@ -186,8 +237,8 @@ class Config:
     db: DbConfig = Factory(DbConfig)
     executor: ExecutorConfig = Factory(ExecutorConfig)
     metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)
-    _raw: TOMLDocument | None = field(init=False, default=None)
-    _config_file: Path | None = field(init=False, default=None)
+    _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
+    _config_file: Path | None = field(init=False, default=None, repr=False)
 
     @classmethod
     def load(cls, config_file: Path, allow_missing: bool = True) -> "Config":
@@ -215,10 +266,33 @@ class Config:
 
             doc = TOMLDocument()
             raw = None
-        config = _converter_defaults.structure(doc, cls)
+
+        try:
+            config = _load_config(config_file, doc)
+        except Exception as exc:
+            # If that still fails, error out
+            key_validation_errors = transform_error(exc, format_exception=_format_exception)
+            for key_error in key_validation_errors:
+                logger.error(f"Error loading configuration from {config_file}: {key_error}")
+
+            # Deliberately not raising "from exc" to avoid long tracebacks from cattrs
+            # The transformed error messages are sufficient for debugging
+            raise ValueError(f"Error loading configuration from {config_file}") from None
+
         config._raw = raw
         config._config_file = config_file
         return config
+
+    def refresh(self) -> "Config":
+        """
+        Refresh the configuration values
+
+        This returns a new instance of the configuration based on the same configuration file and
+        any current environment variables.
+        """
+        if self._config_file is None:
+            raise ValueError("No configuration file specified")
+        return self.load(self._config_file)
 
     def save(self, config_file: Path | None = None) -> None:
         """
@@ -314,8 +388,8 @@ class Config:
         return doc
 
 
-def _make_converter(omit_default: bool) -> Converter:
-    conv = Converter(omit_if_default=omit_default, forbid_extra_keys=True)
+def _make_converter(omit_default: bool, forbid_extra_keys: bool) -> Converter:
+    conv = Converter(omit_if_default=omit_default, forbid_extra_keys=forbid_extra_keys)
     conv.register_unstructure_hook(Path, str)
     conv.register_unstructure_hook(
         Config,
@@ -329,5 +403,6 @@ def _make_converter(omit_default: bool) -> Converter:
     return conv
 
 
-_converter_defaults = _make_converter(omit_default=False)
-_converter_no_defaults = _make_converter(omit_default=True)
+_converter_defaults = _make_converter(omit_default=False, forbid_extra_keys=True)
+_converter_defaults_relaxed = _make_converter(omit_default=False, forbid_extra_keys=False)
+_converter_no_defaults = _make_converter(omit_default=True, forbid_extra_keys=True)

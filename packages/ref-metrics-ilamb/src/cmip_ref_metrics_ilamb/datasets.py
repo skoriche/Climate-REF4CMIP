@@ -45,10 +45,6 @@ def registry_to_collection(registry: pooch.Pooch) -> DatasetCollection:
     """
     Convert a ILAMB/IOMB registry to a DatasetCollection for use in REF.
 
-    Keys of the registry are expected to be of the form
-    `{variable_id}/{source_id}/filename.nc`. These will be columns of the
-    dataframe which is part of the returned collection.
-
     Parameters
     ----------
     registry : pooch.Pooch
@@ -62,13 +58,11 @@ def registry_to_collection(registry: pooch.Pooch) -> DatasetCollection:
     df = pd.DataFrame(
         [
             {
-                "variable_id": key.split("/")[0],
-                "source_id": key.split("/")[1].replace(".nc", ""),
+                "key": key,
                 "path": registry.abspath / Path(key),  # type: ignore
             }
             for key in registry.registry.keys()
         ]
     )
-    df["instance_id"] = df["variable_id"] + "_" + df["source_id"]
-    collection = DatasetCollection(df, "instance_id")
+    collection = DatasetCollection(df, "key")
     return collection

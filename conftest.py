@@ -4,7 +4,7 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
-import pathlib
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -16,12 +16,20 @@ from cmip_ref import cli
 from cmip_ref.config import Config, MetricsProviderConfig
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
-from cmip_ref_core.datasets import SourceDatasetType
+from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
+pytest_plugins = ("celery.contrib.pytest",)
 
-@pytest.fixture
+
+@pytest.fixture(scope="session")
+def tmp_path_session():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
+
+
+@pytest.fixture(scope="session")
 def sample_data_dir() -> Path:
     return TEST_DATA_DIR / "sample-data"
 
@@ -32,7 +40,7 @@ def sample_data() -> None:
     fetch_sample_data(force_cleanup=False, symlink=False)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = CMIP6DatasetAdapter()
     return adapter.find_local_datasets(sample_data_dir / "CMIP6")
@@ -46,11 +54,8 @@ def config(tmp_path, monkeypatch) -> Config:
     cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
 
     # Allow adding datasets from outside the tree for testing
-    cfg.paths.allow_out_of_tree_datasets = True
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
 
-    # Use a SQLite in-memory database for testing
-    # cfg.db.database_url = "sqlite:///:memory:"
     cfg.save()
 
     return cfg
@@ -89,16 +94,14 @@ class MockMetric:
     name = "mock"
     slug = "mock"
 
-    def __init__(self, temp_dir: pathlib.Path) -> None:
-        self.temp_dir = temp_dir
-
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         # TODO: This doesn't write output.json, use build function?
         return MetricResult(
-            bundle_filename=self.temp_dir / definition.output_fragment / "output.json",
+            output_bundle_filename=definition.output_directory / "output.json",
+            metric_bundle_filename=definition.output_directory / "metric.json",
             successful=True,
             definition=definition,
         )
@@ -117,12 +120,51 @@ class FailedMetric:
 @pytest.fixture
 def provider(tmp_path) -> MetricsProvider:
     provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(MockMetric(tmp_path))
+    provider.register(MockMetric())
     provider.register(FailedMetric())
 
     return provider
 
 
 @pytest.fixture
-def mock_metric(tmp_path) -> MockMetric:
-    return MockMetric(tmp_path)
+def mock_metric() -> MockMetric:
+    return MockMetric()
+
+
+@pytest.fixture
+def definition_factory(tmp_path: Path):
+    def _create_definition(
+        *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
+    ) -> MetricExecutionDefinition:
+        if metric_dataset is None:
+            metric_dataset = MetricDataset({SourceDatasetType.CMIP6: cmip6})
+
+        return MetricExecutionDefinition(
+            key="key",
+            metric_dataset=metric_dataset,
+            root_directory=tmp_path,
+            output_directory=tmp_path / "output_fragment",
+        )
+
+    return _create_definition
+
+
+@pytest.fixture
+def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
+    selected_dataset = cmip6_data_catalog[
+        cmip6_data_catalog["instance_id"].isin(
+            {
+                "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318",
+                "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318",
+            }
+        )
+    ]
+    metric_dataset = MetricDataset(
+        {
+            SourceDatasetType.CMIP6: DatasetCollection(
+                selected_dataset,
+                "instance_id",
+            )
+        }
+    )
+    return definition_factory(metric_dataset=metric_dataset)

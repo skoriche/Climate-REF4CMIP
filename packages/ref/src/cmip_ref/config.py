@@ -49,17 +49,12 @@ Prefix for the environment variables used by the REF
 class PathConfig:
     """
     Common paths used by the REF application
-    """
 
-    # TODO: split data into a per data source configuration
-    data: Path = env_field(name="DATA_ROOT", converter=Path)
-    """
-    Root data directory for input data
+    /// admonition | Warning
+        type: warning
 
-    The paths used in the data catalogs are relative to this directory.
-
-    This directory must be accessible by all the metric services that are used to run the metrics,
-    but does not need to be mounted in the same location on all the metric services.
+    These paths must be common across all systems that the REF is being run
+    ///
     """
 
     log: Path = env_field(name="LOG_ROOT", converter=Path)
@@ -85,21 +80,6 @@ class PathConfig:
     """
     Path to store the results of the metrics
     """
-
-    # TODO: this should probably default to False,
-    # but we don't have an easy way to update cong
-    allow_out_of_tree_datasets: bool = field(default=True)
-    """
-    Allow datasets that are not in the data tree
-
-    If True, datasets that are not in the data tree can be added to the data catalog.
-    This is useful for testing and development, but should be disabled when using a non-local
-    executor.
-    """
-
-    @data.default
-    def _data_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "data"
 
     @log.default
     def _log_factory(self) -> Path:
@@ -220,6 +200,10 @@ def default_metric_providers() -> list[MetricsProviderConfig]:
     :
         List of default metric providers
     """  # noqa: D401
+    env_metric_providers = env.list("REF_METRIC_PROVIDERS", default=None)
+    if env_metric_providers:
+        return [MetricsProviderConfig(provider=provider) for provider in env_metric_providers]
+
     return [
         MetricsProviderConfig(provider="cmip_ref_metrics_esmvaltool.provider", config={}),
         MetricsProviderConfig(provider="cmip_ref_metrics_ilamb.provider", config={}),
@@ -253,8 +237,8 @@ class Config:
     db: DbConfig = Factory(DbConfig)
     executor: ExecutorConfig = Factory(ExecutorConfig)
     metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)
-    _raw: TOMLDocument | None = field(init=False, default=None)
-    _config_file: Path | None = field(init=False, default=None)
+    _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
+    _config_file: Path | None = field(init=False, default=None, repr=False)
 
     @classmethod
     def load(cls, config_file: Path, allow_missing: bool = True) -> "Config":

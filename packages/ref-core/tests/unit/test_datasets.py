@@ -12,6 +12,14 @@ def dataset_collection(cmip6_data_catalog) -> DatasetCollection:
 
 
 @pytest.fixture
+def dataset_collection2(obs4mips_data_catalog) -> DatasetCollection:
+    return DatasetCollection(
+        obs4mips_data_catalog[obs4mips_data_catalog.variable_id == "ta"],
+        "instance_id",
+    )
+
+
+@pytest.fixture
 def metric_dataset(dataset_collection) -> MetricDataset:
     return MetricDataset({SourceDatasetType.CMIP6: dataset_collection})
 

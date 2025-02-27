@@ -42,7 +42,7 @@ def build_reference_data_registry(version: str) -> pooch.Pooch:
 _REFERENCE_REGISTRY = build_reference_data_registry(version=PMP_VERSION)
 
 
-def fetch_reference_data(dataset_id: str, registry=_REFERENCE_REGISTRY) -> str:
+def fetch_reference_data(dataset_id: str, registry: pooch.Pooch = _REFERENCE_REGISTRY) -> str:
     """
     Fetch the reference data associated with the dataset ID.
 
@@ -50,10 +50,13 @@ def fetch_reference_data(dataset_id: str, registry=_REFERENCE_REGISTRY) -> str:
     ----------
     dataset_id : str
         The dataset ID.
+    registry
+        The registry to use to fetch the reference data.
+
+        If none is provided, the default registry is used.
 
     Returns
     -------
-    str
         The path to the reference data.
     """
     return registry.fetch(_DATASETS[dataset_id])

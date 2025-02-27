@@ -31,11 +31,11 @@ def get_resource_filename(package: str, resource_name: str | pathlib.Path, use_r
         The full path to the target resource.
     """
     if use_resources:
-        resource_path = importlib.resources.path(package, resource_name)
+        resource_path = str(importlib.resources.path(package, resource_name))
     else:
         distribution = importlib.metadata.distribution(package)
-        resource_path = distribution.locate_file(pathlib.Path(package) / resource_name)
-    if not resource_path.exists():
+        resource_path = str(distribution.locate_file(pathlib.Path(package) / resource_name))
+    if not pathlib.Path(resource_path).exists():
         raise FileNotFoundError(f"Resource {resource_name} not found in {package} package.")
     return str(resource_path)
 
@@ -49,7 +49,7 @@ def execute_pmp_driver(  # noqa: PLR0913
     source_id: str,
     member_id: str,
     output_directory_path: str,
-    conda_env_name=DEFAULT_CONDA_ENV,
+    conda_env_name: str = DEFAULT_CONDA_ENV,
 ) -> None:
     """
     Run a PMP driver script via a conda environment

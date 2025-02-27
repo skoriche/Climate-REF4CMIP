@@ -65,8 +65,7 @@ class ExtratropicalModesOfVariability_PDO(Metric):
                     facets={
                         "frequency": "mon",
                         "experiment_id": ("historical", "hist-*"),
-                        # TODO: I've changed this to tas until we have sample data
-                        "variable_id": "tas",
+                        "variable_id": "ts",
                     }
                 ),
                 # Ignore some experiments because they are not relevant
@@ -95,10 +94,6 @@ class ExtratropicalModesOfVariability_PDO(Metric):
         :
             The result of running the metric.
         """
-        # This is where one would hook into however they want to run
-        # their benchmarking packages.
-        # cmec-driver, python calls, subprocess calls all would work
-
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
 
         reference_dataset_name = "HadISST-1-1"
@@ -106,30 +101,34 @@ class ExtratropicalModesOfVariability_PDO(Metric):
         source_id = input_datasets["source_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
 
-        execute_pmp_driver(
-            driver_file="variability_mode/variability_modes_driver.py",
-            parameter_file="pmp_param_MoV-PDO.py",
-            model_files=input_datasets.path.to_list(),
-            reference_name=reference_dataset_name,
-            reference_paths=[fetch_reference_data(reference_dataset_name)],
-            source_id=source_id,
-            member_id=member_id,
-            output_directory_path=str(definition.output_directory),
-        )
+        try:
+            execute_pmp_driver(
+                driver_file="variability_mode/variability_modes_driver.py",
+                parameter_file="pmp_param_MoV-PDO.py",
+                model_files=input_datasets.path.to_list(),
+                reference_name=reference_dataset_name,
+                reference_paths=[fetch_reference_data(reference_dataset_name)],
+                source_id=source_id,
+                member_id=member_id,
+                output_directory_path=str(definition.output_directory),
+            )
+        except Exception:
+            return MetricResult.build_from_failure(definition)
 
         # Expected outcome from the run: a JSON file and some PNG files
         # QUESTION: Do we expect the metric to return the output, or save it somewhere should be fine?
 
         # Load json as dict and return it
-        # About png files --- talk to Min
-
-        result_dict = SOMETHING()  # noqa
+        result_dict: dict[str, Any] = {}
 
         # the format function actually returns the metric bundle
-        cmec_metric = format_cmec_output_bundle(result_dict)
-        CMECMetric.model_validate(cmec_metric)
+        cmec_metric = CMECMetric.model_validate(result_dict)
 
-        # create a empty CMEC output dictionary
+        # Here are the generated files
+        # About png files --- talk to Min (JL: I think they get added to the output bundle)
+        generated_files = list(definition.output_directory.glob("*"))  # noqa
+
+        # create an empty CMEC output dictionary
         cmec_output = CMECOutput.create_template()
         CMECOutput.model_validate(cmec_output)
 

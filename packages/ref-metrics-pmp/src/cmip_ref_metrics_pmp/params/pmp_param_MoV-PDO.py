@@ -30,10 +30,7 @@ debug = False  # False
 # Observation
 # -------------------------------------------------
 reference_data_name = "HadISSTv1.1"
-reference_data_path = (
-    # "/clim_obs/obs/ocn/mo/tos/UKMETOFFICE-HadISST-v1-1/130122_HadISST_sst.nc"  # original data source
-    "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"  # obs4MIPs data
-)
+reference_data_path = "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
 
 # varOBS = "sst"
 # ObsUnitsAdjust = (False, 0, 0)  # degC
@@ -71,7 +68,7 @@ eofn_mod = 1
 # =================================================
 # Output
 # -------------------------------------------------
-case_id = "{:v%Y%m%d}".format(datetime.datetime.now())
+case_id = f"{datetime.datetime.now():v%Y%m%d}"
 pmprdir = "/p/user_pub/pmp/pmp_results/pmp_v1.1.2"
 
 if debug:

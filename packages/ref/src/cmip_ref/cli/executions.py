@@ -160,7 +160,7 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
     config = ctx.obj.config
     session = ctx.obj.database.session
-    execution = session.query(MetricExecution).get(execution_id)
+    execution = session.get(MetricExecution, execution_id)
 
     if not execution:
         logger.error(f"Execution not found: {execution_id}")

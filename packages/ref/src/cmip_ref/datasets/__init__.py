@@ -29,8 +29,8 @@ def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
 
         return CMIP6DatasetAdapter(**kwargs)
     elif source_type.lower() == SourceDatasetType.obs4MIPs.value.lower():
-        from cmip_ref.datasets.obs4mips import obs4MIPsDatasetAdapter
+        from cmip_ref.datasets.obs4mips import OBS4MIPSDatasetAdapter
 
-        return obs4MIPsDatasetAdapter(**kwargs)
+        return OBS4MIPSDatasetAdapter(**kwargs)
     else:
         raise ValueError(f"Unknown source type: {source_type}")

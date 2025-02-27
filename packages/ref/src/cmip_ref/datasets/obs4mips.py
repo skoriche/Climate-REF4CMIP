@@ -2,45 +2,22 @@ from __future__ import annotations
 
 import re
 import traceback
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import xarray as xr
 from ecgtools import Builder
+from loguru import logger
 from sqlalchemy.orm import joinedload
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.base import DatasetAdapter
+from cmip_ref.datasets.cmip6 import _parse_datetime
 from cmip_ref.datasets.utils import validate_path
-from cmip_ref.models.dataset import Dataset, obs4MIPsDataset, obs4MIPsFile
+from cmip_ref.models.dataset import Dataset, OBS4MIPSDataset, OBS4MIPSFile
 from cmip_ref_core.exceptions import RefException
-
-
-def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
-    """
-    Pandas tries to coerce everything to their own datetime format, which is not what we want here.
-    """
-
-    def _inner(date_string: str | None) -> datetime | None:
-        if not date_string:
-            return None
-
-        # Try to parse the date string with and without milliseconds
-        try:
-            dt = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            dt = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S.%f")
-
-        return dt
-
-    return pd.Series(
-        [_inner(dt) for dt in dt_str],
-        index=dt_str.index,
-        dtype="object",
-    )
 
 
 def extract_attr_with_regex(
@@ -77,7 +54,6 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
                 "product",
                 "source_id",
                 "source_type",
-                "table_id",
                 "variable_id",
                 "variant_label",
             }
@@ -116,7 +92,7 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
             else:
                 info["time_range"] = f"{start_time}-{end_time}"
         info["path"] = str(file)
-        info["version"] = (
+        info["source_version_number"] = (
             extract_attr_with_regex(
                 str(file), regex=r"v\d{4}\d{2}\d{2}|v\d{1}", strip_chars=None, ignore_case=True
             )
@@ -128,18 +104,12 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
         return {"INVALID_ASSET": file, "TRACEBACK": traceback.format_exc()}
 
 
-def _clean_branch_time(branch_time: pd.Series[str]) -> pd.Series[float]:
-    # EC-Earth3 uses "D" as a suffix for the branch_time_in_child and branch_time_in_parent columns
-    # Handle missing values (these result in nan values)
-    return pd.to_numeric(branch_time.astype(str).str.replace("D", "").replace("None", ""), errors="raise")
-
-
-class obs4MIPsDatasetAdapter(DatasetAdapter):
+class OBS4MIPSDatasetAdapter(DatasetAdapter):
     """
     Adapter for obs4MIPs datasets
     """
 
-    dataset_cls = obs4MIPsDataset
+    dataset_cls = OBS4MIPSDataset
     slug_column = "instance_id"
 
     dataset_specific_metadata = (
@@ -153,13 +123,12 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
         "realm",
         "source_id",
         "source_type",
-        "table_id",
         "variable_id",
         "variant_label",
         "long_name",
         "units",
         "vertical_levels",
-        "version",
+        "source_version_number",
         slug_column,
     )
 
@@ -190,10 +159,9 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
                 "activity_id",
                 "institution_id",
                 "source_id",
-                "table_id",
                 "variable_id",
                 "grid_label",
-                "version",
+                "source_version_number",
             ]
         ]
 
@@ -215,7 +183,7 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
             Data catalog containing the metadata for the dataset
         """
         builder = Builder(
-            paths=[str(file_or_directory) + "/obs4MIPs"],
+            paths=[str(file_or_directory)],
             depth=10,
             include_patterns=["*.nc"],
             joblib_parallel_kwargs={"n_jobs": self.n_jobs},
@@ -230,11 +198,10 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
         drs_items = [
             "activity_id",
             "institution_id",
-            "source_id",  # "experiment_id",
-            "table_id",
+            "source_id",
             "variable_id",
             "grid_label",
-            "version",
+            "source_version_number",
         ]
         datasets["instance_id"] = datasets.apply(
             lambda row: "obs4MIPs." + ".".join([row[item] for item in drs_items]), axis=1
@@ -243,7 +210,7 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
 
     def register_dataset(
         self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
-    ) -> obs4MIPsDataset | None:
+    ) -> OBS4MIPSDataset | None:
         """
         Register a dataset in the database using the data catalog
 
@@ -269,9 +236,9 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
 
         dataset_metadata = data_catalog_dataset[list(self.dataset_specific_metadata)].iloc[0].to_dict()
         dataset, created = db.get_or_create(self.dataset_cls, slug=slug, **dataset_metadata)
-        # if not created:
-        #    logger.warning(f"{dataset} already exists in the database. Skipping")
-        #    return None
+        if not created:
+            logger.warning(f"{dataset} already exists in the database. Skipping")
+            return None
 
         db.session.flush()
 
@@ -279,7 +246,7 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
             path = validate_path(dataset_file.pop("path"))
 
             db.session.add(
-                obs4MIPsFile(
+                OBS4MIPSFile(
                     path=str(path),
                     dataset_id=dataset.id,
                     start_time=dataset_file.pop("start_time"),
@@ -309,12 +276,12 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
         # TODO: Paginate this query to avoid loading all the data at once
         if include_files:
             result = (
-                db.session.query(obs4MIPsFile)
+                db.session.query(OBS4MIPSFile)
                 # The join is necessary to be able to order by the dataset columns
-                .join(obs4MIPsFile.dataset)
+                .join(OBS4MIPSFile.dataset)
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(obs4MIPsFile.dataset))
+                .options(joinedload(OBS4MIPSFile.dataset))
                 .order_by(Dataset.updated_at.desc())
                 .limit(limit)
                 .all()
@@ -332,7 +299,7 @@ class obs4MIPsDatasetAdapter(DatasetAdapter):
             )
         else:
             result_datasets = (
-                db.session.query(obs4MIPsDataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
+                db.session.query(OBS4MIPSDataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
             )
 
             return pd.DataFrame(

@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy
 
 from cmip_ref.database import Database, validate_database_url
-from cmip_ref.models.dataset import CMIP6Dataset, Dataset, obs4MIPsDataset
+from cmip_ref.models.dataset import CMIP6Dataset, Dataset, OBS4MIPSDataset
 from cmip_ref_core.datasets import SourceDatasetType
 
 
@@ -72,7 +72,7 @@ def test_dataset_polymorphic(db):
     assert db.session.query(Dataset).first().dataset_type == SourceDatasetType.CMIP6
 
     db.session.add(
-        obs4MIPsDataset(
+        OBS4MIPSDataset(
             activity_id="obs4MIPs",
             frequency="",
             grid="",
@@ -84,19 +84,18 @@ def test_dataset_polymorphic(db):
             product="",
             source_id="",
             source_type="",
-            table_id="",
             units="",
             variable_id="",
             variant_label="",
             vertical_levels=2,
-            version="v12",
-            instance_id="test2",
-            slug="test2",
+            source_version_number="v12",
+            instance_id="test_obs",
+            slug="test_obs",
         )
     )
-    assert db.session.query(obs4MIPsDataset).count() == 1
-    assert db.session.query(obs4MIPsDataset).first().slug == "test2"
-    assert db.session.query(obs4MIPsDataset).first().dataset_type == SourceDatasetType.obs4MIPs
+    assert db.session.query(OBS4MIPSDataset).count() == 1
+    assert db.session.query(OBS4MIPSDataset).first().slug == "test_obs"
+    assert db.session.query(OBS4MIPSDataset).first().dataset_type == SourceDatasetType.obs4MIPs
 
 
 def test_transaction_cleanup(db):
@@ -104,10 +103,10 @@ def test_transaction_cleanup(db):
         with db.session.begin():
             db.session.add(CMIP6Dataset(slug="test"))
             db.session.add(CMIP6Dataset(slug="test"))
-            db.session.add(obs4MIPsDataset(slug="test2"))
-            db.session.add(obs4MIPsDataset(slug="test2"))
+            db.session.add(OBS4MIPSDataset(slug="test_obs"))
+            db.session.add(OBS4MIPSDataset(slug="test_obs"))
     assert db.session.query(CMIP6Dataset).count() == 0
-    assert db.session.query(obs4MIPsDataset).count() == 0
+    assert db.session.query(OBS4MIPSDataset).count() == 0
 
 
 def test_database_invalid_url(config, monkeypatch):

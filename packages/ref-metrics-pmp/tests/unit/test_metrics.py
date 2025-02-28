@@ -1,3 +1,4 @@
+import cmip_ref_metrics_pmp.pmp_driver
 import pandas as pd
 from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO
 
@@ -17,6 +18,21 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory):
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
+
+    def mock_run_call(cmd, *args, **kwargs):
+        # Copy the output from the test-data directory to the output directory
+
+        output_path = definition.output_directory
+
+    # Mock the subprocess.run call to avoid running PMP
+    # Instead the mock_run_call function will be called
+    mocker.patch.object(
+        cmip_ref_metrics_pmp.pmp_driver.subprocess,
+        "run",
+        autospec=True,
+        spec_set=True,
+        side_effect=mock_run_call,
+    )
 
     result = metric.run(definition)
 

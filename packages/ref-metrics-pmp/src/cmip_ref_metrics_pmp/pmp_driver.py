@@ -74,6 +74,10 @@ def execute_pmp_driver(  # noqa: PLR0913
     _driver_script = get_resource_filename("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = get_resource_filename("cmip_ref_metrics_pmp.params", parameter_file, use_resources=True)
 
+    if len(model_files) != 1:
+        # Have some logic to replace the dates in the filename with a wildcard
+        raise NotImplementedError("Only one model file is supported at this time.")
+
     # Run the driver script inside the PMP conda environment
     cmd = [
         "conda",

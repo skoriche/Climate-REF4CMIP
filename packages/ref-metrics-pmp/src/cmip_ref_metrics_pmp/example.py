@@ -64,14 +64,14 @@ class ExtratropicalModesOfVariability_PDO(Metric):
                 FacetFilter(
                     facets={
                         "frequency": "mon",
-                        "experiment_id": ("historical", "hist-*"),
+                        "experiment_id": ("historical", "hist-GHG"),
                         "variable_id": "ts",
                     }
                 ),
                 # Ignore some experiments because they are not relevant
                 # JL: This won't ever be triggered because the experiment_id filter more specific
                 # Should this be ignoring all AerChemMIP experiments?
-                FacetFilter(facets={"activity_id": ("AerChemMIP",)}, keep=False),
+                FacetFilter(facets={"experiment_id": ("amip",)}, keep=False),
             ),
             # Add cell areas to the groups
             # constraints=(AddCellAreas(),),

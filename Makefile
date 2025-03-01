@@ -53,6 +53,10 @@ build: clean  ## build the packages to be deployed to PyPI
 	uv build --package cmip_ref --no-sources
 	uv build --package cmip_ref_core --no-sources
 	uv build --package cmip_ref_celery --no-sources
+	uv build --package cmip_ref_metrics_esmvaltool --no-sources
+	uv build --package cmip_ref_metrics_ilamb --no-sources
+	uv build --package cmip_ref_metrics_pmp --no-sources
+	uv build --package cmip_ref_metrics_example --no-sources
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff

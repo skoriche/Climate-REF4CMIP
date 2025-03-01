@@ -21,6 +21,76 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.2.0 (2025-03-01)
+
+### Breaking Changes
+
+- Refactor `cmip_ref.env` module to `cmip_ref_core.env` ([#60](https://github.com/CMIP-REF/cmip-ref/pulls/60))
+- Removed `cmip_ref.executor.ExecutorManager` in preference to loading an executor using a fully qualified package name.
+
+  This allows the user to specify a custom executor as configuration
+  without needing any change to the REF codebase. ([#77](https://github.com/CMIP-REF/cmip-ref/pulls/77))
+- Renamed the `$.paths.tmp` in the configuration to `$.paths.scratch` to better reflect its purpose.
+  This requires a change to the configuration file if you have a custom configuration. ([#89](https://github.com/CMIP-REF/cmip-ref/pulls/89))
+- The REF now uses absolute paths throughout the application.
+
+  This removes the need for a `config.paths.data` directory and the `config.paths.allow_out_of_tree_datasets` configuration option.
+  This will enable more flexibility about where input datasets are ingested from.
+  Using absolute paths everywhere does add a requirement that datasets are available via the same paths for all nodes/container that may run the REF. ([#100](https://github.com/CMIP-REF/cmip-ref/pulls/100))
+- An [Executor][cmip_ref_core.executor.Executor] now supports only the asynchronous processing of tasks.
+  A result is now not returned from the `run_metric` method,
+  but instead optionally updated in the database.
+
+  The `run_metric` method also now requires a `provider` argument to be passed in. ([#104](https://github.com/CMIP-REF/cmip-ref/pulls/104))
+
+### Features
+
+- Adds a `cmip-ref-celery` package to the REF that provides a Celery task queue.
+
+  Celery is a distributed task queue that allows you to run tasks asynchronously.
+  This package will be used as a test bed for running the REF in a distributed environment,
+  as it can be deployed locally using docker containers. ([#60](https://github.com/CMIP-REF/cmip-ref/pulls/60))
+- Add `metric_providers` and `executor` sections to the configuration which loads the metric provider and executor using a fully qualified package name. ([#77](https://github.com/CMIP-REF/cmip-ref/pulls/77))
+- Implemented Pydantic data models to validate and serialize CMEC metric and output bundles. ([#84](https://github.com/CMIP-REF/cmip-ref/pulls/84))
+- Add the `cmip_ref_celery` CLI commands to the `ref` CLI tool.
+  These commands should be available when the `cmip_ref_celery` package is installed.
+  The commands should be available in the `ref` CLI tool as `ref celery ...`. ([#86](https://github.com/CMIP-REF/cmip-ref/pulls/86))
+- Add `fetch-sample-data` to the CLI under the `datasets` command.
+
+  ```bash
+  ref datasets fetch-sample-data --version v0.3.0 --force-cleanup
+  ``` ([#96](https://github.com/CMIP-REF/cmip-ref/pulls/96))
+- Add a [Celery](https://docs.celeryq.dev/en/stable/)-based executor
+  to enable asynchronous processing of tasks. ([#104](https://github.com/CMIP-REF/cmip-ref/pulls/104))
+- Add `ref executions list` and `ref executions inspect` CLI commands for interacting with metric executions. ([#108](https://github.com/CMIP-REF/cmip-ref/pulls/108))
+
+### Improvements
+
+- Move ILAMB/IOMB reference data initialization to a registry-dependent script. ([#83](https://github.com/CMIP-REF/cmip-ref/pulls/83))
+- ILAMB gpp metrics added with full html output and plots. ([#88](https://github.com/CMIP-REF/cmip-ref/pulls/88))
+- Saner error messages for configuration errors ([#89](https://github.com/CMIP-REF/cmip-ref/pulls/89))
+- Centralised the declaration of environment variable overrides of configuration values.
+
+  Renamed the `REF_OUTPUT_ROOT` environment variable to `REF_RESULTS_ROOT` to better reflect its purpose.
+  It was previously unused. ([#92](https://github.com/CMIP-REF/cmip-ref/pulls/92))
+- Sample data is now copied to the `test/test-data/sample-data` instead of symlinked.
+
+  This makes it easier to use the sample data with remote executors as the data is now self-contained
+  without any links to other parts of the file system. ([#96](https://github.com/CMIP-REF/cmip-ref/pulls/96))
+- Integrated the pycmec validation models into ref core and metric packages ([#99](https://github.com/CMIP-REF/cmip-ref/pulls/99))
+- Added ILAMB relationship analysis to the current metrics and flexibility to define new metrics in ILAMB via a yaml file. ([#101](https://github.com/CMIP-REF/cmip-ref/pulls/101))
+- Sped up the test suite execution ([#103](https://github.com/CMIP-REF/cmip-ref/pulls/103))
+
+### Improved Documentation
+
+- Added an excerpt from the architecture design document ([#87](https://github.com/CMIP-REF/cmip-ref/pulls/87))
+- Adds a roadmap to the documentation ([#98](https://github.com/CMIP-REF/cmip-ref/pulls/98))
+
+### Trivial/Internal Changes
+
+- [#97](https://github.com/CMIP-REF/cmip-ref/pulls/97), [#102](https://github.com/CMIP-REF/cmip-ref/pulls/102), [#116](https://github.com/CMIP-REF/cmip-ref/pulls/116), [#118](https://github.com/CMIP-REF/cmip-ref/pulls/118)
+
+
 ## cmip_ref 0.1.6 (2025-02-03)
 
 ### Features

@@ -59,11 +59,11 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
             }
         )
     )
-
     try:
-        with xr.open_dataset(file, chunks={}, use_cftime=True) as ds:
+        time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+        with xr.open_dataset(file, chunks={}, decode_times=time_coder) as ds:
             info = {key: ds.attrs.get(key) for key in keys}
-            info["member_id"] = info["variant_label"]
+            # info["member_id"] = info["variant_label"]
 
             variable_id = info["variable_id"]
 
@@ -239,9 +239,7 @@ class OBS4MIPSDatasetAdapter(DatasetAdapter):
         if not created:
             logger.warning(f"{dataset} already exists in the database. Skipping")
             return None
-
         db.session.flush()
-
         for dataset_file in data_catalog_dataset.to_dict(orient="records"):
             path = validate_path(dataset_file.pop("path"))
 
@@ -253,7 +251,6 @@ class OBS4MIPSDatasetAdapter(DatasetAdapter):
                     end_time=dataset_file.pop("end_time"),
                 )
             )
-
         return dataset
 
     def load_catalog(

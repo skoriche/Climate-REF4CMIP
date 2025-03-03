@@ -10,6 +10,7 @@ from yaml.representer import SafeRepresenter
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.datasets.obs4mips import OBS4MIPSDatasetAdapter
 
 # Ignore the alembic folder
 collect_ignore = ["src/cmip_ref/migrations"]
@@ -54,9 +55,35 @@ def db_seeded_template(tmp_path_session, cmip6_data_catalog) -> Path:
     return template_db_path
 
 
+@pytest.fixture(scope="session")
+def db_seeded_template_obs4mips(tmp_path_session, obs4mips_data_catalog) -> Path:
+    template_db_path = tmp_path_session / "cmip_ref_template_seeded_obs4mips.db"
+
+    config = Config.default()  # This is just dummy config
+    database = Database(f"sqlite:///{template_db_path}", run_migrations=True)
+
+    adapter = OBS4MIPSDatasetAdapter()
+
+    # Seed with all the datasets in the ESGF data directory
+    # This includes datasets which span multiple file and until 2300
+    with database.session.begin():
+        for instance_id, data_catalog_dataset in obs4mips_data_catalog.groupby(adapter.slug_column):
+            adapter.register_dataset(config, database, data_catalog_dataset)
+
+    return template_db_path
+
+
 @pytest.fixture
 def db_seeded(db_seeded_template, config) -> Database:
     # Copy the template database to the location in the config
     _clone_db(config.db.database_url, db_seeded_template)
+
+    return Database.from_config(config, run_migrations=True)
+
+
+@pytest.fixture
+def db_seeded_obs4mips(db_seeded_template_obs4mips, config) -> Database:
+    # Copy the template database to the location in the config
+    _clone_db(config.db.database_url, db_seeded_template_obs4mips)
 
     return Database.from_config(config, run_migrations=True)

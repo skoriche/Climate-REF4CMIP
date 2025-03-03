@@ -1,8 +1,8 @@
-"""migration for obs4mips
+"""adding obs4mips
 
-Revision ID: 0b70f7329575
-Revises: 88c914704207
-Create Date: 2025-02-27 10:48:47.881853
+Revision ID: 6634396f139a
+Revises: c1818a18d87f
+Create Date: 2025-03-03 08:44:17.786529
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "0b70f7329575"
-down_revision: Union[str, None] = "88c914704207"
+revision: str = "6634396f139a"
+down_revision: Union[str, None] = "c1818a18d87f"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

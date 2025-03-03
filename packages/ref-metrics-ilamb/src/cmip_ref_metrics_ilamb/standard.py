@@ -79,6 +79,15 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
     return bundle
 
 
+def _form_bundles(key: str, df: pd.DataFrame) -> tuple[CMECMetric, CMECOutput]:
+    """
+    Create the output bundles (really a lift to make Ruff happy with the size of run()).
+    """
+    metric_bundle = _build_cmec_bundle(key, df)
+    output_bundle = CMECOutput.create_template()
+    return CMECMetric.model_validate(metric_bundle), CMECOutput.model_validate(output_bundle)
+
+
 def _load_reference_data(
     variable_id: str,
     reference_data: pd.DataFrame,
@@ -134,6 +143,15 @@ def _set_ilamb3_options(registry_file: ILAMBRegistryFile) -> None:
         ilamb3.conf.set(regions=["global", "tropical", "arid", "temperate", "cold"])
 
 
+def _measure_facets(registry_file: ILAMBRegistryFile) -> list[str]:
+    """
+    Set options for ILAMB based on which registry file is being used.
+    """
+    if registry_file == "ilamb.txt":
+        return ["areacella", "sftlf"]
+    return []
+
+
 class ILAMBStandard(Metric):
     """
     Apply the standard ILAMB analysis with respect to a given reference dataset.
@@ -168,10 +186,11 @@ class ILAMBStandard(Metric):
                             "variable_id": [
                                 self.variable_id,
                                 *ilamb_kwargs.get("relationships", {}).keys(),
+                                *_measure_facets(registry_file),
                             ]
                         }
                     ),
-                    FacetFilter(facets={"frequency": "mon"}),
+                    FacetFilter(facets={"frequency": ["mon", "fx"]}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
                 ),
                 group_by=("experiment_id",),
@@ -201,6 +220,12 @@ class ILAMBStandard(Metric):
             ["source_id", "member_id", "grid_label"]
         ):
             row = grp.iloc[0]
+
+            # We cannot use RequireFacets in the constraints portion of the
+            # DataRequirements because of the broad groupby. So here, we just
+            # skip things that we don't need, leaving it permissive for now.
+            if self.variable_id not in grp["variable_id"].unique():
+                continue
 
             # Define what we will call the output artifacts
             source_name = "{source_id}-{member_id}-{grid_label}".format(**row.to_dict())
@@ -260,14 +285,7 @@ class ILAMBStandard(Metric):
             out.write(html)
 
         # Write out the bundle
-        # the following function actually returns the metric bundle
-        metric_bundle = _build_cmec_bundle(definition.key, df)
-        CMECMetric.model_validate(metric_bundle)
-
-        # create a empty CMEC output dictionary
-        output_bundle = CMECOutput.create_template()
-        CMECOutput.model_validate(output_bundle)
-
+        metric_bundle, output_bundle = _form_bundles(definition.key, df)
         return MetricResult.build_from_output_bundle(
             definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
         )

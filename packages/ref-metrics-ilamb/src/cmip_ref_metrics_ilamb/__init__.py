@@ -8,16 +8,12 @@ import importlib.resources
 import yaml
 
 from cmip_ref_core.providers import MetricsProvider
-from cmip_ref_metrics_ilamb.example import GlobalMeanTimeseries
 from cmip_ref_metrics_ilamb.standard import ILAMBStandard
 
 __version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
 
 # Initialise the metrics manager and register the example metric
 provider = MetricsProvider("ILAMB", __version__)
-
-# Register a simple test metric
-provider.register(GlobalMeanTimeseries())
 
 # Dynamically register ILAMB metrics
 for yaml_file in importlib.resources.files("cmip_ref_metrics_ilamb.configure").iterdir():

@@ -43,6 +43,8 @@ The metrics that are currently available in the REF are relatively limited so no
 
 ### Reading Material
 
+It is recommended to read through the [developer documentation](development.md) to get an understanding of the REF and how we collaborate.
+
 For those interested in learning more about the REF,
 we recommend reading the [Architecture design document (background/architecture.md).
 This outlines the design of the REF and provides some background about the project.
@@ -120,7 +122,7 @@ An [executor][cmip_ref_core.executor.Executor] is responsible for running a metr
 The REF supports multiple executors,
 each of which is responsible for running a metric calculation in a different way.
 
-* [Local][cmip_ref.executors.local.LocalExecutor] - Runs the metric calculation locally
+* [Local][cmip_ref.executor.local.LocalExecutor] - Runs the metric calculation locally
 * [Celery][cmip_ref_celery.executor.CeleryExecutor] - Runs the metric calculation using Celery
 
 One of the outcomes of this Hackathon will be to add support for running metrics on HPC systems.

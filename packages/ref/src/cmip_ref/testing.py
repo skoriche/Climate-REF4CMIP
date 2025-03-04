@@ -22,7 +22,7 @@ def _determine_test_directory() -> Path | None:
 def _build_sample_data_registry(sample_data_version: str) -> pooch.Pooch:
     registry = pooch.create(
         path=pooch.os_cache("ref_sample_data"),
-        base_url="https://raw.githubusercontent.com/CMIP-REF/ref-sample-data/refs/tags/{version}/data/",
+        base_url="https://raw.githubusercontent.com/CLIMATE-REF/ref-sample-data/refs/tags/{version}/data/",
         version=sample_data_version,
         env="REF_SAMPLE_DATA_DIR",
     )
@@ -39,7 +39,7 @@ def _build_sample_data_registry(sample_data_version: str) -> pooch.Pooch:
 
 
 TEST_DATA_DIR = _determine_test_directory()
-SAMPLE_DATA_VERSION = "v0.3.3"
+SAMPLE_DATA_VERSION = "v0.4.1"
 
 
 def fetch_sample_data(

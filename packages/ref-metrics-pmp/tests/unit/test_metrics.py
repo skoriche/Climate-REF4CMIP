@@ -38,6 +38,7 @@ def test_process_json_result(pdo_example_dir):
 
     assert CMECMetric.model_validate(cmec_metric)
     assert CMECOutput.model_validate(cmec_output)
+    assert len(cmec_metric.RESULTS)
 
 
 def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):

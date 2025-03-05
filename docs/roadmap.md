@@ -49,7 +49,7 @@ gantt
     Core docker container                         :done, dockerise, 2025-01-10, 10d
     Conda-forge environments                      :conda, after celery, 3w
     Provider docker containers                    :after conda, 3w
-    Develop a remote executor                     :active, celery, 2025-01-01, 30d
+    Develop a remote executor                     :done, celery, 2025-01-01, 30d
     Ingest scalar results into database           :results, 2025-03-01, 30d
     Develop a remote executor (slurm)             :slurm, after hackathon, 10d
     Ingest AR7 FT datasets                        :2025-04-20, 4w

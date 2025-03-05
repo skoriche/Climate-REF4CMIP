@@ -1,10 +1,19 @@
+import shutil
+from pathlib import Path
+
 import cmip_ref_metrics_pmp.pmp_driver
 import pandas as pd
+import pytest
 from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO
 
 from cmip_ref.solver import extract_covered_datasets
 from cmip_ref_core.datasets import DatasetCollection
 from cmip_ref_core.metrics import Metric
+
+
+@pytest.fixture(scope="module")
+def pdo_example_dir() -> Path:
+    return Path(__file__).parent / "test-data" / "pdo-example"
 
 
 def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.DataFrame:
@@ -13,7 +22,7 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.Dat
     return datasets[0]
 
 
-def test_example_metric(cmip6_data_catalog, mocker, definition_factory):
+def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
     metric = ExtratropicalModesOfVariability_PDO()
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
@@ -21,8 +30,8 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory):
 
     def mock_run_call(cmd, *args, **kwargs):
         # Copy the output from the test-data directory to the output directory
-
         output_path = definition.output_directory
+        shutil.copytree(pdo_example_dir, output_path)
 
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called

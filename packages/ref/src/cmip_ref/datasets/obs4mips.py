@@ -59,11 +59,16 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
             }
         )
     )
+
     try:
         time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
         with xr.open_dataset(file, chunks={}, decode_times=time_coder) as ds:
             info = {key: ds.attrs.get(key) for key in keys}
             # info["member_id"] = info["variant_label"]
+            print(info["activity_id"])
+            if info["activity_id"] != "obs4MIPs":
+                traceback_message = str(file) + " is not an obs4MIPs dataset"
+                raise TypeError(traceback_message)
 
             variable_id = info["variable_id"]
 
@@ -100,6 +105,9 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
         )
         return info
 
+    except TypeError:
+        print({"INVALID_ASSET": file, "TRACEBACK": traceback_message})
+        return {"INVALID_ASSET": file, "TRACEBACK": traceback_message}
     except Exception:
         return {"INVALID_ASSET": file, "TRACEBACK": traceback.format_exc()}
 

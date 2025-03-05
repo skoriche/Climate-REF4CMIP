@@ -53,20 +53,28 @@ def catalog_regression(data_regression, sample_data_dir):
                 "source_version_number": "v20201110",
             },
         ),
-        # (
-        #    pathlib.Path("CMIP6")
-        #    / "CMIP"
-        #    / "CSIRO"
-        #    / "ACCESS-ESM1-5"
-        #    / "historical"
-        #    / "r1i1p1f1"
-        #    / "Amon"
-        #    / "tas"
-        #    / "gn"
-        #    / "v20191115"
-        #    / "tas_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_200001-201412.nc"
-        #    {error},
-        # ),
+        (
+            Path("CMIP6")
+            / "CMIP"
+            / "CSIRO"
+            / "ACCESS-ESM1-5"
+            / "historical"
+            / "r1i1p1f1"
+            / "Amon"
+            / "tas"
+            / "gn"
+            / "v20191115"
+            / "tas_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_200001-201412.nc",
+            {
+                "INVALID_ASSET": str(TEST_DATA_DIR)
+                + "/sample-data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/historical/r1i1p1f1/Amon/tas/gn/v20191115/"
+                + "tas_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_200001-201412.nc",
+                "TRACEBACK": str(TEST_DATA_DIR)
+                + "/sample-data/CMIP6/CMIP/CSIRO/ACCESS-ESM1-5/historical/r1i1p1f1/Amon/tas/gn/v20191115/"
+                + "tas_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_200001-201412.nc"
+                + " is not an obs4MIPs dataset",
+            },
+        ),
     ),
 )
 def test_parse_obs4mips(sample_data_dir, file_fragment, exp):

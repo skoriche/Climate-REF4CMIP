@@ -15,7 +15,7 @@ from typer.testing import CliRunner
 from cmip_ref import cli
 from cmip_ref.config import Config, MetricsProviderConfig
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.datasets.obs4mips import OBS4MIPSDatasetAdapter
+from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
@@ -49,7 +49,7 @@ def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
 
 @pytest.fixture(scope="session")
 def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
-    adapter = OBS4MIPSDatasetAdapter()
+    adapter = Obs4MIPsDatasetAdapter()
     return adapter.find_local_datasets(sample_data_dir / "obs4MIPs")
 
 

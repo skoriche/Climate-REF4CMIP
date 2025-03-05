@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from cmip_ref.datasets.obs4mips import OBS4MIPSDatasetAdapter, parse_obs4mips
+from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter, parse_obs4mips
 from cmip_ref.testing import TEST_DATA_DIR
 
 
@@ -85,22 +85,22 @@ def test_parse_obs4mips(sample_data_dir, file_fragment, exp):
 
 class Testobs4MIPsAdapter:
     def test_catalog_empty(self, db):
-        adapter = OBS4MIPSDatasetAdapter()
+        adapter = Obs4MIPsDatasetAdapter()
         df = adapter.load_catalog(db)
         assert df.empty
 
-    def test_load_catalog(self, db_seeded_obs4mips, catalog_regression, sample_data_dir):
-        adapter = OBS4MIPSDatasetAdapter()
-        df = adapter.load_catalog(db_seeded_obs4mips)
+    def test_load_catalog(self, db_seeded, catalog_regression, sample_data_dir):
+        adapter = Obs4MIPsDatasetAdapter()
+        df = adapter.load_catalog(db_seeded)
         for k in adapter.dataset_specific_metadata + adapter.file_specific_metadata:
             assert k in df.columns
 
         # The order of the rows may be flakey due to sqlite ordering and the created time resolution
         catalog_regression(df.sort_values(["instance_id", "start_time"]), basename="obs4mips_catalog_db")
 
-    def test_round_trip(self, db_seeded_obs4mips, sample_data_dir):
+    def test_round_trip(self, db_seeded, sample_data_dir):
         # Indexes and ordering may be different
-        adapter = OBS4MIPSDatasetAdapter()
+        adapter = Obs4MIPsDatasetAdapter()
         local_data_catalog = (
             adapter.find_local_datasets(str(sample_data_dir) + "/obs4MIPs")
             .drop(columns=["time_range"])
@@ -108,9 +108,7 @@ class Testobs4MIPsAdapter:
             .reset_index(drop=True)
         )
 
-        db_data_catalog = (
-            adapter.load_catalog(db_seeded_obs4mips).sort_values(["start_time"]).reset_index(drop=True)
-        )
+        db_data_catalog = adapter.load_catalog(db_seeded).sort_values(["start_time"]).reset_index(drop=True)
 
         # TODO: start_time has a different dtype from the database due to pandas dt coercion
         db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)
@@ -119,7 +117,7 @@ class Testobs4MIPsAdapter:
         pd.testing.assert_frame_equal(local_data_catalog, db_data_catalog, check_like=True)
 
     def test_load_local_datasets(self, sample_data_dir, catalog_regression):
-        adapter = OBS4MIPSDatasetAdapter()
+        adapter = Obs4MIPsDatasetAdapter()
         data_catalog = adapter.find_local_datasets(str(sample_data_dir) + "/obs4MIPs")
 
         # TODO: add time_range to the db?

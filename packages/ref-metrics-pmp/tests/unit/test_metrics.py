@@ -1,5 +1,7 @@
+import pathlib
 import shutil
 from pathlib import Path
+from subprocess import CompletedProcess
 
 import cmip_ref_metrics_pmp.pmp_driver
 import pandas as pd
@@ -9,6 +11,8 @@ from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO
 from cmip_ref.solver import extract_covered_datasets
 from cmip_ref_core.datasets import DatasetCollection
 from cmip_ref_core.metrics import Metric
+from cmip_ref_core.pycmec.metric import CMECMetric
+from cmip_ref_core.pycmec.output import CMECOutput
 
 
 @pytest.fixture(scope="module")
@@ -32,6 +36,7 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_exam
         # Copy the output from the test-data directory to the output directory
         output_path = definition.output_directory
         shutil.copytree(pdo_example_dir, output_path)
+        return CompletedProcess(cmd, 0, "stdout", "stderr")
 
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called
@@ -43,7 +48,21 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_exam
         side_effect=mock_run_call,
     )
 
+    def mock_process_json_call(
+        json_file: pathlib.Path, png_files: list[pathlib.Path], data_files: list[pathlib.Path]
+    ):
+        assert json_file.exists()
+        assert len(png_files) > 0
+        assert len(data_files) > 0
+        return CMECOutput.create_template(), CMECMetric.create_template()
+
+    mock_process_json = mocker.patch(
+        "cmip_ref_metrics_pmp.example.process_json_result", side_effect=mock_process_json_call
+    )
+
     result = metric.run(definition)
+
+    assert mock_process_json.call_count == 1
 
     assert str(result.output_bundle_filename) == "output.json"
 

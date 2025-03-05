@@ -1,3 +1,5 @@
+import json
+import pathlib
 from typing import Any
 
 import xarray as xr
@@ -47,6 +49,33 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     }
 
     return cmec_output
+
+
+def process_json_result(
+    json_filename: pathlib.Path, png_files: list[pathlib.Path], data_files: list[pathlib.Path]
+) -> tuple[CMECOutput, CMECMetric]:
+    """
+    Process a PMP JSON result into the appropriate CMEC bundles
+
+    Parameters
+    ----------
+    json_filename
+        Filename of the JSON file that is written out by PMP
+    png_files
+        List of PNG files to be included in the output
+    data_files
+        List of data files to be included in the output
+
+    Returns
+    -------
+        tuple of CMEC output and metric bundles
+    """
+    with open(json_filename) as fh:
+        json_result = json.load(fh)  # noqa
+
+    cmec_output = CMECOutput.create_template()
+    cmec_metric = CMECMetric.create_template()
+    return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 
 
 class ExtratropicalModesOfVariability_PDO(Metric):
@@ -115,24 +144,17 @@ class ExtratropicalModesOfVariability_PDO(Metric):
         except Exception:
             return MetricResult.build_from_failure(definition)
 
-        # Expected outcome from the run: a JSON file and some PNG files
-        # QUESTION: Do we expect the metric to return the output, or save it somewhere should be fine?
+        # Find the appropriate JSON bundle
+        results_files = list(definition.output_directory.glob("*.json"))
+        if len(results_files) != 1:
+            return MetricResult.build_from_failure(definition)
 
-        # Load json as dict and return it
-        result_dict: dict[str, Any] = {}
+        # Find the other outputs
+        png_files = list(definition.output_directory.glob("*.png"))
+        data_files = list(definition.output_directory.glob("*.nc"))
 
-        # the format function actually returns the metric bundle
-        cmec_metric = CMECMetric.model_validate(result_dict)
+        cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 
-        # Here are the generated files
-        # About png files --- talk to Min (JL: I think they get added to the output bundle)
-        generated_files = list(definition.output_directory.glob("*"))  # noqa
-
-        # create an empty CMEC output dictionary
-        cmec_output = CMECOutput.create_template()
-        CMECOutput.model_validate(cmec_output)
-
-        # the cmec_output_bundle and cmec_metric_bundle are required keywords, cannot be omitted
         return MetricResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output,

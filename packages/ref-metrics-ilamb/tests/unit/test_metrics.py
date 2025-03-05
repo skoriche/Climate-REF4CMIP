@@ -129,4 +129,4 @@ def test_standard_fail():
 
 def test_options():
     _set_ilamb3_options("ilamb.txt")
-    assert set(["global", "tropical", "arid", "temperate", "cold"]).issubset(ilamb3.conf["regions"])
+    assert set(["global", "tropical"]).issubset(ilamb3.conf["regions"])

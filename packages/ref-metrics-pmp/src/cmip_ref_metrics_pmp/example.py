@@ -71,10 +71,27 @@ def process_json_result(
         tuple of CMEC output and metric bundles
     """
     with open(json_filename) as fh:
-        json_result = json.load(fh)  # noqa
+        json_result = json.load(fh)
 
     cmec_output = CMECOutput.create_template()
+    cmec_output["provenance"] = {**cmec_output["provenance"], **json_result["provenance"]}
+
+    for fname in png_files:
+        cmec_output["plots"][fname.name] = {
+            "filename": str(fname),
+            "long_name": "Plot",
+            "description": "Plot produced by the metric",
+        }
+
+    for fname in data_files:
+        cmec_output["data"][fname.name] = {
+            "filename": str(fname),
+            "long_name": "Output data",
+            "description": "Data produced by the metric",
+        }
+
     cmec_metric = CMECMetric.create_template()
+    # TODO: Extract the results from the JSON file and add them to the metric bundle
     return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 
 

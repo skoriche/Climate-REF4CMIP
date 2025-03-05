@@ -134,7 +134,6 @@ class MetricDimensions(RootModel[Any]):
         if not (mdim1.root[MetricCV.JSON_STRUCTURE.value] == mdim2.root[MetricCV.JSON_STRUCTURE.value]):
             raise ValueError("JSON_STRUCTURES are not same")
 
-        merged_dim = {}
         merged_dim = {MetricCV.JSON_STRUCTURE.value: mdim1.root[MetricCV.JSON_STRUCTURE.value]}
 
         for dim in mdim1.root[MetricCV.JSON_STRUCTURE.value]:
@@ -175,7 +174,7 @@ class MetricResults(RootModel[Any]):
     @field_validator("root", mode="after")
     @classmethod
     def _validate_results(cls, rlt: Any, info: ValidationInfo) -> Any:
-        """Validate a MeticResults object"""
+        """Validate a MetricResults object"""
         if not isinstance(info.context, MetricDimensions):
             s = "\nTo validate MetricResults object, MetricDimensions is needed,\n"
             s += "please use model_validate(Results, context=MetricDimensions to instantiate\n"

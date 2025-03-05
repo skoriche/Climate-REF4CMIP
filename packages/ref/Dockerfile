@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM python:3.10-slim AS runtime
 
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
-LABEL description="Docker image for the CMIP REF compute engine"
+LABEL description="Docker image for the REF compute engine"
 
 # Allow celery to run as root
 ENV C_FORCE_ROOT=false

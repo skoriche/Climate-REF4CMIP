@@ -23,7 +23,7 @@ Click on [] in the top right corner of the diagram to make it full screen.
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
-    title       CMIP REF for AR7 Fast Track
+    title       REF for AR7 Fast Track
     excludes    weekends
 
     section Metrics

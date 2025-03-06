@@ -39,31 +39,22 @@ class MetricCV(Enum):
 
     DIMENSIONS = "DIMENSIONS"
     JSON_STRUCTURE = "json_structure"
-    SCHEMA = "SCHEMA"
     RESULTS = "RESULTS"
     PROVENANCE = "PROVENANCE"
-    DISCLAIMER = "DISCLAMER"
+    DISCLAIMER = "DISCLAIMER"
     NOTES = "NOTES"
     ATTRIBUTES = "attributes"
-
-
-class MetricSchema(BaseModel):
-    """
-    A metric schema used by unified dasbboard, not required by CMEC
-    """
-
-    name: str
-    version: str
-    package: str
 
 
 class MetricDimensions(RootModel[Any]):
     """
     CMEC metric bundle DIMENSIONS object
+
+    This describes the order of the dimensions and their possible values.
+    The order of the dimensions matter as that determines how the results are nested.
     """
 
     root: dict[str, Any] = Field(
-        # root: TypedDict = Field(
         default={
             MetricCV.JSON_STRUCTURE.value: ["model", "metric"],
             "model": {},
@@ -77,7 +68,7 @@ class MetricDimensions(RootModel[Any]):
         # assert the items in json_structure are same as the keys of dimensions
 
         if MetricCV.JSON_STRUCTURE.value not in self.root.keys():
-            raise ValueError("json_strucuture is required keyword")
+            raise ValueError(f"{MetricCV.JSON_STRUCTURE.value} is required keyword")
 
         if not (
             Counter(self.root[MetricCV.JSON_STRUCTURE.value])
@@ -198,16 +189,44 @@ class StrNumDict(RootModel[Any]):
 class CMECMetric(BaseModel):
     """
     CMEC metric bundle object
+
+    Contains the metrics calculated during a metric execution, in a standardised format.
     """
 
     model_config = ConfigDict(strict=True, extra="allow")
 
     DIMENSIONS: MetricDimensions
+    """
+    Describes the dimensionality of the metrics produced.
+
+    This includes the order of dimensions in `RESULTS`
+    """
     RESULTS: dict[str, Any]
-    SCHEMA: MetricSchema | None = None
+    """
+    The metric values.
+
+    Results is a nested dictionary of values.
+    The order of the nested dictionaries corresponds to the order of the dimensions.
+    """
     PROVENANCE: dict[str, Any] | None = None
+    """
+    Provenance information
+
+    Not currently used in the REF.
+    The provenance information from the output bundle is used instead
+    """
     DISCLAIMER: dict[str, Any] | None = None
+    """
+    Disclaimer information
+
+    Not currently used in the REF.
+    """
     NOTES: dict[str, Any] | None = None
+    """
+    Additional notes.
+
+    Not currently used in the REF.
+    """
 
     @model_validator(mode="after")
     def _validate_metrics(self) -> Self:
@@ -238,7 +257,7 @@ class CMECMetric(BaseModel):
     @validate_call
     def load_from_json(cls, json_file: FilePath) -> Self:
         """
-        Create CMECMetric object from a compatiable json file
+        Create CMECMetric object from a compatible json file
 
         Parameters
         ----------
@@ -256,15 +275,17 @@ class CMECMetric(BaseModel):
         return metric_obj
 
     @classmethod
-    def _merge(cls, dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
-        for key in dict2:
-            if key in dict1:
-                if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
-                    cls._merge(dict1[key], dict2[key])
-
+    def _merge(cls, dict_a: dict[Any, Any], dict_b: dict[Any, Any]) -> dict[Any, Any]:
+        """Merge the values from dict_b into dict_a inplace"""
+        for key, value_b in dict_b.items():
+            if key in dict_a:
+                if isinstance(dict_a[key], dict) and isinstance(value_b, dict):
+                    cls._merge(dict_a[key], value_b)
+                else:
+                    dict_a[key] = value_b
             else:
-                dict1[key] = dict2[key]
-        return dict1
+                dict_a[key] = value_b
+        return dict_a
 
     @classmethod
     def _fill(cls, mdict: dict[Any, Any], mdims: dict[Any, Any], level: int = 0) -> None:
@@ -279,9 +300,9 @@ class CMECMetric(BaseModel):
 
     @classmethod
     @validate_call
-    def merge(cls, metric_obj1: Any, metric_obj2: Any, nodata: float) -> Self:
+    def merge(cls, metric_obj1: Any, metric_obj2: Any) -> Self:
         """
-        Merge two CMECMetric objects with the same json_struture
+        Merge two CMECMetric objects with the same json_structure
 
         Parameters
         ----------
@@ -320,7 +341,6 @@ class CMECMetric(BaseModel):
         return {
             MetricCV.DIMENSIONS.value: default_dimensions.root,
             MetricCV.RESULTS.value: {},
-            MetricCV.SCHEMA.value: None,
             MetricCV.PROVENANCE.value: None,
             MetricCV.DISCLAIMER.value: None,
             MetricCV.NOTES.value: None,

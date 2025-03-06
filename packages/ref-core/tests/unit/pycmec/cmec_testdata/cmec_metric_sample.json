@@ -1,0 +1,60 @@
+{
+    "DIMENSIONS": {
+        "json_structure": [
+            "model",
+            "metric"
+        ],
+        "model": {
+            "E3SM": {
+                "name": "E3SM"
+            },
+            "CESM2": {
+                "name": "CESM2"
+            },
+            "IPSL-CM5A-LR": {
+                "name": "IPSL-CM5A-LR"
+            }
+        },
+        "metric": {
+            "Ecosystem and Carbon Cycle": {
+                "name": "Ecosystem and Carbon Cycle"
+            },
+            "Hydrology Cycle": {
+                "name": "Hydrology Cycle"
+            }
+        }
+    },
+    "RESULTS": {
+        "E3SM": {
+            "Ecosystem and Carbon Cycle": {
+                "overall score": 0.11,
+                "bias": 0.56
+            },
+            "Hydrology Cycle": {
+                "overall score": 0.26,
+                "bias": 0.70
+            }
+        },
+        "CESM2": {
+            "Ecosystem and Carbon Cycle": {
+                "overall score": 0.05,
+                "bias": 0.72
+            },
+            "Hydrology Cycle": {
+                "overall score": 0.61,
+                "bias": 0.18
+            }
+        },
+        "IPSL-CM5A-LR": {
+            "Ecosystem and Carbon Cycle": {
+                "overall score": 0.08,
+                "bias": 0.92,
+                "rmse": 0.34
+            },
+            "Hydrology Cycle": {
+                "overall score": 0.67,
+                "rmse": 0.68
+            }
+        }
+    }
+}

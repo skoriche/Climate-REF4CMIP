@@ -55,7 +55,6 @@ def cmec_right_output_dict():
 @pytest.fixture
 def cmec_right_metric_dict():
     return {
-        "SCHEMA": {"name": "cmec", "version": "v1", "package": "ilamb v3"},
         "DIMENSIONS": {
             "json_structure": ["model", "metric"],
             "model": {

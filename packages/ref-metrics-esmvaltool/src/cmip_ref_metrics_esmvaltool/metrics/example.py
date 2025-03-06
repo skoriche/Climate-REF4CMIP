@@ -6,7 +6,6 @@ import xarray
 from cmip_ref_core.constraints import AddSupplementaryDataset, RequireContiguousTimerange
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement
-from cmip_ref_metrics_esmvaltool._version import __version__
 from cmip_ref_metrics_esmvaltool.metrics.base import ESMValToolMetric
 from cmip_ref_metrics_esmvaltool.recipe import dataframe_to_recipe
 from cmip_ref_metrics_esmvaltool.types import OutputBundle, Recipe
@@ -69,12 +68,6 @@ class GlobalMeanTimeseries(ESMValToolMetric):
                     "region",
                     "metric",
                 ],
-            },
-            # Is the schema tracked?
-            "SCHEMA": {
-                "name": "CMEC-REF",
-                "package": "cmip_ref_metrics_esmvaltool",
-                "version": __version__,
             },
             "RESULTS": {
                 dataset.attrs["source_id"]: {"global": {"tas": 0}},

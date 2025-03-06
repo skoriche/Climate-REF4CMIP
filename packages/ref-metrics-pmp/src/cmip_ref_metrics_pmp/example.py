@@ -37,12 +37,6 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
                 "metric",
             ],
         },
-        # Is the schema tracked?
-        "SCHEMA": {
-            "name": "CMEC-REF",
-            "package": "example",
-            "version": "v1",
-        },
         "RESULTS": {
             dataset.attrs["source_id"]: {"global": {"tas": 0}},
         },

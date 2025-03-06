@@ -56,7 +56,10 @@ $defs:
     type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true
-description: CMEC output bundle object
+description: 'CMEC output bundle object
+
+
+  Describes the assets generated during a metric execution.'
 properties:
   data:
     anyOf:

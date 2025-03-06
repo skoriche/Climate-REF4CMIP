@@ -33,7 +33,6 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
     """
     ilamb_regions = ilr.Regions()
     bundle = {
-        "SCHEMA": {"name": "CMEC", "version": "v1", "package": "ILAMB"},
         "DIMENSIONS": {
             "json_structure": ["region", "model", "metric"],
             "region": {

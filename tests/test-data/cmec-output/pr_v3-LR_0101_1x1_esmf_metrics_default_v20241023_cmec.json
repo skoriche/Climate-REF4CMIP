@@ -54,11 +54,6 @@
             "season"
         ]
     },
-    "SCHEMA": {
-        "name": "CMEC",
-        "package": "PMP",
-        "version": "v1"
-    },
     "provenance": {
         "platform": {
             "OS": "Linux",

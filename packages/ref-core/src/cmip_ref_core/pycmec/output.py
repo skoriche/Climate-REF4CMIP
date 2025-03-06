@@ -1,6 +1,9 @@
 """
 CMEC output bundle class
 
+An output bundle describes the figures and data generated
+during a metric execution.
+
 Following the CMEC output bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
 
@@ -85,7 +88,11 @@ class _OutputDict(BaseModel):
 
 
 class CMECOutput(BaseModel):
-    """CMEC output bundle object"""
+    """
+    CMEC output bundle object
+
+    Describes the assets generated during a metric execution.
+    """
 
     index: str | None = None
     """
@@ -135,11 +142,11 @@ class CMECOutput(BaseModel):
 
     @classmethod
     @validate_call
-    def load_from_json(cls, jsonfile: FilePath) -> Self:
+    def load_from_json(cls, json_file: FilePath) -> Self:
         """
         Create a CMECOuput object from a CMEC standard JSON file
         """
-        json_str = pathlib.Path(jsonfile).read_text()
+        json_str = pathlib.Path(json_file).read_text()
         output_obj = cls.model_validate_json(json_str)
 
         return output_obj

@@ -1,0 +1,20 @@
+- activity_id: obs4MIPs
+  end_time: 2016-09-16 00:00:00
+  frequency: mon
+  grid: 1x1 degree latxlon grid
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.JPL.AIRS-obs4MIPs-ta-v2.1.ta.gn.v20201110
+  institution_id: JPL
+  long_name: Temperature
+  nominal_resolution: 1x1 degree
+  path: '{esgf_data_dir}/obs4MIPs/NASA-JPL/AIRS-2-1/ta/gn/v20201110/ta_AIRS-2-1_gn_200209-201609.nc'
+  product: observations
+  realm: atmos
+  source_id: AIRS-obs4MIPs-ta-v2.1
+  source_type: satellite_blended
+  source_version_number: v20201110
+  start_time: 2002-09-16 00:00:00
+  units: K
+  variable_id: ta
+  variant_label: BE
+  vertical_levels: 17

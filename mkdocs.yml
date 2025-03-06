@@ -1,13 +1,13 @@
-site_name: CMIP REF
+site_name: REF
 site_description: Rapid Evalutation Framework
 site_url: https://cmip-ref.readthedocs.io
 edit_uri: blob/master/docs/
 
 repo_name: Climate-REF/climate-ref
-repo_url: https://github.com/CLIMATE-REF/climate-ref
+repo_url: https://github.com/Climate-REF/climate-ref
 
 nav:
-  - CMIP REF: index.md
+  - REF: index.md
   - Installation: installation.md
   - Getting Started: getting_started.md
   - Configuration: configuration.md

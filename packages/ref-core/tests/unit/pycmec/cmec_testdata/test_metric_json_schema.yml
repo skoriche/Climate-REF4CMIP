@@ -6,11 +6,16 @@ $defs:
       - metric
       metric: {}
       model: {}
-    description: CMEC metric bundle DIMENSIONS object
+    description: 'CMEC metric bundle DIMENSIONS object
+
+
+      This describes the order of the dimensions and their possible values.
+
+      The order of the dimensions matter as that determines how the results are nested.'
     title: MetricDimensions
     type: object
   MetricSchema:
-    description: A metric schema used by unified dasbboard, not required by CMEC
+    description: A metric schema used by unified dashboard, not required by CMEC
     properties:
       name:
         title: Name
@@ -29,7 +34,10 @@ $defs:
     type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true
-description: CMEC metric bundle object
+description: 'CMEC metric bundle object
+
+
+  Contains the metrics calculated during a metric execution, in a standardised format.'
 properties:
   DIMENSIONS:
     $ref: '#/$defs/MetricDimensions'

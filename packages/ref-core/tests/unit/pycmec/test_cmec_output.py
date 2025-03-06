@@ -1,26 +1,6 @@
 import pytest
 
-from cmip_ref_core.pycmec.output import (
-    CMECOutput,
-)
-
-
-@pytest.fixture
-def datadir():
-    import os
-    import pathlib
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return pathlib.Path(dir_path) / "cmec_testdata"
-
-
-@pytest.fixture
-def original_datadir():
-    import os
-    import pathlib
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return pathlib.Path(dir_path) / "cmec_testdata"
+from cmip_ref_core.pycmec.output import CMECOutput
 
 
 @pytest.fixture
@@ -64,12 +44,8 @@ def test_output_right(cmec_right_output_dict):
     CMECOutput.model_validate(cmec_right_output_dict)
 
 
-def test_output_read_json(cmec_right_output_dict):
-    import os
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-
-    CMECOutput.load_from_json(jsonfile=dir_path + "/cmec_testdata/cmec_output_sample.json")
+def test_output_read_json(cmec_right_output_dict, datadir):
+    assert CMECOutput.load_from_json(json_file=datadir / "cmec_output_sample.json")
 
 
 def test_output_update(cmec_right_output_dict):

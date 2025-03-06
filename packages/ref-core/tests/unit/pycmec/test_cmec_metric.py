@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from pydantic import ValidationError
 
@@ -9,58 +11,11 @@ from cmip_ref_core.pycmec.metric import (
 
 
 @pytest.fixture
-def datadir():
-    import os
-    import pathlib
+def cmec_right_metric_dict(datadir):
+    with open(datadir / "cmec_metric_sample.json") as fh:
+        content = json.loads(fh.read())
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return pathlib.Path(dir_path) / "cmec_testdata"
-
-
-@pytest.fixture
-def original_datadir():
-    import os
-    import pathlib
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return pathlib.Path(dir_path) / "cmec_testdata"
-
-
-@pytest.fixture
-def cmec_right_metric_dict():
-    return {
-        "SCHEMA": {"name": "cmec", "version": "v1", "package": "ilamb v3"},
-        "DIMENSIONS": {
-            "json_structure": ["model", "metric"],
-            "model": {
-                "E3SM": {"name": "E3SM"},
-                "CESM2": {"name": "CESM2"},
-                "IPSL-CM5A-LR": {"name": "IPSL-CM5A-LR"},
-            },
-            "metric": {
-                "Ecosystem and Carbon Cycle": {"name": "Ecosystem and Carbon Cycle"},
-                "Hydrology Cycle": {"name": "Hydrology Cycle"},
-            },
-        },
-        "RESULTS": {
-            "E3SM": {
-                "Ecosystem and Carbon Cycle": {"overall score": 0.11, "bias": 0.56},
-                "Hydrology Cycle": {"overall score": 0.26, "bias": 0.70},
-            },
-            "CESM2": {
-                "Ecosystem and Carbon Cycle": {"overall score": 0.05, "bias": 0.72},
-                "Hydrology Cycle": {"overall score": 0.61, "bias": 0.18},
-            },
-            "IPSL-CM5A-LR": {
-                "Ecosystem and Carbon Cycle": {
-                    "overall score": 0.08,
-                    "bias": 0.92,
-                    "rmse": 0.34,
-                },
-                "Hydrology Cycle": {"overall score": 0.67, "rmse": 0.68},
-            },
-        },
-    }
+    return content
 
 
 @pytest.fixture(params=["dict", "CMECMetric"])
@@ -230,8 +185,6 @@ def test_validate_result_wo_dim(cmec_right_metric_dict):
 
 
 def test_metric_merge():
-    import json
-
     dict_pmp = {
         "DIMENSIONS": {
             "json_structure": ["model", "metric"],
@@ -302,10 +255,23 @@ def test_metric_merge():
     )
 
 
+def test_metric_create_template():
+    assert CMECMetric.create_template() == {
+        "DIMENSIONS": {"json_structure": ["model", "metric"], "metric": {}, "model": {}},
+        "RESULTS": {},
+        "DISCLAIMER": None,
+        "NOTES": None,
+        "PROVENANCE": None,
+        "SCHEMA": None,
+    }
+
+
+def test_metric_load_from_jsons(datadir):
+    assert CMECMetric.load_from_json(datadir / "cmec_metric_sample.json")
+
+
 def test_metric_json_schema(data_regression):
-    from cmip_ref_core.pycmec.metric import (
-        CMECGenerateJsonSchema,
-    )
+    from cmip_ref_core.pycmec.metric import CMECGenerateJsonSchema
 
     cmec_model_schema = CMECMetric.model_json_schema(schema_generator=CMECGenerateJsonSchema)
 

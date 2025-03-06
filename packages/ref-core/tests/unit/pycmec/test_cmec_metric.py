@@ -250,9 +250,7 @@ def test_metric_merge():
         "NOTES": None,
     }
 
-    assert (
-        json.loads(CMECMetric.merge(dict_pmp, dict_ilamb, -9999.0).model_dump_json(indent=2)) == dict_merged
-    )
+    assert json.loads(CMECMetric.merge(dict_pmp, dict_ilamb).model_dump_json(indent=2)) == dict_merged
 
 
 def test_metric_create_template():

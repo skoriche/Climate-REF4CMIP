@@ -317,9 +317,9 @@ class CMECMetric(BaseModel):
 
     @classmethod
     @validate_call
-    def merge(cls, metric_obj1: Any, metric_obj2: Any, nodata: float | None = None) -> Self:
+    def merge(cls, metric_obj1: Any, metric_obj2: Any) -> Self:
         """
-        Merge two CMECMetric objects with the same json_struture
+        Merge two CMECMetric objects with the same json_structure
 
         Parameters
         ----------

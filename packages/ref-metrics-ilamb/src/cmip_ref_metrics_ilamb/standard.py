@@ -143,6 +143,7 @@ class ILAMBStandard(Metric):
     def __init__(
         self,
         registry_file: ILAMBRegistryFile,
+        metric_name: str,
         sources: dict[str, str],
         **ilamb_kwargs: Any,
     ):
@@ -158,7 +159,7 @@ class ILAMBStandard(Metric):
         self.ilamb_kwargs = ilamb_kwargs
 
         # REF stuff
-        self.name = f"{self.variable_id} {self.source}"
+        self.name = metric_name
         self.slug = self.name.lower().replace(" ", "-")
         self.data_requirements = (
             DataRequirement(

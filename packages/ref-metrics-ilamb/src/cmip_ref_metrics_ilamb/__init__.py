@@ -21,4 +21,4 @@ for yaml_file in importlib.resources.files("cmip_ref_metrics_ilamb.configure").i
         metrics = yaml.safe_load(fin)
     registry_file = metrics.pop("registry")
     for metric, options in metrics.items():
-        provider.register(ILAMBStandard(registry_file, options.pop("sources"), **options))
+        provider.register(ILAMBStandard(registry_file, metric, options.pop("sources"), **options))

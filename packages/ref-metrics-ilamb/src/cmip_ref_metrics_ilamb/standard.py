@@ -121,20 +121,6 @@ def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
     return df
 
 
-def _parse_source_from_path(path: str) -> str:
-    """
-    Parse the source name from the registry path.
-
-    This silliness is because my ILAMB and IOMB registries are different. FIX
-    """
-    tokens = path.split("/")
-    if len(tokens) == 2:
-        return tokens[0]
-    if len(tokens) == 3:
-        return tokens[1]
-    return "unknown"
-
-
 class ILAMBStandard(Metric):
     """
     Apply the standard ILAMB analysis with respect to a given reference dataset.
@@ -151,7 +137,6 @@ class ILAMBStandard(Metric):
         if len(sources) != 1:
             raise ValueError("Only single source ILAMB metrics have been implemented.")
         self.variable_id = next(iter(sources.keys()))
-        self.source = _parse_source_from_path(sources[self.variable_id])
         if "sources" not in ilamb_kwargs:  # pragma: no cover
             ilamb_kwargs["sources"] = sources
         if "relationships" not in ilamb_kwargs:

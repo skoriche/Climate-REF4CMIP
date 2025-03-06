@@ -23,7 +23,7 @@ Click on [] in the top right corner of the diagram to make it full screen.
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
-    title       CMIP REF for AR7 Fast Track
+    title       REF for AR7 Fast Track
     excludes    weekends
 
     section Metrics
@@ -49,7 +49,7 @@ gantt
     Core docker container                         :done, dockerise, 2025-01-10, 10d
     Conda-forge environments                      :conda, after celery, 3w
     Provider docker containers                    :after conda, 3w
-    Develop a remote executor                     :active, celery, 2025-01-01, 30d
+    Develop a remote executor                     :done, celery, 2025-01-01, 30d
     Ingest scalar results into database           :results, 2025-03-01, 30d
     Develop a remote executor (slurm)             :slurm, after hackathon, 10d
     Ingest AR7 FT datasets                        :2025-04-20, 4w
@@ -107,7 +107,7 @@ gantt
 ## Metrics
 
 An overview of the current state of the selected metrics can be found in the
-[Metrics Github board](https://github.com/orgs/CLIMATE-REF/projects/2/views/2) document.
+[Metrics Github board](https://github.com/orgs/Climate-REF/projects/2/views/2) document.
 This is being updated as the new metrics are integrated into the CMIP AR7 Fast Track REF.
 
 

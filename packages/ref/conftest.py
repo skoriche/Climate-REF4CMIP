@@ -11,6 +11,7 @@ from yaml.representer import SafeRepresenter
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.provider_registry import _register_provider
 
 # Ignore the alembic folder
@@ -39,20 +40,25 @@ def db(config) -> Database:
 
 
 @pytest.fixture(scope="session")
-def db_seeded_template(tmp_path_session, cmip6_data_catalog) -> Path:
+def db_seeded_template(tmp_path_session, cmip6_data_catalog, obs4mips_data_catalog) -> Path:
     template_db_path = tmp_path_session / "cmip_ref_template_seeded.db"
 
     config = Config.default()  # This is just dummy config
     database = Database(f"sqlite:///{template_db_path}", run_migrations=True)
 
+    # Seed the CMIP6 sample datasets
     adapter = CMIP6DatasetAdapter()
-
-    # Seed with all the datasets in the ESGF data directory
-    # This includes datasets which span multiple file and until 2300
     with database.session.begin():
         for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
             adapter.register_dataset(config, database, data_catalog_dataset)
 
+    # Seed the obs4MIPs sample datasets
+    adapter_obs = Obs4MIPsDatasetAdapter()
+    with database.session.begin():
+        for instance_id, data_catalog_dataset in obs4mips_data_catalog.groupby(adapter_obs.slug_column):
+            adapter_obs.register_dataset(config, database, data_catalog_dataset)
+
+    with database.session.begin():
         _register_provider(database, example_provider)
 
     return template_db_path

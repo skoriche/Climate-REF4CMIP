@@ -49,4 +49,4 @@ def create_env(ctx: typer.Context, provider: str | None = None) -> None:
             provider_.create_env()
             logger.info(f"Finished creating virtual environment for {provider_.name}")
         else:
-            logger.info(f"Skipping {provider_} because it does use virtual environments.")
+            logger.info(f"Skipping {provider_.name} because it does use virtual environments.")

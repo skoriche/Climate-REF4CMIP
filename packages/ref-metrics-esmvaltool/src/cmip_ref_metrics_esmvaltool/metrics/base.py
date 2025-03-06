@@ -103,7 +103,10 @@ class ESMValToolMetric(Metric):
             f"{recipe_path}",
         ]
 
-    def build_metric_result(self, definition) -> MetricResult:
+    def build_metric_result(
+        self,
+        definition: MetricExecutionDefinition,
+    ) -> MetricResult:
         """
         Build the metric result after running an ESMValTool recipe.
 

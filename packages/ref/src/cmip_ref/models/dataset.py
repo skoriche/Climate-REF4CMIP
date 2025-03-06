@@ -133,7 +133,7 @@ class CMIP6File(Base):
     dataset = relationship("CMIP6Dataset", backref="files")
 
 
-class OBS4MIPSDataset(Dataset):
+class Obs4MIPsDataset(Dataset):
     """
     Represents a obs4mips dataset
 
@@ -167,9 +167,9 @@ class OBS4MIPSDataset(Dataset):
     __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.obs4MIPs}  # type: ignore
 
 
-class OBS4MIPSFile(Base):
+class Obs4MIPsFile(Base):
     """
-    Capture metadata for a file in an obs4mips dataset
+    Capture metadata for a file in an obs4MIPs dataset
 
     A dataset may have multiple files, but is represented as a single dataset in the database.
     A lot of the metadata will be duplicated for each file in the dataset,
@@ -195,4 +195,4 @@ class OBS4MIPSFile(Base):
     Prefix that describes where the dataset is stored relative to the data directory
     """
 
-    dataset = relationship("OBS4MIPSDataset", backref="files")
+    dataset = relationship("Obs4MIPsDataset", backref="files")

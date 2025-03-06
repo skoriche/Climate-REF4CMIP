@@ -16,7 +16,7 @@ from cmip_ref.database import Database
 from cmip_ref.datasets.base import DatasetAdapter
 from cmip_ref.datasets.cmip6 import _parse_datetime
 from cmip_ref.datasets.utils import validate_path
-from cmip_ref.models.dataset import Dataset, OBS4MIPSDataset, OBS4MIPSFile
+from cmip_ref.models.dataset import Dataset, Obs4MIPsDataset, Obs4MIPsFile
 from cmip_ref_core.exceptions import RefException
 
 
@@ -64,9 +64,9 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
         time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
         with xr.open_dataset(file, chunks={}, decode_times=time_coder) as ds:
             info = {key: ds.attrs.get(key) for key in keys}
-            # info["member_id"] = info["variant_label"]
+
             if info["activity_id"] != "obs4MIPs":
-                traceback_message = str(file) + " is not an obs4MIPs dataset"
+                traceback_message = f"{file} is not an obs4MIPs dataset"
                 raise TypeError(traceback_message)
 
             variable_id = info["variable_id"]
@@ -88,6 +88,7 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
                 start_time, end_time = str(ds.cf["T"][0].data), str(ds.cf["T"][-1].data)
             except (KeyError, AttributeError, ValueError):
                 ...
+
             info["vertical_levels"] = vertical_levels
             info["start_time"] = start_time
             info["end_time"] = end_time
@@ -115,7 +116,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
     Adapter for obs4MIPs datasets
     """
 
-    dataset_cls = OBS4MIPSDataset
+    dataset_cls = Obs4MIPsDataset
     slug_column = "instance_id"
 
     dataset_specific_metadata = (
@@ -216,7 +217,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
 
     def register_dataset(
         self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
-    ) -> OBS4MIPSDataset | None:
+    ) -> Obs4MIPsDataset | None:
         """
         Register a dataset in the database using the data catalog
 
@@ -250,7 +251,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
             path = validate_path(dataset_file.pop("path"))
 
             db.session.add(
-                OBS4MIPSFile(
+                Obs4MIPsFile(
                     path=str(path),
                     dataset_id=dataset.id,
                     start_time=dataset_file.pop("start_time"),
@@ -279,12 +280,12 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
         # TODO: Paginate this query to avoid loading all the data at once
         if include_files:
             result = (
-                db.session.query(OBS4MIPSFile)
+                db.session.query(Obs4MIPsFile)
                 # The join is necessary to be able to order by the dataset columns
-                .join(OBS4MIPSFile.dataset)
+                .join(Obs4MIPsFile.dataset)
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(OBS4MIPSFile.dataset))
+                .options(joinedload(Obs4MIPsFile.dataset))
                 .order_by(Dataset.updated_at.desc())
                 .limit(limit)
                 .all()
@@ -302,7 +303,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
             )
         else:
             result_datasets = (
-                db.session.query(OBS4MIPSDataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
+                db.session.query(Obs4MIPsDataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
             )
 
             return pd.DataFrame(

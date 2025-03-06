@@ -54,11 +54,6 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
                 "metric",
             ],
         },
-        "SCHEMA": {
-            "name": "CMEC-REF",
-            "package": "example",
-            "version": "v1",
-        },
         "RESULTS": {
             "blah": {"global": {"tas": 0}},
         },

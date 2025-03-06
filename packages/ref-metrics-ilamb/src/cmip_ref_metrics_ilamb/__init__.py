@@ -12,7 +12,6 @@ from cmip_ref_metrics_ilamb.standard import ILAMBStandard
 
 __version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
 
-# Initialise the metrics manager and register the example metric
 provider = MetricsProvider("ILAMB", __version__)
 
 # Dynamically register ILAMB metrics

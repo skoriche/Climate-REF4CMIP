@@ -1,29 +1,41 @@
-# CMIP Rapid Evaluation Framework
-
+# Rapid Evaluation Framework (REF)
 
 <!--- --8<-- [start:description] -->
 
 **Status**: This project is in active development. We expect to be ready for beta releases in Q2 2025.
 
-The CMIP Rapid Evaluation Framework is a Python application that provides the ability to rapidly process and
-evaluate CMIP data against a set of reference data.
-It is designed to be used as a CI/CD pipeline to provide a quick validation of CMIP data.
+The Rapid Evaluation Framework is a set of Python packages that provide the ability to manage the execution of calculations against climate datasets.
+The aim is to be able to evaluate climate data against a set of reference data in near-real time as datasets are published,
+and to update any produced data and figures as new datasets become available.
+This is somewhat analogous to a CI/CD pipeline for climate data.
 
-CMIP REF is a community project, and we welcome contributions from anyone.
+REF is a community project, and we welcome contributions from anyone.
+
+## Deploymentss
+
+The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
+to enable the near-realtime evaluation of AR7 FastTrack datasets.
+This particular deployment will feature a set of metrics selected by
+the MBTT in consultation with the community (URL with the AR7 FastTrack configuration to come).
+
+The individual components of the REF have been designed to be useful for
+applications past the lifetime of the AR7 Fast Track.
+These components can be extended to support evaluating other types of climate data.
+The REF is agnostic to what types of data and metrics are to be performed.
 
 
-[![CI](https://github.com/CMIP-REF/cmip-ref/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/CMIP-REF/cmip-ref/actions/workflows/ci.yaml)
-[![Coverage](https://codecov.io/gh/CMIP-REF/cmip-ref/branch/main/graph/badge.svg)](https://codecov.io/gh/CMIP-REF/cmip-ref)
-[![Docs](https://readthedocs.org/projects/cmip-ref/badge/?version=latest)](https://cmip-ref.readthedocs.io)
+[![CI](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml)
+[![Coverage](https://codecov.io/gh/Climate-REF/climate-ref/branch/main/graph/badge.svg)](https://codecov.io/gh/Climate-REF/climate-ref)
+[![Docs](https://readthedocs.org/projects/climate-ref/badge/?version=latest)](https://cmip-ref.readthedocs.io)
 
 **PyPI :**
 [![PyPI](https://img.shields.io/pypi/v/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
 [![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
 
 **Other info :**
-[![Licence](https://img.shields.io/github/license/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/blob/main/LICENCE)
-[![Last Commit](https://img.shields.io/github/last-commit/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/commits/main)
-[![Contributors](https://img.shields.io/github/contributors/CMIP-REF/cmip-ref.svg)](https://github.com/CMIP-REF/cmip-ref/graphs/contributors)
+[![Licence](https://img.shields.io/github/license/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/blob/main/LICENCE)
+[![Last Commit](https://img.shields.io/github/last-commit/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/commits/main)
+[![Contributors](https://img.shields.io/github/contributors/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/graphs/contributors)
 
 ## Getting started
 
@@ -42,7 +54,7 @@ The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
 ```bash
-ref datasets ingest {data_path}
+ref datasets ingest --source-type cmip6 {data_path}
 ref solve
 ```
 
@@ -59,14 +71,13 @@ These docker containers are not yet published, but can be built from the source 
 docker-compose build
 ```
 
-An example docker-compose file is provided in the repository for the CMIP7 FastTrack deployment of the REF,
+An example docker-compose file is provided in the repository for the AR7 FastTrack deployment of the REF,
 using the Celery executor and Redis as the message broker.
 This can be run with:
 
 ```
 docker-compose up
 ```
-
 
 <!--- --8<-- [end:description] -->
 

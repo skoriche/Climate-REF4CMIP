@@ -1,0 +1,13 @@
+registry: iomb.txt
+
+thetao-WOA2018-0m:
+  sources:
+    thetao: WOA2018/thetao.nc
+  variable_cmap: cool
+  depth: 0.0
+
+thetao-WOA2018-200m:
+  sources:
+    thetao: WOA2018/thetao.nc
+  variable_cmap: cool
+  depth: 200.0

@@ -214,7 +214,6 @@ def test_metric_merge():
     }
 
     dict_merged = {
-        "SCHEMA": None,
         "DIMENSIONS": {
             "json_structure": ["model", "metric"],
             "model": {
@@ -260,7 +259,6 @@ def test_metric_create_template():
         "DISCLAIMER": None,
         "NOTES": None,
         "PROVENANCE": None,
-        "SCHEMA": None,
     }
 
 

@@ -14,24 +14,6 @@ $defs:
       The order of the dimensions matter as that determines how the results are nested.'
     title: MetricDimensions
     type: object
-  MetricSchema:
-    description: A metric schema used by unified dashboard, not required by CMEC
-    properties:
-      name:
-        title: Name
-        type: string
-      package:
-        title: Package
-        type: string
-      version:
-        title: Version
-        type: string
-    required:
-    - name
-    - version
-    - package
-    title: MetricSchema
-    type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true
 description: 'CMEC metric bundle object
@@ -62,11 +44,6 @@ properties:
   RESULTS:
     title: Results
     type: object
-  SCHEMA:
-    anyOf:
-    - $ref: '#/$defs/MetricSchema'
-    - type: 'null'
-    default: null
 required:
 - DIMENSIONS
 - RESULTS

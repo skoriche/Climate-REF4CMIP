@@ -8,7 +8,7 @@ def test_provider():
     assert provider.slug == "ilamb"
     assert provider.version == __version__
 
-    counts = [1]
+    counts = []
     for f in importlib.resources.files("cmip_ref_metrics_ilamb.configure").iterdir():
         with open(f) as fin:
             counts.append(fin.read().count("sources"))

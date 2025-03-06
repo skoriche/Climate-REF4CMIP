@@ -39,22 +39,11 @@ class MetricCV(Enum):
 
     DIMENSIONS = "DIMENSIONS"
     JSON_STRUCTURE = "json_structure"
-    SCHEMA = "SCHEMA"
     RESULTS = "RESULTS"
     PROVENANCE = "PROVENANCE"
     DISCLAIMER = "DISCLAIMER"
     NOTES = "NOTES"
     ATTRIBUTES = "attributes"
-
-
-class MetricSchema(BaseModel):
-    """
-    A metric schema used by unified dashboard, not required by CMEC
-    """
-
-    name: str
-    version: str
-    package: str
 
 
 class MetricDimensions(RootModel[Any]):
@@ -219,12 +208,6 @@ class CMECMetric(BaseModel):
     Results is a nested dictionary of values.
     The order of the nested dictionaries corresponds to the order of the dimensions.
     """
-    SCHEMA: MetricSchema | None = None
-    """
-    Information about the schema of the metric output bundle.
-
-    This information is used by the unified dashboard.
-    """
     PROVENANCE: dict[str, Any] | None = None
     """
     Provenance information
@@ -358,7 +341,6 @@ class CMECMetric(BaseModel):
         return {
             MetricCV.DIMENSIONS.value: default_dimensions.root,
             MetricCV.RESULTS.value: {},
-            MetricCV.SCHEMA.value: None,
             MetricCV.PROVENANCE.value: None,
             MetricCV.DISCLAIMER.value: None,
             MetricCV.NOTES.value: None,

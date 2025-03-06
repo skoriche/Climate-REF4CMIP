@@ -31,12 +31,21 @@ def build_ilamb_data_registry(registry_file: ILAMBRegistryFile, version: str) ->
     pooch.Pooch
         The pooch registry.
     """
-    registry = pooch.create(
-        path=pooch.os_cache("ilamb3"),  # so that users of ilamb don't duplicate data
-        base_url="https://www.ilamb.org/ILAMB-Data/DATA",
-        version=version,
-        env="REF_METRICS_ILAMB_DATA_DIR",
-    )
+    # temporary silliness, we will fix out data organization soon
+    if registry_file in ["ilamb.txt", "test.txt"]:
+        registry = pooch.create(
+            path=pooch.os_cache("ilamb3"),
+            base_url="https://www.ilamb.org/ILAMB-Data/DATA",
+            version=version,
+            env="REF_METRICS_ILAMB_DATA_DIR",
+        )
+    if registry_file in ["iomb.txt"]:
+        registry = pooch.create(
+            path=pooch.os_cache("ilamb3"),
+            base_url="https://www.ilamb.org/IOMB-Data/DATA",
+            version=version,
+            env="REF_METRICS_ILAMB_DATA_DIR",
+        )
     registry.load_registry(importlib.resources.open_binary("cmip_ref_metrics_ilamb.registry", registry_file))
     return registry
 

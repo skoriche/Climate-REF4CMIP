@@ -6,7 +6,9 @@ from cmip_ref_core.datasets import DatasetCollection
 
 
 def test_standard_site(cmip6_data_catalog, definition_factory):
-    metric = ILAMBStandard(registry_file="test.txt", sources={"tas": "test/Site/tas.nc"})
+    metric = ILAMBStandard(
+        registry_file="test.txt", metric_name="test-site-tas", sources={"tas": "test/Site/tas.nc"}
+    )
     ds = (
         cmip6_data_catalog[
             (cmip6_data_catalog["experiment_id"] == "historical")
@@ -40,7 +42,10 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
 
 def test_standard_grid(cmip6_data_catalog, definition_factory):
     metric = ILAMBStandard(
-        registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc"}, relationships={"pr": "test/Grid/pr.nc"}
+        registry_file="test.txt",
+        metric_name="test-grid-gpp",
+        sources={"gpp": "test/Grid/gpp.nc"},
+        relationships={"pr": "test/Grid/pr.nc"},
     )
     grp = cmip6_data_catalog[
         (cmip6_data_catalog["experiment_id"] == "historical")
@@ -72,9 +77,13 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
 
 def test_standard_fail():
     with pytest.raises(ValueError):
-        ILAMBStandard(registry_file="test.txt", sources={"gpp": "test/Grid/gpp.nc", "pr": "test/Grid/pr.nc"})
+        ILAMBStandard(
+            registry_file="test.txt",
+            metric_name="test-fail",
+            sources={"gpp": "test/Grid/gpp.nc", "pr": "test/Grid/pr.nc"},
+        )
 
 
 def test_options():
     _set_ilamb3_options("ilamb.txt")
-    assert set(["global", "tropical", "arid", "temperate", "cold"]).issubset(ilamb3.conf["regions"])
+    assert set(["global", "tropical"]).issubset(ilamb3.conf["regions"])

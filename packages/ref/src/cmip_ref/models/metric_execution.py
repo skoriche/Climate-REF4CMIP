@@ -1,3 +1,4 @@
+import enum
 import pathlib
 from typing import TYPE_CHECKING
 
@@ -166,6 +167,56 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
         Mark the metric execution as successful
         """
         self.successful = False
+
+
+class AssetType(enum.Enum):
+    """
+    Types of supported assets
+    """
+
+    Plot = "plot"
+    Data = "data"
+    HTML = "html"
+
+
+class ResultAsset(CreatedUpdatedMixin, Base):
+    """
+    An asset generated as part of a metric execution
+    """
+
+    __tablename__ = "metric_execution_result_asset"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    metric_execution_result_id: Mapped[int] = mapped_column(
+        ForeignKey("metric_execution_result.id"), index=True
+    )
+
+    asset_type: Mapped[AssetType] = mapped_column(index=True)
+    """
+    Type of the asset
+
+    This will determine how the asset is displayed
+    """
+
+    filename: Mapped[str] = mapped_column(nullable=True)
+    """
+    Path to the asset
+
+    Relative to the metric execution result output directory
+    """
+
+    long_name: Mapped[str] = mapped_column(nullable=True)
+    """
+    Human readable name describing the plot
+    """
+
+    description: Mapped[str] = mapped_column(nullable=True)
+    """
+    Long description describing the plot
+    """
+
+    metric_execution_result: Mapped["MetricExecutionResult"] = relationship(back_populates="assets")
 
 
 def get_execution_and_latest_result(

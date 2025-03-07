@@ -1,6 +1,9 @@
+from typing import Any
+
 from loguru import logger
 
 from cmip_ref.config import Config
+from cmip_ref.database import Database
 from cmip_ref.executor import handle_execution_result
 from cmip_ref.models import MetricExecutionResult
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
@@ -17,6 +20,17 @@ class LocalExecutor:
     """
 
     name = "local"
+
+    def __init__(
+        self, *, database: Database | None = None, config: Config | None = None, **kwargs: Any
+    ) -> None:
+        if config is None:
+            config = Config.default()
+        if database is None:
+            database = Database.from_config(config, run_migrations=False)
+
+        self.database = database
+        self.config = config
 
     def run_metric(
         self,
@@ -49,7 +63,7 @@ class LocalExecutor:
             result = MetricResult.build_from_failure(definition)
 
         if metric_execution_result:
-            handle_execution_result(Config.default(), metric_execution_result, result)
+            handle_execution_result(self.config, self.database, metric_execution_result, result)
 
     def join(self, timeout: float) -> None:
         """

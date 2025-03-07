@@ -139,7 +139,7 @@ def mock_metric() -> MockMetric:
 
 
 @pytest.fixture
-def definition_factory(tmp_path: Path):
+def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
     ) -> MetricExecutionDefinition:
@@ -149,8 +149,8 @@ def definition_factory(tmp_path: Path):
         return MetricExecutionDefinition(
             key="key",
             metric_dataset=metric_dataset,
-            root_directory=tmp_path,
-            output_directory=tmp_path / "output_fragment",
+            root_directory=config.paths.scratch,
+            output_directory=config.paths.scratch / "output_fragment",
         )
 
     return _create_definition

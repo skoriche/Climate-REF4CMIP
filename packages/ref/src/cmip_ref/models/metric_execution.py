@@ -1,3 +1,4 @@
+import enum
 import pathlib
 from typing import TYPE_CHECKING
 
@@ -140,6 +141,7 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
     """
 
     metric_execution: Mapped["MetricExecution"] = relationship(back_populates="results")
+    outputs: Mapped[list["ResultOutput"]] = relationship(back_populates="metric_execution_result")
 
     datasets: Mapped[list[Dataset]] = relationship(secondary=metric_datasets)
 
@@ -166,6 +168,67 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
         Mark the metric execution as successful
         """
         self.successful = False
+
+
+class ResultOutputType(enum.Enum):
+    """
+    Types of supported outputs
+
+    These map to the categories of output in the CMEC output bundle
+    """
+
+    Plot = "plot"
+    Data = "data"
+    HTML = "html"
+
+
+class ResultOutput(CreatedUpdatedMixin, Base):
+    """
+    An output generated as part of a metric execution
+
+    These outputs are defined in the CMEC output bundle
+    """
+
+    __tablename__ = "metric_execution_result_output"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    metric_execution_result_id: Mapped[int] = mapped_column(
+        ForeignKey("metric_execution_result.id"), index=True
+    )
+
+    output_type: Mapped[ResultOutputType] = mapped_column(index=True)
+    """
+    Type of the output
+
+    This will determine how the output is displayed
+    """
+
+    filename: Mapped[str] = mapped_column(nullable=True)
+    """
+    Path to the output
+
+    Relative to the metric execution result output directory
+    """
+
+    short_name: Mapped[str] = mapped_column(nullable=True)
+    """
+    Short key of the output
+
+    This is unique for a given result and output type
+    """
+
+    long_name: Mapped[str] = mapped_column(nullable=True)
+    """
+    Human readable name describing the plot
+    """
+
+    description: Mapped[str] = mapped_column(nullable=True)
+    """
+    Long description describing the plot
+    """
+
+    metric_execution_result: Mapped["MetricExecutionResult"] = relationship(back_populates="outputs")
 
 
 def get_execution_and_latest_result(

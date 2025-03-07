@@ -1,8 +1,10 @@
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from cmip_ref.models import MetricExecutionResult
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
+
+if TYPE_CHECKING:
+    from cmip_ref.models import MetricExecutionResult
 
 
 @runtime_checkable
@@ -20,12 +22,14 @@ class Executor(Protocol):
 
     name: str
 
+    def __init__(self, **kwargs: Any) -> None: ...
+
     def run_metric(
         self,
         provider: MetricsProvider,
         metric: Metric,
         definition: MetricExecutionDefinition,
-        metric_execution_result: MetricExecutionResult | None = None,
+        metric_execution_result: "MetricExecutionResult | None" = None,
     ) -> None:
         """
         Execute a metric

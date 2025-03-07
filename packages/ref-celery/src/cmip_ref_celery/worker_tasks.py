@@ -34,4 +34,4 @@ def handle_result(result: MetricResult, metric_execution_result_id: int) -> None
             logger.error(f"Metric execution result {metric_execution_result_id} not found")
             return
 
-        handle_execution_result(config, metric_execution_result, result)
+        handle_execution_result(config, db, metric_execution_result, result)

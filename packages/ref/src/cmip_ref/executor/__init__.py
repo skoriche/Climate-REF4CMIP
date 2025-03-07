@@ -16,13 +16,15 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from cmip_ref.database import Database
+from cmip_ref.models.metric_execution import MetricExecutionResult, ResultOutput, ResultOutputType
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
+from cmip_ref_core.metrics import MetricResult
+from cmip_ref_core.pycmec.output import CMECOutput, OutputDict
 
 if TYPE_CHECKING:
     from cmip_ref.config import Config
-    from cmip_ref.models.metric_execution import MetricExecutionResult
-    from cmip_ref_core.metrics import MetricResult
 
 
 def import_executor_cls(fqn: str) -> type[Executor]:
@@ -100,7 +102,10 @@ def _copy_file_to_results(
 
 
 def handle_execution_result(
-    config: "Config", metric_execution_result: "MetricExecutionResult", result: "MetricResult"
+    config: "Config",
+    database: Database,
+    metric_execution_result: "MetricExecutionResult",
+    result: "MetricResult",
 ) -> None:
     """
     Handle the result of a metric execution
@@ -112,6 +117,8 @@ def handle_execution_result(
     ----------
     config
         The configuration to use
+    database
+        The active database session to use
     metric_execution_result
         The metric execution result to update
     result
@@ -120,8 +127,6 @@ def handle_execution_result(
     if result.successful and result.metric_bundle_filename is not None:
         logger.info(f"{metric_execution_result} successful")
 
-        # TODO: Iterate over the files in the bundle and copy them
-        # TODO: Add files to db
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
@@ -138,6 +143,34 @@ def handle_execution_result(
                 result.output_bundle_filename,
             )
 
+            # Extract the registered outputs
+            # Copy the content to the output directory
+            # Track in the db
+            cmec_output_bundle = CMECOutput.load_from_json(
+                result.definition.to_output_path(result.output_bundle_filename)
+            )
+            _handle_outputs(
+                cmec_output_bundle.plots,
+                output_type=ResultOutputType.Plot,
+                config=config,
+                database=database,
+                metric_execution_result=metric_execution_result,
+            )
+            _handle_outputs(
+                cmec_output_bundle.data,
+                output_type=ResultOutputType.Data,
+                config=config,
+                database=database,
+                metric_execution_result=metric_execution_result,
+            )
+            _handle_outputs(
+                cmec_output_bundle.html,
+                output_type=ResultOutputType.HTML,
+                config=config,
+                database=database,
+                metric_execution_result=metric_execution_result,
+            )
+
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields
         # i.e. if there are outstanding results don't make as clean
@@ -145,3 +178,32 @@ def handle_execution_result(
     else:
         logger.info(f"{metric_execution_result} failed")
         metric_execution_result.mark_failed()
+
+
+def _handle_outputs(
+    outputs: dict[str, OutputDict] | None,
+    output_type: ResultOutputType,
+    config: "Config",
+    database: Database,
+    metric_execution_result: MetricExecutionResult,
+) -> None:
+    if outputs is None:
+        return
+
+    for key, output_info in outputs.items():
+        _copy_file_to_results(
+            config.paths.scratch,
+            config.paths.results,
+            metric_execution_result.output_fragment,
+            output_info.filename,
+        )
+        database.session.add(
+            ResultOutput(
+                metric_execution_result_id=metric_execution_result.id,
+                output_type=output_type,
+                filename=output_info.filename,
+                description=output_info.description,
+                short_name=key,
+                long_name=output_info.long_name,
+            )
+        )

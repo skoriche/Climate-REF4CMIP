@@ -15,7 +15,7 @@ which always take precedence over any other configuration values.
 # https://github.com/ESGF/esgf-download/blob/main/esgpull/config.py
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import tomlkit
 from attr import Factory
@@ -38,6 +38,9 @@ from cmip_ref.executor import import_executor_cls
 from cmip_ref_core.env import env
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
+
+if TYPE_CHECKING:
+    from cmip_ref.database import Database
 
 env_prefix = "REF"
 """
@@ -119,7 +122,7 @@ class ExecutorConfig:
     See the documentation for the executor for the available configuration options.
     """
 
-    def build(self) -> Executor:
+    def build(self, config: "Config", database: "Database") -> Executor:
         """
         Create an instance of the executor
 
@@ -129,7 +132,12 @@ class ExecutorConfig:
             An executor that can be used to run metrics
         """
         ExecutorCls = import_executor_cls(self.executor)
-        executor = ExecutorCls(**self.config)
+        kwargs = {
+            "config": config,
+            "database": database,
+            **self.config,
+        }
+        executor = ExecutorCls(**kwargs)
 
         if not isinstance(executor, Executor):
             raise InvalidExecutorException(executor, f"Expected an Executor, got {type(executor)}")

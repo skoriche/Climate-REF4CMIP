@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -148,7 +149,12 @@ class TestCondaMetricsProvider:
         )
         lockfile = tmp_path / "conda-lock.yml"
         lockfile.touch()
-        resources.as_file.return_value = lockfile
+
+        @contextmanager
+        def lockfile_context():
+            yield lockfile
+
+        resources.as_file.return_value = lockfile_context()
 
         env_path = provider.env_path
         assert isinstance(env_path, Path)
@@ -160,11 +166,15 @@ class TestCondaMetricsProvider:
         conda_exe = tmp_path / "conda" / "micromamba"
         env_path = provider.prefix / "mock-env"
 
+        @contextmanager
+        def lockfile_context():
+            yield lockfile
+
         mocker.patch.object(
             CondaMetricsProvider,
             "get_environment_file",
             create_autospec=True,
-            return_value=lockfile,
+            return_value=lockfile_context(),
         )
         mocker.patch.object(
             CondaMetricsProvider,

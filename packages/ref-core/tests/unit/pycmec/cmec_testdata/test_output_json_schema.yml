@@ -1,4 +1,23 @@
 $defs:
+  OutputDict:
+    additionalProperties: true
+    description: Description of an output
+    properties:
+      description:
+        title: Description
+        type: string
+      filename:
+        title: Filename
+        type: string
+      long_name:
+        title: Long Name
+        type: string
+    required:
+    - filename
+    - long_name
+    - description
+    title: OutputDict
+    type: object
   OutputProvenance:
     additionalProperties: true
     description: CMEC output bundle provenance object
@@ -35,24 +54,6 @@ $defs:
     - obsdata
     - log
     title: OutputProvenance
-    type: object
-  _OutputDict:
-    additionalProperties: true
-    properties:
-      description:
-        title: Description
-        type: string
-      filename:
-        title: Filename
-        type: string
-      long_name:
-        title: Long Name
-        type: string
-    required:
-    - filename
-    - long_name
-    - description
-    title: OutputDict
     type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true

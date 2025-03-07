@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from cmip_ref.database import Database
-from cmip_ref.models.metric_execution import AssetType, MetricExecutionResult, ResultAsset
+from cmip_ref.models.metric_execution import MetricExecutionResult, ResultOutput, ResultOutputType
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricResult
@@ -149,23 +149,23 @@ def handle_execution_result(
             cmec_output_bundle = CMECOutput.load_from_json(
                 result.definition.to_output_path(result.output_bundle_filename)
             )
-            _handle_assets(
+            _handle_outputs(
                 cmec_output_bundle.plots,
-                asset_type=AssetType.Plot,
+                output_type=ResultOutputType.Plot,
                 config=config,
                 database=database,
                 metric_execution_result=metric_execution_result,
             )
-            _handle_assets(
+            _handle_outputs(
                 cmec_output_bundle.data,
-                asset_type=AssetType.Data,
+                output_type=ResultOutputType.Data,
                 config=config,
                 database=database,
                 metric_execution_result=metric_execution_result,
             )
-            _handle_assets(
+            _handle_outputs(
                 cmec_output_bundle.html,
-                asset_type=AssetType.HTML,
+                output_type=ResultOutputType.HTML,
                 config=config,
                 database=database,
                 metric_execution_result=metric_execution_result,
@@ -180,17 +180,17 @@ def handle_execution_result(
         metric_execution_result.mark_failed()
 
 
-def _handle_assets(
-    assets: dict[str, OutputDict] | None,
-    asset_type: AssetType,
+def _handle_outputs(
+    outputs: dict[str, OutputDict] | None,
+    output_type: ResultOutputType,
     config: "Config",
     database: Database,
     metric_execution_result: MetricExecutionResult,
 ) -> None:
-    if assets is None:
+    if outputs is None:
         return
 
-    for key, output_info in assets.items():
+    for key, output_info in outputs.items():
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
@@ -198,9 +198,9 @@ def _handle_assets(
             output_info.filename,
         )
         database.session.add(
-            ResultAsset(
+            ResultOutput(
                 metric_execution_result_id=metric_execution_result.id,
-                asset_type=asset_type,
+                output_type=output_type,
                 filename=output_info.filename,
                 description=output_info.description,
                 long_name=output_info.long_name,

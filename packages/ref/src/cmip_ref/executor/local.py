@@ -21,7 +21,9 @@ class LocalExecutor:
 
     name = "local"
 
-    def __init__(self, *, database: Database | None, config: Config | None, **kwargs: Any) -> None:
+    def __init__(
+        self, *, database: Database | None = None, config: Config | None = None, **kwargs: Any
+    ) -> None:
         if config is None:
             config = Config.default()
         if database is None:

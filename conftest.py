@@ -17,7 +17,7 @@ from cmip_ref.config import Config, MetricsProviderConfig
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
@@ -90,7 +90,7 @@ def invoke_cli():
     return _invoke_cli
 
 
-class MockMetric:
+class MockMetric(Metric):
     name = "mock"
     slug = "mock"
 
@@ -107,7 +107,7 @@ class MockMetric:
         )
 
 
-class FailedMetric:
+class FailedMetric(Metric):
     name = "failed"
     slug = "failed"
 

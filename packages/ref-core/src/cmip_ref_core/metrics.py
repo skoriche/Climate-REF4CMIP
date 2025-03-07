@@ -289,7 +289,7 @@ class DataRequirement:
 
 
 @runtime_checkable
-class Metric(Protocol):
+class AbstractMetric(Protocol):
     """
     Interface for the calculation of a metric.
 
@@ -357,6 +357,45 @@ class Metric(Protocol):
         MetricResult
             The result of running the metric.
         """
+
+
+class Metric(AbstractMetric):
+    """
+    Interface for the calculation of a metric.
+
+    This is a very high-level interface to provide maximum scope for the metrics packages
+    to have differing assumptions.
+    The configuration and output of the metric should follow the
+    Earth System Metrics and Diagnostics Standards formats as much as possible.
+
+    A metric can be executed multiple times,
+    each time targeting a different group of input data.
+    The groups are determined using the grouping the data catalog according to the `group_by` field
+    in the `DataRequirement` object using one or more metadata fields.
+    Each group must conform with a set of constraints,
+    to ensure that the correct data is available to run the metric.
+    Each group will then be processed as a separate execution of the metric.
+
+    See (ref_example.example.ExampleMetric)[] for an example implementation.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._provider: MetricsProvider | None = None
+
+    @property
+    def provider(self) -> MetricsProvider:
+        """
+        The provider that provides the metric.
+        """
+        if self._provider is None:
+            msg = f"Please register {self} with a MetricsProvider before using it."
+            raise ValueError(msg)
+        return self._provider
+
+    @provider.setter
+    def provider(self, value: MetricsProvider) -> None:
+        self._provider = value
 
 
 class CommandLineMetric(Metric):

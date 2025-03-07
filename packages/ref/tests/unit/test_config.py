@@ -151,8 +151,9 @@ filename = "sqlite://cmip_ref.db"
             "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "log": "test/log",
-                "scratch": "test/scratch",
                 "results": "test/results",
+                "scratch": "test/scratch",
+                "software": "test/software",
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }

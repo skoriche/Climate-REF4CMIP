@@ -14,7 +14,7 @@ from loguru import logger
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
-from cmip_ref_core.providers import CondaMetricsProvider, MetricsProvider, import_provider
+from cmip_ref_core.providers import MetricsProvider, import_provider
 
 
 def _register_provider(db: Database, provider: MetricsProvider) -> None:
@@ -86,8 +86,7 @@ class ProviderRegistry:
         providers = []
         for provider_info in config.metric_providers:
             provider = import_provider(provider_info.provider)
-            if isinstance(provider, CondaMetricsProvider):
-                provider.prefix = config.paths.software / "conda"
+            provider.configure(config)
             providers.append(provider)
 
         with db.session.begin_nested():

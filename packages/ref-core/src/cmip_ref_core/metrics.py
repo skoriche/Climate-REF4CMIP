@@ -1,17 +1,20 @@
+from __future__ import annotations
+
 import pathlib
 from abc import abstractmethod
 from collections.abc import Iterable
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
 from attrs import field, frozen
 
 from cmip_ref_core.constraints import GroupConstraint
 from cmip_ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
-
-# from cmip_ref_core.providers import
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
+
+if TYPE_CHECKING:
+    from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 
 
 @frozen
@@ -126,7 +129,7 @@ class MetricResult:
         *,
         cmec_output_bundle: CMECOutput | dict[str, Any],
         cmec_metric_bundle: CMECMetric | dict[str, Any],
-    ) -> "MetricResult":
+    ) -> MetricResult:
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -173,7 +176,7 @@ class MetricResult:
         )
 
     @staticmethod
-    def build_from_failure(definition: MetricExecutionDefinition) -> "MetricResult":
+    def build_from_failure(definition: MetricExecutionDefinition) -> MetricResult:
         """
         Build a failed metric result.
 
@@ -331,6 +334,11 @@ class Metric(Protocol):
     Any modifications to the input data will new metric calculation.
     """
 
+    provider: MetricsProvider
+    """
+    The provider that provides the metric.
+    """
+
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
@@ -356,7 +364,7 @@ class CommandLineMetric(Metric):
     Metric that can be run from the command line.
     """
 
-    provider: Any  # TODO: CommandLineMetricsProvider causes circular import
+    provider: CommandLineMetricsProvider
 
     @abstractmethod
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:

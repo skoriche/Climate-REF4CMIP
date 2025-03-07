@@ -4,6 +4,8 @@ Interfaces for metrics providers.
 This defines how metrics packages interoperate with the REF framework.
 """
 
+from __future__ import annotations
+
 import hashlib
 import importlib
 import stat
@@ -12,13 +14,16 @@ from abc import abstractmethod
 from collections.abc import Iterable
 from contextlib import AbstractContextManager
 from pathlib import Path
-from types import ModuleType
+from typing import TYPE_CHECKING
 
 import requests
 from loguru import logger
 
 from cmip_ref_core.exceptions import InvalidMetricException, InvalidProviderException
 from cmip_ref_core.metrics import Metric
+
+if TYPE_CHECKING:
+    from cmip_ref.config import Config
 
 
 def _slugify(value: str) -> str:
@@ -52,6 +57,16 @@ class MetricsProvider:
 
         self._metrics: dict[str, Metric] = {}
 
+    def configure(self, config: Config) -> None:
+        """
+        Configure the provider.
+
+        Parameters
+        ----------
+        config :
+            A configuration.
+        """
+
     def metrics(self) -> list[Metric]:
         """
         Iterate over the available metrics for the provider.
@@ -72,11 +87,12 @@ class MetricsProvider:
 
         Parameters
         ----------
-        metric : Metric
+        metric :
             The metric to register.
         """
         if not isinstance(metric, Metric):
             raise InvalidMetricException(metric, "Metrics must be an instance of the 'Metric' class")
+        metric.provider = self
         self._metrics[metric.slug.lower()] = metric
 
     def get(self, slug: str) -> Metric:
@@ -136,7 +152,6 @@ def import_provider(fqn: str) -> MetricsProvider:
     try:
         imp = importlib.import_module(module)
         provider = getattr(imp, name)
-        provider.module = imp  # TODO: fix this hack
         if not isinstance(provider, MetricsProvider):
             raise InvalidProviderException(fqn, f"Expected MetricsProvider, got {type(provider)}")
         return provider
@@ -160,7 +175,7 @@ class CommandLineMetricsProvider(MetricsProvider):
         """
 
 
-MICROMAMBA_EXE = (
+MICROMAMBA_EXE_URL = (
     "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64"
 )
 
@@ -178,48 +193,68 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
     ) -> None:
         super().__init__(name, version, slug)
         self._conda_exe: Path | None = None
-        self.module: ModuleType | str = ""
+        self._prefix: Path | None = None
 
     @property
     def prefix(self) -> Path:
         """Path where conda environments are stored."""
+        if not isinstance(self._prefix, Path):
+            msg = (
+                "No prefix for conda environments configured. Please use the "
+                "configure method to configure the provider or assign a value "
+                "to prefix directly."
+            )
+            raise ValueError(msg)
         return self._prefix
 
     @prefix.setter
     def prefix(self, path: Path) -> None:
         self._prefix = path
 
-    def _install_conda(self) -> Path:
+    def configure(self, config: Config) -> None:
+        """Configure the provider."""
+        self.prefix = config.paths.software / "conda"
+
+    def _install_conda(self, update: bool) -> Path:
         """Install micromamba in a temporary location."""
-        conda_exe = self.prefix / Path(MICROMAMBA_EXE).name
-        if conda_exe.exists():
-            logger.info("Updating conda")
-            subprocess.run([str(conda_exe), "self-update"], check=True)  # noqa: S603
-            logger.info("Successfully updated conda")
-        else:
+        self.prefix.mkdir(parents=True, exist_ok=True)
+        conda_exe = self.prefix / "micromamba"
+        if not conda_exe.exists():
             logger.info("Installing conda")
-            response = requests.get(MICROMAMBA_EXE, timeout=120)
+            response = requests.get(MICROMAMBA_EXE_URL, timeout=120)
             response.raise_for_status()
             with conda_exe.open(mode="wb") as file:
                 file.write(response.content)
             conda_exe.chmod(stat.S_IRWXU)
             logger.info("Successfully installed conda.")
+        elif update:
+            logger.info("Updating conda")
+            subprocess.run([str(conda_exe), "self-update"], check=True)  # noqa: S603
+            logger.info("Successfully updated conda")
+
         return conda_exe
 
-    @property
-    def conda_exe(self) -> Path:
+    def get_conda_exe(self, update: bool = False) -> Path:
         """
-        The path to the conda executable.
+        Get the path to a conda executable.
         """
         if self._conda_exe is None:
-            self._conda_exe = self._install_conda()
+            self._conda_exe = self._install_conda(update)
         return self._conda_exe
 
     def get_environment_file(self) -> AbstractContextManager[Path]:
         """
         Return a context manager that provides the environment file as a Path.
         """
-        lockfile = importlib.resources.files(self.module).joinpath("requirements").joinpath("conda-lock.yml")
+        # Because providers are instances, we have no way of retrieving the
+        # module in which they are created, so get the information from the
+        # first registered metric instead.
+        metrics = self.metrics()
+        if len(metrics) == 0:
+            msg = "Unable to determine the provider module, please register a metric first."
+            raise ValueError(msg)
+        module = metrics[0].__module__.split(".")[0]
+        lockfile = importlib.resources.files(module).joinpath("requirements").joinpath("conda-lock.yml")
         return importlib.resources.as_file(lockfile)
 
     @property
@@ -241,7 +276,7 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
 
         with self.get_environment_file() as file:
             cmd = [
-                f"{self.conda_exe}",
+                f"{self.get_conda_exe(update=True)}",
                 "create",
                 "--yes",
                 "--file",
@@ -262,13 +297,15 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             The command to run.
 
         """
+        self.create_env()
+
         cmd = [
-            f"{self.conda_exe}",
+            f"{self.get_conda_exe(update=False)}",
             "run",
             "--prefix",
             f"{self.env_path}",
             *cmd,
         ]
-        logger.info(f"Running {cmd}")
+        logger.info(f"Running {' '.join(cmd)}")
         subprocess.run(cmd, check=True)  # noqa: S603
         logger.info(f"Successfully ran {cmd}")

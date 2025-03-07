@@ -7,7 +7,7 @@ import pandas
 from ruamel.yaml import YAML
 
 from cmip_ref_core.datasets import SourceDatasetType
-from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import CommandLineMetric, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 from cmip_ref_metrics_esmvaltool.recipe import load_recipe, prepare_climate_data
@@ -16,7 +16,7 @@ from cmip_ref_metrics_esmvaltool.types import OutputBundle, Recipe
 yaml = YAML()
 
 
-class ESMValToolMetric(Metric):
+class ESMValToolMetric(CommandLineMetric):
     """ESMValTool Metric base class."""
 
     base_recipe: ClassVar[str]
@@ -52,7 +52,7 @@ class ESMValToolMetric(Metric):
             A CMEC output bundle.
         """
 
-    def build_command(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run an ESMValTool recipe.
 

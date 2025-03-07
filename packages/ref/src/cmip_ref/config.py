@@ -75,6 +75,16 @@ class PathConfig:
     but does not need to be mounted in the same location on all the metric services.
     """
 
+    software: Path = env_field(name="SOFTWARE_ROOT", converter=Path)
+    """
+    Shared software space for the REF.
+
+    This directory is used to store software environments.
+
+    This directory must be accessible by all the metric services that are used to run the metrics,
+    and should be mounted in the same location on all the metric services.
+    """
+
     # TODO: This could be another data source option
     results: Path = env_field(name="RESULTS_ROOT", converter=Path)
     """
@@ -88,6 +98,10 @@ class PathConfig:
     @scratch.default
     def _scratch_factory(self) -> Path:
         return env.path("REF_CONFIGURATION") / "scratch"
+
+    @software.default
+    def _software_factory(self) -> Path:
+        return env.path("REF_CONFIGURATION") / "software"
 
     @results.default
     def _results_factory(self) -> Path:

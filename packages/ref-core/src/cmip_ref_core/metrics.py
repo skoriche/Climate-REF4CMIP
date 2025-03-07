@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import pathlib
-from typing import Any, Protocol, runtime_checkable
+from abc import abstractmethod
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
 from attrs import field, frozen
@@ -8,6 +12,9 @@ from cmip_ref_core.constraints import GroupConstraint
 from cmip_ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
+
+if TYPE_CHECKING:
+    from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 
 
 @frozen
@@ -122,7 +129,7 @@ class MetricResult:
         *,
         cmec_output_bundle: CMECOutput | dict[str, Any],
         cmec_metric_bundle: CMECMetric | dict[str, Any],
-    ) -> "MetricResult":
+    ) -> MetricResult:
         """
         Build a MetricResult from a CMEC output bundle.
 
@@ -169,7 +176,7 @@ class MetricResult:
         )
 
     @staticmethod
-    def build_from_failure(definition: MetricExecutionDefinition) -> "MetricResult":
+    def build_from_failure(definition: MetricExecutionDefinition) -> MetricResult:
         """
         Build a failed metric result.
 
@@ -282,7 +289,7 @@ class DataRequirement:
 
 
 @runtime_checkable
-class Metric(Protocol):
+class AbstractMetric(Protocol):
     """
     Interface for the calculation of a metric.
 
@@ -327,6 +334,11 @@ class Metric(Protocol):
     Any modifications to the input data will new metric calculation.
     """
 
+    provider: MetricsProvider
+    """
+    The provider that provides the metric.
+    """
+
     def run(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
@@ -345,3 +357,100 @@ class Metric(Protocol):
         MetricResult
             The result of running the metric.
         """
+
+
+class Metric(AbstractMetric):
+    """
+    Interface for the calculation of a metric.
+
+    This is a very high-level interface to provide maximum scope for the metrics packages
+    to have differing assumptions.
+    The configuration and output of the metric should follow the
+    Earth System Metrics and Diagnostics Standards formats as much as possible.
+
+    A metric can be executed multiple times,
+    each time targeting a different group of input data.
+    The groups are determined using the grouping the data catalog according to the `group_by` field
+    in the `DataRequirement` object using one or more metadata fields.
+    Each group must conform with a set of constraints,
+    to ensure that the correct data is available to run the metric.
+    Each group will then be processed as a separate execution of the metric.
+
+    See (ref_example.example.ExampleMetric)[] for an example implementation.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._provider: MetricsProvider | None = None
+
+    @property
+    def provider(self) -> MetricsProvider:
+        """
+        The provider that provides the metric.
+        """
+        if self._provider is None:
+            msg = f"Please register {self} with a MetricsProvider before using it."
+            raise ValueError(msg)
+        return self._provider
+
+    @provider.setter
+    def provider(self, value: MetricsProvider) -> None:
+        self._provider = value
+
+
+class CommandLineMetric(Metric):
+    """
+    Metric that can be run from the command line.
+    """
+
+    provider: CommandLineMetricsProvider
+
+    @abstractmethod
+    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+        """
+        Build the command to run the metric on the given configuration.
+
+        Parameters
+        ----------
+        definition : MetricExecutionDefinition
+            The configuration to run the metric on.
+
+        Returns
+        -------
+        :
+            A command that can be run with :func:`subprocess.run`.
+        """
+
+    @abstractmethod
+    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:
+        """
+        Build the result from running the metric on the given configuration.
+
+        Parameters
+        ----------
+        definition : MetricExecutionDefinition
+            The configuration to run the metric on.
+
+        Returns
+        -------
+        :
+            The result of running the metric.
+        """
+
+    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+        """
+        Run the metric on the given configuration.
+
+        Parameters
+        ----------
+        definition : MetricExecutionDefinition
+            The configuration to run the metric on.
+
+        Returns
+        -------
+        :
+            The result of running the metric.
+        """
+        cmd = self.build_cmd(definition)
+        self.provider.run(cmd)
+        return self.build_metric_result(definition)

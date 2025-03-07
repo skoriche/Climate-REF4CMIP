@@ -60,6 +60,7 @@ prettyprinter.pprint(metric.data_requirements[0])
 
 # %% tags=["hide_code"]
 config = Config.default()
+provider.configure(config)
 db = Database.from_config(config)
 
 # %% [markdown]

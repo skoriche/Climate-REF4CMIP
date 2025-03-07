@@ -156,7 +156,7 @@ class ExtratropicalModesOfVariability_PDO(Metric):
             return MetricResult.build_from_failure(definition)
 
         # Find the appropriate JSON bundle
-        results_files = list(definition.output_directory.glob("*.json"))
+        results_files = list(definition.output_directory.glob("*_cmec.json"))
         if len(results_files) != 1:
             return MetricResult.build_from_failure(definition)
 

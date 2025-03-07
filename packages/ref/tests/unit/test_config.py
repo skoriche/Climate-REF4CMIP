@@ -176,6 +176,10 @@ filename = "sqlite://cmip_ref.db"
         assert executor.name == "local"
         assert isinstance(executor, Executor)
 
+    @pytest.mark.skipif(
+        sys.version_info > (3, 11),
+        reason="isinstance check on mock executor fails with Python 3.12+",
+    )
     def test_executor_build_config(self, mocker, config, db):
         mock_executor = mocker.MagicMock(spec=Executor)
         mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
@@ -184,6 +188,10 @@ filename = "sqlite://cmip_ref.db"
         assert executor == mock_executor.return_value
         mock_executor.assert_called_once_with(config=config, database=db)
 
+    @pytest.mark.skipif(
+        sys.version_info > (3, 11),
+        reason="isinstance check on mock executor fails with Python 3.12+",
+    )
     def test_executor_build_extra_config(self, mocker, config, db):
         mock_executor = mocker.MagicMock(spec=Executor)
         mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)

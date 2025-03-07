@@ -8,6 +8,8 @@ from cmip_ref.models import MetricExecutionResult
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricResult
+from cmip_ref_core.pycmec.metric import CMECMetric
+from cmip_ref_core.pycmec.output import CMECOutput
 
 
 def test_import_executor():
@@ -36,14 +38,14 @@ def metric_execution_result(mocker):
     return mock_result
 
 
-def test_handle_execution_result_successful(config, metric_execution_result, mocker, definition_factory):
+def test_handle_execution_result_successful(db, config, metric_execution_result, mocker, definition_factory):
     metric_bundle_filename = pathlib.Path("bundle.zip")
     result = MetricResult(
         definition=definition_factory(), successful=True, metric_bundle_filename=metric_bundle_filename
     )
     mock_copy = mocker.patch("cmip_ref.executor._copy_file_to_results")
 
-    handle_execution_result(config, metric_execution_result, result)
+    handle_execution_result(config, db, metric_execution_result, result)
 
     mock_copy.assert_called_once_with(
         config.paths.scratch,
@@ -55,10 +57,40 @@ def test_handle_execution_result_successful(config, metric_execution_result, moc
     assert not metric_execution_result.metric_execution.dirty
 
 
-def test_handle_execution_result_failed(config, metric_execution_result, definition_factory):
+def test_handle_execution_result_with_files(
+    config, db_seeded, metric_execution_result, mocker, definition_factory
+):
+    db.session.add(MetricExecutionResult())
+    db.session.add(MetricExecutionResult())
+    cmec_metric = CMECMetric(**CMECMetric.create_template())
+    cmec_output = CMECOutput(**CMECOutput.create_template())
+    cmec_output.update(
+        "plots",
+        short_name="example",
+        dict_content={
+            "long_name": "awesome figure",
+            "filename": "fig_1.jpg",
+            "description": "test add plots",
+        },
+    )
+
+    definition = definition_factory()
+    result = MetricResult.build_from_output_bundle(
+        definition=definition, cmec_output_bundle=cmec_output, cmec_metric_bundle=cmec_metric
+    )
+
+    # The assets must exist
+    definition.to_output_path("fig_1.jpg").touch()
+
+    handle_execution_result(config, db, metric_execution_result, result)
+
+    db.session.add.assert_called_once()
+
+
+def test_handle_execution_result_failed(config, db, metric_execution_result, definition_factory):
     result = MetricResult(definition=definition_factory(), successful=False, metric_bundle_filename=None)
 
-    handle_execution_result(config, metric_execution_result, result)
+    handle_execution_result(config, db, metric_execution_result, result)
 
     metric_execution_result.mark_failed.assert_called_once()
 

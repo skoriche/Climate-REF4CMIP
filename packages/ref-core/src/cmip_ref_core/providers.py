@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import os
 import stat
 import subprocess
 from abc import abstractmethod
@@ -176,8 +177,44 @@ class CommandLineMetricsProvider(MetricsProvider):
 
 
 MICROMAMBA_EXE_URL = (
-    "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64"
+    "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-{platform}-{arch}"
 )
+
+
+def _get_micromamba_url() -> str:
+    """
+    Build a platform specific URL from which to download micromamba.
+
+    Based on the script at: https://micro.mamba.pm/install.sh
+
+    """
+    sysname = os.uname().sysname
+    machine = os.uname().machine
+
+    if sysname == "Linux":
+        platform = "linux"
+    elif sysname == "Darwin":
+        platform = "osx"
+    elif "NT" in sysname:
+        platform = "win"
+    else:
+        platform = sysname
+
+    arch = machine if machine in {"aarch64", "ppc64le", "arm64"} else "64"
+
+    supported = {
+        "linux-aarch64",
+        "linux-ppc64le",
+        "linux-64",
+        "osx-arm64",
+        "osx-64",
+        "win-64",
+    }
+    if f"{platform}-{arch}" not in supported:
+        msg = "Failed to detect your platform. Please set MICROMAMBA_EXE_URL to a valid location."
+        raise ValueError(msg)
+
+    return MICROMAMBA_EXE_URL.format(platform=platform, arch=arch)
 
 
 class CondaMetricsProvider(CommandLineMetricsProvider):
@@ -221,7 +258,7 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         conda_exe = self.prefix / "micromamba"
         if not conda_exe.exists():
             logger.info("Installing conda")
-            response = requests.get(MICROMAMBA_EXE_URL, timeout=120)
+            response = requests.get(_get_micromamba_url(), timeout=120)
             response.raise_for_status()
             with conda_exe.open(mode="wb") as file:
                 file.write(response.content)

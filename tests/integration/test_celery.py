@@ -5,6 +5,7 @@ This test requires a running Redis server, which is started as a Docker containe
 """
 
 import gc
+import time
 from pathlib import Path
 
 import pytest
@@ -104,4 +105,6 @@ def test_celery_solving(db_seeded, config, celery_worker, redis_container, monke
         assert result.successful
         assert (config.paths.results / result.output_fragment / result.path).exists()
 
+    # Attempt to avoid a flakey outcome where the celery tasks aren't cleaned up properly
+    time.sleep(1)
     gc.collect()

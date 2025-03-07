@@ -233,7 +233,7 @@ def solve_metrics(
 
     logger.info("Solving for metrics that require recalculation...")
 
-    executor = config.executor.build()
+    executor = config.executor.build(config, db)
 
     for metric_execution in solver.solve():
         # The metric output is first written to the scratch directory

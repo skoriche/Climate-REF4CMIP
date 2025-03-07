@@ -52,7 +52,7 @@ $defs:
     - filename
     - long_name
     - description
-    title: _OutputDict
+    title: OutputDict
     type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true
@@ -64,7 +64,7 @@ properties:
   data:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -72,7 +72,7 @@ properties:
   html:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -86,7 +86,7 @@ properties:
   metrics:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -94,7 +94,7 @@ properties:
   plots:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null

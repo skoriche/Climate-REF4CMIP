@@ -1,4 +1,5 @@
 import time
+from typing import Any
 
 import celery.exceptions
 import celery.result
@@ -30,7 +31,8 @@ class CeleryExecutor(Executor):
 
     name = "celery"
 
-    def __init__(self):
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self._results: list[celery.result.AsyncResult] = []
 
     def run_metric(

@@ -41,7 +41,7 @@ class MetricExecutionDefinition:
     Root directory for storing the output of the metric execution
     """
 
-    def to_output_path(self, filename: str | None) -> pathlib.Path:
+    def to_output_path(self, filename: pathlib.Path | str | None) -> pathlib.Path:
         """
         Get the absolute path for a file in the output directory
 
@@ -92,9 +92,6 @@ class MetricResult:
     """
     Filename of the output bundle file relative to the execution directory.
 
-    The absolute path of the outputs may differ between executors
-    depending on where the output directory is mounted.
-
     The contents of this file are defined by
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-output-bundle-format-)
     """
@@ -102,9 +99,6 @@ class MetricResult:
     metric_bundle_filename: pathlib.Path | None = None
     """
     Filename of the metric bundle file relative to the execution directory.
-
-    The absolute path of the outputs may differ between executors
-    depending on where the output directory is mounted.
 
     The contents of this file are defined by
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-metric-output-format-)
@@ -134,8 +128,6 @@ class MetricResult:
             An output bundle in the CMEC format.
         cmec_metric_bundle
             An metric bundle in the CMEC format.
-
-            TODO: This needs a better type hint
 
         Returns
         -------

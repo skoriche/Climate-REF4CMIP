@@ -10,7 +10,7 @@ It provides a session object that can be used to interact with the database and 
 
 import importlib.resources
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib import parse as urlparse
 
 import alembic.command
@@ -20,8 +20,10 @@ from alembic.script import ScriptDirectory
 from loguru import logger
 from sqlalchemy.orm import Session
 
-from cmip_ref.config import Config
 from cmip_ref.models import Table
+
+if TYPE_CHECKING:
+    from cmip_ref.config import Config
 
 
 def validate_database_url(database_url: str) -> str:
@@ -93,7 +95,7 @@ class Database:
         alembic.command.upgrade(alembic_config, head or "heads")
 
     @staticmethod
-    def from_config(config: Config, run_migrations: bool = True) -> "Database":
+    def from_config(config: "Config", run_migrations: bool = True) -> "Database":
         """
         Create a Database instance from a Config instance
 

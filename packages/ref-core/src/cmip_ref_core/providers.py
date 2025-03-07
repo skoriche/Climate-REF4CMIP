@@ -301,7 +301,7 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         """
         with self.get_environment_file() as file:
             suffix = hashlib.sha1(file.read_bytes(), usedforsecurity=False).hexdigest()
-        return self.prefix / f"{self.name}-{self.version}-{suffix}"
+        return self.prefix / f"{self.slug}-{self.version}-{suffix}"
 
     def create_env(self) -> None:
         """

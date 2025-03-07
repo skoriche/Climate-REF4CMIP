@@ -177,14 +177,16 @@ filename = "sqlite://cmip_ref.db"
         assert isinstance(executor, Executor)
 
     def test_executor_build_config(self, mocker, config, db):
-        mock_executor = mocker.patch("cmip_ref.config.import_executor_cls").return_value
+        mock_executor = mocker.MagicMock(spec=Executor)
+        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
 
         executor = config.executor.build(config, db)
         assert executor == mock_executor.return_value
         mock_executor.assert_called_once_with(config=config, database=db)
 
     def test_executor_build_extra_config(self, mocker, config, db):
-        mock_executor = mocker.patch("cmip_ref.config.import_executor_cls").return_value
+        mock_executor = mocker.MagicMock(spec=Executor)
+        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
 
         config.executor = evolve(config.executor, config={"extra": 1})
 

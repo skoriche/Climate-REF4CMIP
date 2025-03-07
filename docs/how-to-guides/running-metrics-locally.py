@@ -168,7 +168,7 @@ prettyprinter.pprint(direct_result)
 # if no other configuration is provided.
 
 # %%
-executor = config.executor.build()
+executor = config.executor.build(config=config, database=db)
 metric = provider.get("global-mean-timeseries")
 
 executor.run_metric(provider, metric, definition=definition)

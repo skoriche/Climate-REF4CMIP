@@ -3,11 +3,12 @@ import shutil
 from pathlib import Path
 from subprocess import CompletedProcess
 
-import cmip_ref_metrics_pmp.pmp_driver
+import cmip_ref_metrics_pmp
 import pandas as pd
 import pytest
 from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO, process_json_result
 
+import cmip_ref_core.providers
 from cmip_ref.solver import extract_covered_datasets
 from cmip_ref_core.datasets import DatasetCollection
 from cmip_ref_core.metrics import Metric
@@ -41,13 +42,26 @@ def test_process_json_result(pdo_example_dir):
     assert len(cmec_metric.RESULTS)
 
 
-def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+@pytest.fixture
+def provider(tmp_path):
+    provider = cmip_ref_metrics_pmp.provider
+    provider.prefix = tmp_path / "conda"
+    provider.prefix.mkdir()
+    provider._conda_exe = provider.prefix / "mock_micromamba"
+    provider._conda_exe.touch()
+    provider.env_path.mkdir()
+
+    return provider
+
+
+def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
     metric = ExtratropicalModesOfVariability_PDO()
+    metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
 
-    def mock_run_call(cmd, *args, **kwargs):
+    def mock_run_fn(cmd, *args, **kwargs):
         # Copy the output from the test-data directory to the output directory
         output_path = definition.output_directory
         shutil.copytree(pdo_example_dir, output_path)
@@ -55,12 +69,12 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_exam
 
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called
-    mocker.patch.object(
-        cmip_ref_metrics_pmp.pmp_driver.subprocess,
+    mock_run = mocker.patch.object(
+        cmip_ref_core.providers.subprocess,
         "run",
         autospec=True,
         spec_set=True,
-        side_effect=mock_run_call,
+        side_effect=mock_run_fn,
     )
 
     def mock_process_json_call(
@@ -76,6 +90,20 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_exam
     )
 
     result = metric.run(definition)
+
+    mock_run.assert_called_with(
+        [
+            f"{provider._conda_exe}",
+            "run",
+            "--prefix",
+            f"{provider.env_path}",
+            "esmvaltool",
+            "run",
+            f"--config-dir={definition.to_output_path('config')}",
+            f"{definition.to_output_path('recipe.yml')}",
+        ],
+        check=True,
+    )
 
     assert mock_process_json.call_count == 1
 

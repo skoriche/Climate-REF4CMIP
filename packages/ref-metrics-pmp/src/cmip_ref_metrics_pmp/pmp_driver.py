@@ -1,9 +1,6 @@
 import importlib.metadata
 import importlib.resources
 import pathlib
-import subprocess
-
-DEFAULT_CONDA_ENV = "ref-metrics-pmp"
 
 
 def get_resource_filename(package: str, resource_name: str | pathlib.Path, use_resources: bool) -> str:
@@ -40,7 +37,7 @@ def get_resource_filename(package: str, resource_name: str | pathlib.Path, use_r
     return str(resource_path)
 
 
-def execute_pmp_driver(  # noqa: PLR0913
+def build_pmp_command(  # noqa: PLR0913
     driver_file: str,
     parameter_file: str,
     model_files: list[str],
@@ -49,8 +46,7 @@ def execute_pmp_driver(  # noqa: PLR0913
     source_id: str,
     member_id: str,
     output_directory_path: str,
-    conda_env_name: str = DEFAULT_CONDA_ENV,
-) -> None:
+) -> list[str]:
     """
     Run a PMP driver script via a conda environment
 
@@ -79,11 +75,7 @@ def execute_pmp_driver(  # noqa: PLR0913
         raise NotImplementedError("Only one model file is supported at this time.")
 
     # Run the driver script inside the PMP conda environment
-    cmd = [
-        "conda",
-        "run",
-        "--name",
-        conda_env_name,
+    return [
         "python",
         _driver_script,
         "-p",
@@ -100,21 +92,5 @@ def execute_pmp_driver(  # noqa: PLR0913
         reference_name,
         "--results_dir",
         output_directory_path,
-        "--cmec"
+        "--cmec",
     ]
-
-    # Run the command and capture the output
-    proc = subprocess.run(  # noqa: S603
-        cmd,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    # Print the command output
-    print("Output:\n", proc.stdout)
-    # Print any errors
-    if proc.stderr:
-        print("Error:\n", proc.stderr)
-
-    # TODO: Not sure what you want to return here?
-    # Maybe a boolean indicating success + the log output?

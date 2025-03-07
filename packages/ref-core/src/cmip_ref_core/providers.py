@@ -318,6 +318,8 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
                 "--yes",
                 "--file",
                 f"{file}",
+                "--platform",
+                "osx-64",
                 "--prefix",
                 f"{self.env_path}",
             ]

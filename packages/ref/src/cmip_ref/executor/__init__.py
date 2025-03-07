@@ -203,6 +203,7 @@ def _handle_outputs(
                 output_type=output_type,
                 filename=output_info.filename,
                 description=output_info.description,
+                short_name=key,
                 long_name=output_info.long_name,
             )
         )

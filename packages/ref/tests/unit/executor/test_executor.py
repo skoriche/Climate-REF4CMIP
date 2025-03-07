@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from cmip_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
 from cmip_ref.executor.local import LocalExecutor
 from cmip_ref.models import MetricExecutionResult
-from cmip_ref.models.metric_execution import ResultOutput
+from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricResult
@@ -103,18 +103,20 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     definition.to_output_path("fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
 
+    mock_result_output = mocker.patch("cmip_ref.executor.ResultOutput", spec=ResultOutput)
+
     handle_execution_result(config, db, mock_execution_result, result)
 
-    assert db.session.call_count == 3
-    db.session.add.assert_called_with(
-        ResultOutput(
-            metric_execution_result_id=mock_execution_result.id,
-            filename="fig_1.jpg",
-            short_name="example2",
-            long_name="awesome figure",
-            description="test add plots",
-        )
+    assert db.session.add.call_count == 3
+    mock_result_output.assert_called_with(
+        metric_execution_result_id=mock_execution_result.id,
+        output_type=ResultOutputType.HTML,
+        filename="index.html",
+        short_name="index",
+        long_name="",
+        description="Landing page",
     )
+    db.session.add.assert_called_with(mock_result_output.return_value)
 
 
 def test_handle_execution_result_failed(config, db, mock_execution_result, definition_factory):
@@ -123,6 +125,15 @@ def test_handle_execution_result_failed(config, db, mock_execution_result, defin
     handle_execution_result(config, db, mock_execution_result, result)
 
     mock_execution_result.mark_failed.assert_called_once()
+
+
+def test_handle_execution_result_missing_file(config, db, mock_execution_result, definition_factory):
+    result = MetricResult(
+        definition=definition_factory(), successful=True, metric_bundle_filename=pathlib.Path("metric.json")
+    )
+
+    with pytest.raises(FileNotFoundError, match="Could not find metric.json in .*/scratch/output_fragment"):
+        handle_execution_result(config, db, mock_execution_result, result)
 
 
 def test_copy_file_to_results_success(mocker):

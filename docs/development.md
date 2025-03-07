@@ -37,7 +37,8 @@ export REF_CONFIGURATION=$PWD/.ref
 
 # Download some test data and ingest the sample datasets.
 make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4MIPs/
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing

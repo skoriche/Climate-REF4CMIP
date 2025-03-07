@@ -11,7 +11,7 @@ This is somewhat analogous to a CI/CD pipeline for climate data.
 
 REF is a community project, and we welcome contributions from anyone.
 
-## Deploymentss
+## Deployments
 
 The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
 to enable the near-realtime evaluation of AR7 FastTrack datasets.

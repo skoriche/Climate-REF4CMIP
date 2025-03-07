@@ -79,7 +79,7 @@ ref --log-level=info providers create-env --provider ESMValTool
 To update a conda-lock file, run for example:
 
 ```bash
-uvx conda-lock -p linux-64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
+uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
 mv conda-lock.yml packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/conda-lock.yml
 ```
 

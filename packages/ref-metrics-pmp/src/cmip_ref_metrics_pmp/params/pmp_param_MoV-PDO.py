@@ -30,7 +30,10 @@ debug = False  # False
 # Observation
 # -------------------------------------------------
 reference_data_name = "HadISSTv1.1"
-reference_data_path = "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+reference_data_path = (
+    "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/"
+    + "mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+)
 
 # varOBS = "sst"
 # ObsUnitsAdjust = (False, 0, 0)  # degC

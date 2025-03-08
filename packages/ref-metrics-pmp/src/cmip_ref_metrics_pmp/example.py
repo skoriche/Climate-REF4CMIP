@@ -1,5 +1,6 @@
 import json
 import pathlib
+from collections import defaultdict
 from typing import Any
 
 import xarray as xr
@@ -45,6 +46,16 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_output
 
 
+def _get_keys_with_levels(nested_dict: dict[str, Any], level: int = 0) -> list[tuple[int, str]]:
+    keys_with_levels = []
+    for k, v in nested_dict.items():
+        keys_with_levels.append((level, k))
+        if isinstance(v, dict):
+            keys_with_levels.extend(_get_keys_with_levels(v, level + 1))
+
+    return keys_with_levels
+
+
 def process_json_result(
     json_filename: pathlib.Path, png_files: list[pathlib.Path], data_files: list[pathlib.Path]
 ) -> tuple[CMECOutput, CMECMetric]:
@@ -86,6 +97,33 @@ def process_json_result(
 
     cmec_metric = CMECMetric.create_template()
     # TODO: Extract the results from the JSON file and add them to the metric bundle
+
+    del cmec_metric["DIMENSIONS"]["model"]
+    del cmec_metric["DIMENSIONS"]["metric"]
+
+    if "DIMENSION" in json_result:
+        if "dimension" in json_result["DIMENSION"]:
+            # Merge the contents of "dimension" into the parent "DIMENSION"
+            json_result["DIMENSION"].update(json_result["DIMENSION"]["dimension"])
+            # Remove the "dimension" key
+            del json_result["DIMENSION"]["dimension"]
+    else:
+        keys_with_levels = _get_keys_with_levels(json_result["RESULTS"])
+
+        tmp_dict = defaultdict(set)
+
+        for k, v in keys_with_levels:
+            tmp_dict[k].add(v)  # Use .add() for sets
+
+        for level, dimension in enumerate(json_result["json_structure"][:-1]):
+            cmec_metric["DIMENSIONS"][dimension] = {key: {} for key in tmp_dict[level]}
+
+    cmec_metric["DIMENSIONS"]["json_structure"] = json_result["json_structure"][:-1]
+    cmec_metric["RESULTS"] = json_result["RESULTS"]
+
+    if "provenance" in json_result:
+        cmec_metric["provenance"] = json_result["provenance"]
+
     return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 
 

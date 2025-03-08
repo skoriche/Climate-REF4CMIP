@@ -100,7 +100,7 @@ def execute_pmp_driver(  # noqa: PLR0913
         reference_name,
         "--results_dir",
         output_directory_path,
-        "--cmec"
+        "--cmec",
     ]
 
     # Run the command and capture the output

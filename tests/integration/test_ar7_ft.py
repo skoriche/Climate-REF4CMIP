@@ -44,7 +44,7 @@ def config(config, monkeypatch, redis_container):
     monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
 
     config.metric_providers = default_metric_providers()
-    config.paths.software_root = SOFTWARE_ROOT_DIR
+    config.paths.software = SOFTWARE_ROOT_DIR
     config.save()
 
     return config

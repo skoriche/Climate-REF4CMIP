@@ -4,6 +4,7 @@ from subprocess import CalledProcessError, CompletedProcess
 import cmip_ref_metrics_pmp
 import pandas as pd
 import pytest
+from cmip_ref_metrics_pmp.pmp_driver import _get_resource
 from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability_PDO
 
 import cmip_ref_core.providers
@@ -37,6 +38,10 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
 
+    mock_fetch_reference_data = mocker.patch(
+        "cmip_ref_metrics_pmp.variability_modes.fetch_reference_data", return_value="REFERENCE_DATA"
+    )
+
     def mock_run_fn(cmd, *args, **kwargs):
         # Copy the output from the test-data directory to the output directory
         output_path = definition.output_directory
@@ -52,7 +57,6 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
         spec_set=True,
         side_effect=mock_run_fn,
     )
-
     result = metric.run(definition)
 
     mock_run.assert_called_with(
@@ -61,14 +65,28 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
             "run",
             "--prefix",
             f"{provider.env_path}",
-            "esmvaltool",
-            "run",
-            f"--config-dir={definition.to_output_path('config')}",
-            f"{definition.to_output_path('recipe.yml')}",
+            "python",
+            _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
+            "-p",
+            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-PDO.py", True),
+            "--modnames",
+            "ACCESS-ESM1-5",
+            "--realization",
+            "r1i1p1f1",
+            "--modpath",
+            metric_dataset.path.to_list()[0],
+            "--reference_data_path",
+            "REFERENCE_DATA",
+            "--reference_data_name",
+            "HadISST-1-1",
+            "--results_dir",
+            str(definition.output_directory),
+            "--cmec",
         ],
         check=True,
     )
 
+    mock_fetch_reference_data.assert_called_with("HadISST-1-1")
     assert result.successful
 
     assert str(result.output_bundle_filename) == "output.json"
@@ -87,8 +105,9 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
     assert metric_bundle_path.is_file()
 
 
-def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
     metric = ExtratropicalModesOfVariability_PDO()
+    metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))

@@ -1,3 +1,9 @@
+import platform
+
+import pandas as pd
+import pytest
+
+from cmip_ref.config import default_metric_providers
 from cmip_ref.database import Database
 from cmip_ref.models import Dataset, MetricExecution
 
@@ -33,3 +39,54 @@ def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli, monkeypa
         execution.results[0].datasets[1].instance_id
         == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318"
     )
+
+
+def create_execution_dataframe(executions):
+    data = []
+    for execution in executions:
+        assert len(execution.results) == 1
+        result = execution.results[0]
+
+        data.append(
+            {
+                "metric": execution.metric_id,
+                "provider": execution.metric.provider.slug,
+                "execution_id": execution.id,
+                "result_id": result.id,
+                "execution_key": execution.key,
+                "successful": result.successful,
+            }
+        )
+
+    df = pd.DataFrame(data)
+    return df
+
+
+@pytest.mark.slow
+def test_solve_ar7_ft(sample_data_dir, config, invoke_cli, monkeypatch):
+    # Arm-based MacOS users will need to set the environment variable `MAMBA_PLATFORM=osx-64`
+    if platform.system() == "Darwin" and platform.machine() == "arm64":
+        monkeypatch.setenv("MAMBA_PLATFORM", "osx-64")
+
+    config.metric_providers = default_metric_providers()
+    config.save()
+
+    assert len(config.metric_providers) == 3
+
+    db = Database.from_config(config)
+
+    # Ingest the sample data
+    invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])
+    invoke_cli(["datasets", "ingest", "--source-type", "obs4mips", str(sample_data_dir / "Obs4MIPs")])
+
+    # Solve
+    # This will also create conda environments for the metric providers
+    invoke_cli(["--verbose", "solve"])
+
+    executions = db.session.query(MetricExecution).all()
+    df = create_execution_dataframe(executions)
+
+    print(df)
+
+    assert len(df["provider"].unique()) == 3
+    assert df["successful"].all()

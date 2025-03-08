@@ -99,7 +99,7 @@ def process_json_result(
     return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 
 
-def get_resource_filename(package: str, resource_name: str | pathlib.Path, use_resources: bool) -> str:
+def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources: bool) -> str:
     """
     Get the path to a resource within the pcmdi_metric package without importing.
 
@@ -164,8 +164,8 @@ def execute_pmp_driver(  # noqa: PLR0913
 
     """
     # Note this uses the driver script from the REF env *not* the PMP conda env
-    _driver_script = get_resource_filename("pcmdi_metrics", driver_file, use_resources=False)
-    _parameter_file = get_resource_filename("cmip_ref_metrics_pmp.params", parameter_file, use_resources=True)
+    _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
+    _parameter_file = _get_resource("cmip_ref_metrics_pmp.params", parameter_file, use_resources=True)
 
     if len(model_files) != 1:
         # Have some logic to replace the dates in the filename with a wildcard
@@ -201,7 +201,7 @@ def execute_pmp_driver(  # noqa: PLR0913
         cmd,
         capture_output=True,
         text=True,
-        check=False,
+        check=True,
     )
     # Print the command output
     print("Output:\n", proc.stdout)

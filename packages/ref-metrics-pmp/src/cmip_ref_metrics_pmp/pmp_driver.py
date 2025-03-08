@@ -124,7 +124,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
         The full path to the target resource.
     """
     if use_resources:
-        resource_path = str(importlib.resources.path(package, str(resource_name)))
+        resource_path = str(importlib.resources.files(package) / str(resource_name))
     else:
         distribution = importlib.metadata.distribution(package)
         resource_path = str(distribution.locate_file(pathlib.Path(package) / resource_name))
@@ -147,16 +147,35 @@ def execute_pmp_driver(  # noqa: PLR0913
     """
     Run a PMP driver script via a conda environment
 
+    This function runs a PMP driver script using a specific conda environment.
+    The driver script is responsible for running the PMP metrics and producing output.
+    The output consists of a JSON file that contains the results of the PMP metrics,
+    and a set of PNG and data files that are produced by the metrics.
+
     Parameters
     ----------
     driver_file
+        Filename of the PMP driver script to run
+
+        Relative to the pcmdi_metrics package.
     parameter_file
+        Filename of the parameter file to use
+
+        Relative to the cmip_ref_metrics_pmp.params package.
     model_files
+        A list of model files to evaluate
+
+        Currently, we only support a single model file.
     reference_name
+        Name of the reference dataset to use
     reference_paths
+        Path to the reference dataset
     source_id
+        Source ID of the model data
     member_id
+        Member ID of the model data
     output_directory_path
+        Output data where all the results are stored
     conda_env_name
         Name of the conda environment to use to execute.
 

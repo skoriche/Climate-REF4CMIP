@@ -82,9 +82,11 @@ class Database:
             self._migrate()
 
     def _migrate(self) -> None:
-        with importlib.resources.path("cmip_ref", "alembic.ini") as fspath:
-            alembic_config = AlembicConfig(fspath)
-            alembic_config.attributes["connection"] = self._engine
+        alembic_config_filename = importlib.resources.files("cmip_ref") / "alembic.ini"
+        if not alembic_config_filename.is_file():  # pragma: no cover
+            raise FileNotFoundError(f"{alembic_config_filename} not found")
+        alembic_config = AlembicConfig(str(alembic_config_filename))
+        alembic_config.attributes["connection"] = self._engine
 
         script = ScriptDirectory.from_config(alembic_config)
         head = script.get_current_head()

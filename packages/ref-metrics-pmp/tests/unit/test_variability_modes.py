@@ -1,10 +1,13 @@
 import shutil
 from subprocess import CalledProcessError, CompletedProcess
 
-import cmip_ref_metrics_pmp.pmp_driver
+import cmip_ref_metrics_pmp
 import pandas as pd
+import pytest
+from cmip_ref_metrics_pmp.pmp_driver import _get_resource
 from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability_PDO
 
+import cmip_ref_core.providers
 from cmip_ref.solver import extract_covered_datasets
 from cmip_ref_core.datasets import DatasetCollection
 from cmip_ref_core.metrics import Metric
@@ -16,13 +19,30 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.Dat
     return datasets[0]
 
 
-def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+@pytest.fixture
+def provider(tmp_path):
+    provider = cmip_ref_metrics_pmp.provider
+    provider.prefix = tmp_path / "conda"
+    provider.prefix.mkdir()
+    provider._conda_exe = provider.prefix / "mock_micromamba"
+    provider._conda_exe.touch()
+    provider.env_path.mkdir()
+
+    return provider
+
+
+def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
     metric = ExtratropicalModesOfVariability_PDO()
+    metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
 
-    def mock_run_call(cmd, *args, **kwargs):
+    mock_fetch_reference_data = mocker.patch(
+        "cmip_ref_metrics_pmp.variability_modes.fetch_reference_data", return_value="REFERENCE_DATA"
+    )
+
+    def mock_run_fn(cmd, *args, **kwargs):
         # Copy the output from the test-data directory to the output directory
         output_path = definition.output_directory
         shutil.copytree(pdo_example_dir, output_path)
@@ -30,15 +50,43 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
 
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called
-    mocker.patch.object(
-        cmip_ref_metrics_pmp.pmp_driver.subprocess,
+    mock_run = mocker.patch.object(
+        cmip_ref_core.providers.subprocess,
         "run",
         autospec=True,
         spec_set=True,
-        side_effect=mock_run_call,
+        side_effect=mock_run_fn,
+    )
+    result = metric.run(definition)
+
+    mock_run.assert_called_with(
+        [
+            f"{provider._conda_exe}",
+            "run",
+            "--prefix",
+            f"{provider.env_path}",
+            "python",
+            _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
+            "-p",
+            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-PDO.py", True),
+            "--modnames",
+            "ACCESS-ESM1-5",
+            "--realization",
+            "r1i1p1f1",
+            "--modpath",
+            metric_dataset.path.to_list()[0],
+            "--reference_data_path",
+            "REFERENCE_DATA",
+            "--reference_data_name",
+            "HadISST-1-1",
+            "--results_dir",
+            str(definition.output_directory),
+            "--cmec",
+        ],
+        check=True,
     )
 
-    result = metric.run(definition)
+    mock_fetch_reference_data.assert_called_with("HadISST-1-1")
     assert result.successful
 
     assert str(result.output_bundle_filename) == "output.json"
@@ -57,8 +105,9 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
     assert metric_bundle_path.is_file()
 
 
-def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
     metric = ExtratropicalModesOfVariability_PDO()
+    metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
     definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
@@ -66,12 +115,12 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called
     mocker.patch.object(
-        cmip_ref_metrics_pmp.pmp_driver.subprocess,
+        cmip_ref_core.providers.subprocess,
         "run",
         autospec=True,
         spec_set=True,
         side_effect=CalledProcessError(1, ["cmd"], "output", "stderr"),
     )
 
-    result = metric.run(definition)
-    assert not result.successful
+    with pytest.raises(CalledProcessError):
+        metric.run(definition)

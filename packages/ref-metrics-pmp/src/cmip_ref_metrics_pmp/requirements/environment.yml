@@ -1,4 +1,3 @@
-name: ref-metrics-pmp
 channels:
     - conda-forge
     - nodefaults

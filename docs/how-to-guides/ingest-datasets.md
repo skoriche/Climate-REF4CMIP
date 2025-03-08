@@ -6,6 +6,7 @@ Ingesting datasets is the first step in the REF workflow.
 The REF supports the following dataset formats:
 
 * CMIP6
+* Obs4MIPs
 
 Downloading the input data is out of scope for this guide,
 but we recommend using the [intake-esgf](https://github.com/esgf2-us/intake-esgf/) to download CMIP6 data.

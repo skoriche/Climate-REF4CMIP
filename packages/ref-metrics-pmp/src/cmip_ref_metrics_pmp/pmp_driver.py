@@ -2,13 +2,10 @@ import importlib.metadata
 import importlib.resources
 import json
 import pathlib
-import subprocess
 from typing import Any
 
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
-
-DEFAULT_CONDA_ENV = "ref-metrics-pmp"
 
 
 def _remove_nested_key(data: dict[str, Any], key: str) -> dict[str, Any]:
@@ -133,7 +130,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
     return str(resource_path)
 
 
-def execute_pmp_driver(  # noqa: PLR0913
+def build_pmp_command(  # noqa: PLR0913
     driver_file: str,
     parameter_file: str,
     model_files: list[str],
@@ -142,8 +139,7 @@ def execute_pmp_driver(  # noqa: PLR0913
     source_id: str,
     member_id: str,
     output_directory_path: str,
-    conda_env_name: str = DEFAULT_CONDA_ENV,
-) -> None:
+) -> list[str]:
     """
     Run a PMP driver script via a conda environment
 
@@ -176,11 +172,6 @@ def execute_pmp_driver(  # noqa: PLR0913
         Member ID of the model data
     output_directory_path
         Output data where all the results are stored
-    conda_env_name
-        Name of the conda environment to use to execute.
-
-        This conda env must have pcmdi_metrics installed.
-
     """
     # Note this uses the driver script from the REF env *not* the PMP conda env
     _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
@@ -191,11 +182,7 @@ def execute_pmp_driver(  # noqa: PLR0913
         raise NotImplementedError("Only one model file is supported at this time.")
 
     # Run the driver script inside the PMP conda environment
-    cmd = [
-        "conda",
-        "run",
-        "--name",
-        conda_env_name,
+    return [
         "python",
         _driver_script,
         "-p",
@@ -214,19 +201,3 @@ def execute_pmp_driver(  # noqa: PLR0913
         output_directory_path,
         "--cmec",
     ]
-
-    # Run the command and capture the output
-    proc = subprocess.run(  # noqa: S603
-        cmd,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    # Print the command output
-    print("Output:\n", proc.stdout)
-    # Print any errors
-    if proc.stderr:  # pragma: no branch
-        print("Error:\n", proc.stderr)
-
-    # TODO: Not sure what you want to return here?
-    # Maybe a boolean indicating success + the log output?

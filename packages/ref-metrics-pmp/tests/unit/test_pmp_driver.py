@@ -1,5 +1,5 @@
 import pytest
-from cmip_ref_metrics_pmp.pmp_driver import execute_pmp_driver, process_json_result
+from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
 
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
@@ -33,7 +33,7 @@ def test_execute_missing_driver():
         FileNotFoundError,
         match="Resource variability_mode/missing.py not found in pcmdi_metrics package.",
     ):
-        execute_pmp_driver(
+        build_pmp_command(
             driver_file="variability_mode/missing.py",
             parameter_file="pmp_param_MoV-PDO.py",
             model_files=["model1.nc"],
@@ -50,7 +50,7 @@ def test_execute_missing_parameter():
         FileNotFoundError,
         match="Resource pmp_missing.py not found in cmip_ref_metrics_pmp.params package.",
     ):
-        execute_pmp_driver(
+        build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",
             parameter_file="pmp_missing.py",
             model_files=["model1.nc"],
@@ -64,7 +64,7 @@ def test_execute_missing_parameter():
 
 def test_execute_more_than_one_model():
     with pytest.raises(NotImplementedError, match="Only one model file is supported"):
-        execute_pmp_driver(
+        build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",
             parameter_file="pmp_param_MoV-PDO.py",
             model_files=["model1.nc", "model2.nc"],

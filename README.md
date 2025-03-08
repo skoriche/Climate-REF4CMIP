@@ -4,7 +4,7 @@
 
 **Status**: This project is in active development. We expect to be ready for beta releases in Q2 2025.
 
-The Rapid Evaluation Framework is a set of Python packages that provide the ability to manage the execution of calculations against climate datasets.
+The Rapid Evaluation Framework(REF) is a set of Python packages that provide the ability to manage the execution of calculations against climate datasets.
 The aim is to be able to evaluate climate data against a set of reference data in near-real time as datasets are published,
 and to update any produced data and figures as new datasets become available.
 This is somewhat analogous to a CI/CD pipeline for climate data.
@@ -37,7 +37,26 @@ The REF is agnostic to what types of data and metrics are to be performed.
 [![Last Commit](https://img.shields.io/github/last-commit/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/graphs/contributors)
 
+<!--- --8<-- [end:description] -->
+
+## Installation
+
+<!--- --8<-- [start:installation] -->
+
+CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
+(mamba and conda releases are not yet implemented):
+
+
+```bash
+pip install cmip_ref
+mamba install -c conda-forge cmip_ref
+conda install -c conda-forge cmip_ref
+```
+
+<!--- --8<-- [end:installation] -->
+
 ## Getting started
+<!--- --8<-- [start:getting-started] -->
 
 ### As a metrics provider
 
@@ -53,10 +72,22 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
+For the tutorials and test suite,
+we maintain a set of test data that can be used to evaluate the REF.
+These datasets can be fetched using
+
+```bash
+ref datasets fetch-sample-data
+```
+
+These datasets can then be ingested into the REF and the metrics solved using:
+
 ```bash
 ref datasets ingest --source-type cmip6 {data_path}
 ref solve
 ```
+
+The executed metrics can then be viewed using the `ref executions list` command.
 
 ### As a devops engineer
 
@@ -79,28 +110,13 @@ This can be run with:
 docker-compose up
 ```
 
-<!--- --8<-- [end:description] -->
+<!--- --8<-- [end:getting-started] -->
 
 Full documentation can be found at:
 [cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
 We recommend reading the docs there because the internal documentation links
 don't render correctly on GitHub's viewer.
 
-## Installation
-
-<!--- --8<-- [start:installation] -->
-
-CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
-(mamba and conda releases are not yet implemented):
-
-
-```bash
-pip install cmip_ref
-mamba install -c conda-forge cmip_ref
-conda install -c conda-forge cmip_ref
-```
-
-<!--- --8<-- [end:installation] -->
 
 ### For contributors
 

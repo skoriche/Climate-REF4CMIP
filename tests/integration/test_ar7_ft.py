@@ -118,7 +118,7 @@ def test_solve_ar7_ft(
 
     # Solve
     # This will also create conda environments for the metric providers
-    invoke_cli(["--verbose", "solve"])
+    invoke_cli(["--verbose", "solve", "--timeout", f"{60 * 60}"])
 
     executions = db.session.query(MetricExecution).all()
     df = create_execution_dataframe(executions)
@@ -126,7 +126,7 @@ def test_solve_ar7_ft(
     print(df)
 
     assert len(df["provider"].unique()) == 3
-    assert df["successful"].all()
+    assert df["successful"].all(), df
 
 
 @pytest.mark.slow
@@ -146,7 +146,7 @@ def test_solve_celery_ar7_ft(
 
     # Ingest the sample data
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])
-    invoke_cli(["datasets", "ingest", "--source-type", "obs4mips", str(sample_data_dir / "obs4mips")])
+    invoke_cli(["datasets", "ingest", "--source-type", "obs4mips", str(sample_data_dir / "obs4MIPs")])
 
     # Solve
     # This will also create conda environments for the metric providers
@@ -158,7 +158,7 @@ def test_solve_celery_ar7_ft(
     print(df)
 
     assert len(df["provider"].unique()) == 3
-    assert df["successful"].all()
+    assert df["successful"].all(), df
 
     # Attempt to avoid a flakey outcome where the celery tasks aren't cleaned up properly
     time.sleep(2)

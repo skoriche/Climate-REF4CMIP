@@ -3,7 +3,7 @@
 The REF is designed to be run in a variety of environments, including local execution, cloud-based execution, and execution on HPC systems.
 The REF can be run as a standalone application, as a set of services, or as a set of docker containers.
 
-After installing the REF, you can start using the REF via the CLI tool:
+After [installation](./installation.md), you can start using the REF via the CLI tool:
 
 ```bash
 $ uv run ref
@@ -40,3 +40,6 @@ This provides the ability to:
 * **Ingest** new input datasetes
 * **Solve** for the unique metrics executions that are required
 * **Execute** the metrics either locally or remotely
+
+
+---8<--- "README.md:getting-started"

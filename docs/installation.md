@@ -25,9 +25,14 @@ pip install cmip_ref[celery,providers]
 /// admonition | Note
 
 `pip install cmip_ref[providers]` installs the metric providers packages which container the metrics definitions,
-but not necesarily the additional packages required to run the metrics.
+but not necessarily the additional packages required to run the metrics.
 ///
 
+Some of the metric providers require additional dependencies to be installed.
+For these providers, the REF will automatically create a new Conda environment
+and install the required dependencies.
+This uses a bundled version of the [micromamba](https://github.com/mamba-org/micromamba-releases)
+to create and manage the environment so no additional dependencies are required.
 
 ## Conda
 

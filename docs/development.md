@@ -68,13 +68,41 @@ done
 
 ### Installing metric provider dependencies
 
+/// admonition | Windows support
+   type: warning
 
-Some metric providers can use their own conda environments. The REF can manage
-these for you, provided that conda is installed.
+Window's doesn't support some of the packages required by the metrics providers,
+so we only support MacOS and Linux.
+Windows users are recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
+or a Linux VM if they wish to use the REF.
+
+///
+
+Some metric providers can use their own conda environments.
+The REF can manage these for you,
+using a bundled version of [micromamba](https://github.com/mamba-org/micromamba-releases).
+
+A new environment for a metric provider can be created with the following command:
 
 ```bash
-ref --log-level=info providers create-env --provider ESMValTool
+ref --log-level=info providers create-env --provider esmvaltool
 ```
+
+A new environment will be created automatically for each conda-based metric provider when it is first used,
+if one does not already exist.
+
+/// admonition | Note
+
+The PMP conda environment is not yet available for arm-based MacOS users,
+so the automatic installation process will fail.
+
+Arm-based MacOS users can use the following command to create the conda environment manually:
+
+```bash
+MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
+```
+
+///
 
 
 To update a conda-lock file, run for example:

@@ -1,5 +1,5 @@
-site_name: REF
-site_description: Rapid Evalutation Framework
+site_name: Climate REF
+site_description: The Rapid Evaluation Framework for near-real time evaluation of climate models
 site_url: https://cmip-ref.readthedocs.io
 edit_uri: blob/master/docs/
 
@@ -7,7 +7,7 @@ repo_name: Climate-REF/climate-ref
 repo_url: https://github.com/Climate-REF/climate-ref
 
 nav:
-  - REF: index.md
+  - Rapid Evaluation Framework: index.md
   - Installation: installation.md
   - Getting Started: getting_started.md
   - Configuration: configuration.md

@@ -172,11 +172,6 @@ def build_pmp_command(  # noqa: PLR0913
         Member ID of the model data
     output_directory_path
         Output data where all the results are stored
-    conda_env_name
-        Name of the conda environment to use to execute.
-
-        This conda env must have pcmdi_metrics installed.
-
     """
     # Note this uses the driver script from the REF env *not* the PMP conda env
     _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)

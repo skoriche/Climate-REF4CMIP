@@ -124,7 +124,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
         The full path to the target resource.
     """
     if use_resources:
-        resource_path = str(importlib.resources.path(package, resource_name))
+        resource_path = str(importlib.resources.path(package, str(resource_name)))
     else:
         distribution = importlib.metadata.distribution(package)
         resource_path = str(distribution.locate_file(pathlib.Path(package) / resource_name))

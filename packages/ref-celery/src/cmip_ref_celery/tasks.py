@@ -65,4 +65,8 @@ def register_celery_tasks(app: Celery, provider: MetricsProvider) -> None:
     """
     for metric in provider.metrics():
         print(f"Registering task for metric {metric.name}")
-        app.task(_metric_task_factory(metric), name=generate_task_name(provider, metric), queue=provider.slug)
+        app.task(  # type: ignore
+            _metric_task_factory(metric),
+            name=generate_task_name(provider, metric),
+            queue=provider.slug,
+        )

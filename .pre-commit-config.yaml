@@ -47,12 +47,12 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: "make mypy"
+        entry: "uv run mypy"
         # This uses local uv installation
         language: system
         types: [ python ]
-        pass_filenames: false
+        pass_filenames: true
         # use require_serial so that script is only called once per commit
         require_serial: true
         verbose: false
-        always_run: true
+        always_run: false

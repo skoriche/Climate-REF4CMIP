@@ -29,13 +29,7 @@ pre-commit:  ## run all the linting checks of the codebase
 
 .PHONY: mypy
 mypy:  ## run mypy on the codebase
-	uv run --package cmip_ref mypy packages/ref
-	uv run --package cmip_ref_core mypy packages/ref-core
-	uv run --package cmip_ref_celery mypy packages/ref
-	uv run --package cmip_ref_metrics_example mypy packages/ref-metrics-example
-	uv run --package cmip_ref_metrics_esmvaltool mypy packages/ref-metrics-esmvaltool
-	uv run --package cmip_ref_metrics_ilamb mypy packages/ref-metrics-ilamb
-	uv run --package cmip_ref_metrics_pmp mypy packages/ref-metrics-pmp
+	uv run mypy packages
 
 .PHONY: clean
 clean:  ## clean up temporary files

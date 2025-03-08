@@ -2,6 +2,8 @@ import pytest
 from cmip_ref_celery.cli import app
 from typer.testing import CliRunner
 
+from cmip_ref_core.providers import MetricsProvider
+
 runner = CliRunner()
 
 
@@ -22,7 +24,7 @@ def mock_register_celery_tasks(mocker):
 
 def test_start_worker_success(mocker, mock_create_celery_app, mock_register_celery_tasks):
     mock_celery_app = mock_create_celery_app.return_value
-    mock_provider = mocker.Mock()
+    mock_provider = mocker.MagicMock(spec=MetricsProvider)
     mock_provider.slug = "example"
 
     mock_import_module = mocker.patch(
@@ -50,7 +52,7 @@ def test_start_core_worker_success(mock_create_celery_app, mock_register_celery_
 
 def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_register_celery_tasks):
     mock_worker_main = mock_create_celery_app.return_value
-    mock_provider = mocker.Mock()
+    mock_provider = mocker.MagicMock(spec=MetricsProvider)
     mock_provider.slug = "example"
 
     mocker.patch("importlib.import_module", return_value=mocker.Mock(provider=mock_provider))
@@ -95,6 +97,21 @@ def test_start_worker_missing_provider(mocker, mock_create_celery_app):
 
     assert result.exit_code == 1, result.output
     assert "The package must define a 'provider' attribute" in result.output
+    mock_import_module.assert_called_once_with("test_package")
+
+
+def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
+    # Not a MetricsProvider
+    mock_provider = mocker.Mock()
+
+    mock_import_module = mocker.patch(
+        "importlib.import_module", return_value=mocker.Mock(provider=mock_provider)
+    )
+
+    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+
+    assert result.exit_code == 1, result.output
+    assert "Expected MetricsProvider, got <class 'unittest.mock.Mock'>" in result.output
     mock_import_module.assert_called_once_with("test_package")
 
 

@@ -10,7 +10,7 @@ from cmip_ref.models import MetricExecutionResult
 from cmip_ref_celery.app import app
 from cmip_ref_celery.tasks import generate_task_name
 from cmip_ref_core.executor import Executor
-from cmip_ref_core.metrics import Metric, MetricExecutionDefinition
+from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
 
@@ -32,8 +32,8 @@ class CeleryExecutor(Executor):
     name = "celery"
 
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self._results: list[celery.result.AsyncResult] = []
+        super().__init__(**kwargs)  # type: ignore
+        self._results: list[celery.result.AsyncResult[MetricResult]] = []
 
     def run_metric(
         self,

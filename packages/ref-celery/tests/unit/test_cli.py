@@ -100,6 +100,21 @@ def test_start_worker_missing_provider(mocker, mock_create_celery_app):
     mock_import_module.assert_called_once_with("test_package")
 
 
+def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
+    # Not a MetricsProvider
+    mock_provider = mocker.Mock()
+
+    mock_import_module = mocker.patch(
+        "importlib.import_module", return_value=mocker.Mock(provider=mock_provider)
+    )
+
+    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+
+    assert result.exit_code == 1, result.output
+    assert "Expected MetricsProvider, got <class 'unittest.mock.Mock'>" in result.output
+    mock_import_module.assert_called_once_with("test_package")
+
+
 def test_list_config():
     result = runner.invoke(app, ["list-config"])
 

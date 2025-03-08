@@ -21,7 +21,8 @@ from pytest_docker_tools import container, fetch
 
 from cmip_ref.config import default_metric_providers
 from cmip_ref.database import Database
-from cmip_ref.solver import MetricExecution, solve_metrics
+from cmip_ref.models import MetricExecution
+from cmip_ref.solver import solve_metrics
 
 # Put the conda environments in a shared location
 # ROOT / .ref / software

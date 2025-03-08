@@ -1,4 +1,5 @@
 import platform
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -63,10 +64,19 @@ def create_execution_dataframe(executions):
 
 
 @pytest.mark.slow
-def test_solve_ar7_ft(sample_data_dir, config, invoke_cli, monkeypatch):
+def test_solve_ar7_ft(
+    sample_data_dir,
+    config,
+    invoke_cli,
+    monkeypatch,
+):
     # Arm-based MacOS users will need to set the environment variable `MAMBA_PLATFORM=osx-64`
     if platform.system() == "Darwin" and platform.machine() == "arm64":
         monkeypatch.setenv("MAMBA_PLATFORM", "osx-64")
+
+    # Put the conda environments in a shared location
+    # ROOT / .ref / software
+    monkeypatch.setenv("REF_SOFTWARE_ROOT", str(Path().parents[3] / ".ref" / "software"))
 
     config.metric_providers = default_metric_providers()
     config.save()

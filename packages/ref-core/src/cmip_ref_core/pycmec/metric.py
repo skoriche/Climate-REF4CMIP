@@ -183,7 +183,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float]
+    root: dict[str, float | str]
 
 
 class CMECMetric(BaseModel):

@@ -1,9 +1,6 @@
 import json
 import pathlib
-from collections import defaultdict
 from typing import Any
-
-import xarray as xr
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
@@ -13,47 +10,27 @@ from cmip_ref_metrics_pmp.pmp_driver import execute_pmp_driver
 from cmip_ref_metrics_pmp.registry import fetch_reference_data
 
 
-def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
+def _remove_nested_key(data: dict[str, Any], key: str) -> dict[str, Any]:
     """
-    Create a simple CMEC output bundle for the dataset.
+    Remove a nested key from a dictionary
 
     Parameters
     ----------
-    dataset
-        Processed dataset
+    data
+        Dictionary to remove the key from
+    key
+        Key to remove
 
     Returns
     -------
-        A CMEC output bundle ready to be written to disk
+        The dictionary with the key removed
     """
-    # TODO: Check how timeseries data are generally serialised
-    cmec_output = {
-        "DIMENSIONS": {
-            "model": {dataset.attrs["source_id"]: {}},
-            "region": {"global": {}},
-            "metric": {"tas": {}},
-            "json_structure": [
-                "model",
-                "region",
-                "metric",
-            ],
-        },
-        "RESULTS": {
-            dataset.attrs["source_id"]: {"global": {"tas": 0}},
-        },
-    }
-
-    return cmec_output
-
-
-def _get_keys_with_levels(nested_dict: dict[str, Any], level: int = 0) -> list[tuple[int, str]]:
-    keys_with_levels = []
-    for k, v in nested_dict.items():
-        keys_with_levels.append((level, k))
+    if key in data:
+        data.pop(key)
+    for k, v in data.items():
         if isinstance(v, dict):
-            keys_with_levels.extend(_get_keys_with_levels(v, level + 1))
-
-    return keys_with_levels
+            data[k] = _remove_nested_key(v, key)
+    return data
 
 
 def process_json_result(
@@ -81,13 +58,13 @@ def process_json_result(
     cmec_output = CMECOutput.create_template()
     cmec_output["provenance"] = {**cmec_output["provenance"], **json_result["provenance"]}
 
+    # Add the plots and data files
     for fname in png_files:
         cmec_output["plots"][fname.name] = {
             "filename": str(fname),
             "long_name": "Plot",
             "description": "Plot produced by the metric",
         }
-
     for fname in data_files:
         cmec_output["data"][fname.name] = {
             "filename": str(fname),
@@ -96,30 +73,24 @@ def process_json_result(
         }
 
     cmec_metric = CMECMetric.create_template()
-    # TODO: Extract the results from the JSON file and add them to the metric bundle
+    cmec_metric["DIMENSIONS"] = {}
+    dimensions = json_result["DIMENSIONS"]
 
-    del cmec_metric["DIMENSIONS"]["model"]
-    del cmec_metric["DIMENSIONS"]["metric"]
+    if "dimensions" in dimensions:
+        # Merge the contents of inner "dimensions" into the parent "DIMENSIONS"
+        dimensions.update(dimensions["dimensions"])
+        del dimensions["dimensions"]
 
-    if "DIMENSION" in json_result:
-        if "dimension" in json_result["DIMENSION"]:
-            # Merge the contents of "dimension" into the parent "DIMENSION"
-            json_result["DIMENSION"].update(json_result["DIMENSION"]["dimension"])
-            # Remove the "dimension" key
-            del json_result["DIMENSION"]["dimension"]
-    else:
-        keys_with_levels = _get_keys_with_levels(json_result["RESULTS"])
+    if "statistic" in dimensions["json_structure"]:
+        dimensions["json_structure"].remove("statistic")
+        dimensions.pop("statistic")
 
-        tmp_dict = defaultdict(set)
+    # Remove the "attributes" key from the RESULTS
+    # This isn't standard CMEC output, but it is what PMP produces
+    results = _remove_nested_key(json_result["RESULTS"], "attributes")
 
-        for k, v in keys_with_levels:
-            tmp_dict[k].add(v)  # Use .add() for sets
-
-        for level, dimension in enumerate(json_result["json_structure"][:-1]):
-            cmec_metric["DIMENSIONS"][dimension] = {key: {} for key in tmp_dict[level]}
-
-    cmec_metric["DIMENSIONS"]["json_structure"] = json_result["json_structure"][:-1]
-    cmec_metric["RESULTS"] = json_result["RESULTS"]
+    cmec_metric["RESULTS"] = results
+    cmec_metric["DIMENSIONS"] = dimensions
 
     if "provenance" in json_result:
         cmec_metric["provenance"] = json_result["provenance"]

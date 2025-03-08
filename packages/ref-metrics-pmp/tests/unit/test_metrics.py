@@ -29,7 +29,7 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.Dat
 def test_process_json_result(pdo_example_dir):
     json_file = (
         pdo_example_dir
-        / "var_mode_PDO_EOF1_stat_cmip5_historical_mo_atm_ACCESS-ESM1-5_r1i1p1f1_2000-2005.json"
+        / "var_mode_PDO_EOF1_stat_cmip5_historical_mo_atm_ACCESS-ESM1-5_r1i1p1f1_2000-2005_cmec.json"
     )
     png_files = [pdo_example_dir / "pdo.png"]
     data_files = [pdo_example_dir / "pdo.nc"]
@@ -39,6 +39,14 @@ def test_process_json_result(pdo_example_dir):
     assert CMECMetric.model_validate(cmec_metric)
     assert CMECOutput.model_validate(cmec_output)
     assert len(cmec_metric.RESULTS)
+    assert len(cmec_metric.DIMENSIONS.root["json_structure"]) == [
+        "model",
+        "realization",
+        "reference",
+        "mode",
+        "season",
+        "method",
+    ]
 
 
 def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):

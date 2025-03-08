@@ -39,7 +39,7 @@ def test_process_json_result(pdo_example_dir):
     assert CMECMetric.model_validate(cmec_metric)
     assert CMECOutput.model_validate(cmec_output)
     assert len(cmec_metric.RESULTS)
-    assert len(cmec_metric.DIMENSIONS.root["json_structure"]) == [
+    assert cmec_metric.DIMENSIONS.root["json_structure"] == [
         "model",
         "realization",
         "reference",

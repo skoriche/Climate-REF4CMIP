@@ -76,7 +76,7 @@ def test_solve_ar7_ft(
 
     # Put the conda environments in a shared location
     # ROOT / .ref / software
-    monkeypatch.setenv("REF_SOFTWARE_ROOT", str(Path().parents[3] / ".ref" / "software"))
+    monkeypatch.setenv("REF_SOFTWARE_ROOT", str(Path(__file__).parents[3] / ".ref" / "software"))
 
     config.metric_providers = default_metric_providers()
     config.save()

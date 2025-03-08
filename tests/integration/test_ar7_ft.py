@@ -39,7 +39,7 @@ redis_container = container(
 
 
 @pytest.fixture
-def config(config, monkeypatch):
+def config(config, monkeypatch, redis_container):
     monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
     monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
 

@@ -3,7 +3,7 @@ from pytest_docker_tools import wrappers  # type: ignore
 
 
 class RedisContainer(wrappers.Container):  # type: ignore
-    def ready(self) -> bool:
+    def ready(self) -> bool:  # pragma: no cover
         if super().ready() and len(self.ports["6379/tcp"]) > 0:
             print(f"Redis using port:{self.ports['6379/tcp'][0]}")
             # Perform a simple ping to check if the server is ready
@@ -15,6 +15,6 @@ class RedisContainer(wrappers.Container):  # type: ignore
 
         return False
 
-    def connection_url(self) -> str:
+    def connection_url(self) -> str:  # pragma: no cover
         port = self.ports["6379/tcp"][0]
         return f"redis://localhost:{port}/0"

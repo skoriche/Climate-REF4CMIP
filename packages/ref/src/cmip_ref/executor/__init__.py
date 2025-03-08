@@ -180,7 +180,7 @@ def handle_execution_result(
         # i.e. if there are outstanding results don't make as clean
         metric_execution_result.metric_execution.dirty = False
     else:
-        logger.info(f"{metric_execution_result} failed")
+        logger.error(f"{metric_execution_result} failed")
         metric_execution_result.mark_failed()
 
 

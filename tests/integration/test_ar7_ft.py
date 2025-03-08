@@ -16,23 +16,11 @@ import pandas as pd
 import pytest
 from cmip_ref_celery.app import create_celery_app
 from cmip_ref_celery.tasks import register_celery_tasks
-from cmip_ref_celery.testing import RedisContainer
-from pytest_docker_tools import container, fetch
 
 from cmip_ref.config import default_metric_providers
 from cmip_ref.database import Database
 from cmip_ref.models import MetricExecution
 from cmip_ref.solver import solve_metrics
-
-redis_image = fetch(repository="redis:7")
-
-redis_container = container(
-    image="{redis_image.id}",
-    ports={
-        "6379/tcp": None,
-    },
-    wrapper_class=RedisContainer,
-)
 
 
 @pytest.fixture
@@ -56,8 +44,8 @@ def celery_app(redis_container, config, monkeypatch):
     as it registers both to the "example" and "celery" queues.
     Typically, these are done on separate workers.
     """
-    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
-    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url(1))
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url(1))
 
     app = create_celery_app("test")
 
@@ -132,8 +120,8 @@ def test_solve_ar7_ft(
 def test_solve_celery_ar7_ft(
     sample_data_dir, config, invoke_cli, monkeypatch, celery_worker, redis_container
 ):
-    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
-    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url(1))
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url(1))
 
     config.executor.executor = "cmip_ref_celery.executor.CeleryExecutor"
     config.save()

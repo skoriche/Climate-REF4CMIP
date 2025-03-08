@@ -10,24 +10,12 @@ import time
 import pytest
 from cmip_ref_celery.app import create_celery_app
 from cmip_ref_celery.tasks import register_celery_tasks
-from cmip_ref_celery.testing import RedisContainer
 from cmip_ref_metrics_example import provider
-from pytest_docker_tools import container, fetch
 
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.models import MetricExecutionResult
 from cmip_ref.solver import solve_metrics
-
-redis_image = fetch(repository="redis:7")
-
-redis_container = container(
-    image="{redis_image.id}",
-    ports={
-        "6379/tcp": None,
-    },
-    wrapper_class=RedisContainer,
-)
 
 
 @pytest.fixture

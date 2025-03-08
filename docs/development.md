@@ -37,7 +37,8 @@ export REF_CONFIGURATION=$PWD/.ref
 
 # Download some test data and ingest the sample datasets.
 make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4MIPs/
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing
@@ -79,7 +80,7 @@ ref --log-level=info providers create-env --provider ESMValTool
 To update a conda-lock file, run for example:
 
 ```bash
-uvx conda-lock -p linux-64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
+uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
 mv conda-lock.yml packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/conda-lock.yml
 ```
 

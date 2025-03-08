@@ -27,6 +27,15 @@ Additionally, clone the [sample data repository](https://github.com/Climate-REF/
 
 After installing the database, you can run the test suite using `make test` to ensure that everything is working as expected. This will fetch the sample data and run the tests.
 
+Some metric providers require additional test data that isn't in Obs4MIPs.
+We are working on adding these datasets to obs4MIPs before the  launch of the AR7 FT REF.
+To help save time during the hackathon, run the following commands beforehand to cache the ilamb and iomb reference datasets (~4GB).
+
+```bash
+uv run python scripts/fetch-ilamb-data.py ilamb.txt
+uv run python scripts/fetch-ilamb-data.py iomb.txt
+```
+
 If there are any issues with the installation, please raise an issue in the [issue tracker](https://github.com/Climate-REF/climate-ref/issues) so that we can help you get set up.
 
 ### Additional Data

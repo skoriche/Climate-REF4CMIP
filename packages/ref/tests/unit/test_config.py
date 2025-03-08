@@ -1,5 +1,4 @@
 import logging
-import re
 import sys
 from pathlib import Path
 
@@ -173,24 +172,48 @@ filename = "sqlite://cmip_ref.db"
         assert config_new.paths.log == Path("/my/test/logs")
         assert config_new.paths.results == Path("/my/test/results")
 
-    def test_executor_build(self, config):
-        executor = config.executor.build()
+    def test_executor_build(self, config, db):
+        executor = config.executor.build(config, db)
         assert executor.name == "local"
         assert isinstance(executor, Executor)
 
-        # None of the executors support initialisation arguments yet so this is a bit of a placeholder
-        config.executor.config["test"] = "value"
+    @pytest.mark.skipif(
+        sys.version_info > (3, 11),
+        reason="isinstance check on mock executor fails with Python 3.12+",
+    )
+    def test_executor_build_config(self, mocker, config, db):
+        mock_executor = mocker.MagicMock(spec=Executor)
+        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
 
-        match = re.escape("LocalExecutor() takes no arguments")
-        with pytest.raises(TypeError, match=match):
-            config.executor.build()
+        executor = config.executor.build(config, db)
+        assert executor == mock_executor.return_value
+        mock_executor.assert_called_once_with(config=config, database=db)
 
-    def test_executor_build_invalid(self, config):
+    @pytest.mark.skipif(
+        sys.version_info > (3, 11),
+        reason="isinstance check on mock executor fails with Python 3.12+",
+    )
+    def test_executor_build_extra_config(self, mocker, config, db):
+        mock_executor = mocker.MagicMock(spec=Executor)
+        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
+
+        config.executor = evolve(config.executor, config={"extra": 1})
+
+        executor = config.executor.build(config, db)
+        assert executor == mock_executor.return_value
+        mock_executor.assert_called_once_with(config=config, database=db, extra=1)
+
+    def test_executor_build_invalid(self, config, db, mocker):
         config.executor = evolve(config.executor, executor="cmip_ref.config.DbConfig")
 
-        match = "Expected an Executor, got <class 'cmip_ref.config.DbConfig'>"
+        class NotAnExecutor:
+            def __init__(self, **kwargs): ...
+
+        mocker.patch("cmip_ref.config.import_executor_cls", return_value=NotAnExecutor)
+
+        match = r"Expected an Executor, got <class '.*\.NotAnExecutor'>"
         with pytest.raises(InvalidExecutorException, match=match):
-            config.executor.build()
+            config.executor.build(config, db)
 
 
 def test_transform_error():

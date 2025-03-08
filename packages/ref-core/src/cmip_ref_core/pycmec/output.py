@@ -73,7 +73,11 @@ class OutputProvenance(BaseModel):
     model_config = ConfigDict(strict=True, extra="allow")
 
 
-class _OutputDict(BaseModel):
+class OutputDict(BaseModel):
+    """
+    Description of an output
+    """
+
     filename: str  # Filename of plot produced (relative to output directory path)
     long_name: str  # Human readable name describing the plot
     description: str  # Description of what is depicted in the plot
@@ -107,22 +111,22 @@ class CMECOutput(BaseModel):
     datasets used (including dataset versions).
     """
 
-    data: dict[str, _OutputDict] | None = None
+    data: dict[str, OutputDict] | None = None
     """
     (optional) Dictionary of data files produced with the output.
     """
 
-    plots: dict[str, _OutputDict] | None = None
+    plots: dict[str, OutputDict] | None = None
     """
     (optional) Dictionary of plots produced with the output.
     """
 
-    html: dict[str, _OutputDict] | None = None
+    html: dict[str, OutputDict] | None = None
     """
     (optional) Dictionary of html files produced with the output.
     """
 
-    metrics: dict[str, _OutputDict] | None = None
+    metrics: dict[str, OutputDict] | None = None
     """
     (optional) Dictionary of metric files produced with the output.
     """
@@ -177,7 +181,7 @@ class CMECOutput(BaseModel):
         :
             CMECOutput object with content updated
         """
-        cmec_output = _OutputDict(**dict_content)
+        cmec_output = OutputDict(**dict_content)
 
         if self[output_kw] is None:
             self[output_kw] = {}

@@ -19,7 +19,7 @@ class TestLocalExecutor:
         assert metric_definition.output_directory.exists()
 
         mock_handle_result.assert_called_once()
-        config, metric_execution_result, result = mock_handle_result.call_args.args
+        config, db, metric_execution_result, result = mock_handle_result.call_args.args
 
         assert metric_execution_result == mock_execution_result
         assert result.successful
@@ -36,7 +36,7 @@ class TestLocalExecutor:
 
         executor.run_metric(provider, mock_metric, metric_definition, mock_execution_result)
 
-        config, metric_execution_result, result = mock_handle_result.call_args.args
+        config, db, metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False
         assert result.output_bundle_filename is None
         assert result.metric_bundle_filename is None

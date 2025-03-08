@@ -1,93 +1,9 @@
-import json
-import pathlib
 from collections.abc import Iterable
-from typing import Any
-
-import xarray as xr
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import CommandLineMetric, DataRequirement, MetricExecutionDefinition, MetricResult
-from cmip_ref_core.pycmec.metric import CMECMetric
-from cmip_ref_core.pycmec.output import CMECOutput
-from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command
+from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
 from cmip_ref_metrics_pmp.registry import fetch_reference_data
-
-
-def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
-    """
-    Create a simple CMEC output bundle for the dataset.
-
-    Parameters
-    ----------
-    dataset
-        Processed dataset
-
-    Returns
-    -------
-        A CMEC output bundle ready to be written to disk
-    """
-    # TODO: Check how timeseries data are generally serialised
-    cmec_output = {
-        "DIMENSIONS": {
-            "model": {dataset.attrs["source_id"]: {}},
-            "region": {"global": {}},
-            "metric": {"tas": {}},
-            "json_structure": [
-                "model",
-                "region",
-                "metric",
-            ],
-        },
-        "RESULTS": {
-            dataset.attrs["source_id"]: {"global": {"tas": 0}},
-        },
-    }
-
-    return cmec_output
-
-
-def process_json_result(
-    json_filename: pathlib.Path, png_files: list[pathlib.Path], data_files: list[pathlib.Path]
-) -> tuple[CMECOutput, CMECMetric]:
-    """
-    Process a PMP JSON result into the appropriate CMEC bundles
-
-    Parameters
-    ----------
-    json_filename
-        Filename of the JSON file that is written out by PMP
-    png_files
-        List of PNG files to be included in the output
-    data_files
-        List of data files to be included in the output
-
-    Returns
-    -------
-        tuple of CMEC output and metric bundles
-    """
-    with open(json_filename) as fh:
-        json_result = json.load(fh)
-
-    cmec_output = CMECOutput.create_template()
-    cmec_output["provenance"] = {**cmec_output["provenance"], **json_result["provenance"]}
-
-    for fname in png_files:
-        cmec_output["plots"][fname.name] = {
-            "filename": str(fname),
-            "long_name": "Plot",
-            "description": "Plot produced by the metric",
-        }
-
-    for fname in data_files:
-        cmec_output["data"][fname.name] = {
-            "filename": str(fname),
-            "long_name": "Output data",
-            "description": "Data produced by the metric",
-        }
-
-    cmec_metric = CMECMetric.create_template()
-    # TODO: Extract the results from the JSON file and add them to the metric bundle
-    return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 
 
 class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
@@ -166,7 +82,7 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
             Result of the metric execution
         """
         results_files = list(definition.output_directory.glob("*_cmec.json"))
-        if len(results_files) != 1:
+        if len(results_files) != 1:  # pragma: no cover
             return MetricResult.build_from_failure(definition)
 
         # Find the other outputs

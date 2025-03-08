@@ -1,4 +1,23 @@
 $defs:
+  OutputDict:
+    additionalProperties: true
+    description: Description of an output
+    properties:
+      description:
+        title: Description
+        type: string
+      filename:
+        title: Filename
+        type: string
+      long_name:
+        title: Long Name
+        type: string
+    required:
+    - filename
+    - long_name
+    - description
+    title: OutputDict
+    type: object
   OutputProvenance:
     additionalProperties: true
     description: CMEC output bundle provenance object
@@ -36,24 +55,6 @@ $defs:
     - log
     title: OutputProvenance
     type: object
-  _OutputDict:
-    additionalProperties: true
-    properties:
-      description:
-        title: Description
-        type: string
-      filename:
-        title: Filename
-        type: string
-      long_name:
-        title: Long Name
-        type: string
-    required:
-    - filename
-    - long_name
-    - description
-    title: _OutputDict
-    type: object
 $schema: https://json-schema.org/draft/2020-12/schema
 additionalProperties: true
 description: 'CMEC output bundle object
@@ -64,7 +65,7 @@ properties:
   data:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -72,7 +73,7 @@ properties:
   html:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -86,7 +87,7 @@ properties:
   metrics:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null
@@ -94,7 +95,7 @@ properties:
   plots:
     anyOf:
     - additionalProperties:
-        $ref: '#/$defs/_OutputDict'
+        $ref: '#/$defs/OutputDict'
       type: object
     - type: 'null'
     default: null

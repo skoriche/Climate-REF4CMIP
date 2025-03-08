@@ -30,7 +30,10 @@ debug = False  # False
 # Observation
 # -------------------------------------------------
 reference_data_name = "HadISSTv1.1"
-reference_data_path = "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+reference_data_path = (
+    "/p/user_pub/PCMDIobs/obs4MIPs/MOHC/HadISST-1-1/"
+    + "mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+)
 
 # varOBS = "sst"
 # ObsUnitsAdjust = (False, 0, 0)  # degC
@@ -71,7 +74,7 @@ eofn_mod = 1
 case_id = f"{datetime.datetime.now():v%Y%m%d}"
 pmprdir = "/p/user_pub/pmp/pmp_results/pmp_v1.1.2"
 
-if debug:
+if debug:  # pragma: no cover
     pmprdir = "/work/lee1043/temporary/result_test"
 
 results_dir = os.path.join(

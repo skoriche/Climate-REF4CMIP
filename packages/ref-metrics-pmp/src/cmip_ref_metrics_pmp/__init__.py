@@ -5,7 +5,7 @@ Rapid evaluating CMIP data
 import importlib.metadata
 
 from cmip_ref_core.providers import MetricsProvider
-from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO
+from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability_PDO
 
 __version__ = importlib.metadata.version("cmip_ref_metrics_pmp")
 

@@ -1,23 +1,13 @@
-import pathlib
 import shutil
-from pathlib import Path
 from subprocess import CompletedProcess
 
 import cmip_ref_metrics_pmp.pmp_driver
 import pandas as pd
-import pytest
-from cmip_ref_metrics_pmp.example import ExtratropicalModesOfVariability_PDO, process_json_result
+from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability_PDO
 
 from cmip_ref.solver import extract_covered_datasets
 from cmip_ref_core.datasets import DatasetCollection
 from cmip_ref_core.metrics import Metric
-from cmip_ref_core.pycmec.metric import CMECMetric
-from cmip_ref_core.pycmec.output import CMECOutput
-
-
-@pytest.fixture(scope="module")
-def pdo_example_dir() -> Path:
-    return Path(__file__).parent / "test-data" / "pdo-example"
 
 
 def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.DataFrame:
@@ -26,30 +16,7 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.Dat
     return datasets[0]
 
 
-def test_process_json_result(pdo_example_dir):
-    json_file = (
-        pdo_example_dir
-        / "var_mode_PDO_EOF1_stat_cmip5_historical_mo_atm_ACCESS-ESM1-5_r1i1p1f1_2000-2005_cmec.json"
-    )
-    png_files = [pdo_example_dir / "pdo.png"]
-    data_files = [pdo_example_dir / "pdo.nc"]
-
-    cmec_output, cmec_metric = process_json_result(json_file, png_files, data_files)
-
-    assert CMECMetric.model_validate(cmec_metric)
-    assert CMECOutput.model_validate(cmec_output)
-    assert len(cmec_metric.RESULTS)
-    assert cmec_metric.DIMENSIONS.root["json_structure"] == [
-        "model",
-        "realization",
-        "reference",
-        "mode",
-        "season",
-        "method",
-    ]
-
-
-def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
     metric = ExtratropicalModesOfVariability_PDO()
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
@@ -71,27 +38,13 @@ def test_example_metric(cmip6_data_catalog, mocker, definition_factory, pdo_exam
         side_effect=mock_run_call,
     )
 
-    def mock_process_json_call(
-        json_file: pathlib.Path, png_files: list[pathlib.Path], data_files: list[pathlib.Path]
-    ):
-        assert json_file.exists()
-        assert len(png_files) > 0
-        assert len(data_files) > 0
-        return CMECOutput.create_template(), CMECMetric.create_template()
-
-    mock_process_json = mocker.patch(
-        "cmip_ref_metrics_pmp.example.process_json_result", side_effect=mock_process_json_call
-    )
-
     result = metric.run(definition)
-
-    assert mock_process_json.call_count == 1
+    assert result.successful
 
     assert str(result.output_bundle_filename) == "output.json"
 
     output_bundle_path = definition.output_directory / result.output_bundle_filename
 
-    assert result.successful
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
 

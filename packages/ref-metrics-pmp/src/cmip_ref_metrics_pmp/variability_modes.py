@@ -1,3 +1,5 @@
+import subprocess
+
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
 from cmip_ref_metrics_pmp.pmp_driver import execute_pmp_driver, process_json_result
@@ -67,12 +69,12 @@ class ExtratropicalModesOfVariability_PDO(Metric):
                 member_id=member_id,
                 output_directory_path=str(definition.output_directory),
             )
-        except Exception:
+        except subprocess.CalledProcessError:
             return MetricResult.build_from_failure(definition)
 
         # Find the appropriate JSON bundle
         results_files = list(definition.output_directory.glob("*_cmec.json"))
-        if len(results_files) != 1:
+        if len(results_files) != 1:  # pragma: no cover
             return MetricResult.build_from_failure(definition)
 
         # Find the other outputs

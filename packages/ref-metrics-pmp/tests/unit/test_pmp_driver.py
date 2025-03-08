@@ -1,4 +1,5 @@
-from cmip_ref_metrics_pmp.pmp_driver import process_json_result
+import pytest
+from cmip_ref_metrics_pmp.pmp_driver import execute_pmp_driver, process_json_result
 
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
@@ -25,3 +26,51 @@ def test_process_json_result(pdo_example_dir):
         "season",
         "method",
     ]
+
+
+def test_execute_missing_driver():
+    with pytest.raises(
+        FileNotFoundError,
+        match="Resource variability_mode/missing.py not found in pcmdi_metrics package.",
+    ):
+        execute_pmp_driver(
+            driver_file="variability_mode/missing.py",
+            parameter_file="pmp_param_MoV-PDO.py",
+            model_files=["model1.nc"],
+            reference_name="HadISST-1-1",
+            reference_paths=["reference.nc"],
+            source_id="source_id",
+            member_id="member_id",
+            output_directory_path="output",
+        )
+
+
+def test_execute_missing_parameter():
+    with pytest.raises(
+        FileNotFoundError,
+        match="Resource pmp_missing.py not found in cmip_ref_metrics_pmp.params package.",
+    ):
+        execute_pmp_driver(
+            driver_file="variability_mode/variability_modes_driver.py",
+            parameter_file="pmp_missing.py",
+            model_files=["model1.nc"],
+            reference_name="HadISST-1-1",
+            reference_paths=["reference.nc"],
+            source_id="source_id",
+            member_id="member_id",
+            output_directory_path="output",
+        )
+
+
+def test_execute_more_than_one_model():
+    with pytest.raises(NotImplementedError, match="Only one model file is supported"):
+        execute_pmp_driver(
+            driver_file="variability_mode/variability_modes_driver.py",
+            parameter_file="pmp_param_MoV-PDO.py",
+            model_files=["model1.nc", "model2.nc"],
+            reference_name="HadISST-1-1",
+            reference_paths=["reference.nc"],
+            source_id="source_id",
+            member_id="member_id",
+            output_directory_path="output",
+        )

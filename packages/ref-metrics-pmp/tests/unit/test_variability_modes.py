@@ -1,5 +1,5 @@
 import shutil
-from subprocess import CompletedProcess
+from subprocess import CalledProcessError, CompletedProcess
 
 import cmip_ref_metrics_pmp.pmp_driver
 import pandas as pd
@@ -55,3 +55,23 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
     assert result.successful
     assert metric_bundle_path.exists()
     assert metric_bundle_path.is_file()
+
+
+def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir):
+    metric = ExtratropicalModesOfVariability_PDO()
+    metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
+
+    definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
+
+    # Mock the subprocess.run call to avoid running PMP
+    # Instead the mock_run_call function will be called
+    mocker.patch.object(
+        cmip_ref_metrics_pmp.pmp_driver.subprocess,
+        "run",
+        autospec=True,
+        spec_set=True,
+        side_effect=CalledProcessError(1, ["cmd"], "output", "stderr"),
+    )
+
+    result = metric.run(definition)
+    assert not result.successful

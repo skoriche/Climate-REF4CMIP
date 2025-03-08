@@ -77,12 +77,12 @@ def process_json_result(
     cmec_metric["DIMENSIONS"] = {}
     dimensions = json_result["DIMENSIONS"]
 
-    if "dimensions" in dimensions:
+    if "dimensions" in dimensions:  # pragma: no branch
         # Merge the contents of inner "dimensions" into the parent "DIMENSIONS"
         dimensions.update(dimensions["dimensions"])
         del dimensions["dimensions"]
 
-    if "statistic" in dimensions["json_structure"]:
+    if "statistic" in dimensions["json_structure"]:  # pragma: no branch
         dimensions["json_structure"].remove("statistic")
         dimensions.pop("statistic")
 
@@ -93,7 +93,7 @@ def process_json_result(
     cmec_metric["RESULTS"] = results
     cmec_metric["DIMENSIONS"] = dimensions
 
-    if "provenance" in json_result:
+    if "provenance" in json_result:  # pragma: no branch
         cmec_metric["provenance"] = json_result["provenance"]
 
     return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
@@ -206,7 +206,7 @@ def execute_pmp_driver(  # noqa: PLR0913
     # Print the command output
     print("Output:\n", proc.stdout)
     # Print any errors
-    if proc.stderr:
+    if proc.stderr:  # pragma: no branch
         print("Error:\n", proc.stderr)
 
     # TODO: Not sure what you want to return here?

@@ -46,6 +46,9 @@ def import_provider(provider_package: str) -> MetricsProvider:
     except AttributeError:
         typer.echo("The package must define a 'provider' attribute")
         raise typer.Abort()
+    if not isinstance(provider, MetricsProvider):
+        typer.echo(f"Expected MetricsProvider, got {type(provider)}")
+        raise typer.Abort()
     return provider
 
 

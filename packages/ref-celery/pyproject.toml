@@ -35,6 +35,8 @@ ref-celery = "cmip_ref_celery.cli:app"
 
 [tool.uv]
 dev-dependencies = [
+    "celery-types>=0.23.0",
+    "types-tqdm>=4.67.0.20250301",
 ]
 
 [tool.uv.sources]

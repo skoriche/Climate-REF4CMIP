@@ -36,10 +36,7 @@ redis_container = container(
 
 
 @pytest.fixture
-def config(config, monkeypatch, redis_container):
-    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
-    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
-
+def config(config, monkeypatch):
     config.metric_providers = default_metric_providers()
 
     # Put the conda environments in a shared location
@@ -51,7 +48,7 @@ def config(config, monkeypatch, redis_container):
 
 
 @pytest.fixture()
-def celery_app(redis_container, config):
+def celery_app(redis_container, config, monkeypatch):
     """
     Fixture creating a Celery application instance.
 
@@ -59,6 +56,9 @@ def celery_app(redis_container, config):
     as it registers both to the "example" and "celery" queues.
     Typically, these are done on separate workers.
     """
+    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+
     app = create_celery_app("test")
 
     register_celery_tasks(app, cmip_ref_metrics_ilamb.provider)
@@ -83,7 +83,7 @@ def create_execution_dataframe(executions):
 
         data.append(
             {
-                "metric": execution.metric_id,
+                "metric": execution.metric.slug,
                 "provider": execution.metric.provider.slug,
                 "execution_id": execution.id,
                 "result_id": result.id,
@@ -125,13 +125,16 @@ def test_solve_ar7_ft(
     print(df)
 
     assert len(df["provider"].unique()) == 3
-    assert df["successful"].all(), df
+    assert df["successful"].all(), df[["metric", "successful"]]
 
 
 @pytest.mark.slow
 def test_solve_celery_ar7_ft(
     sample_data_dir, config, invoke_cli, monkeypatch, celery_worker, redis_container
 ):
+    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+
     config.executor.executor = "cmip_ref_celery.executor.CeleryExecutor"
     config.save()
 
@@ -157,7 +160,7 @@ def test_solve_celery_ar7_ft(
     print(df)
 
     assert len(df["provider"].unique()) == 3
-    assert df["successful"].all(), df
+    assert df["successful"].all(), df[["metric", "successful"]]
 
     # Attempt to avoid a flakey outcome where the celery tasks aren't cleaned up properly
     time.sleep(2)

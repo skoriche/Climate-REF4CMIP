@@ -7,10 +7,12 @@ from attr import evolve
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
+    CommandLineMetric,
     DataRequirement,
     MetricExecutionDefinition,
     MetricResult,
 )
+from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 
@@ -105,6 +107,52 @@ def cmec_right_output_data(request, cmec_right_output_dict):
         return cmec_right_output_dict
     elif request.param == "CMECOutput":
         return CMECOutput(**cmec_right_output_dict)
+
+
+class TestMetric:
+    def test_provider(self, provider):
+        metric = provider.metrics()[0]
+        assert isinstance(metric.provider, MetricsProvider)
+
+    def test_no_provider(self, mock_metric):
+        with pytest.raises(ValueError, match="register .* with a MetricsProvider before using"):
+            mock_metric.provider
+
+
+class TestCommandLineMetric:
+    def test_run(self, mocker):
+        mocker.patch.object(
+            CommandLineMetricsProvider,
+            "run",
+            create_autospec=True,
+        )
+
+        provider = CommandLineMetricsProvider("provider_name", "v0.23")
+
+        metric_result = mocker.sentinel.result
+        cmd = mocker.sentinel.cmd
+        run_definition = mocker.sentinel.definition
+
+        class TestMetric(CommandLineMetric):
+            name = "test-metric"
+            slug = "test-metric"
+            data_requirements = mocker.Mock()
+
+            def build_cmd(self, definition):
+                assert definition == run_definition
+                return cmd
+
+            def build_metric_result(self, definition):
+                assert definition == run_definition
+                return metric_result
+
+        metric = TestMetric()
+        provider.register(metric)
+
+        result = metric.run(run_definition)
+
+        provider.run.assert_called_with(cmd)
+        assert result == metric_result
 
 
 class TestMetricResult:

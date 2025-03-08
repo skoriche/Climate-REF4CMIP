@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import importlib.resources
-import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pooch
 from ruamel.yaml import YAML
 
-from cmip_ref_core.datasets import SourceDatasetType
-from cmip_ref_core.metrics import MetricExecutionDefinition
 from cmip_ref_metrics_esmvaltool.types import Recipe
 
 if TYPE_CHECKING:
@@ -164,51 +161,3 @@ def prepare_climate_data(datasets: pd.DataFrame, climate_data_dir: Path) -> None
         tgt = climate_data_dir.joinpath(*row.instance_id.split(".")) / Path(row.path).name
         tgt.parent.mkdir(parents=True, exist_ok=True)
         tgt.symlink_to(row.path)
-
-
-def run_recipe(recipe: Recipe, definition: MetricExecutionDefinition) -> Path:
-    """Run an ESMValTool recipe.
-
-    Parameters
-    ----------
-    recipe
-        The ESMValTool recipe.
-    definition
-        A description of the information needed for this execution of the metric.
-
-    Returns
-    -------
-    :
-        Directory containing results from the ESMValTool run.
-
-    """
-    recipe_path = definition.to_output_path("recipe.yml")
-    with recipe_path.open("w", encoding="utf-8") as file:
-        yaml.dump(recipe, file)
-
-    climate_data = definition.to_output_path("climate_data")
-
-    prepare_climate_data(
-        definition.metric_dataset[SourceDatasetType.CMIP6].datasets,
-        climate_data_dir=climate_data,
-    )
-
-    results_dir = definition.to_output_path("results")
-    config = {
-        "drs": {
-            "CMIP6": "ESGF",
-        },
-        "output_dir": str(results_dir),
-        "rootpath": {
-            "default": str(climate_data),
-        },
-        "search_esgf": "never",
-    }
-    config_dir = definition.to_output_path("config")
-    config_dir.mkdir()
-    with (config_dir / "config.yml").open("w", encoding="utf-8") as file:
-        yaml.dump(config, file)
-
-    subprocess.check_call(["esmvaltool", "run", f"--config-dir={config_dir}", f"{recipe_path}"])  # noqa: S603, S607
-    result = next(results_dir.glob("*"))
-    return result

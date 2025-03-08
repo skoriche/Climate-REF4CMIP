@@ -24,10 +24,6 @@ from cmip_ref.database import Database
 from cmip_ref.models import MetricExecution
 from cmip_ref.solver import solve_metrics
 
-# Put the conda environments in a shared location
-# ROOT / .ref / software
-SOFTWARE_ROOT_DIR = str(Path(__file__).parents[3] / ".ref" / "software")
-
 redis_image = fetch(repository="redis:7")
 
 redis_container = container(
@@ -45,7 +41,10 @@ def config(config, monkeypatch, redis_container):
     monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
 
     config.metric_providers = default_metric_providers()
-    config.paths.software = SOFTWARE_ROOT_DIR
+
+    # Put the conda environments in a shared location
+    # ROOT / .ref / software
+    config.paths.software = Path(__file__).parents[3] / ".ref" / "software"
     config.save()
 
     return config

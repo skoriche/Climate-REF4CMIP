@@ -40,8 +40,9 @@ def celery_app(redis_container, monkeypatch, config):
     as it registers both to the "example" and "celery" queues.
     Typically, these are done on separate workers.
     """
-    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
-    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+    celery_url = redis_container.connection_url()
+    monkeypatch.setenv("CELERY_BROKER_URL", celery_url)
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", celery_url)
 
     app = create_celery_app("test")
 
@@ -59,8 +60,9 @@ def celery_worker_parameters():
 
 def test_celery_solving(db_seeded, config, celery_worker, redis_container, monkeypatch):
     config.executor.executor = "cmip_ref_celery.executor.CeleryExecutor"
-    monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
-    monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
+    celery_url = redis_container.connection_url()
+    monkeypatch.setenv("CELERY_BROKER_URL", celery_url)
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", celery_url)
 
     # Run the solver which executes the metrics
     solve_metrics(db_seeded, timeout=10, config=config)

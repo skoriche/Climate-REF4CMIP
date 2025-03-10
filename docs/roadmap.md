@@ -33,7 +33,7 @@ gantt
 
     Create ESMValTool integration                 :done, esmvaltool, after metricsPrototype, 2025-01-06
     Create ILAMB integration                      :done, ilamb, after metricsPrototype, 2025-01-20
-    Create PMP integration                        :active, pmp, after metricsPrototype, 2025-02-16
+    Create PMP integration                        :done, pmp, after metricsPrototype, 2025-03-04
 
     Implement missing metrics                     :active, missing, after esmvaltool, 2025-04-01
     Incorporate missing reference datasets        :after beta, 4w
@@ -44,22 +44,22 @@ gantt
     Architecture design                           :done, 2024-10-18, 20d
 
     Ingest CMIP6 datasets                         :done, cmip6, 2024-11-01, 20d
-    Ingest obs4MIPs datasets                      :active, 2025-01-20, 50d
+    Ingest obs4MIPs datasets                      :done, 2025-01-20, 2025-03-01
     Develop a local executor                      :done, local, after cmip6, 20d
     Core docker container                         :done, dockerise, 2025-01-10, 10d
-    Conda-forge environments                      :conda, after celery, 3w
+    Conda-forge environments                      :conda, 2025-04-05, 3w
     Provider docker containers                    :after conda, 3w
     Develop a remote executor                     :done, celery, 2025-01-01, 30d
-    Ingest scalar results into database           :results, 2025-03-01, 30d
+    Ingest scalar results into database           :ingest, after results, 30d
     Develop a remote executor (slurm)             :slurm, after hackathon, 10d
     Ingest AR7 FT datasets                        :2025-04-20, 4w
 
     section Visualisation
 
     CMEC validation                               :done, cmec, 2025-01-15, 20d
-    CMEC helpers                                  :active, cmecHelpers, after cmec, 4w
-    Basic API for results                         :after celery, 15d
-    Integrate Unified Dashboard                   :ud, after cmecHelpers, 20d
+    CMEC helpers                                  :done, cmecHelpers, after cmec, 4w
+    Basic API for results                         :active, results, 2025-03-01, 15d
+    Integrate Unified Dashboard                   :ud, after results, 20d
     Search results via API                        :api-result, after beta, 2w
     Example prototype dashboard                   :dashboad, after api-result, 6w
     Python package for consuming results          :after api-result, 4w
@@ -69,15 +69,15 @@ gantt
     Validate package licences                     :done, 2024-11-15, 2024-12-02
     Develop testing framework                     :done, 2024-11-10, 2024-12-10
     Documentation and tutorials                   :active, 2025-03-06, 2025-04-01
-    Initial modelling center testing (MetOffice)  :mc1, 2025-03-10, 14d
+    Initial modelling center testing (MetOffice)  :active, mc1, 2025-03-10, 14d
     Initial modelling center testing (MC 2)       :mc2, after mc1, 14d
     Initial modelling center testing (MC 3)       :mc3, after mc1, 14d
     MB TT stress-testing                          :2025-05-01, 20d
     MB TT Documentation Review                    :2025-05-01, 20d
 
     section Deployment
-    Discuss options with ESGF deployment          :active, esgf, 2024-12-01, 70d
-    Build K8 helm charts                          :helm, after esgf, 4w
+    Discuss options with ESGF deployment          :active, esgf, 2024-12-01, 90d
+    Build K8 helm charts                          :helm, after 2025-04-01, 4w
     ESGF Staging deployment for testing                :staging, after helm, 1w
     CMIP6 stress-test                             :after staging, 4w
     ESGF index integration                        :crit, after beta, 4w
@@ -92,7 +92,7 @@ gantt
     ESA CMUG Colocation                           :done, 2024-10-16, 3d
     Project Launch                                :done, 2024-11-04, 1d
     AGU                                           :done, 2024-12-01, 1w
-    Hackathon                                     :hackathon, 2025-03-10, 5d
+    Hackathon                                     :active, hackathon, 2025-03-10, 5d
     EGU                                           :egu, 2025-04-20, 1w
     Beta feature freeze                           :milestone, beta, 2025-05-01, 1d
     Beta Release                                  :milestone, beta, 2025-05-30, 1d

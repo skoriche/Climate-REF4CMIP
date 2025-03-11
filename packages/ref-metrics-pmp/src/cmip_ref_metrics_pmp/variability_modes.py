@@ -19,9 +19,8 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
             filters=(
                 FacetFilter(
                     facets={
-                        "source_id": "HadISST-1-1",
-                        "frequency": "mon",
-                        "variable_id": "ts",
+                        "source_id": ("HadISST-1-1",),
+                        "variable_id": ("ts",),
                     }
                 ),
             ),
@@ -69,9 +68,17 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
         source_id = input_datasets["source_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
 
+        print("input_datasets:", input_datasets)
+        print("source_id:", source_id)
+        print("member_id:", member_id)
+
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
+
+        print("reference_dataset:", reference_dataset)
+        print("reference_dataset_name:", reference_dataset_name)
+        print("reference_dataset_path:", reference_dataset_path)
 
         return build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",

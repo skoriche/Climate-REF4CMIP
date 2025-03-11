@@ -133,9 +133,9 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
 def build_pmp_command(  # noqa: PLR0913
     driver_file: str,
     parameter_file: str,
-    model_files: list[str],
+    model_files: list[str] | str,
     reference_name: str,
-    reference_paths: list[str],
+    reference_paths: list[str] | str,
     source_id: str,
     member_id: str,
     output_directory_path: str,
@@ -177,6 +177,16 @@ def build_pmp_command(  # noqa: PLR0913
     _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = _get_resource("cmip_ref_metrics_pmp.params", parameter_file, use_resources=True)
 
+    if isinstance(model_files, list):
+        modpath = " ".join([str(p) for p in model_files])
+    else:
+        modpath = model_files
+
+    if isinstance(reference_paths, list):
+        reference_data_path = " ".join([str(p) for p in reference_paths])
+    else:
+        reference_data_path = reference_paths
+
     if len(model_files) != 1:
         # Have some logic to replace the dates in the filename with a wildcard
         raise NotImplementedError("Only one model file is supported at this time.")
@@ -192,9 +202,9 @@ def build_pmp_command(  # noqa: PLR0913
         "--realization",
         member_id,
         "--modpath",
-        *[str(p) for p in model_files],
+        modpath,
         "--reference_data_path",
-        *[str(p) for p in reference_paths],
+        reference_data_path,
         "--reference_data_name",
         reference_name,
         "--results_dir",

@@ -139,6 +139,7 @@ class MetricSolver:
             provider_registry=ProviderRegistry.build_from_config(config, db),
             data_catalog={
                 SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
+                SourceDatasetType.obs4MIPs: CMIP6DatasetAdapter().load_catalog(db),
             },
         )
 

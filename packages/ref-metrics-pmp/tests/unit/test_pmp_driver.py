@@ -42,7 +42,7 @@ def test_execute_missing_driver():
             source_id="source_id",
             member_id="member_id",
             output_directory_path="output",
-            experiment_id="1",
+            experiment_id="historical",
         )
 
 
@@ -60,7 +60,7 @@ def test_execute_missing_parameter():
             source_id="source_id",
             member_id="member_id",
             output_directory_path="output",
-            experiment_id="1",
+            experiment_id="historical",
         )
 
 
@@ -75,5 +75,5 @@ def test_execute_more_than_one_model():
             source_id="source_id",
             member_id="member_id",
             output_directory_path="output",
-            experiment_id="1",
+            experiment_id="historical",
         )

@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from celery import Celery
 from cmip_ref_celery.tasks import _metric_task_factory, register_celery_tasks
 
-from cmip_ref_core.metrics import MetricExecutionDefinition
+from cmip_ref_core.metrics import MetricExecutionGroupDefinition
 from cmip_ref_core.providers import MetricsProvider
 
 
@@ -11,8 +11,8 @@ def test_metric_task_factory():
     # Mock Metric and MetricExecutionDefinition
     mock_metric = Mock()
 
-    definition = MetricExecutionDefinition(
-        key="test", metric_dataset=None, output_directory=None, root_directory=None
+    definition = MetricExecutionGroupDefinition(
+        dataset_key="test", metric_dataset=None, output_directory=None, root_directory=None
     )
 
     # Create task using factory

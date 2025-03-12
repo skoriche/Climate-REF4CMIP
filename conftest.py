@@ -18,7 +18,7 @@ from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionGroupDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
@@ -104,7 +104,7 @@ class MockMetric(Metric):
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         # TODO: This doesn't write output.json, use build function?
         return MetricResult(
             output_bundle_filename=definition.output_directory / "output.json",
@@ -120,7 +120,7 @@ class FailedMetric(Metric):
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         return MetricResult.build_from_failure(definition)
 
 
@@ -142,12 +142,12 @@ def mock_metric() -> MockMetric:
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
-    ) -> MetricExecutionDefinition:
+    ) -> MetricExecutionGroupDefinition:
         if metric_dataset is None:
             metric_dataset = MetricDataset({SourceDatasetType.CMIP6: cmip6})
 
-        return MetricExecutionDefinition(
-            key="key",
+        return MetricExecutionGroupDefinition(
+            dataset_key="key",
             metric_dataset=metric_dataset,
             root_directory=config.paths.scratch,
             output_directory=config.paths.scratch / "output_fragment",
@@ -157,7 +157,7 @@ def definition_factory(tmp_path: Path, config):
 
 
 @pytest.fixture
-def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
+def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionGroupDefinition:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {

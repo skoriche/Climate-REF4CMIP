@@ -18,19 +18,21 @@ if TYPE_CHECKING:
 
 
 @frozen
-class MetricExecutionDefinition:
+class MetricExecutionGroupDefinition:
     """
-    Definition of a metric execution.
+    Definition of a metric execution group.
 
-    This represents the information needed by a metric to perform a single execution of the metric
+    This represents the information needed by a metric to perform an execution of the metric
+    for a group of datasets fulfilling the requirements.
     """
 
-    key: str
+    dataset_key: str
     """
-    A unique identifier for the metric execution
+    A unique identifier for the metric execution group
 
-    The key is a hash of the group by values for the datasets used in the metric execution.
-    Duplicate keys will occur when new datasets are available that match the same group by values.
+    The key is derived from the datasets in the group by facet values.
+    New datasets which match the same group by facet values will also be matched by
+    this group, and will result in the same dataset_key.
     """
 
     metric_dataset: MetricDataset
@@ -90,7 +92,7 @@ class MetricResult:
 
     # Do we want to load a serialised version of the output bundle here or just a file path?
 
-    definition: MetricExecutionDefinition
+    definition: MetricExecutionGroupDefinition
     """
     The definition of the metric execution that produced this result.
     """
@@ -119,7 +121,7 @@ class MetricResult:
 
     @staticmethod
     def build_from_output_bundle(
-        definition: MetricExecutionDefinition,
+        definition: MetricExecutionGroupDefinition,
         *,
         cmec_output_bundle: CMECOutput | dict[str, Any],
         cmec_metric_bundle: CMECMetric | dict[str, Any],
@@ -168,7 +170,7 @@ class MetricResult:
         )
 
     @staticmethod
-    def build_from_failure(definition: MetricExecutionDefinition) -> MetricResult:
+    def build_from_failure(definition: MetricExecutionGroupDefinition) -> MetricResult:
         """
         Build a failed metric result.
 
@@ -331,7 +333,7 @@ class AbstractMetric(Protocol):
     The provider that provides the metric.
     """
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
 
@@ -341,7 +343,7 @@ class AbstractMetric(Protocol):
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
+        definition : MetricExecutionGroupDefinition
             The configuration to run the metric on.
 
         Returns
@@ -398,13 +400,13 @@ class CommandLineMetric(Metric):
     provider: CommandLineMetricsProvider
 
     @abstractmethod
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: MetricExecutionGroupDefinition) -> Iterable[str]:
         """
         Build the command to run the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
+        definition : MetricExecutionGroupDefinition
             The configuration to run the metric on.
 
         Returns
@@ -414,13 +416,13 @@ class CommandLineMetric(Metric):
         """
 
     @abstractmethod
-    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def build_metric_result(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         """
         Build the result from running the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
+        definition : MetricExecutionGroupDefinition
             The configuration to run the metric on.
 
         Returns
@@ -429,13 +431,13 @@ class CommandLineMetric(Metric):
             The result of running the metric.
         """
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         """
         Run the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
+        definition : MetricExecutionGroupDefinition
             The configuration to run the metric on.
 
         Returns

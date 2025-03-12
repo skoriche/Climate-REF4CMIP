@@ -4,7 +4,7 @@ import pathlib
 from rich.console import Console
 
 from cmip_ref.cli.executions import _results_directory_panel
-from cmip_ref.models import MetricExecution, MetricExecutionResult
+from cmip_ref.models import MetricExecutionGroup, MetricExecutionResult
 from cmip_ref.models.metric_execution import metric_datasets
 
 
@@ -17,8 +17,8 @@ def test_execution_help(invoke_cli):
 class TestExecutionList:
     def _setup_db(self, db):
         with db.session.begin():
-            db.session.add(MetricExecution(key="key1", metric_id=1))
-            db.session.add(MetricExecution(key="key2", metric_id=1))
+            db.session.add(MetricExecutionGroup(key="key1", metric_id=1))
+            db.session.add(MetricExecutionGroup(key="key2", metric_id=1))
 
     def test_list(self, sample_data_dir, db_seeded, invoke_cli):
         self._setup_db(db_seeded)
@@ -59,7 +59,7 @@ class TestExecutionInspect:
         config.save()
 
         # Create a metric execution with a result
-        metric_execution = MetricExecution(
+        metric_execution = MetricExecutionGroup(
             key="key1",
             metric_id=1,
             # Ensure dates are consistent
@@ -89,7 +89,7 @@ class TestExecutionInspect:
 
     def test_inspect_failed(self, sample_data_dir, db_seeded, invoke_cli):
         # Create a metric execution with a result
-        metric_execution = MetricExecution(
+        metric_execution = MetricExecutionGroup(
             key="key1",
             metric_id=1,
         )
@@ -110,7 +110,7 @@ class TestExecutionInspect:
         assert "Successful: False" in result.stdout
 
     def test_inspect_no_results(self, sample_data_dir, db_seeded, invoke_cli):
-        metric_execution = MetricExecution(key="key1", metric_id=1)
+        metric_execution = MetricExecutionGroup(key="key1", metric_id=1)
         with db_seeded.session.begin():
             db_seeded.session.add(metric_execution)
 

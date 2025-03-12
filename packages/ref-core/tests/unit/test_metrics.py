@@ -9,7 +9,7 @@ from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     CommandLineMetric,
     DataRequirement,
-    MetricExecutionDefinition,
+    MetricExecutionGroupDefinition,
     MetricResult,
 )
 from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
@@ -163,8 +163,11 @@ class TestMetricResult:
         cmec_right_metric_dict,
         tmp_path,
     ):
-        definition = MetricExecutionDefinition(
-            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
+        definition = MetricExecutionGroupDefinition(
+            root_directory=tmp_path,
+            output_directory=tmp_path,
+            dataset_key="mocked-metric-slug",
+            metric_dataset=None,
         )
 
         result = MetricResult.build_from_output_bundle(
@@ -219,8 +222,11 @@ class TestMetricResult:
         assert output_filename.is_relative_to(tmp_path)
 
     def test_build_from_failure(self, tmp_path):
-        definition = MetricExecutionDefinition(
-            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
+        definition = MetricExecutionGroupDefinition(
+            root_directory=tmp_path,
+            output_directory=tmp_path,
+            dataset_key="mocked-metric-slug",
+            metric_dataset=None,
         )
         result = MetricResult.build_from_failure(definition)
 

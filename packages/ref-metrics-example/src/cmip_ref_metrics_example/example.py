@@ -8,7 +8,7 @@ from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
     Metric,
-    MetricExecutionDefinition,
+    MetricExecutionGroupDefinition,
     MetricResult,
 )
 from cmip_ref_core.pycmec.metric import CMECMetric
@@ -149,7 +149,7 @@ class GlobalMeanTimeseries(Metric):
         ),
     )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
         """
         Run a metric
 

@@ -174,7 +174,7 @@ def handle_execution_result(
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields
         # i.e. if there are outstanding results don't make as clean
-        metric_execution_result.metric_execution.dirty = False
+        metric_execution_result.metric_execution_group.dirty = False
     else:
         logger.info(f"{metric_execution_result} failed")
         metric_execution_result.mark_failed()

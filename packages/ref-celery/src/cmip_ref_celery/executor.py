@@ -10,7 +10,7 @@ from cmip_ref.models import MetricExecutionResult
 from cmip_ref_celery.app import app
 from cmip_ref_celery.tasks import generate_task_name
 from cmip_ref_core.executor import Executor
-from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import Metric, MetricExecutionGroupDefinition, MetricResult
 from cmip_ref_core.providers import MetricsProvider
 
 
@@ -39,7 +39,7 @@ class CeleryExecutor(Executor):
         self,
         provider: MetricsProvider,
         metric: Metric,
-        definition: MetricExecutionDefinition,
+        definition: MetricExecutionGroupDefinition,
         metric_execution_result: MetricExecutionResult | None = None,
     ) -> None:
         """

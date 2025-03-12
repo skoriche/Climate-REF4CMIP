@@ -56,7 +56,7 @@ def test_handle_execution_result_successful(db, config, mock_execution_result, m
         metric_bundle_filename,
     )
     mock_execution_result.mark_successful.assert_called_once_with(metric_bundle_filename)
-    assert not mock_execution_result.metric_execution.dirty
+    assert not mock_execution_result.metric_execution_group.dirty
 
 
 def test_handle_execution_result_with_files(config, mock_execution_result, mocker, definition_factory):

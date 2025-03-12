@@ -13,18 +13,17 @@ def test_worker_task(mocker, config):
         result = mocker.Mock()
 
         _register_provider(db, provider)
-        metric_execution = MetricExecutionGroup(
+        metric_execution_group = MetricExecutionGroup(
             metric_id=1,
-            key="key",
-            retracted=False,
+            dataset_key="key",
             dirty=True,
         )
-        db.session.add(metric_execution)
+        db.session.add(metric_execution_group)
 
         metric_execution_result = MetricExecutionResult(
             output_fragment="output_fragment",
             dataset_hash="hash",
-            metric_execution=metric_execution,
+            metric_execution_group=metric_execution_group,
         )
         db.session.add(metric_execution_result)
 

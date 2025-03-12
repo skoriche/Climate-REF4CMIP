@@ -24,9 +24,6 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
                     }
                 ),
             ),
-            # Add cell areas to the groups
-            # constraints=(AddCellAreas(),),
-            # Run the metric on each unique combination of model, variable, experiment, and variant
             group_by=("source_id", "variable_id"),
         ),
         DataRequirement(
@@ -40,8 +37,6 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
                     }
                 ),
                 # Ignore some experiments because they are not relevant
-                # JL: This won't ever be triggered because the experiment_id filter more specific
-                # Should this be ignoring all AerChemMIP experiments?
                 FacetFilter(facets={"experiment_id": ("amip",)}, keep=False),
             ),
             # Add cell areas to the groups

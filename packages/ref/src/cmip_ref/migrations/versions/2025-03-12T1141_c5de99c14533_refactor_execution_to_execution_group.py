@@ -55,7 +55,7 @@ def upgrade() -> None:
         schema=None,
         naming_convention={"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"},
     ) as batch_op:
-        batch_op.add_column(sa.Column("retracted", sa.Boolean(), nullable=False))
+        batch_op.add_column(sa.Column("retracted", sa.Boolean(), nullable=False, default=False))
         batch_op.drop_constraint(
             "fk_metric_execution_result_metric_execution_id_metric_execution", type_="foreignkey"
         )

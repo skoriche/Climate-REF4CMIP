@@ -137,6 +137,7 @@ def build_pmp_command(  # noqa: PLR0913
     reference_name: str,
     reference_paths: list[str] | str,
     source_id: str,
+    experiment_id: str,
     member_id: str,
     output_directory_path: str,
 ) -> list[str]:
@@ -199,6 +200,8 @@ def build_pmp_command(  # noqa: PLR0913
         _parameter_file,
         "--modnames",
         source_id,
+        "--exp",
+        experiment_id,
         "--realization",
         member_id,
         "--modpath",

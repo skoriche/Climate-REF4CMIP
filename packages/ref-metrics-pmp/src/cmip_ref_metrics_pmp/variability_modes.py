@@ -66,10 +66,12 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
         """
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
         source_id = input_datasets["source_id"].unique()[0]
+        experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
 
         print("input_datasets:", input_datasets)
         print("source_id:", source_id)
+        print("experiment_id:", experiment_id)
         print("member_id:", member_id)
 
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
@@ -87,6 +89,7 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
             reference_name=reference_dataset_name,
             reference_paths=reference_dataset_path,
             source_id=source_id,
+            experiment_id=experiment_id,
             member_id=member_id,
             output_directory_path=str(definition.output_directory),
         )

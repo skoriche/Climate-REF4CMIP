@@ -213,4 +213,5 @@ def build_pmp_command(  # noqa: PLR0913
         "--results_dir",
         output_directory_path,
         "--cmec",
+        "--no_provenance",
     ]

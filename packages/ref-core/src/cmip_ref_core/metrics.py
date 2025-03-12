@@ -18,21 +18,21 @@ if TYPE_CHECKING:
 
 
 @frozen
-class MetricExecutionGroupDefinition:
+class MetricExecutionDefinition:
     """
-    Definition of a metric execution group.
+    Definition of a metric execution.
 
     This represents the information needed by a metric to perform an execution of the metric
-    for a group of datasets fulfilling the requirements.
+    for a specific set of datasets fulfilling the requirements.
     """
 
     dataset_key: str
     """
-    A unique identifier for the metric execution group
+    The unique identifier for the datasets in the metric execution group.
 
-    The key is derived from the datasets in the group by facet values.
-    New datasets which match the same group by facet values will also be matched by
-    this group, and will result in the same dataset_key.
+    The key is derived from the datasets in the group using facet values.
+    New datasets which match the same group by facet values will result in the same
+    dataset_key.
     """
 
     metric_dataset: MetricDataset
@@ -82,7 +82,7 @@ class MetricExecutionGroupDefinition:
 
 
 @frozen
-class MetricResult:
+class MetricExecutionResult:
     """
     The result of running a metric.
 
@@ -92,7 +92,7 @@ class MetricResult:
 
     # Do we want to load a serialised version of the output bundle here or just a file path?
 
-    definition: MetricExecutionGroupDefinition
+    definition: MetricExecutionDefinition
     """
     The definition of the metric execution that produced this result.
     """
@@ -115,24 +115,24 @@ class MetricResult:
 
     successful: bool = False
     """
-    Whether the metric ran successfully.
+    Whether the metric execution ran successfully.
     """
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
     def build_from_output_bundle(
-        definition: MetricExecutionGroupDefinition,
+        definition: MetricExecutionDefinition,
         *,
         cmec_output_bundle: CMECOutput | dict[str, Any],
         cmec_metric_bundle: CMECMetric | dict[str, Any],
-    ) -> MetricResult:
+    ) -> MetricExecutionResult:
         """
         Build a MetricResult from a CMEC output bundle.
 
         Parameters
         ----------
         definition
-            The execution defintion.
+            The execution definition.
         cmec_output_bundle
             An output bundle in the CMEC format.
         cmec_metric_bundle
@@ -162,7 +162,7 @@ class MetricResult:
         bundle_path = definition.to_output_path("metric.json")
         cmec_metric.dump_to_json(bundle_path)
 
-        return MetricResult(
+        return MetricExecutionResult(
             definition=definition,
             output_bundle_filename=pathlib.Path("output.json"),
             metric_bundle_filename=pathlib.Path("metric.json"),
@@ -170,14 +170,14 @@ class MetricResult:
         )
 
     @staticmethod
-    def build_from_failure(definition: MetricExecutionGroupDefinition) -> MetricResult:
+    def build_from_failure(definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Build a failed metric result.
 
         This is a placeholder.
         Additional log information should still be captured in the output bundle.
         """
-        return MetricResult(
+        return MetricExecutionResult(
             output_bundle_filename=None, metric_bundle_filename=None, successful=False, definition=definition
         )
 
@@ -333,7 +333,7 @@ class AbstractMetric(Protocol):
     The provider that provides the metric.
     """
 
-    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Run the metric on the given configuration.
 
@@ -343,12 +343,12 @@ class AbstractMetric(Protocol):
 
         Parameters
         ----------
-        definition : MetricExecutionGroupDefinition
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
 
         Returns
         -------
-        MetricResult
+        MetricExecutionResult
             The result of running the metric.
         """
 
@@ -400,13 +400,13 @@ class CommandLineMetric(Metric):
     provider: CommandLineMetricsProvider
 
     @abstractmethod
-    def build_cmd(self, definition: MetricExecutionGroupDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionGroupDefinition
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
 
         Returns
@@ -416,13 +416,13 @@ class CommandLineMetric(Metric):
         """
 
     @abstractmethod
-    def build_metric_result(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
+    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Build the result from running the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionGroupDefinition
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
 
         Returns
@@ -431,13 +431,13 @@ class CommandLineMetric(Metric):
             The result of running the metric.
         """
 
-    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Run the metric on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionGroupDefinition
+        definition : MetricExecutionDefinition
             The configuration to run the metric on.
 
         Returns

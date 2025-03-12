@@ -18,7 +18,7 @@ from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionGroupDefinition, MetricResult
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
@@ -104,9 +104,9 @@ class MockMetric(Metric):
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         # TODO: This doesn't write output.json, use build function?
-        return MetricResult(
+        return MetricExecutionResult(
             output_bundle_filename=definition.output_directory / "output.json",
             metric_bundle_filename=definition.output_directory / "metric.json",
             successful=True,
@@ -120,8 +120,8 @@ class FailedMetric(Metric):
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionGroupDefinition) -> MetricResult:
-        return MetricResult.build_from_failure(definition)
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+        return MetricExecutionResult.build_from_failure(definition)
 
 
 @pytest.fixture
@@ -142,11 +142,11 @@ def mock_metric() -> MockMetric:
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
-    ) -> MetricExecutionGroupDefinition:
+    ) -> MetricExecutionDefinition:
         if metric_dataset is None:
             metric_dataset = MetricDataset({SourceDatasetType.CMIP6: cmip6})
 
-        return MetricExecutionGroupDefinition(
+        return MetricExecutionDefinition(
             dataset_key="key",
             metric_dataset=metric_dataset,
             root_directory=config.paths.scratch,
@@ -157,7 +157,7 @@ def definition_factory(tmp_path: Path, config):
 
 
 @pytest.fixture
-def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionGroupDefinition:
+def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {

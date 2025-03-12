@@ -19,14 +19,14 @@ from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.models import Metric as MetricModel
-from cmip_ref.models import MetricExecutionGroup as MetricExecutionModel
+from cmip_ref.models import MetricExecutionGroup as MetricExecutionGroupModel
 from cmip_ref.models import Provider as ProviderModel
 from cmip_ref.models.metric_execution import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref_core.constraints import apply_constraint
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 from cmip_ref_core.exceptions import InvalidMetricException
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionGroupDefinition
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
 
@@ -40,7 +40,7 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
-    def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionGroupDefinition:
+    def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """
         Build the metric execution info for the current metric execution
         """
@@ -60,7 +60,7 @@ class MetricExecution:
         # This is the desired path relative to the output directory
         fragment = pathlib.Path() / self.provider.slug / self.metric.slug / self.metric_dataset.hash
 
-        return MetricExecutionGroupDefinition(
+        return MetricExecutionDefinition(
             root_directory=output_root,
             output_directory=output_root / fragment,
             dataset_key=key,
@@ -247,9 +247,9 @@ def solve_metrics(
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
-            metric_execution_model, created = db.get_or_create(
-                MetricExecutionModel,
-                key=definition.dataset_key,
+            metric_execution_group_model, created = db.get_or_create(
+                MetricExecutionGroupModel,
+                dataset_key=definition.dataset_key,
                 metric_id=db.session.query(MetricModel)
                 .join(MetricModel.provider)
                 .filter(
@@ -261,7 +261,6 @@ def solve_metrics(
                 .id,
                 defaults={
                     "dirty": True,
-                    "retracted": False,
                 },
             )
 
@@ -269,10 +268,10 @@ def solve_metrics(
                 logger.info(f"Created metric execution {definition.dataset_key}")
                 db.session.flush()
 
-            if metric_execution_model.should_run(definition.metric_dataset.hash):
-                logger.info(f"Running metric {metric_execution_model.dataset_key}")
+            if metric_execution_group_model.should_run(definition.metric_dataset.hash):
+                logger.info(f"Running metric {metric_execution_group_model.dataset_key}")
                 metric_execution_result = MetricExecutionResult(
-                    metric_execution=metric_execution_model,
+                    metric_execution_group=metric_execution_group_model,
                     dataset_hash=definition.metric_dataset.hash,
                     output_fragment=str(definition.output_fragment()),
                 )

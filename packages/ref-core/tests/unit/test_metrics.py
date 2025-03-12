@@ -9,8 +9,8 @@ from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     CommandLineMetric,
     DataRequirement,
-    MetricExecutionGroupDefinition,
-    MetricResult,
+    MetricExecutionDefinition,
+    MetricExecutionResult,
 )
 from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 from cmip_ref_core.pycmec.metric import CMECMetric
@@ -163,14 +163,14 @@ class TestMetricResult:
         cmec_right_metric_dict,
         tmp_path,
     ):
-        definition = MetricExecutionGroupDefinition(
+        definition = MetricExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
             dataset_key="mocked-metric-slug",
             metric_dataset=None,
         )
 
-        result = MetricResult.build_from_output_bundle(
+        result = MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_data,
             cmec_metric_bundle=cmec_right_metric_dict,
@@ -201,7 +201,7 @@ class TestMetricResult:
         # Setting the output directory generally happens as a side effect of the executor
         definition = evolve(definition, output_directory=tmp_path)
 
-        result = MetricResult.build_from_output_bundle(
+        result = MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_dict,
             cmec_metric_bundle=cmec_right_metric_data,
@@ -222,13 +222,13 @@ class TestMetricResult:
         assert output_filename.is_relative_to(tmp_path)
 
     def test_build_from_failure(self, tmp_path):
-        definition = MetricExecutionGroupDefinition(
+        definition = MetricExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
             dataset_key="mocked-metric-slug",
             metric_dataset=None,
         )
-        result = MetricResult.build_from_failure(definition)
+        result = MetricExecutionResult.build_from_failure(definition)
 
         assert not result.successful
         assert result.output_bundle_filename is None

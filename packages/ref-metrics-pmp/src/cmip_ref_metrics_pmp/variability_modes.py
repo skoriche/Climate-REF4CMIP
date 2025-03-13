@@ -73,9 +73,6 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                             }
                         ),
                     ),
-                    # Add cell areas to the groups
-                    # constraints=(AddCellAreas(),),
-                    # Run the metric on each unique combination of model, variable, experiment, and variant
                     group_by=("source_id", "experiment_id", "variant_label", "member_id"),
                 ),
             )

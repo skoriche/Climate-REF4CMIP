@@ -4,7 +4,7 @@ import os
 # =================================================
 # Background Information
 # -------------------------------------------------
-mip = "cmip5"
+mip = "cmip6"
 exp = "historical"
 frequency = "mo"
 realm = "atm"
@@ -55,7 +55,7 @@ modpath = os.path.join(
 
 modnames = ["ACCESS1-0"]
 
-realization = "r1i1p1"
+realization = "r1i1p1f1"
 
 varModel = "psl"
 ModUnitsAdjust = (True, "divide", 100.0)  # Pa to hPa

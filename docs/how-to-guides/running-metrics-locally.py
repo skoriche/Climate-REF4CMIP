@@ -157,17 +157,17 @@ prettyprinter.pprint(direct_result)
 # ## Metric calculations
 #
 # Metric calculations are typically run using an
-# [Executor](api/cmip_ref_core/executor/#cmip_ref_core.executor.Executor)
+# [Executor](../../api/cmip_ref_core/executor/#cmip_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 # These executors can run metrics locally, on a cluster, or on a remote service
 #
 # The simplest executor is the
-# [LocalExecutor](api/cmip_ref_core/executor/#cmip_ref.executor.local.LocalExecutor).
+# [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor).
 # This executor runs a given metric synchronously in the current process.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor](api/cmip_ref_core/executor/#cmip_ref.executor.local.LocalExecutor)
+# The [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor)
 # is the default executor,
 # if no other configuration is provided.
 

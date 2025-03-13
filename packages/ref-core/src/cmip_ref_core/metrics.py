@@ -21,7 +21,7 @@ def ensure_relative_path(path: pathlib.Path | str, root_directory: pathlib.Path)
     """
     Ensure that a path is relative to a root directory
 
-    If a path an absolute path, but not relative to the root directory, a ValueError is raised.
+    If a path is an absolute path, but not relative to the root directory, a ValueError is raised.
 
     Parameters
     ----------

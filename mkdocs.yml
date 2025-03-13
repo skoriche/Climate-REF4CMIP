@@ -15,7 +15,7 @@ nav:
   - How-to guides:
     - how-to-guides/index.md
     - how-to-guides/ingest-datasets.md
-    - how-to-guides/dataset-selection.py
+    - how-to-guides/metric-dataset-selection.py
     - how-to-guides/running-metrics-locally.py
   - Tutorials: tutorials.md
   - Further background:

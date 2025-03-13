@@ -48,7 +48,7 @@ provider
 # %% [markdown]
 # We select a metric which simply calculates the annual mean, global mean timeseries of a dataset.
 #
-# The data requirements of this metric, filter out all variables except `tas` and `rsut`.
+# The data requirements of this metric filter out all variables except `tas` and `rsut`.
 # The `group_by` specification ensures that each execution has a unique combination of
 # `source_id`, `variant_id`, `variable_id` and `experiment_id` values.
 
@@ -75,7 +75,7 @@ data_catalog = get_dataset_adapter("cmip6").load_catalog(db)
 data_catalog.head()
 
 # %% [markdown]
-# Below the unique combinations of the metadata values that apply to the groupby are shown:
+# Below, the unique combinations of the metadata values that apply to the groupby are shown:
 
 # %%
 data_catalog[["source_id", "variant_label", "variable_id", "experiment_id"]].drop_duplicates()
@@ -156,16 +156,19 @@ prettyprinter.pprint(direct_result)
 # %% [markdown]
 # ## Metric calculations
 #
-# Metric calculations are typically run using an [Executor](cmip_ref_core.executor.Executor)
+# Metric calculations are typically run using an
+# [Executor](../../api/cmip_ref_core/executor/#cmip_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 # These executors can run metrics locally, on a cluster, or on a remote service
 #
-# The simplest executor is the [LocalExecutor](cmip_ref.executor.local.LocalExecutor).
+# The simplest executor is the
+# [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor).
 # This executor runs a given metric synchronously in the current process.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor][cmip_ref.executor.local.LocalExecutor] is the default executor,
+# The [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor)
+# is the default executor,
 # if no other configuration is provided.
 
 # %%

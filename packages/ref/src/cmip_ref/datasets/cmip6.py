@@ -173,11 +173,12 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
             parsed_metadata = []
             for dirpath, dirnames, dirfiles in os.walk(file_or_directory, followlinks=True):
+                logging.debug(f"walking {dirpath}")
                 files = [f for f in dirfiles if f.endswith(".nc")]
                 for f in files:
                     if f.endswith(".nc"):
                         fpath = os.path.join(dirpath, f)
-                        logging.debug(f"Parsing {fpath}…")
+                        logging.info(f"Parsing {fpath}")
                         parsed_metadata.append(ecgtools.parsers.parse_cmip6(fpath))
 
         datasets = pd.DataFrame(parsed_metadata)

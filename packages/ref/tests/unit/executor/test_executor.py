@@ -136,7 +136,8 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
         handle_execution_result(config, db, mock_execution_result, result)
 
 
-def test_copy_file_to_results_success(mocker):
+@pytest.mark.parametrize("is_relative", [True, False])
+def test_copy_file_to_results_success(mocker, is_relative):
     scratch_directory = pathlib.Path("/scratch")
     results_directory = pathlib.Path("/results")
     fragment = "output_fragment"
@@ -145,7 +146,12 @@ def test_copy_file_to_results_success(mocker):
     mocker.patch("pathlib.Path.exists", return_value=True)
     mock_copy = mocker.patch("shutil.copy")
 
-    _copy_file_to_results(scratch_directory, results_directory, fragment, filename)
+    if is_relative:
+        _copy_file_to_results(scratch_directory, results_directory, fragment, filename)
+    else:
+        _copy_file_to_results(
+            scratch_directory, results_directory, fragment, scratch_directory / fragment / filename
+        )
 
     mock_copy.assert_called_once_with(
         scratch_directory / fragment / filename, results_directory / fragment / filename

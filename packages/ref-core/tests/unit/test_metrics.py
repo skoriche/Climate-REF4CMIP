@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -11,6 +12,7 @@ from cmip_ref_core.metrics import (
     DataRequirement,
     MetricExecutionDefinition,
     MetricResult,
+    ensure_relative_path,
 )
 from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 from cmip_ref_core.pycmec.metric import CMECMetric
@@ -346,3 +348,22 @@ def test_apply_filters_missing(apply_data_catalog):
         match=re.escape("Facet 'missing' not in data catalog columns: ['variable', 'source_id']"),
     ):
         requirement.apply_filters(apply_data_catalog)
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    (
+        (Path("/example/test"), Path("test")),
+        ("/example/test", Path("test")),
+        ("/example/test/other", Path("test/other")),
+        ("test/other", Path("test/other")),
+        (Path("test/other"), Path("test/other")),
+    ),
+)
+def test_ensure_relative_path(input, expected):
+    assert ensure_relative_path(input, root_directory=Path("/example")) == expected
+
+
+def test_ensure_relative_path_failed():
+    with pytest.raises(ValueError):
+        ensure_relative_path("/other", root_directory=Path("/example"))

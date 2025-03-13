@@ -86,5 +86,5 @@ versions of datasets, and a metric will need to be re-executed when new versions
 of datasets become available. Within the REF, we group all executions for different
 versions of datasets together into a metric execution group, so the metric execution
 group would be specific to a specific metric and e.g. a specific model. This enables us
-to, for example, if the results for the metric execution group are up to date, so
+to determine if the results for the metric execution group are up to date, so
 if the metric is evaluated for the most up-to-date version of the input datasets.

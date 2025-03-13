@@ -78,7 +78,7 @@ flowchart LR
 ### Metrics
 At the core of the REF is the [Metric][cmip_ref_core.metrics.Metric] protocol.
 This protocol defines the common interface that all metrics must implement.
-A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/dataset-selection.py)), and how to calculate a value from them.
+A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/metric-dataset-selection.py)), and how to calculate a value from them.
 How a metric is actually calculated depends on which metrics provider the metric comes from.
 
 The rest of the complexity that comes from figuring out which datasets to use, how to run the metric, and how to visualise the results is handled by the REF.

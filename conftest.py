@@ -141,10 +141,18 @@ def mock_metric() -> MockMetric:
 @pytest.fixture
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
-        *, metric_dataset: MetricDataset | None = None, cmip6: DatasetCollection | None = None
+        *,
+        metric_dataset: MetricDataset | None = None,
+        cmip6: DatasetCollection | None = None,
+        obs4mips: DatasetCollection | None = None,
     ) -> MetricExecutionDefinition:
         if metric_dataset is None:
-            metric_dataset = MetricDataset({SourceDatasetType.CMIP6: cmip6})
+            datasets = {}
+            if cmip6:
+                datasets[SourceDatasetType.CMIP6] = cmip6
+            if obs4mips:
+                datasets[SourceDatasetType.obs4MIPs] = obs4mips
+            metric_dataset = MetricDataset(datasets)
 
         return MetricExecutionDefinition(
             dataset_key="key",

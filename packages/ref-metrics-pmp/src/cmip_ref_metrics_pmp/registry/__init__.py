@@ -6,7 +6,7 @@ import importlib.resources
 
 import pooch
 
-PMP_VERSION = "v3.8.2"
+PMP_VERSION = "v3.9"
 _DATASETS = {
     "HadISST-1-1": "obs4MIPs_PCMDI_monthly/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc",  # noqa
 }

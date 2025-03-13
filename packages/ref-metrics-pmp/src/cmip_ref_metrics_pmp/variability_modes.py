@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import CommandLineMetric, DataRequirement, MetricExecutionDefinition, MetricResult
 from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
-from cmip_ref_metrics_pmp.registry import fetch_reference_data
 
 
 class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
@@ -16,24 +15,34 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
 
     data_requirements = (
         DataRequirement(
+            source_type=SourceDatasetType.obs4MIPs,
+            filters=(
+                FacetFilter(
+                    facets={
+                        "source_id": ("HadISST-1-1",),
+                        "variable_id": ("ts",),
+                    }
+                ),
+            ),
+            group_by=("source_id", "variable_id"),
+        ),
+        DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
                         "frequency": "mon",
-                        "experiment_id": ("historical", "hist-GHG"),
+                        "experiment_id": ("historical", "hist-GHG", "piControl"),
                         "variable_id": "ts",
                     }
                 ),
                 # Ignore some experiments because they are not relevant
-                # JL: This won't ever be triggered because the experiment_id filter more specific
-                # Should this be ignoring all AerChemMIP experiments?
                 FacetFilter(facets={"experiment_id": ("amip",)}, keep=False),
             ),
             # Add cell areas to the groups
             # constraints=(AddCellAreas(),),
             # Run the metric on each unique combination of model, variable, experiment, and variant
-            group_by=("source_id", "variable_id", "experiment_id", "variant_label", "member_id"),
+            group_by=("source_id", "experiment_id", "variant_label", "member_id"),
         ),
     )
 
@@ -51,19 +60,31 @@ class ExtratropicalModesOfVariability_PDO(CommandLineMetric):
             Command arguments to execute in the PMP environment
         """
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
-
-        reference_dataset_name = "HadISST-1-1"
-
         source_id = input_datasets["source_id"].unique()[0]
+        experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
+
+        print("input_datasets:", input_datasets)
+        print("source_id:", source_id)
+        print("experiment_id:", experiment_id)
+        print("member_id:", member_id)
+
+        reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
+        reference_dataset_name = reference_dataset["source_id"].unique()[0]
+        reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
+
+        print("reference_dataset:", reference_dataset)
+        print("reference_dataset_name:", reference_dataset_name)
+        print("reference_dataset_path:", reference_dataset_path)
 
         return build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",
             parameter_file="pmp_param_MoV-PDO.py",
             model_files=input_datasets.path.to_list(),
             reference_name=reference_dataset_name,
-            reference_paths=[fetch_reference_data(reference_dataset_name)],
+            reference_paths=reference_dataset_path,
             source_id=source_id,
+            experiment_id=experiment_id,
             member_id=member_id,
             output_directory_path=str(definition.output_directory),
         )

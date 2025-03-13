@@ -3,4 +3,4 @@ channels:
     - nodefaults
 dependencies:
     - python=3.10.10
-    - pcmdi_metrics=3.8.2
+    - pcmdi_metrics>=3.9

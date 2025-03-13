@@ -14,7 +14,8 @@ from cmip_ref_core.metrics import Metric
 
 
 def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> pd.DataFrame:
-    datasets = extract_covered_datasets(data_catalog, metric.data_requirements[0])
+    # obs4mips requirement is first
+    datasets = extract_covered_datasets(data_catalog, metric.data_requirements[1])
     assert len(datasets) > 0
     return datasets[0]
 
@@ -31,15 +32,30 @@ def provider(tmp_path):
     return provider
 
 
-def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
+def test_pdo_metric(  # noqa: PLR0913
+    cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
+):
     metric = ExtratropicalModesOfVariability_PDO()
     metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
-    definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
+    expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
 
-    mock_fetch_reference_data = mocker.patch(
-        "cmip_ref_metrics_pmp.variability_modes.fetch_reference_data", return_value="REFERENCE_DATA"
+    definition = definition_factory(
+        cmip6=DatasetCollection(metric_dataset, "instance_id"),
+        obs4mips=DatasetCollection(
+            pd.Series(
+                {
+                    "instance_id": "HadISST",
+                    "source_id": "HadISST-1-1",
+                    "variable_id": "ts",
+                    "path": expected_reference_filename,
+                }
+            )
+            .to_frame()
+            .T,
+            "instance_id",
+        ),
     )
 
     def mock_run_fn(cmd, *args, **kwargs):
@@ -71,22 +87,24 @@ def test_pdo_metric(cmip6_data_catalog, mocker, definition_factory, pdo_example_
             _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-PDO.py", True),
             "--modnames",
             "ACCESS-ESM1-5",
+            "--exp",
+            "hist-GHG",
             "--realization",
             "r1i1p1f1",
             "--modpath",
             metric_dataset.path.to_list()[0],
             "--reference_data_path",
-            "REFERENCE_DATA",
+            expected_reference_filename,
             "--reference_data_name",
             "HadISST-1-1",
             "--results_dir",
             str(definition.output_directory),
             "--cmec",
+            "--no_provenance",
         ],
         check=True,
     )
 
-    mock_fetch_reference_data.assert_called_with("HadISST-1-1")
     assert result.successful
 
     assert str(result.output_bundle_filename) == "output.json"
@@ -110,7 +128,22 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
     metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
-    definition = definition_factory(cmip6=DatasetCollection(metric_dataset, "instance_id"))
+    definition = definition_factory(
+        cmip6=DatasetCollection(metric_dataset, "instance_id"),
+        obs4mips=DatasetCollection(
+            pd.Series(
+                {
+                    "instance_id": "HadISST",
+                    "source_id": "HadISST-1-1",
+                    "variable_id": "ts",
+                    "path": "not_a_file",
+                }
+            )
+            .to_frame()
+            .T,
+            "instance_id",
+        ),
+    )
 
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called

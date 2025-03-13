@@ -69,7 +69,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                             facets={
                                 "frequency": "mon",
                                 "experiment_id": ("historical", "hist-GHG", "piControl", "amip"),
-                                "variable_id": "ts",
+                                "variable_id": "psl",
                             }
                         ),
                     ),

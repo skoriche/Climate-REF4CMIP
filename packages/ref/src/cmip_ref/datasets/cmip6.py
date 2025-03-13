@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import os
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +9,6 @@ from typing import Any
 
 import ecgtools.parsers
 import pandas as pd
-from ecgtools import Builder
 from loguru import logger
 from sqlalchemy.orm import joinedload
 
@@ -170,14 +171,16 @@ class CMIP6DatasetAdapter(DatasetAdapter):
             # Ignore the DeprecationWarning from xarray
             warnings.simplefilter("ignore", DeprecationWarning)
 
-            builder = Builder(
-                paths=[str(file_or_directory)],
-                depth=10,
-                include_patterns=["*.nc"],
-                joblib_parallel_kwargs={"n_jobs": self.n_jobs},
-            ).build(parsing_func=ecgtools.parsers.parse_cmip6)
+            parsed_metadata = []
+            for dirpath, dirnames, dirfiles in os.walk(file_or_directory, followlinks=True):
+                files = [f for f in dirfiles if f.endswith(".nc")]
+                for f in files:
+                    if f.endswith(".nc"):
+                        fpath = os.path.join(dirpath, f)
+                        logging.debug(f"Parsing {fpath}…")
+                        parsed_metadata.append(ecgtools.parsers.parse_cmip6(fpath))
 
-        datasets = builder.df
+        datasets = pd.DataFrame(parsed_metadata)
 
         # Convert the start_time and end_time columns to datetime objects
         # We don't know the calendar used in the dataset (TODO: Check what ecgtools does)

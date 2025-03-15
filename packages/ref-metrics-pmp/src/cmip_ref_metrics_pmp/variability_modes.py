@@ -15,70 +15,50 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         self.name = f"PMP Extratropical modes of variability {mode_id}"
         self.slug = f"pmp-extratropical-modes-of-variability-{mode_id.lower()}"
 
-        if self.mode_id in ["PDO", "NPGO", "AMO"]:
-            self.data_requirements = (
+        def get_data_requirements(
+            obs_source: str,
+            obs_variable: str,
+            cmip_variable: str,
+            extra_experiments: str | tuple[str, ...] | list[str] = (),
+            remove_experiments: str | tuple[str, ...] | list[str] = (),
+        ) -> tuple[DataRequirement, DataRequirement]:
+            filters = [
+                FacetFilter(
+                    facets={
+                        "frequency": "mon",
+                        "experiment_id": ("historical", "hist-GHG", "piControl", *extra_experiments),
+                        "variable_id": cmip_variable,
+                    }
+                )
+            ]
+
+            if remove_experiments:
+                filters.append(FacetFilter(facets={"experiment_id": remove_experiments}, keep=False))
+
+            return (
                 DataRequirement(
                     source_type=SourceDatasetType.obs4MIPs,
                     filters=(
-                        FacetFilter(
-                            facets={
-                                "source_id": ("HadISST-1-1",),
-                                "variable_id": ("ts",),
-                            }
-                        ),
+                        FacetFilter(facets={"source_id": (obs_source,), "variable_id": (obs_variable,)}),
                     ),
                     group_by=("source_id", "variable_id"),
                 ),
                 DataRequirement(
                     source_type=SourceDatasetType.CMIP6,
-                    filters=(
-                        FacetFilter(
-                            facets={
-                                "frequency": "mon",
-                                "experiment_id": ("historical", "hist-GHG", "piControl"),
-                                "variable_id": "ts",
-                            }
-                        ),
-                        # Ignore some experiments because they are not relevant
-                        FacetFilter(facets={"experiment_id": ("amip",)}, keep=False),
-                    ),
-                    # Add cell areas to the groups
-                    # constraints=(AddCellAreas(),),
-                    # Run the metric on each unique combination of model, variable, experiment, and variant
+                    filters=tuple(filters),
                     group_by=("source_id", "experiment_id", "variant_label", "member_id"),
                 ),
+            )
+
+        if self.mode_id in ["PDO", "NPGO", "AMO"]:
+            self.data_requirements = get_data_requirements(
+                "HadISST-1-1", "ts", "ts", remove_experiments=("amip",)
             )
         elif self.mode_id in ["NAO", "NAM", "PNA", "NPO", "SAM"]:
-            self.data_requirements = (
-                DataRequirement(
-                    source_type=SourceDatasetType.obs4MIPs,
-                    filters=(
-                        FacetFilter(
-                            facets={
-                                "source_id": ("20CR",),
-                                "variable_id": ("psl",),
-                            }
-                        ),
-                    ),
-                    group_by=("source_id", "variable_id"),
-                ),
-                DataRequirement(
-                    source_type=SourceDatasetType.CMIP6,
-                    filters=(
-                        FacetFilter(
-                            facets={
-                                "frequency": "mon",
-                                "experiment_id": ("historical", "hist-GHG", "piControl", "amip"),
-                                "variable_id": "psl",
-                            }
-                        ),
-                    ),
-                    group_by=("source_id", "experiment_id", "variant_label", "member_id"),
-                ),
-            )
+            self.data_requirements = get_data_requirements("20CR", "psl", "psl", extra_experiments=("amip",))
         else:
             raise ValueError(
-                f"Unknown mode_id {mode_id}. Must be one of " "PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
+                f"Unknown mode_id {self.mode_id}. Must be one of PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
             )
 
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
@@ -121,17 +101,44 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                 f"Unknown mode_id {self.mode_id}. Must be one of " "PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
             )
 
-        return build_pmp_command(
-            driver_file="variability_mode/variability_modes_driver.py",
-            parameter_file=parameter_file,
-            model_files=input_datasets.path.to_list(),
-            reference_name=reference_dataset_name,
-            reference_paths=reference_dataset_path,
-            source_id=source_id,
-            experiment_id=experiment_id,
-            member_id=member_id,
-            output_directory_path=str(definition.output_directory),
-        )
+        params = {
+            "driver_file": "variability_mode/variability_modes_driver.py",
+            "parameter_file": parameter_file,
+            "model_files": input_datasets.path.to_list(),
+            "reference_name": reference_dataset_name,
+            "reference_paths": reference_dataset_path,
+            "source_id": source_id,
+            "experiment_id": experiment_id,
+            "member_id": member_id,
+            "output_directory_path": str(definition.output_directory),
+            "variability_mode": self.mode_id,
+        }
+
+        # Add conditional parameters
+        if self.mode_id in ["SAM"]:
+            params["osyear"] = 1950
+            params["oeyear"] = 2005
+
+        development_mode = True
+
+        if development_mode:
+            # Get current time in 'yyyymmdd-hhmm' format
+            from datetime import datetime
+
+            current_time = datetime.now().strftime("%Y%m%d-%H%M")
+            output_directory_path = f"/Users/lee1043/Documents/Research/REF/output/{current_time}/{self.slug}"
+            params.update(
+                {
+                    "msyear": 2000,
+                    "meyear": 2005,
+                    "osyear": 2000,
+                    "oeyear": 2005,
+                    "output_directory_path": output_directory_path,
+                }
+            )
+
+        # Pass the parameters using **kwargs
+        return build_pmp_command(**params)
 
     def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:
         """

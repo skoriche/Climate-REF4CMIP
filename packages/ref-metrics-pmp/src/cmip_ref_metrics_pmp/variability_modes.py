@@ -125,7 +125,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
             # Get current time in 'yyyymmdd-hhmm' format
             from datetime import datetime
 
-            current_time = datetime.now().strftime("%Y%m%d-%H%M")
+            current_time = datetime.now().strftime("%Y%m%d")
             output_directory_path = f"/Users/lee1043/Documents/Research/REF/output/{current_time}/{self.slug}"
             params.update(
                 {

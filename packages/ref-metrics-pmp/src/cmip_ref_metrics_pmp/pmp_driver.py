@@ -50,6 +50,8 @@ def process_json_result(
     -------
         tuple of CMEC output and metric bundles
     """
+    print("process_json_result called with:", json_filename, png_files, data_files)
+
     with open(json_filename) as fh:
         json_result = json.load(fh)
 
@@ -92,6 +94,8 @@ def process_json_result(
 
     if "provenance" in json_result:  # pragma: no branch
         cmec_metric["provenance"] = json_result["provenance"]
+
+    print("process_json_result returning:", cmec_output, cmec_metric)
 
     return CMECOutput(**cmec_output), CMECMetric(**cmec_metric)
 

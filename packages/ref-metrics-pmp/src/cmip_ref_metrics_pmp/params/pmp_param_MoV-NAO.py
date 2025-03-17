@@ -68,7 +68,7 @@ eofn_mod = 1
 # Output
 # -------------------------------------------------
 case_id = f"{datetime.datetime.now():v%Y%m%d}"
-pmprdir = "/p/user_pub/pmp/pmp_results/pmp_v1.1.2"
+pmprdir = "/p/user_pub/pmp/pmp_results/"
 
 results_dir = os.path.join(
     pmprdir,

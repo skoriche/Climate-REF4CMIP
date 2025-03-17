@@ -109,10 +109,7 @@ def parse_obs4mips(file: str) -> dict[str, Any | None]:
         )
         return info
 
-    except TypeError:
-        logger.warning(traceback_message)
-        return {"INVALID_ASSET": file, "TRACEBACK": traceback_message}
-    except AttributeError:
+    except TypeError, AttributeError:
         logger.warning(traceback_message)
         return {"INVALID_ASSET": file, "TRACEBACK": traceback_message}
     except Exception:

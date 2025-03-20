@@ -164,8 +164,8 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
 
 
 class TestExtratropicalModesOfVariability(unittest.TestCase):
-    @patch("module_name.FacetFilter")  # Mock FacetFilter if needed
-    @patch("module_name.DataRequirement")  # Mock DataRequirement if needed
+    @patch("ExtratropicalModesOfVariability.FacetFilter")  # Mock FacetFilter if needed
+    @patch("ExtratropicalModesOfVariability.DataRequirement")  # Mock DataRequirement if needed
     def test_valid_mode_ids(self, mock_data_requirement, mock_facet_filter):
         # Mock the return value of DataRequirement to avoid dependency on its implementation
         mock_data_requirement.return_value = "mocked_data_requirement"

@@ -14,6 +14,7 @@ from cmip_ref_core.datasets import MetricDataset
 if TYPE_CHECKING:
     from cmip_ref.database import Database
     from cmip_ref.models.metric import Metric
+    from cmip_ref.models.metric_value import MetricValue
 
 
 class MetricExecution(CreatedUpdatedMixin, Base):
@@ -61,6 +62,7 @@ class MetricExecution(CreatedUpdatedMixin, Base):
     results: Mapped[list["MetricExecutionResult"]] = relationship(
         back_populates="metric_execution", order_by="MetricExecutionResult.created_at"
     )
+    values: Mapped[list["MetricValue"]] = relationship(back_populates="metric_execution")
 
     def should_run(self, dataset_hash: str) -> bool:
         """

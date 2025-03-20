@@ -101,6 +101,8 @@ def test_pdo_metric(  # noqa: PLR0913
             str(definition.output_directory),
             "--cmec",
             "--no_provenance",
+            "--variability_mode",
+            +"PDO",
         ],
         check=True,
     )

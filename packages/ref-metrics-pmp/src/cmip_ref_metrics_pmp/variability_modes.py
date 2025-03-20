@@ -119,7 +119,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
             params["osyear"] = 1950
             params["oeyear"] = 2005
 
-        development_mode = True
+        development_mode = False
 
         if development_mode:
             # Get current time in 'yyyymmdd-hhmm' format
@@ -153,6 +153,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         -------
             Result of the metric execution
         """
+        print("build_metric_result start")
         results_files = list(definition.output_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
             return MetricResult.build_from_failure(definition)

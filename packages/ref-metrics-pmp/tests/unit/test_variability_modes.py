@@ -1,5 +1,7 @@
 import shutil
+import unittest
 from subprocess import CalledProcessError, CompletedProcess
+from unittest.mock import patch
 
 import cmip_ref_metrics_pmp
 import pandas as pd
@@ -159,3 +161,31 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
 
     with pytest.raises(CalledProcessError):
         metric.run(definition)
+
+
+class TestExtratropicalModesOfVariability(unittest.TestCase):
+    @patch("module_name.FacetFilter")  # Mock FacetFilter if needed
+    @patch("module_name.DataRequirement")  # Mock DataRequirement if needed
+    def test_valid_mode_ids(self, mock_data_requirement, mock_facet_filter):
+        # Mock the return value of DataRequirement to avoid dependency on its implementation
+        mock_data_requirement.return_value = "mocked_data_requirement"
+
+        # Test for PDO
+        handler = ExtratropicalModesOfVariability("PDO")
+        self.assertEqual(handler.mode_id, "PDO")
+        self.assertEqual(handler.name, "PMP Extratropical modes of variability PDO")
+        self.assertEqual(handler.slug, "pmp-extratropical-modes-of-variability-pdo")
+        self.assertEqual(handler.data_requirements, "mocked_data_requirement")
+
+        # Test for NAO
+        handler = ExtratropicalModesOfVariability("NAO")
+        self.assertEqual(handler.mode_id, "NAO")
+        self.assertEqual(handler.name, "PMP Extratropical modes of variability NAO")
+        self.assertEqual(handler.slug, "pmp-extratropical-modes-of-variability-nao")
+        self.assertEqual(handler.data_requirements, "mocked_data_requirement")
+
+    def test_invalid_mode_id(self):
+        # Test for an invalid mode_id
+        with self.assertRaises(ValueError) as context:
+            ExtratropicalModesOfVariability("INVALID")  # No need to assign to `handler`
+        self.assertIn("Unknown mode_id 'INVALID'", str(context.exception))

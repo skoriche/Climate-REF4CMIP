@@ -102,7 +102,7 @@ def test_pdo_metric(  # noqa: PLR0913
             "--cmec",
             "--no_provenance",
             "--variability_mode",
-            +"PDO",
+            "PDO",
         ],
         check=True,
     )

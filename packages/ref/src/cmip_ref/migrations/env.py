@@ -27,6 +27,9 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+# Custom migration functions that are run on every migration
+
+
 def _add_metric_value_columns(connection: Connection) -> None:
     """
     Add any missing columns in the current CV to the database

@@ -102,7 +102,7 @@ def test_pdo_metric(  # noqa: PLR0913
             "--realization",
             "r1i1p1f1",
             "--modpath",
-            metric_dataset.path[0],
+            metric_dataset.path[0].to_list(),
             "--reference_data_path",
             expected_reference_filename,
             "--reference_data_name",

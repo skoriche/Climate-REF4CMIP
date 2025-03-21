@@ -105,7 +105,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         params = {
             "driver_file": "variability_mode/variability_modes_driver.py",
             "parameter_file": parameter_file,
-            "model_files": input_datasets.path,
+            "model_files": input_datasets.path.to_list(),
             "reference_name": reference_dataset_name,
             "reference_paths": reference_dataset_path,
             "source_id": source_id,

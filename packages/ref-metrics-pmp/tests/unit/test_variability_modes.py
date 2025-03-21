@@ -161,7 +161,26 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
         metric.run(definition)
 
 
-def test_invalid_mode_id():
+def test_mode_id_valid():
+    # Test valid mode_ids and their corresponding parameter files
+    valid_modes = {
+        "PDO": "pmp_param_MoV-PDO.py",
+        "NPGO": "pmp_param_MoV-PDO.py",
+        "AMO": "pmp_param_MoV-PDO.py",
+        "NAO": "pmp_param_MoV-NAO.py",
+        "NAM": "pmp_param_MoV-NAO.py",
+        "PNA": "pmp_param_MoV-NAO.py",
+        "NPO": "pmp_param_MoV-NAO.py",
+        "SAM": "pmp_param_MoV-NAO.py",
+    }
+
+    for mode_id, expected_file in valid_modes.items():
+        obj = ExtratropicalModesOfVariability(mode_id)
+        assert obj.parameter_file == expected_file  # Assuming `parameter_file` is an attribute of the object
+
+
+def test_mode_id_invalid():
+    # Test an invalid mode_id
     with pytest.raises(ValueError) as excinfo:
         ExtratropicalModesOfVariability("INVALID")
     assert "Unknown mode_id 'INVALID'" in str(excinfo.value)

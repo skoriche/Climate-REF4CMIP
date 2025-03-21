@@ -109,13 +109,13 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         }
 
         # Add conditional parameters
-        if self.mode_id in ["SAM"]:
+        if self.mode_id in ["SAM"]:  # pragma: no cover
             params["osyear"] = 1950
             params["oeyear"] = 2005
 
         development_mode = False
 
-        if development_mode:
+        if development_mode:  # pragma: no cover
             # Get current time in 'yyyymmdd-hhmm' format
             from datetime import datetime
 

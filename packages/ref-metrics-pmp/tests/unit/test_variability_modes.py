@@ -39,6 +39,9 @@ def test_pdo_metric(  # noqa: PLR0913
     metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
+    expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
+
+    """
     if isinstance(obs4mips_data_catalog["path"], str):
         expected_reference_filename = obs4mips_data_catalog["path"]
     if isinstance(obs4mips_data_catalog["path"], list):
@@ -47,7 +50,7 @@ def test_pdo_metric(  # noqa: PLR0913
         expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
     else:
         expected_reference_filename = "mock_test_ref_file.nc"
-
+    """
     definition = definition_factory(
         cmip6=DatasetCollection(metric_dataset, "instance_id"),
         obs4mips=DatasetCollection(

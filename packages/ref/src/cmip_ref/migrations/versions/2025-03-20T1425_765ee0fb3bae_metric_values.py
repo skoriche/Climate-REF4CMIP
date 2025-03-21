@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_table(
         "metric_value",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("metric_execution_id", sa.Integer(), nullable=False),
+        sa.Column("metric_execution_result_id", sa.Integer(), nullable=False),
         sa.Column("value", sa.Float(), nullable=False),
         sa.Column("attributes", sa.JSON(), nullable=False),
         sa.Column("created_at", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),

@@ -15,13 +15,16 @@ import shutil
 from typing import TYPE_CHECKING
 
 from loguru import logger
+from sqlalchemy import insert
 
 from cmip_ref.database import Database
 from cmip_ref.models.metric_execution import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
+from cmip_ref.models.metric_value import MetricValue
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricExecutionResult, ensure_relative_path
+from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput, OutputDict
 
 if TYPE_CHECKING:
@@ -175,6 +178,23 @@ def handle_execution_result(
                 database=database,
                 metric_execution_result=metric_execution_result,
             )
+
+        cmec_metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
+        # Check that the metric values conform with the controlled vocabulary
+
+        # Perform a bulk insert of a metric bundle
+        database.session.execute(
+            insert(MetricValue),
+            [
+                {
+                    "metric_execution_result_id": metric_execution_result.id,
+                    "value": result.value,
+                    "attributes": result.attributes,
+                    **result.dimensions,
+                }
+                for result in cmec_metric_bundle.iter_results()
+            ],
+        )
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields

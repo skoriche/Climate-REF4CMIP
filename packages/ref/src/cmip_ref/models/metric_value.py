@@ -18,7 +18,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
     __tablename__ = "metric_value"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    metric_execution_id: Mapped[int] = mapped_column(ForeignKey("metric_execution.id"))
+    metric_execution_result_id: Mapped[int] = mapped_column(ForeignKey("metric_execution_result.id"))
 
     value: Mapped[float] = mapped_column()
     attributes: Mapped[dict[str, Any]] = mapped_column()
@@ -26,7 +26,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
     metric_execution_result: Mapped["MetricExecutionResult"] = relationship(back_populates="values")
 
     def __repr__(self) -> str:
-        return f"<MetricValue metric_execution={self.metric_execution_id}>"
+        return f"<MetricValue metric_execution={self.metric_execution_result} value={self.value}>"
 
     @staticmethod
     def build_dimension_column(dimension: Dimension) -> Column[str]:
@@ -43,7 +43,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
 
         Returns
         -------
-            An instance of an sqlalchemy Column
+            An instance of a sqlalchemy Column
 
             This doesn't create the column in the database,
             but enables the ORM to access it.

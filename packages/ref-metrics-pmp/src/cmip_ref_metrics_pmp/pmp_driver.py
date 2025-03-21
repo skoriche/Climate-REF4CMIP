@@ -230,6 +230,6 @@ def build_pmp_command(  # noqa: PLR0913
             print(f"  {key}: {value}")
             cmd.extend([f"--{key}", str(value)])
 
-    print("[PMP] Command to run:", " ".join(cmd))
+    print("[PMP] Command to run:", " ".join(map(str, cmd)))
 
     return cmd

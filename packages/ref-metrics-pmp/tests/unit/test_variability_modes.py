@@ -84,7 +84,7 @@ def test_pdo_metric(  # noqa: PLR0913
             "python",
             _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
             "-p",
-            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-PDO.py", True),
+            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-ts.py", True),
             "--modnames",
             "ACCESS-ESM1-5",
             "--exp",

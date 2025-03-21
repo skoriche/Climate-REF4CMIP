@@ -5,7 +5,7 @@ import cmip_ref_metrics_pmp
 import pandas as pd
 import pytest
 from cmip_ref_metrics_pmp.pmp_driver import _get_resource
-from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability_PDO
+from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability
 
 import cmip_ref_core.providers
 from cmip_ref.solver import extract_covered_datasets
@@ -35,7 +35,7 @@ def provider(tmp_path):
 def test_pdo_metric(  # noqa: PLR0913
     cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
 ):
-    metric = ExtratropicalModesOfVariability_PDO()
+    metric = ExtratropicalModesOfVariability("PDO")
     metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
@@ -84,7 +84,7 @@ def test_pdo_metric(  # noqa: PLR0913
             "python",
             _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
             "-p",
-            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-PDO.py", True),
+            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-ts.py", True),
             "--modnames",
             "ACCESS-ESM1-5",
             "--exp",
@@ -101,6 +101,8 @@ def test_pdo_metric(  # noqa: PLR0913
             str(definition.output_directory),
             "--cmec",
             "--no_provenance",
+            "--variability_mode",
+            "PDO",
         ],
         check=True,
     )
@@ -124,7 +126,7 @@ def test_pdo_metric(  # noqa: PLR0913
 
 
 def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
-    metric = ExtratropicalModesOfVariability_PDO()
+    metric = ExtratropicalModesOfVariability("PDO")
     metric._provider = provider
     metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
 
@@ -157,3 +159,28 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
 
     with pytest.raises(CalledProcessError):
         metric.run(definition)
+
+
+def test_mode_id_valid():
+    # Test valid mode_ids and their corresponding parameter files
+    valid_modes = {
+        "PDO": "pmp_param_MoV-ts.py",
+        "NPGO": "pmp_param_MoV-ts.py",
+        "AMO": "pmp_param_MoV-ts.py",
+        "NAO": "pmp_param_MoV-psl.py",
+        "NAM": "pmp_param_MoV-psl.py",
+        "PNA": "pmp_param_MoV-psl.py",
+        "NPO": "pmp_param_MoV-psl.py",
+        "SAM": "pmp_param_MoV-psl.py",
+    }
+
+    for mode_id, expected_file in valid_modes.items():
+        obj = ExtratropicalModesOfVariability(mode_id)
+        assert obj.parameter_file == expected_file
+
+
+def test_mode_id_invalid():
+    # Test an invalid mode_id
+    with pytest.raises(ValueError) as excinfo:
+        ExtratropicalModesOfVariability("INVALID")
+    assert "Unknown mode_id 'INVALID'" in str(excinfo.value)

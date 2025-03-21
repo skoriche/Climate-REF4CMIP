@@ -35,7 +35,7 @@ def test_execute_missing_driver():
     ):
         build_pmp_command(
             driver_file="variability_mode/missing.py",
-            parameter_file="pmp_param_MoV-PDO.py",
+            parameter_file="pmp_param_MoV-ts.py",
             model_files=["model1.nc"],
             reference_name="HadISST-1-1",
             reference_paths=["reference.nc"],
@@ -68,7 +68,7 @@ def test_execute_more_than_one_model():
     with pytest.raises(NotImplementedError, match="Only one model file is supported"):
         build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",
-            parameter_file="pmp_param_MoV-PDO.py",
+            parameter_file="pmp_param_MoV-ts.py",
             model_files=["model1.nc", "model2.nc"],
             reference_name="HadISST-1-1",
             reference_paths=["reference.nc"],

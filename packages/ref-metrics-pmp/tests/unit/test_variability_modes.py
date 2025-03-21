@@ -195,4 +195,4 @@ class TestExtratropicalModesOfVariability(unittest.TestCase):
         definition.output_directory.glob = MagicMock(return_value=[])
         metric = ExtratropicalModesOfVariability("PDO")
         result = metric.build_metric_result(definition)
-        self.assertFalse(result.success)
+        self.assertFalse(result.successful)

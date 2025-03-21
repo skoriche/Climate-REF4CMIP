@@ -86,7 +86,8 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
 
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
-        reference_dataset_path = reference_dataset.datasets[0]["path"]
+        # reference_dataset_path = reference_dataset.datasets[0]["path"]
+        reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
         print("reference_dataset:", reference_dataset)
         print("reference_dataset_name:", reference_dataset_name)

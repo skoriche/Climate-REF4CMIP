@@ -1,5 +1,8 @@
 import shutil
+import unittest
+from pathlib import Path
 from subprocess import CalledProcessError, CompletedProcess
+from unittest.mock import MagicMock
 
 import cmip_ref_metrics_pmp
 import pandas as pd
@@ -9,7 +12,7 @@ from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariabili
 
 import cmip_ref_core.providers
 from cmip_ref.solver import extract_covered_datasets
-from cmip_ref_core.datasets import DatasetCollection
+from cmip_ref_core.datasets import DatasetCollection, SourceDatasetType
 from cmip_ref_core.metrics import Metric
 
 
@@ -159,3 +162,37 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
 
     with pytest.raises(CalledProcessError):
         metric.run(definition)
+
+
+class TestExtratropicalModesOfVariability(unittest.TestCase):
+    def test_invalid_mode_id(self):
+        with self.assertRaises(ValueError) as context:
+            ExtratropicalModesOfVariability("INVALID")
+        self.assertIn("Unknown mode_id 'INVALID'", str(context.exception))
+
+    def test_build_cmd_with_valid_mode_id(self):
+        definition = MagicMock()
+        definition.metric_dataset = {
+            SourceDatasetType.CMIP6: MagicMock(
+                path=["/path/to/model/file.nc"],
+                source_id=["ModelA"],
+                experiment_id=["historical"],
+                member_id=["r1i1p1f1"],
+            ),
+            SourceDatasetType.obs4MIPs: MagicMock(
+                datasets=[{"path": "/path/to/obs/file.nc"}],
+                source_id=["HadISST-1-1"],
+            ),
+        }
+        definition.output_directory = Path("/output/directory")
+
+        metric = ExtratropicalModesOfVariability("PDO")
+        cmd = metric.build_cmd(definition)
+        self.assertIn("variability_mode/variability_modes_driver.py", cmd)
+
+    def test_build_metric_result_no_json(self):
+        definition = MagicMock()
+        definition.output_directory.glob = MagicMock(return_value=[])
+        metric = ExtratropicalModesOfVariability("PDO")
+        result = metric.build_metric_result(definition)
+        self.assertFalse(result.success)

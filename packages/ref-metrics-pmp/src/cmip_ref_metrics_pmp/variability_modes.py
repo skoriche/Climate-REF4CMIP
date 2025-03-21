@@ -58,7 +58,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
             self.data_requirements = get_data_requirements("20CR", "psl", "psl", extra_experiments=("amip",))
         else:
             raise ValueError(
-                f"Unknown mode_id {self.mode_id}. Must be one of PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
+                f"Unknown mode_id '{self.mode_id}'. Must be one of PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
             )
 
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:

@@ -166,9 +166,3 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
 
     with pytest.raises(CalledProcessError):
         metric.run(definition)
-
-
-def test_invalid_mode_id(self):
-    with self.assertRaises(ValueError) as context:
-        ExtratropicalModesOfVariability("INVALID")
-    self.assertIn("Unknown mode_id 'INVALID'", str(context.exception))

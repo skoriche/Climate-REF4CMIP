@@ -224,7 +224,7 @@ def build_pmp_command(  # noqa: PLR0913
     ]
 
     # Loop through additional arguments if they exist
-    if kwargs:
+    if kwargs:  # pragma: no cover
         print("Additional info:")
         for key, value in kwargs.items():
             print(f"  {key}: {value}")

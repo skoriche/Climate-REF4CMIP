@@ -176,7 +176,7 @@ def test_mode_id_valid():
 
     for mode_id, expected_file in valid_modes.items():
         obj = ExtratropicalModesOfVariability(mode_id)
-        assert obj.parameter_file == expected_file  # Assuming `parameter_file` is an attribute of the object
+        assert obj.parameter_file == expected_file
 
 
 def test_mode_id_invalid():

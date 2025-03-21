@@ -61,6 +61,15 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                 f"Unknown mode_id '{self.mode_id}'. Must be one of PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
             )
 
+        if self.mode_id in ["PDO", "NPGO", "AMO"]:
+            self.parameter_file = "pmp_param_MoV-ts.py"
+        elif self.mode_id in ["NAO", "NAM", "PNA", "NPO", "SAM"]:
+            self.parameter_file = "pmp_param_MoV-psl.py"
+        else:
+            raise ValueError(
+                f"Unknown mode_id {self.mode_id}. Must be one of " "PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
+            )
+
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run the metric
@@ -93,18 +102,9 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         print("reference_dataset_name:", reference_dataset_name)
         print("reference_dataset_path:", reference_dataset_path)
 
-        if self.mode_id in ["PDO", "NPGO", "AMO"]:
-            parameter_file = "pmp_param_MoV-PDO.py"
-        elif self.mode_id in ["NAO", "NAM", "PNA", "NPO", "SAM"]:
-            parameter_file = "pmp_param_MoV-NAO.py"
-        else:
-            raise ValueError(
-                f"Unknown mode_id {self.mode_id}. Must be one of " "PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
-            )
-
         params = {
             "driver_file": "variability_mode/variability_modes_driver.py",
-            "parameter_file": parameter_file,
+            "parameter_file": self.parameter_file,
             "model_files": input_datasets.path.to_list(),
             "reference_name": reference_dataset_name,
             "reference_paths": reference_dataset_path,

@@ -41,16 +41,6 @@ def test_pdo_metric(  # noqa: PLR0913
 
     expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
 
-    """
-    if isinstance(obs4mips_data_catalog["path"], str):
-        expected_reference_filename = obs4mips_data_catalog["path"]
-    if isinstance(obs4mips_data_catalog["path"], list):
-        expected_reference_filename = obs4mips_data_catalog["path"][0]
-    elif isinstance(obs4mips_data_catalog["path"], pd.DataFrame):
-        expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
-    else:
-        expected_reference_filename = "mock_test_ref_file.nc"
-    """
     definition = definition_factory(
         cmip6=DatasetCollection(metric_dataset, "instance_id"),
         obs4mips=DatasetCollection(
@@ -102,7 +92,7 @@ def test_pdo_metric(  # noqa: PLR0913
             "--realization",
             "r1i1p1f1",
             "--modpath",
-            metric_dataset.path[0].to_list(),
+            metric_dataset.path.to_list()[0],
             "--reference_data_path",
             expected_reference_filename,
             "--reference_data_name",

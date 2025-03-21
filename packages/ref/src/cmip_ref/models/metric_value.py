@@ -7,7 +7,7 @@ from cmip_ref.models.base import Base, CreatedUpdatedMixin
 from cmip_ref_core.pycmec.controlled_vocabulary import CV, Dimension
 
 if TYPE_CHECKING:
-    from cmip_ref.models.metric_execution import MetricExecution
+    from cmip_ref.models.metric_execution import MetricExecutionResult
 
 
 class MetricValue(CreatedUpdatedMixin, Base):
@@ -23,7 +23,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
     value: Mapped[float] = mapped_column()
     attributes: Mapped[dict[str, Any]] = mapped_column()
 
-    metric_execution: Mapped["MetricExecution"] = relationship(back_populates="values")
+    metric_execution_result: Mapped["MetricExecutionResult"] = relationship(back_populates="values")
 
     def __repr__(self) -> str:
         return f"<MetricValue metric_execution={self.metric_execution_id}>"

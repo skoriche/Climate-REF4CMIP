@@ -10,7 +10,7 @@ from cmip_ref.models.base import Base
 from cmip_ref.models.dataset import Dataset
 from cmip_ref.models.metric import Metric
 from cmip_ref.models.metric_execution import (
-    MetricExecution,
+    MetricExecutionGroup,
     MetricExecutionResult,
     ResultOutput,
 )
@@ -24,7 +24,7 @@ __all__ = [
     "Base",
     "Dataset",
     "Metric",
-    "MetricExecution",
+    "MetricExecutionGroup",
     "MetricExecutionResult",
     "MetricValue",
     "Provider",

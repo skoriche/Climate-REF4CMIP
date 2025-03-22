@@ -150,51 +150,38 @@ def handle_execution_result(
                 metric_execution_result.output_fragment,
                 result.output_bundle_filename,
             )
-
-            # Extract the registered outputs
-            # Copy the content to the output directory
-            # Track in the db
-            cmec_output_bundle = CMECOutput.load_from_json(
-                result.to_output_path(result.output_bundle_filename)
-            )
-            _handle_outputs(
-                cmec_output_bundle.plots,
-                output_type=ResultOutputType.Plot,
-                config=config,
-                database=database,
-                metric_execution_result=metric_execution_result,
-            )
-            _handle_outputs(
-                cmec_output_bundle.data,
-                output_type=ResultOutputType.Data,
-                config=config,
-                database=database,
-                metric_execution_result=metric_execution_result,
-            )
-            _handle_outputs(
-                cmec_output_bundle.html,
-                output_type=ResultOutputType.HTML,
-                config=config,
-                database=database,
-                metric_execution_result=metric_execution_result,
+            _handle_output_bundle(
+                config,
+                database,
+                metric_execution_result,
+                result.to_output_path(result.output_bundle_filename),
             )
 
         cmec_metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
         # Check that the metric values conform with the controlled vocabulary
 
         # Perform a bulk insert of a metric bundle
-        database.session.execute(
-            insert(MetricValue),
-            [
-                {
-                    "metric_execution_result_id": metric_execution_result.id,
-                    "value": result.value,
-                    "attributes": result.attributes,
-                    **result.dimensions,
-                }
-                for result in cmec_metric_bundle.iter_results()
-            ],
-        )
+        # TODO: The section below will likely fail until we have agreed on a controlled vocabulary
+        # The current implementation will swallow the exception, but display a log message
+        try:
+            # Perform this in a nested transaction to (hopefully) gracefully rollback if something
+            # goes wrong
+            with database.session.begin_nested():
+                database.session.execute(
+                    insert(MetricValue),
+                    [
+                        {
+                            "metric_execution_result_id": metric_execution_result.id,
+                            "value": result.value,
+                            "attributes": result.attributes,
+                            **result.dimensions,
+                        }
+                        for result in cmec_metric_bundle.iter_results()
+                    ],
+                )
+        except Exception:
+            # TODO: Remove once we have settled on a controlled vocabulary
+            logger.exception("Something went wrong when ingesting metric values")
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields
@@ -203,6 +190,39 @@ def handle_execution_result(
     else:
         logger.error(f"{metric_execution_result} failed")
         metric_execution_result.mark_failed()
+
+
+def _handle_output_bundle(
+    config: Config,
+    database: Database,
+    metric_execution_result: MetricExecutionResultModel,
+    cmec_output_bundle_filename: pathlib.Path,
+) -> None:
+    # Extract the registered outputs
+    # Copy the content to the output directory
+    # Track in the db
+    cmec_output_bundle = CMECOutput.load_from_json(cmec_output_bundle_filename)
+    _handle_outputs(
+        cmec_output_bundle.plots,
+        output_type=ResultOutputType.Plot,
+        config=config,
+        database=database,
+        metric_execution_result=metric_execution_result,
+    )
+    _handle_outputs(
+        cmec_output_bundle.data,
+        output_type=ResultOutputType.Data,
+        config=config,
+        database=database,
+        metric_execution_result=metric_execution_result,
+    )
+    _handle_outputs(
+        cmec_output_bundle.html,
+        output_type=ResultOutputType.HTML,
+        config=config,
+        database=database,
+        metric_execution_result=metric_execution_result,
+    )
 
 
 def _handle_outputs(

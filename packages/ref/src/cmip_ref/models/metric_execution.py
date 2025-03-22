@@ -62,7 +62,6 @@ class MetricExecutionGroup(CreatedUpdatedMixin, Base):
     results: Mapped[list["MetricExecutionResult"]] = relationship(
         back_populates="metric_execution_group", order_by="MetricExecutionResult.created_at"
     )
-    values: Mapped[list["MetricValue"]] = relationship(back_populates="metric_execution")
 
     def should_run(self, dataset_hash: str) -> bool:
         """
@@ -157,6 +156,7 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
 
     metric_execution_group: Mapped["MetricExecutionGroup"] = relationship(back_populates="results")
     outputs: Mapped[list["ResultOutput"]] = relationship(back_populates="metric_execution_result")
+    values: Mapped[list["MetricValue"]] = relationship(back_populates="metric_execution_result")
 
     datasets: Mapped[list[Dataset]] = relationship(secondary=metric_datasets)
 

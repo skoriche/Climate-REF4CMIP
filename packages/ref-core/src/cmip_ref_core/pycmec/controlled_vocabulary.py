@@ -127,8 +127,9 @@ class CV:
                 if not dimension.allow_extra_values:
                     if v not in [dv.name for dv in dimension.values]:
                         raise ResultValidationError(f"Unknown value {v!r} for dimension {k!r}")
-            if result.value is None:
-                raise ResultValidationError("Unexpected missing value")
+            if not isinstance(result.value, float):  # pragma: no cover
+                # This may not be possible with the current CMECMetric implementation
+                raise ResultValidationError(f"Unexpected value: {result.value!r}")
 
     @staticmethod
     def load_from_file(filename: pathlib.Path | str) -> "CV":

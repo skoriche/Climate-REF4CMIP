@@ -63,7 +63,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
     # Each test gets its own directory (based on the test filename and the test name)
     # Sanitize the directory name to remove invalid characters
     dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
-    ref_config_dir = root_output_dir / request.path.stem / dir_name
+    ref_config_dir = root_output_dir / request.module.__name__ / dir_name
 
     monkeypatch.setenv("REF_CONFIGURATION", str(ref_config_dir))
 

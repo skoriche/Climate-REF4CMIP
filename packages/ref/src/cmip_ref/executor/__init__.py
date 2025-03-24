@@ -21,9 +21,10 @@ from cmip_ref.database import Database
 from cmip_ref.models.metric_execution import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
 from cmip_ref.models.metric_value import MetricValue
-from cmip_ref_core.exceptions import InvalidExecutorException
+from cmip_ref_core.exceptions import InvalidExecutorException, ResultValidationError
 from cmip_ref_core.executor import Executor
 from cmip_ref_core.metrics import MetricExecutionResult, ensure_relative_path
+from cmip_ref_core.pycmec.controlled_vocabulary import CV
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput, OutputDict
 
@@ -158,7 +159,15 @@ def handle_execution_result(
             )
 
         cmec_metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
+
         # Check that the metric values conform with the controlled vocabulary
+        try:
+            cv = CV.load_from_file(config.paths.dimensions_cv)
+            cv.validate_metrics(cmec_metric_bundle)
+        except ResultValidationError:
+            logger.exception("Metric values do not conform with the controlled vocabulary")
+            # TODO: Mark the metric execution result as failed once the CV has stabilised
+            # metric_execution_result.mark_failed()
 
         # Perform a bulk insert of a metric bundle
         # TODO: The section below will likely fail until we have agreed on a controlled vocabulary

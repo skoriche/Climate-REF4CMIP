@@ -193,7 +193,7 @@ def handle_execution_result(
 
 
 def _handle_output_bundle(
-    config: Config,
+    config: "Config",
     database: Database,
     metric_execution_result: MetricExecutionResultModel,
     cmec_output_bundle_filename: pathlib.Path,

@@ -5,6 +5,7 @@ See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing
 """
 
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -60,7 +61,9 @@ def config(tmp_path, monkeypatch, request) -> Config:
     # This is useful in the CI to capture any results for later analysis
     root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "cmip_ref"))
     # Each test gets its own directory (based on the test filename and the test name)
-    ref_config_dir = root_output_dir / request.path.stem / request.node.name
+    # Sanitize the directory name to remove invalid characters
+    dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
+    ref_config_dir = root_output_dir / request.path.stem / dir_name
 
     monkeypatch.setenv("REF_CONFIGURATION", str(ref_config_dir))
 

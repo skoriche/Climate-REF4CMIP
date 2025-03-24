@@ -26,14 +26,15 @@ ROOT_DIR = Path(__file__).parents[2]
 class RedisContainer(wrappers.Container):
     def ready(self):
         if super().ready() and len(self.ports["6379/tcp"]) > 0:
-            print(f"Redis using port:{self.ports['6379/tcp'][0]}")
+            port = self.ports["6379/tcp"][0]
+            print(f"Redis using port: {port}")
             # Perform a simple ping to check if the server is ready
-            r = redis.Redis(host="localhost", port=self.ports["6379/tcp"][0])
+            r = redis.Redis(host="localhost", port=port)
             try:
                 return r.ping()
             except redis.ConnectionError:
-                return False
-
+                print("Redis connection error, retrying...")
+                time.sleep(2)  # Increase the sleep time
         return False
 
     def connection_url(self) -> str:
@@ -106,5 +107,5 @@ def test_celery_solving(db_seeded, config, celery_worker, redis_container, monke
         assert (config.paths.results / result.output_fragment / result.path).exists()
 
     # Attempt to avoid a flakey outcome where the celery tasks aren't cleaned up properly
-    time.sleep(1)
+    time.sleep(3)
     gc.collect()

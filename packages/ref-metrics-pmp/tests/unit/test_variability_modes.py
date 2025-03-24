@@ -32,7 +32,7 @@ def provider(tmp_path):
     return provider
 
 
-def test_pdo_metric(  # noqa: PLR0913
+def test_pdo_metric(
     cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
 ):
     metric = ExtratropicalModesOfVariability("PDO")

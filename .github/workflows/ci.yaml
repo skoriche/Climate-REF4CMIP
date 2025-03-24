@@ -138,6 +138,7 @@ jobs:
       - name: Run tests
         run: |
           make fetch-test-data
+          uv run python scripts/fetch-ilamb-data.py ilamb.txt
           make test-integration-slow
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

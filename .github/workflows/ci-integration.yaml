@@ -13,8 +13,6 @@ on:
 
 jobs:
   tests:
-    # These tests are also run on each push to main and tagged version via the `ci` workflow
-    if: github.event_name != 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -55,6 +53,7 @@ jobs:
       - name: Run tests
         run: |
           make fetch-test-data
+          uv run python scripts/fetch-ilamb-data.py ilamb.txt
           make test-integration-slow
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

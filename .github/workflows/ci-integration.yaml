@@ -36,7 +36,7 @@ jobs:
           make test
   tests-slow:
     env:
-      REF_TEST_OUTPUT: ".test-outputs"
+      REF_TEST_OUTPUT: "test-outputs"
     strategy:
       fail-fast: false
       matrix:

@@ -19,7 +19,7 @@ jobs:
 
   tests:
     env:
-      REF_TEST_OUTPUT: ".test-outputs"
+      REF_TEST_OUTPUT: "test-outputs"
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +119,7 @@ jobs:
   # TODO: Remove once this test passes
   tests-slow:
     env:
-      REF_TEST_OUTPUT: ".test-outputs"
+      REF_TEST_OUTPUT: "test-outputs"
     strategy:
       fail-fast: false
       matrix:

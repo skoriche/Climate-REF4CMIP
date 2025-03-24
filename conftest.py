@@ -4,6 +4,8 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
+import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -54,11 +56,23 @@ def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
 
 
 @pytest.fixture(autouse=True)
-def config(tmp_path, monkeypatch) -> Config:
-    monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
+def config(tmp_path, monkeypatch, request) -> Config:
+    # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory
+    # This is useful in the CI to capture any results for later analysis
+    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "cmip_ref"))
+    # Each test gets its own directory (based on the test filename and the test name)
+    # Sanitize the directory name to remove invalid characters
+    dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
+    ref_config_dir = root_output_dir / request.module.__name__ / dir_name
+
+    monkeypatch.setenv("REF_CONFIGURATION", str(ref_config_dir))
 
     # Uses the default configuration
-    cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
+    cfg = Config.load(ref_config_dir / "ref.toml")
+
+    # Put the conda environments in a shared location
+    # ROOT / .ref / software
+    cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]

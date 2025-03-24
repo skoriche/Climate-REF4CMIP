@@ -18,6 +18,8 @@ jobs:
         run: make pre-commit
 
   tests:
+    env:
+      REF_TEST_OUTPUT: "test-outputs"
     strategy:
       fail-fast: false
       matrix:
@@ -45,6 +47,13 @@ jobs:
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload scratch artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-output-${{ matrix.python-version }}
+          path: ${{ env.REF_TEST_OUTPUT }}
+          retention-days: 7
 
   imports-without-extras:
     strategy:

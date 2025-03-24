@@ -35,6 +35,8 @@ jobs:
           make fetch-test-data
           make test
   tests-slow:
+    env:
+      REF_TEST_OUTPUT: ".test-outputs"
     strategy:
       fail-fast: false
       matrix:
@@ -54,3 +56,11 @@ jobs:
         run: |
           make fetch-test-data
           make test-integration-slow
+      # Upload the scratch and results directories as artifacts
+      - name: Upload scratch artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-output
+          path: ${{ env.REF_TEST_OUTPUT }}
+          retention-days: 7

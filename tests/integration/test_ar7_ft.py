@@ -1,5 +1,4 @@
 import platform
-from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -31,18 +30,15 @@ def create_execution_dataframe(executions):
 
 
 @pytest.fixture
-def config(config, monkeypatch):
+def config_ar7_ft(config):
     """
     Overwrite the default test config to use the metric providers for AR7 FT
     """
     # Force the default metric providers
     config.metric_providers = default_metric_providers()
 
-    # Put the conda environments in a shared location
-    # ROOT / .ref / software
-    config.paths.software = Path(__file__).parents[3] / ".ref" / "software"
-
     # Write the config to disk so it is used by the CLI
+    # This overwrites the default config
     config.save()
 
     return config
@@ -51,7 +47,7 @@ def config(config, monkeypatch):
 @pytest.mark.slow
 def test_solve_ar7_ft(
     sample_data_dir,
-    config,
+    config_ar7_ft,
     invoke_cli,
     monkeypatch,
 ):
@@ -59,9 +55,9 @@ def test_solve_ar7_ft(
     if platform.system() == "Darwin" and platform.machine() == "arm64":
         monkeypatch.setenv("MAMBA_PLATFORM", "osx-64")
 
-    assert len(config.metric_providers) == 3
+    assert len(config_ar7_ft.metric_providers) == 3
 
-    db = Database.from_config(config)
+    db = Database.from_config(config_ar7_ft)
 
     # Ingest the sample data
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])

@@ -61,10 +61,12 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
         tas_esm_1pctCO2 = next(
             ds for ds in recipe_variables["tas"]["additional_datasets"] if ds["exp"] == "esm-1pctCO2"
         )
+        fco2antt_esm_1pctCO2 = next(
+            ds for ds in recipe_variables["fco2antt"]["additional_datasets"] if ds["exp"] == "esm-1pctCO2"
+        )
         tas_esm_piControl = next(
             ds for ds in recipe_variables["tas"]["additional_datasets"] if ds["exp"] == "esm-piControl"
         )
-        fco2antt = recipe_variables["fco2antt"]["additional_datasets"]
         tas_esm_piControl["timerange"] = tas_esm_1pctCO2["timerange"]
 
         recipe["diagnostics"]["tcre"]["variables"] = {
@@ -80,7 +82,7 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
             },
             "fco2antt": {
                 "preprocessor": "global_cumulative_sum",
-                "additional_datasets": fco2antt,
+                "additional_datasets": [fco2antt_esm_1pctCO2],
             },
         }
         recipe["diagnostics"].pop("barplot")

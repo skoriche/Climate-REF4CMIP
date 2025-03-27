@@ -29,13 +29,17 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
         "esm-1pctCO2",
         "esm-piControl",
     )
+    variables = (
+        "tas",
+        "fco2antt",
+    )
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": ("tas", "fco2antt"),
+                        "variable_id": variables,
                         "frequency": "mon",
                         "experiment_id": experiments,
                     },
@@ -51,6 +55,7 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
                 RequireFacets("experiment_id", experiments),
+                RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),

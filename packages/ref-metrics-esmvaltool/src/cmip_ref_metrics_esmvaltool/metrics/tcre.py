@@ -36,9 +36,16 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
                 FacetFilter(
                     facets={
                         "variable_id": ("tas", "fco2antt"),
-                        "frequency": ("mon",),
+                        "frequency": "mon",
                         "experiment_id": experiments,
                     },
+                ),
+                FacetFilter(
+                    facets={
+                        "variable_id": "fco2antt",
+                        "experiment_id": "esm-piControl",
+                    },
+                    keep=False,
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),

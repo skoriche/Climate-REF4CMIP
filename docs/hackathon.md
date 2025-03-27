@@ -1,6 +1,6 @@
-# Hackathon 2025
+# Hackathon and Pre-Alpha Onboarding
 
-**Met Office, Exeter, UK, 10 - 14 May 2025**
+**Hackathon at the Met Office, Exeter, UK, 10 - 14 May 2025**
 
 This hybrid hackathon is being run by the Model Benchmarking Task Team and the REF delivery team. We welcome attendance from technical and domain scientists from modelling centres involved in the CMIP AR7 Fast Track, observation dataset providers, as well as ESGF nodes and developers.
 
@@ -11,6 +11,10 @@ During the hackathon, there will also be dedicated drop-ins for wider community 
 * **13 March 08:00 – 09:00 UTC**: Modelling Centres
 * **13 March 11:00 – Midday UTC**: Observation dataset providers
 
+**Pre-Alpha Onboarding**
+
+If you couldn't make it to the hackathon but still want to get started in REF development, this information will be useful as well.
+
 ## Technical Requirements
 
 * A laptop with Python 3.10 or later installed
@@ -18,24 +22,9 @@ During the hackathon, there will also be dedicated drop-ins for wider community 
 * Docker installed (Optional)
 * [uv](https://docs.astral.sh/uv) installed
 
-## What can you do before the hackathon?
+## Set up your development environment
 
-Before attending the hackathon, it would be useful to clone the package and set up your local environment by following the [development installation](development.md#development-installation) instructions.
-
-Additionally, clone the [sample data repository](https://github.com/Climate-REF/ref-sample-data). Depending on your area of interest, you may wish to add additional sample data to the test suite.
-
-After installing the database, you can run the test suite using `make test` to ensure that everything is working as expected. This will fetch the sample data and run the tests.
-
-Some metric providers require additional test data that isn't in Obs4MIPs.
-We are working on adding these datasets to obs4MIPs before the  launch of the AR7 FT REF.
-To help save time during the hackathon, run the following commands beforehand to cache the ilamb and iomb reference datasets (~4GB).
-
-```bash
-uv run python scripts/fetch-ilamb-data.py ilamb.txt
-uv run python scripts/fetch-ilamb-data.py iomb.txt
-```
-
-If there are any issues with the installation, please raise an issue in the [issue tracker](https://github.com/Climate-REF/climate-ref/issues) so that we can help you get set up.
+Please clone the package and set up your local environment by following the [development installation](development.md#development-installation) instructions.
 
 ### Additional Data
 
@@ -54,7 +43,7 @@ The metrics that are currently available in the REF are relatively limited so no
 It is recommended to read through the [developer documentation](development.md) to get an understanding of the REF and how we collaborate.
 
 For those interested in learning more about the REF,
-we recommend reading the [Architecture design document (background/architecture.md).
+we recommend reading the [Architecture design document](background/architecture.md).
 This outlines the design of the REF and provides some background about the project.
 
 ## Brief technical overview of the REF
@@ -78,7 +67,7 @@ flowchart LR
 ### Metrics
 At the core of the REF is the [Metric][cmip_ref_core.metrics.Metric] protocol.
 This protocol defines the common interface that all metrics must implement.
-A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/dataset-selection.py)), and how to calculate a value from them.
+A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/metric-dataset-selection.py)), and how to calculate a value from them.
 How a metric is actually calculated depends on which metrics provider the metric comes from.
 
 The rest of the complexity that comes from figuring out which datasets to use, how to run the metric, and how to visualise the results is handled by the REF.

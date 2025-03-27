@@ -31,7 +31,7 @@ class TestDatasetsList:
 
 
 class TestDatasetsListColumns:
-    def test_list(self, db_seeded, invoke_cli):
+    def test_list_columns(self, db_seeded, invoke_cli):
         result = invoke_cli(["datasets", "list-columns"])
         assert result.stdout.strip() == "\n".join(
             sorted(CMIP6DatasetAdapter().load_catalog(db_seeded, include_files=False).columns.to_list())

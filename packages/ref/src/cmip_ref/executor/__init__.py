@@ -21,7 +21,7 @@ from cmip_ref.models.metric_execution import MetricExecutionResult as MetricExec
 from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
 from cmip_ref_core.exceptions import InvalidExecutorException
 from cmip_ref_core.executor import Executor
-from cmip_ref_core.metrics import MetricExecutionResult
+from cmip_ref_core.metrics import MetricExecutionResult, ensure_relative_path
 from cmip_ref_core.pycmec.output import CMECOutput, OutputDict
 
 if TYPE_CHECKING:
@@ -91,15 +91,19 @@ def _copy_file_to_results(
     filename
         The name of the file to be copied
     """
+    assert results_directory != scratch_directory  # noqa
+    input_directory = scratch_directory / fragment
     output_directory = results_directory / fragment
 
-    if not (scratch_directory / fragment / filename).exists():
-        raise FileNotFoundError(f"Could not find {filename} in {scratch_directory / fragment}")
+    filename = ensure_relative_path(filename, input_directory)
+
+    if not (input_directory / filename).exists():
+        raise FileNotFoundError(f"Could not find {filename} in {input_directory}")
 
     if not output_directory.exists():
         output_directory.mkdir(parents=True)
 
-    shutil.copy(scratch_directory / fragment / filename, output_directory / filename)
+    shutil.copy(input_directory / filename, output_directory / filename)
 
 
 def handle_execution_result(
@@ -121,7 +125,7 @@ def handle_execution_result(
     database
         The active database session to use
     metric_execution_result
-        The metric execution result to update
+        The metric execution result DB object to update
     result
         The result of the metric execution, either successful or failed
     """
@@ -134,7 +138,7 @@ def handle_execution_result(
             metric_execution_result.output_fragment,
             result.metric_bundle_filename,
         )
-        metric_execution_result.mark_successful(result.metric_bundle_filename)
+        metric_execution_result.mark_successful(result.as_relative_path(result.metric_bundle_filename))
 
         if result.output_bundle_filename:
             _copy_file_to_results(
@@ -148,7 +152,7 @@ def handle_execution_result(
             # Copy the content to the output directory
             # Track in the db
             cmec_output_bundle = CMECOutput.load_from_json(
-                result.definition.to_output_path(result.output_bundle_filename)
+                result.to_output_path(result.output_bundle_filename)
             )
             _handle_outputs(
                 cmec_output_bundle.plots,
@@ -177,7 +181,7 @@ def handle_execution_result(
         # i.e. if there are outstanding results don't make as clean
         metric_execution_result.metric_execution_group.dirty = False
     else:
-        logger.info(f"{metric_execution_result} failed")
+        logger.error(f"{metric_execution_result} failed")
         metric_execution_result.mark_failed()
 
 
@@ -192,17 +196,21 @@ def _handle_outputs(
         return
 
     for key, output_info in outputs.items():
+        filename = ensure_relative_path(
+            output_info.filename, config.paths.scratch / metric_execution_result.output_fragment
+        )
+
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
             metric_execution_result.output_fragment,
-            output_info.filename,
+            filename,
         )
         database.session.add(
             ResultOutput(
                 metric_execution_result_id=metric_execution_result.id,
                 output_type=output_type,
-                filename=output_info.filename,
+                filename=str(filename),
                 description=output_info.description,
                 short_name=key,
                 long_name=output_info.long_name,

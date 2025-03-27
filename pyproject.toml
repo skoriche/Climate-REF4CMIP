@@ -50,6 +50,7 @@ dev-dependencies = [
     "mkdocs-autorefs>=1.0.1",
     "mkdocs-jupyter>=0.24.0",
     "mkdocs-panzoom-plugin>=0.1.3",
+    "beautifulsoup4>=4.12,<4.13",
     "jupyterlab>=4.2.0",
     "jupytext>=1.16.3",
     "notebook>=7",
@@ -129,6 +130,9 @@ filterwarnings = [
     # Need to update ecgtools/intake_esm to remove this warning
     'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
+]
+markers = [
+    "slow",
 ]
 
 # We currently check for GPL licensed code, but this restriction may be removed

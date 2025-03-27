@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -11,6 +12,7 @@ from cmip_ref_core.metrics import (
     DataRequirement,
     MetricExecutionDefinition,
     MetricExecutionResult,
+    ensure_relative_path,
 )
 from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
 from cmip_ref_core.pycmec.metric import CMECMetric
@@ -340,6 +342,40 @@ def test_apply_filters_dont_keep(apply_data_catalog):
     )
 
 
+def test_apply_filters_dont_keep_multifacet(apply_data_catalog):
+    """Test that all facet values must match to exclude a file from the catalog."""
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=(
+            FacetFilter(
+                {
+                    "variable": "tas",
+                    "source_id": "CAS",
+                },
+                keep=False,
+            ),
+        ),
+        group_by=None,
+    )
+
+    filtered = requirement.apply_filters(apply_data_catalog)
+    pd.testing.assert_frame_equal(
+        filtered,
+        pd.DataFrame(
+            {
+                "variable": ["tas", "pr", "rsut", "tas"],
+                "source_id": [
+                    "CESM2",
+                    "CESM2",
+                    "CESM2",
+                    "ACCESS",
+                ],
+            },
+            index=[0, 1, 2, 3],
+        ),
+    )
+
+
 def test_apply_filters_missing(apply_data_catalog):
     requirement = DataRequirement(
         source_type=SourceDatasetType.CMIP6,
@@ -352,3 +388,22 @@ def test_apply_filters_missing(apply_data_catalog):
         match=re.escape("Facet 'missing' not in data catalog columns: ['variable', 'source_id']"),
     ):
         requirement.apply_filters(apply_data_catalog)
+
+
+@pytest.mark.parametrize(
+    "input_path, expected",
+    (
+        (Path("/example/test"), Path("test")),
+        ("/example/test", Path("test")),
+        ("/example/test/other", Path("test/other")),
+        ("test/other", Path("test/other")),
+        (Path("test/other"), Path("test/other")),
+    ),
+)
+def test_ensure_relative_path(input_path, expected):
+    assert ensure_relative_path(input_path, root_directory=Path("/example")) == expected
+
+
+def test_ensure_relative_path_failed():
+    with pytest.raises(ValueError):
+        ensure_relative_path("/other", root_directory=Path("/example"))

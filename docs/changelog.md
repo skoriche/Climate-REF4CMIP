@@ -106,7 +106,7 @@ from the examples given in that link.
 
 ### Trivial/Internal Changes
 
-- [#161](https://github.com/Climate-REF/climate-ref/pulls/161), [#182](https://github.com/Climate-REF/climate-ref/pulls/182), [#184](https://github.com/Climate-REF/climate-ref/pulls/184)
+- [#161](https://github.com/Climate-REF/climate-ref/pulls/161), [#182](https://github.com/Climate-REF/climate-ref/pulls/182), [#184](https://github.com/Climate-REF/climate-ref/pulls/184), [#207](https://github.com/Climate-REF/climate-ref/pulls/207)
 
 
 ## cmip_ref 0.2.0 (2025-03-01)

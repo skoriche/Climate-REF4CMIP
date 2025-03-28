@@ -1,6 +1,6 @@
 [project]
 name = "cmip-ref-root"
-version = "0.2.0"
+version = "0.3.1"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [

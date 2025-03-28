@@ -1,14 +1,15 @@
 import platform
+from collections.abc import Iterable
 
 import pandas as pd
 import pytest
 
 from cmip_ref.config import default_metric_providers
 from cmip_ref.database import Database
-from cmip_ref.models import MetricExecution
+from cmip_ref.models import MetricExecutionGroup
 
 
-def create_execution_dataframe(executions):
+def create_execution_dataframe(executions: Iterable[MetricExecutionGroup]) -> pd.DataFrame:
     data = []
 
     for execution in executions:
@@ -21,7 +22,7 @@ def create_execution_dataframe(executions):
                 "provider": execution.metric.provider.slug,
                 "execution_id": execution.id,
                 "result_id": result.id,
-                "execution_key": execution.key,
+                "execution_key": execution.dataset_key,
                 "successful": result.successful,
             }
         )
@@ -67,8 +68,8 @@ def test_solve_ar7_ft(
     # This will also create conda environments for the metric providers
     invoke_cli(["--verbose", "solve", "--timeout", f"{60 * 60}"])
 
-    executions = db.session.query(MetricExecution).all()
-    df = create_execution_dataframe(executions)
+    execution_groups = db.session.query(MetricExecutionGroup).all()
+    df = create_execution_dataframe(execution_groups)
     print(df)
 
     # Check that all 3 metric providers have been used

@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref_metrics_pmp"
-version = "0.2.0"
+version = "0.3.0"
 description = "PMP metrics provider for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [

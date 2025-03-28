@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref"
-version = "0.2.0"
+version = "0.3.0"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -40,13 +40,13 @@ postgres = [
     "psycopg2-binary>=2.9.2",
 ]
 celery = [
-    "cmip_ref_celery>=0.2.0",
+    "cmip_ref_celery>=0.3.0",
 ]
 metrics = [
-    "cmip_ref_metrics_example>=0.2.0",
-    "cmip_ref_metrics_esmvaltool>=0.2.0",
-    "cmip_ref_metrics_pmp>=0.2.0",
-    "cmip_ref_metrics_ilamb>=0.2.0",
+    "cmip_ref_metrics_example>=0.3.0",
+    "cmip_ref_metrics_esmvaltool>=0.3.0",
+    "cmip_ref_metrics_pmp>=0.3.0",
+    "cmip_ref_metrics_ilamb>=0.3.0",
 ]
 [project.license]
 text = "Apache-2.0"

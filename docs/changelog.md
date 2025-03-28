@@ -21,6 +21,94 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.3.0 (2025-03-28)
+
+### Breaking Changes
+
+- We changed the `ref` Command Line Interface to make the distinction between execution
+  groups and individual executions clear. A metric execution is the evaluation of
+  a specific metric for a specific set of input datasets. We group together all
+  executions for the same set of input datasets which are re-run because
+  the metric or the input datasets were updated or because a metric execution
+  failed. For showing results, it is more useful to think in terms of execution groups.
+  In particular, the `ref executions list` command was re-named to
+  `ref executions list-groups`. ([#165](https://github.com/Climate-REF/climate-ref/pulls/165))
+
+### Features
+
+- Support ingesting obs4MIPs datasets into the REF ([#113](https://github.com/Climate-REF/climate-ref/pulls/113))
+- Add extratropical modes of variability analysis using PMP ([#115](https://github.com/Climate-REF/climate-ref/pulls/115))
+- Added management of conda environments for metrics package providers.
+
+  Several new commands are available for working with providers:
+  - `ref providers list` - List the available providers
+  - `ref providers create-env` - Create conda environments for providers
+
+  ([#117](https://github.com/Climate-REF/climate-ref/pulls/117))
+- Added [CMECMetric.create_template][cmip_ref_core.pycmec.metric.CMECMetric.create_template] method to create an empty CMEC metric bundle. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
+- Outputs from a metric execution and their associated metadata are now tracked in the database. This includes HTML, plots and data outputs.
+
+  Metric providers can register outputs via the CMEC output bundle.
+  These outputs are then ingested into the database if the execution was successful. ([#125](https://github.com/Climate-REF/climate-ref/pulls/125))
+- Build and publish container images to [Github Container Registry](https://github.com/Climate-REF/climate-ref/pkgs/container/ref) ([#156](https://github.com/Climate-REF/climate-ref/pulls/156))
+- Enable more variability modes for PMP modes of variability metrics ([#173](https://github.com/Climate-REF/climate-ref/pulls/173))
+- Add a `--timeout` option to the `solve` cli command.
+  This enables the user to set a maximum time for the solver to run. ([#186](https://github.com/Climate-REF/climate-ref/pulls/186))
+
+### Improvements
+
+- Cleanup of ilamb3 interface code, enabling IOMB comparisons. ([#124](https://github.com/Climate-REF/climate-ref/pulls/124))
+- Migrate the PMP provider to use a REF-managed conda environment.
+
+  For non-MacOS users, this should be created automatically.
+  MacOS users will need to create the environment using the following command:
+
+  ```bash
+  MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
+  ``` ([#127](https://github.com/Climate-REF/climate-ref/pulls/127))
+- Fixed issue with `mypy` not being run across the celery package ([#128](https://github.com/Climate-REF/climate-ref/pulls/128))
+- Added the `fetch-ref-data` make command to download reference data while it's not in obs4mips, yet. ([#155](https://github.com/Climate-REF/climate-ref/pulls/155))
+- Improvements:
+  - Drop the metric plugin version number in the environment name because the environment may not change between releases
+  - Avoid calling micromamba update as this may not work for everyone
+  - Print out the location of environments even when they are not installed
+  - Do not mention conda as a requirement on the Hackathon page
+
+  ([#160](https://github.com/Climate-REF/climate-ref/pulls/160))
+- Add activity and institute to ESMValTool recipes to allow running with models
+  and experiments that are not in the CMIP6 controlled vocabulary. ([#166](https://github.com/Climate-REF/climate-ref/pulls/166))
+- Add an integration test for the AR7 Fast-track metric providers.
+  This will be run nightly as part of the Climate-REF CI pipeline. ([#187](https://github.com/Climate-REF/climate-ref/pulls/187))
+- Improved the error message when running `ref datasets list` with the `--column` argument.
+  If a column is specified that is not available, the error message now only mentions
+  the invalid column name(s) and shows a list of available columns. ([#203](https://github.com/Climate-REF/climate-ref/pulls/203))
+- Do not list duplicate entries in dataframes shown from the command line. ([#210](https://github.com/Climate-REF/climate-ref/pulls/210))
+
+### Bug Fixes
+
+- Remove example metric for ILAMB ([#121](https://github.com/Climate-REF/climate-ref/pulls/121))
+- Removed the "SCHEMA" attribute from the CMEC metric bundle as it is not part of the EMDS specification and unused. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
+- Fixed the validation error when 'attributes' value is a dict ([#133](https://github.com/Climate-REF/climate-ref/pulls/133))
+- Fixed PMP's modes of variablity PDO metrics driver to use obs4MIP-complying reference dataset. Also update PMP's version to 3.9, which include turning off direct usage of conda as a part of the driver (to capture provenance info) ([#154](https://github.com/Climate-REF/climate-ref/pulls/154))
+- Enforce the use of relative paths when copying files after an execution. This resolves an issue where files were not being copied to the correct location causing failures in PMP. ([#170](https://github.com/Climate-REF/climate-ref/pulls/170))
+- If no obs4mips-compliant reference dataset is found in specified directory, give a meaningful error message. ([#174](https://github.com/Climate-REF/climate-ref/pulls/174))
+- Fixed the behaviour of FacetFilter with `keep=False` so all facets need to match
+  before excluding a file. ([#209](https://github.com/Climate-REF/climate-ref/pulls/209))
+
+### Improved Documentation
+
+- Renamed CMIP-REF to Climate-REF ([#119](https://github.com/Climate-REF/climate-ref/pulls/119))
+- Add a landing page for hackathon attendees ([#120](https://github.com/Climate-REF/climate-ref/pulls/120))
+- Fix the incorrect capitalisation of GitHub organisation ([#122](https://github.com/Climate-REF/climate-ref/pulls/122))
+- Updated the getting started documentation. ([#126](https://github.com/Climate-REF/climate-ref/pulls/126))
+- Update the roadmap to reflect progress as of 2025/03/10 ([#134](https://github.com/Climate-REF/climate-ref/pulls/134))
+- Clarified language and other small fixes in the documentation. ([#178](https://github.com/Climate-REF/climate-ref/pulls/178))
+
+### Trivial/Internal Changes
+
+- [#161](https://github.com/Climate-REF/climate-ref/pulls/161), [#182](https://github.com/Climate-REF/climate-ref/pulls/182), [#184](https://github.com/Climate-REF/climate-ref/pulls/184)
+
+
 ## cmip_ref 0.2.0 (2025-03-01)
 
 ### Breaking Changes

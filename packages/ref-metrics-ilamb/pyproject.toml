@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref_metrics_ilamb"
-version = "0.2.0"
+version = "0.3.0"
 description = "ILAMB metrics provider for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [{ name = "Nathan Collier", email = "nathaniel.collier@gmail.com" }]

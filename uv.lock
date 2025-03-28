@@ -590,7 +590,7 @@ wheels = [
 
 [[package]]
 name = "cmip-ref"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref" }
 dependencies = [
     { name = "alembic" },
@@ -648,7 +648,7 @@ dev = []
 
 [[package]]
 name = "cmip-ref-celery"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-celery" }
 dependencies = [
     { name = "celery", extra = ["redis"] },
@@ -683,7 +683,7 @@ dev = [
 
 [[package]]
 name = "cmip-ref-core"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-core" }
 dependencies = [
     { name = "attrs" },
@@ -710,7 +710,7 @@ dev = [{ name = "types-requests" }]
 
 [[package]]
 name = "cmip-ref-metrics-esmvaltool"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-metrics-esmvaltool" }
 dependencies = [
     { name = "cmip-ref-core" },
@@ -729,7 +729,7 @@ requires-dist = [
 
 [[package]]
 name = "cmip-ref-metrics-example"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-metrics-example" }
 dependencies = [
     { name = "cmip-ref-core" },
@@ -751,7 +751,7 @@ dev = []
 
 [[package]]
 name = "cmip-ref-metrics-ilamb"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-metrics-ilamb" }
 dependencies = [
     { name = "cmip-ref-core" },
@@ -771,7 +771,7 @@ dev = []
 
 [[package]]
 name = "cmip-ref-metrics-pmp"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/ref-metrics-pmp" }
 dependencies = [
     { name = "cmip-ref-core" },
@@ -789,7 +789,7 @@ dev = []
 
 [[package]]
 name = "cmip-ref-root"
-version = "0.2.0"
+version = "0.3.0"
 source = { virtual = "." }
 dependencies = [
     { name = "cmip-ref", extra = ["postgres"] },

@@ -21,6 +21,13 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.3.1 (2025-03-28)
+
+### Trivial/Internal Changes
+
+- [#218](https://github.com/Climate-REF/climate-ref/pulls/218)
+
+
 ## cmip_ref 0.3.0 (2025-03-28)
 
 ### Breaking Changes

@@ -1,7 +1,9 @@
 """
-Data registries for PMP reference data
+Data registries for non-published reference data
 
 These data are placeholders until these data have been added to obs4MIPs.
+The AR7 FT REF requires that reference datasets are openly licensed before it is included
+in any published data catalogs.
 """
 
 import importlib.resources
@@ -20,9 +22,14 @@ Changing this will bust any existing caches.
 """
 
 
-def build_reference_data_registry(version: str = DATA_VERSION) -> pooch.Pooch:
+def build_reference_data_registry(
+    version: str = DATA_VERSION,
+) -> pooch.Pooch:
     """
     Build a pooch registry of reference data associated with PMP that isn't currently in obs4MIPs.
+
+    Currently we only have reference datasets published from PMP,
+    but this may change in the future.
 
     Parameters
     ----------
@@ -42,7 +49,7 @@ def build_reference_data_registry(version: str = DATA_VERSION) -> pooch.Pooch:
         version=version,
         env="REF_METRICS_PMP_DATA_DIR",
     )
-    registry.load_registry(importlib.resources.open_binary("cmip_ref.registry", "reference.txt"))
+    registry.load_registry(importlib.resources.open_binary("cmip_ref.dataset_registry", "pmp_reference.txt"))
     return registry
 
 
@@ -81,3 +88,5 @@ def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path, symlink: bo
             else:
                 logger.info(f"Copying {key} to {linked_file}")
                 shutil.copy(fetch_file, linked_file)
+        else:
+            logger.info(f"File {linked_file} already exists. Skipping.")

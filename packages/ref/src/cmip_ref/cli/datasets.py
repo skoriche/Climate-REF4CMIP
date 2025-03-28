@@ -14,9 +14,9 @@ from loguru import logger
 from rich.console import Console
 
 from cmip_ref.cli._utils import pretty_print_df
+from cmip_ref.dataset_registry import build_reference_data_registry, fetch_all_files
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.models import Dataset
-from cmip_ref.registry import build_reference_data_registry, fetch_all_files
 from cmip_ref.solver import solve_metrics
 from cmip_ref.testing import SAMPLE_DATA_VERSION, fetch_sample_data
 from cmip_ref_core.datasets import SourceDatasetType

@@ -53,7 +53,7 @@ def build_reference_data_registry(
     return registry
 
 
-def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path, symlink: bool = False):
+def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path, symlink: bool = False) -> None:
     """
     Fetch all files associated with a pooch registry and write them to an output directory.
 

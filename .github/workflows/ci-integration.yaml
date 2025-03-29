@@ -56,6 +56,7 @@ jobs:
         run: |
           make fetch-test-data
           uv run python scripts/fetch-ilamb-data.py ilamb.txt
+          uv run ref --verbose datasets fetch-obs4ref-data --output-directory tests/test-data/obs4ref
           make test-integration-slow
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

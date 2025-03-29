@@ -100,12 +100,13 @@ def invoke_cli():
         )
 
         if always_log or result.exit_code != expected_exit_code:
-            print("Command: ", " ".join(args))
+            print("## Command: ", " ".join(args))
             print("Exit code: ", result.exit_code)
             print("Command stdout")
             print(result.stdout)
             print("Command stderr")
             print(result.stderr)
+            print("## Command end")
 
         if result.exit_code != expected_exit_code:
             if result.exception:

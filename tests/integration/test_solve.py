@@ -1,10 +1,10 @@
 from cmip_ref.database import Database
-from cmip_ref.models import Dataset, MetricExecutionGroup
+from cmip_ref.models import Dataset, MetricExecutionGroup, MetricExecutionResult
 
 
 def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli, monkeypatch):
     num_expected_datasets = cmip6_data_catalog["instance_id"].nunique()
-    num_expected_metrics = 11
+    num_expected_metrics = 10
 
     db = Database.from_config(config)
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])
@@ -37,3 +37,7 @@ def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli, monkeypa
         execution.results[0].datasets[1].instance_id
         == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318"
     )
+
+    results = db.session.query(MetricExecutionResult).all()
+    for result in results:
+        assert result.successful is True

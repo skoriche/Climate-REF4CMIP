@@ -55,7 +55,7 @@ class AnnualCycle(CommandLineMetric):
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
         variable_id = input_datasets["variable_id"].unique()[0]
-        model_files = input_datasets.path.to_list()
+        model_files = input_datasets.path.to_list()[0]  # Limits to one file, needs to be fixed in the future
 
         print("build_cmd start")
 
@@ -94,13 +94,13 @@ class AnnualCycle(CommandLineMetric):
                 data_name = reference_dataset_name
                 data_path = reference_dataset_path
             else:
-                data_name = source_id
+                data_name = f"{source_id}-{experiment_id}-{member_id}"
                 data_path = model_files
 
             params = {
                 "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
                 "parameter_file": parameter_file_1_clims,
-                "var": variable_id,
+                "vars": variable_id,
                 "infile": data_path,
                 "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
             }
@@ -108,8 +108,8 @@ class AnnualCycle(CommandLineMetric):
             if development_mode:  # pragma: no cover
                 params.update(
                     {
-                        "start": 2000,
-                        "end": 2005,
+                        "start": "2000-01",
+                        "end": "2005-12",
                         "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
                     }
                 )

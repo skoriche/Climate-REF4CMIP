@@ -178,6 +178,7 @@ def build_pmp_command(
             else:
                 cmd.extend([f"--{key}"])
 
+    print("-- PMP command to run --")
     print("[PMP] Command to run:", " ".join(map(str, cmd)))
     print("[PMP] Command generation for the driver completed.")
     logger.info(f"pmp command to run: {cmd}")

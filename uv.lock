@@ -645,6 +645,8 @@ version = "0.3.1"
 source = { editable = "packages/ref-core" }
 dependencies = [
     { name = "attrs" },
+    { name = "numpy" },
+    { name = "pandas" },
     { name = "pydantic" },
     { name = "requests" },
     { name = "typing-extensions" },
@@ -657,7 +659,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "attrs", specifier = ">=22.1.0" },
+    { name = "attrs", specifier = ">=23.2.0" },
+    { name = "numpy", specifier = ">=1.25.0" },
+    { name = "pandas", specifier = ">=2.1.0" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "requests" },
     { name = "typing-extensions" },
@@ -682,7 +686,7 @@ requires-dist = [
     { name = "cmip-ref-core", editable = "packages/ref-core" },
     { name = "pooch", specifier = ">=1.8" },
     { name = "ruamel-yaml", specifier = ">=0.18" },
-    { name = "xarray", specifier = ">=2022" },
+    { name = "xarray", specifier = ">=2023.3.0" },
 ]
 
 [[package]]
@@ -1407,7 +1411,7 @@ name = "importlib-metadata"
 version = "8.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/08/c1395a292bb23fd03bdf572a1357c5a733d3eecbab877641ceacab23db6e/importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580", size = 55767 }
 wheels = [

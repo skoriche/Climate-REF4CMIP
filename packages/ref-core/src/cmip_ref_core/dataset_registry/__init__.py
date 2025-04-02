@@ -49,7 +49,9 @@ def build_reference_data_registry(
         version=version,
         env="REF_METRICS_PMP_DATA_DIR",
     )
-    registry.load_registry(importlib.resources.open_binary("cmip_ref.dataset_registry", "pmp_reference.txt"))
+    registry.load_registry(
+        importlib.resources.open_binary("cmip_ref_core.dataset_registry", "pmp_reference.txt")
+    )
     return registry
 
 

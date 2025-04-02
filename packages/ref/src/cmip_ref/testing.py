@@ -9,7 +9,7 @@ from pathlib import Path
 import pooch
 from loguru import logger
 
-from cmip_ref.dataset_registry import fetch_all_files
+from cmip_ref_core.dataset_registry import fetch_all_files
 
 
 def _determine_test_directory() -> Path | None:

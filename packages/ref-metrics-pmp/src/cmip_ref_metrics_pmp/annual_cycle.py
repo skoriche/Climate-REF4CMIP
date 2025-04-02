@@ -16,7 +16,7 @@ class AnnualCycle(CommandLineMetric):
         self.data_requirements = (
             DataRequirement(
                 source_type=SourceDatasetType.obs4MIPs,
-                filters=(FacetFilter(facets={"source_id": ("GPCP-2-3",), "variable_id": ("pr",)}),),
+                filters=(FacetFilter(facets={"source_id": ("GPCP-2-3"), "variable_id": ("pr")}),),
                 group_by=("source_id", "variable_id"),
             ),
             DataRequirement(
@@ -26,11 +26,11 @@ class AnnualCycle(CommandLineMetric):
                         facets={
                             "frequency": "mon",
                             "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                            "variable_id": ("pr",),
+                            "variable_id": ("pr"),
                         }
                     ),
                 ),
-                group_by=("source_id", "experiment_id", "variant_label", "member_id"),
+                group_by=("source_id", "experiment_id", "variant_label", "member_id", "variable_id"),
             ),
         )
 
@@ -38,6 +38,21 @@ class AnnualCycle(CommandLineMetric):
         self.parameter_file_2 = "pmp_param_annualcycle_1-metrics.py"
 
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+        """
+        Build the command to run the metric
+
+        Parameters
+        ----------
+        definition
+            Definition of the metric execution
+
+        Returns
+        -------
+            Command arguments to execute in the PMP environment
+        """
+        return ["."]  # Placeholder for the build_cmd method, not used in this class
+
+    def build_cmds(self, definition: MetricExecutionDefinition) -> list[list[str]]:
         """
         Build the command to run the metric
 
@@ -59,7 +74,6 @@ class AnnualCycle(CommandLineMetric):
 
         print("build_cmd start")
 
-        print("input_datasets:", input_datasets)
         print("source_id:", source_id)
         print("experiment_id:", experiment_id)
         print("member_id:", member_id)
@@ -69,7 +83,6 @@ class AnnualCycle(CommandLineMetric):
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
-        print("reference_dataset:", reference_dataset)
         print("reference_dataset_name:", reference_dataset_name)
         print("reference_dataset_path:", reference_dataset_path)
 
@@ -87,7 +100,7 @@ class AnnualCycle(CommandLineMetric):
         else:
             output_directory_path = str(definition.output_directory)
 
-        cmds = list()
+        cmds = []
 
         for data in ["reference", "model"]:
             if data == "reference":
@@ -119,7 +132,8 @@ class AnnualCycle(CommandLineMetric):
         print("jwlee123_test ac cmds:", cmds)
 
         # Pass the parameters using **kwargs
-        return build_pmp_command(**params)
+        # return build_pmp_command(**params)
+        return cmds
 
     def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:
         """
@@ -165,12 +179,16 @@ class AnnualCycle(CommandLineMetric):
         :
             The result of running the metric.
         """
+        """
         cmds = [
             # self.build_cmd_a(),
             # self.build_cmd_b(),
             self.build_cmd(definition),
         ]
+        """
+        cmds = self.build_cmds(definition)
 
-        [self.provider.run(cmd) for cmd in cmds]
+        runs = [self.provider.run(cmd) for cmd in cmds]
+        print("jwlee test, runs:", runs)
 
         return self.build_metric_result(definition)

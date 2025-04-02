@@ -170,13 +170,13 @@ def build_pmp_command(
 
     # Loop through additional arguments if they exist
     if kwargs:  # pragma: no cover
-        print("Additional info:")
         for key, value in kwargs.items():
             if value:
                 cmd.extend([f"--{key}", str(value)])
             else:
                 cmd.extend([f"--{key}"])
 
+    print("-- PMP command to run --")
     print("[PMP] Command to run:", " ".join(map(str, cmd)))
     print("[PMP] Command generation for the driver completed.")
 

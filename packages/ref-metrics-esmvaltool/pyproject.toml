@@ -23,7 +23,7 @@ dependencies = [
     "pooch >= 1.8",
     "cmip_ref_core",
     "ruamel.yaml >= 0.18",
-    "xarray >= 2022",
+    "xarray >= 2023.3.0",
 ]
 
 [project.license]

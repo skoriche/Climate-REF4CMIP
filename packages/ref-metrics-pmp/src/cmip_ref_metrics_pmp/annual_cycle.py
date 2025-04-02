@@ -37,7 +37,7 @@ class AnnualCycle(CommandLineMetric):
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
         self.parameter_file_2 = "pmp_param_annualcycle_1-metrics.py"
 
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, params: dict) -> Iterable[str]:
         """
         Build the command to run the metric
 
@@ -50,9 +50,10 @@ class AnnualCycle(CommandLineMetric):
         -------
             Command arguments to execute in the PMP environment
         """
-        return ["."]  # Placeholder for the build_cmd method, not used in this class
+        # Pass the parameters using **kwargs
+        return build_pmp_command(**params)
 
-    def build_cmds(self, definition: MetricExecutionDefinition) -> list[list[str]]:
+    def build_cmds(self, definition: MetricExecutionDefinition) -> list[Iterable[str]]:
         """
         Build the command to run the metric
 
@@ -127,12 +128,10 @@ class AnnualCycle(CommandLineMetric):
                     }
                 )
 
-            cmds.append(build_pmp_command(**params))
+            cmds.append(self.build_cmd(params))
 
         print("jwlee123_test ac cmds:", cmds)
 
-        # Pass the parameters using **kwargs
-        # return build_pmp_command(**params)
         return cmds
 
     def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:

@@ -60,6 +60,14 @@ def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
     )
 
 
+@pytest.fixture(scope="session")
+def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
+    return {
+        SourceDatasetType.CMIP6: cmip6_data_catalog,
+        SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+    }
+
+
 @pytest.fixture(autouse=True)
 def config(tmp_path, monkeypatch, request) -> Config:
     # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory

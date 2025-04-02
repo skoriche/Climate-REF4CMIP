@@ -243,6 +243,15 @@ This mono-repo approach might change once the packages become more mature,
 but since we are in the early stages of development,
 there will be a lot of refactoring of the interfaces to find the best approach.
 
+We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)
+which defines a 2-year support window for key scientific-computing libraries
+and 3-year window for Python versions.
+The aim of this specification is to reduce the maintenance burden of older packages and Python versions.
+
+Our test suite does not currently test the oldest versions of these dependencies
+([#205](https://github.com/Climate-REF/climate-ref/issues/205)).
+Please raise an issue if you find that the REF doesn't comply with SPEC-0000.
+
 ## Database management
 
 The REF uses a local Sqlite database to store state information.

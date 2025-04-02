@@ -15,6 +15,9 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
     Calculate the annual cycle for a dataset
     """
 
+    ts_modes = ("PDO", "NPGO", "AMO")
+    psl_modes = ("NAO", "NAM", "PNA", "NPO", "SAM")
+
     def __init__(self, mode_id: str):
         self.mode_id = mode_id.upper()
         self.name = f"PMP Extratropical modes of variability {mode_id}"
@@ -55,17 +58,17 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                 ),
             )
 
-        if self.mode_id in ["PDO", "NPGO", "AMO"]:
+        if self.mode_id in self.ts_modes:
             self.parameter_file = "pmp_param_MoV-ts.py"
             self.data_requirements = get_data_requirements(
                 "HadISST-1-1", "ts", "ts", remove_experiments=("amip",)
             )
-        elif self.mode_id in ["NAO", "NAM", "PNA", "NPO", "SAM"]:
+        elif self.mode_id in self.psl_modes:
             self.parameter_file = "pmp_param_MoV-psl.py"
             self.data_requirements = get_data_requirements("20CR", "psl", "psl", extra_experiments=("amip",))
         else:
             raise ValueError(
-                f"Unknown mode_id '{self.mode_id}'. Must be one of PDO, NPGO, AMO, NAO, NAM, PNA, NPO, SAM"
+                f"Unknown mode_id '{self.mode_id}'. Must be one of {self.ts_modes + self.psl_modes}"
             )
 
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:

@@ -4,6 +4,8 @@ import json
 import pathlib
 from typing import Any
 
+from loguru import logger
+
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 

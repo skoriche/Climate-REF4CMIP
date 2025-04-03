@@ -103,6 +103,7 @@ class AnnualCycle(CommandLineMetric):
 
         cmds = []
 
+        # Build the command for climatologies
         for data in ["reference", "model"]:
             if data == "reference":
                 data_name = reference_dataset_name
@@ -129,6 +130,8 @@ class AnnualCycle(CommandLineMetric):
                 )
 
             cmds.append(self.build_cmd(params))
+
+        # Build the command for metrics
 
         print("jwlee123_test ac cmds:", cmds)
 
@@ -178,13 +181,7 @@ class AnnualCycle(CommandLineMetric):
         :
             The result of running the metric.
         """
-        """
-        cmds = [
-            # self.build_cmd_a(),
-            # self.build_cmd_b(),
-            self.build_cmd(definition),
-        ]
-        """
+        print("PMP annual cycle run start")
         cmds = self.build_cmds(definition)
 
         runs = [self.provider.run(cmd) for cmd in cmds]

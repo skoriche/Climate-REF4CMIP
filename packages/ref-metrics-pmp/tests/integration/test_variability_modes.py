@@ -12,7 +12,7 @@ variability_metrics = [
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("metric", variability_metrics[2:])
+@pytest.mark.parametrize("metric", variability_metrics)
 def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog, tmp_path, config):
     # Ensure the conda prefix is set
     provider.configure(config)

@@ -26,6 +26,22 @@ from cmip_ref_core.providers import MetricsProvider
 pytest_plugins = ("celery.contrib.pytest",)
 
 
+def pytest_configure(config):
+    config.addinivalue_line("markers", "slow: mark test as slow to run")
+
+
+def pytest_addoption(parser):
+    parser.addoption("--slow", action="store_true", help="include tests marked slow")
+
+
+def pytest_collection_modifyitems(config, items):
+    if not config.getoption("--slow"):
+        skip_slow = pytest.mark.skip(reason="need --slow option to run")
+        for item in items:
+            if item.get_closest_marker("slow"):
+                item.add_marker(skip_slow)
+
+
 @pytest.fixture(scope="session")
 def tmp_path_session():
     with tempfile.TemporaryDirectory() as tmpdir:

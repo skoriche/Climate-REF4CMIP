@@ -1,5 +1,7 @@
 from collections.abc import Iterable
 
+from loguru import logger
+
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     CommandLineMetric,
@@ -155,14 +157,14 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         -------
             Result of the metric execution
         """
-        print("build_metric_result start")
         results_files = list(definition.output_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
+            logger.warning(f"A single cmec output file not found: {results_files}")
             return MetricExecutionResult.build_from_failure(definition)
 
         # Find the other outputs
-        png_files = list(definition.output_directory.glob("*.png"))
-        data_files = list(definition.output_directory.glob("*.nc"))
+        png_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.png")]
+        data_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.nc")]
 
         cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 

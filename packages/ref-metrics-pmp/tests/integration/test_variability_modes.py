@@ -41,7 +41,9 @@ def validate_result(config, result: MetricExecutionResult):
 
 @pytest.mark.slow
 @pytest.mark.parametrize("metric", variability_metrics)
-def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog, tmp_path, config):
+def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog, tmp_path, config, mocker):
+    mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
+
     # Ensure the conda prefix is set
     provider.configure(config)
 
@@ -58,7 +60,7 @@ def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog
     )
 
     # Run the metric
-    definition = execution.build_metric_execution_info(output_root=tmp_path)
+    definition = execution.build_metric_execution_info(output_root=config.paths.scratch)
     result = metric.run(definition)
 
     # Check the result

@@ -43,6 +43,11 @@ def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:  # pragma: no c
         "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
     )
 
+    # Disable some overly verbose logs
+    logger.disable("matplotlib.colorbar")
+    logger.disable("matplotlib.ticker")
+    logger.disable("transformer:transform")
+
     logger.remove()
     logger.add(sys.stderr, level=loglevel, format=msg_format, colorize=True)
 

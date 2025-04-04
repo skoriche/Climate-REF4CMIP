@@ -44,8 +44,12 @@ def _metric_task_factory(
         Task to run the metric
         """
         logger.info(f"Running metric {metric.name} with definition {definition}")
-
-        return metric.run(definition)
+        try:
+            return metric.run(definition)
+        except Exception:
+            logger.exception(f"Error running metric {metric.slug}:{definition.dataset_key}")
+            # TODO: This exception should be caught and a unsuccesful result returned.
+            raise
 
     return task
 

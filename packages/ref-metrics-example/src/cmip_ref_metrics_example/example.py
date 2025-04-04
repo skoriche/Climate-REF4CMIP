@@ -3,7 +3,7 @@ from typing import Any
 
 import xarray as xr
 
-from cmip_ref_core.constraints import AddSupplementaryDataset
+from cmip_ref_core.constraints import AddSupplementaryDataset, RequireContiguousTimerange
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
@@ -138,13 +138,16 @@ class GlobalMeanTimeseries(Metric):
             filters=(
                 FacetFilter(facets={"variable_id": ("tas", "rsut")}),
                 # Ignore some experiments because they are not relevant
-                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+                FacetFilter(
+                    facets={"experiment_id": ("esm-1pct-brch-1000PgC", "1pctCO2", "hist-*")}, keep=False
+                ),
             ),
             # Run the metric on each unique combination of model, variable, experiment, and variant
             group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
             constraints=(
                 # Add cell areas to the groups
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                RequireContiguousTimerange(group_by=("instance_id",)),
             ),
         ),
     )

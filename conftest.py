@@ -4,6 +4,8 @@ Re-useable fixtures etc. for tests that are shared across the whole project
 See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
+import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -57,15 +59,32 @@ def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
 @pytest.fixture(scope="session")
 def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = Obs4MIPsDatasetAdapter()
-    return adapter.find_local_datasets(sample_data_dir / "obs4MIPs")
+    return pd.concat(
+        [
+            adapter.find_local_datasets(sample_data_dir / "obs4MIPs"),
+            adapter.find_local_datasets(sample_data_dir / "obs4REF"),
+        ]
+    )
 
 
 @pytest.fixture(autouse=True)
-def config(tmp_path, monkeypatch) -> Config:
-    monkeypatch.setenv("REF_CONFIGURATION", str(tmp_path / "cmip_ref"))
+def config(tmp_path, monkeypatch, request) -> Config:
+    # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory
+    # This is useful in the CI to capture any results for later analysis
+    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "cmip_ref"))
+    # Each test gets its own directory (based on the test filename and the test name)
+    # Sanitize the directory name to remove invalid characters
+    dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
+    ref_config_dir = root_output_dir / request.module.__name__ / dir_name
+
+    monkeypatch.setenv("REF_CONFIGURATION", str(ref_config_dir))
 
     # Uses the default configuration
-    cfg = Config.load(tmp_path / "cmip_ref" / "ref.toml")
+    cfg = Config.load(ref_config_dir / "ref.toml")
+
+    # Put the conda environments in a shared location
+    # ROOT / .ref / software
+    cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
     cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
@@ -86,16 +105,22 @@ def invoke_cli():
     # stdout == output from commands
     runner = CliRunner(mix_stderr=False)
 
-    def _invoke_cli(args: list[str], expected_exit_code: int = 0) -> Result:
+    def _invoke_cli(args: list[str], expected_exit_code: int = 0, always_log: bool = False) -> Result:
         result = runner.invoke(
             app=cli.app,
             args=args,
         )
 
-        if result.exit_code != expected_exit_code:
+        if always_log or result.exit_code != expected_exit_code:
+            print("## Command: ", " ".join(args))
+            print("Exit code: ", result.exit_code)
+            print("Command stdout")
             print(result.stdout)
+            print("Command stderr")
             print(result.stderr)
+            print("## Command end")
 
+        if result.exit_code != expected_exit_code:
             if result.exception:
                 raise result.exception
             raise ValueError(f"Expected exit code {expected_exit_code}, got {result.exit_code}")

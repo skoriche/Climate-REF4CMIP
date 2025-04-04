@@ -1,6 +1,6 @@
 [project]
 name = "cmip-ref-root"
-version = "0.2.0"
+version = "0.3.1"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -130,6 +130,9 @@ filterwarnings = [
     # Need to update ecgtools/intake_esm to remove this warning
     'ignore:The `validate_arguments` method is deprecated:pydantic.warnings.PydanticDeprecatedSince20',
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
+]
+markers = [
+    "slow",
 ]
 
 # We currently check for GPL licensed code, but this restriction may be removed

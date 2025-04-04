@@ -91,19 +91,19 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
 
-        print("input_datasets:", input_datasets)
-        print("source_id:", source_id)
-        print("experiment_id:", experiment_id)
-        print("member_id:", member_id)
+        logger.debug(f"input_datasets: {input_datasets}")
+        logger.debug(f"source_id: {source_id}")
+        logger.debug(f"experiment_id: {experiment_id}")
+        logger.debug(f"member_id: {member_id}")
 
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         # reference_dataset_path = reference_dataset.datasets[0]["path"]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
-        print("reference_dataset:", reference_dataset)
-        print("reference_dataset_name:", reference_dataset_name)
-        print("reference_dataset_path:", reference_dataset_path)
+        logger.debug(f"reference_dataset: {reference_dataset}")
+        logger.debug(f"reference_dataset_name: {reference_dataset_name}")
+        logger.debug(f"reference_dataset_path: {reference_dataset_path}")
 
         params = {
             "driver_file": "variability_mode/variability_modes_driver.py",

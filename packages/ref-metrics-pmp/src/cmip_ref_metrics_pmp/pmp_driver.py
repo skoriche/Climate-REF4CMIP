@@ -53,8 +53,6 @@ def process_json_result(
     -------
         tuple of CMEC output and metric bundles
     """
-    print("process_json_result called with:", json_filename, png_files, data_files)
-
     with open(json_filename) as fh:
         json_result = json.load(fh)
 

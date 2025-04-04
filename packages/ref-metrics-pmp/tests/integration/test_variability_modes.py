@@ -2,13 +2,41 @@ import pytest
 from cmip_ref_metrics_pmp import provider
 from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability
 
+from cmip_ref.database import Database
+from cmip_ref.executor import handle_execution_result
+from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.solver import solve_metric_executions
+from cmip_ref_core.metrics import MetricExecutionResult
+from cmip_ref_core.pycmec.metric import CMECMetric
+from cmip_ref_core.pycmec.output import CMECOutput
 
 variability_metrics = [
     pytest.param(metric, id=metric.slug)
     for metric in provider.metrics()
     if isinstance(metric, ExtratropicalModesOfVariability)
 ]
+
+
+def validate_result(config, result: MetricExecutionResult):
+    database = Database.from_config(config)
+    metric_execution_result = MetricExecutionResultModel(
+        metric_execution_group_id=1,
+        dataset_hash=result.definition.metric_dataset.hash,
+        output_fragment=str(result.definition.output_fragment()),
+    )
+    database.session.add(metric_execution_result)
+    database.session.flush()
+
+    assert result.successful
+
+    # Validate bundles
+    CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
+    CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
+
+    # This checks if the bundles are valid
+    handle_execution_result(
+        config, database=database, metric_execution_result=metric_execution_result, result=result
+    )
 
 
 @pytest.mark.slow
@@ -34,4 +62,4 @@ def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog
     result = metric.run(definition)
 
     # Check the result
-    assert result.successful
+    validate_result(config, result)

@@ -48,6 +48,24 @@ Prefix for the environment variables used by the REF
 """
 
 
+def ensure_absolute_path(path: str | Path) -> Path:
+    """
+    Ensure that the path is absolute
+
+    Parameters
+    ----------
+    path
+        Path to check
+
+    Returns
+    -------
+        Absolute path
+    """
+    if isinstance(path, str):
+        path = Path(path)
+    return path.resolve()
+
+
 @config(prefix=env_prefix)
 class PathConfig:
     """
@@ -60,14 +78,14 @@ class PathConfig:
     ///
     """
 
-    log: Path = env_field(name="LOG_ROOT", converter=Path)
+    log: Path = env_field(name="LOG_ROOT", converter=ensure_absolute_path)
     """
     Directory to store log files from the compute engine
 
     This is not currently used by the REF, but is included for future use.
     """
 
-    scratch: Path = env_field(name="SCRATCH_ROOT", converter=Path)
+    scratch: Path = env_field(name="SCRATCH_ROOT", converter=ensure_absolute_path)
     """
     Shared scratch space for the REF.
 
@@ -78,7 +96,7 @@ class PathConfig:
     but does not need to be mounted in the same location on all the metric services.
     """
 
-    software: Path = env_field(name="SOFTWARE_ROOT", converter=Path)
+    software: Path = env_field(name="SOFTWARE_ROOT", converter=ensure_absolute_path)
     """
     Shared software space for the REF.
 
@@ -89,7 +107,7 @@ class PathConfig:
     """
 
     # TODO: This could be another data source option
-    results: Path = env_field(name="RESULTS_ROOT", converter=Path)
+    results: Path = env_field(name="RESULTS_ROOT", converter=ensure_absolute_path)
     """
     Path to store the results of the metrics
     """

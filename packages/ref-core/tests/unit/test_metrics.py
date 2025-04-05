@@ -404,6 +404,20 @@ def test_ensure_relative_path(input_path, expected):
     assert ensure_relative_path(input_path, root_directory=Path("/example")) == expected
 
 
+@pytest.mark.parametrize(
+    "input_path, expected",
+    (
+        (Path("example/test"), Path("test")),
+        ("example/test", Path("test")),
+        ("example/test/other", Path("test/other")),
+        ("test/other", Path("test/other")),
+        (Path("test/other"), Path("test/other")),
+    ),
+)
+def test_ensure_relative_path_non_absolute(input_path, expected):
+    assert ensure_relative_path(input_path, root_directory=Path("example")) == expected
+
+
 def test_ensure_relative_path_failed():
     with pytest.raises(ValueError):
         ensure_relative_path("/other", root_directory=Path("/example"))

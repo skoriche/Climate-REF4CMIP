@@ -40,8 +40,11 @@ def ensure_relative_path(path: pathlib.Path | str, root_directory: pathlib.Path)
         The path relative to the root directory
     """
     path = pathlib.Path(path)
-    if path.is_absolute():
+    try:
         return path.relative_to(root_directory)
+    except ValueError:
+        if path.is_absolute():
+            raise
     return path
 
 

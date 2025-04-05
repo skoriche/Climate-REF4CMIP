@@ -38,7 +38,7 @@ class TestConfig:
 
         # The default location is overridden in the config fixture
         loaded = Config.default()
-        assert loaded.paths.scratch == Path("data")
+        assert loaded.paths.scratch == Path("data").resolve()
 
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)

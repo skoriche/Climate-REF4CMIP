@@ -9,11 +9,9 @@ import time
 from pathlib import Path
 
 import pytest
-import redis
 from cmip_ref_celery.app import create_celery_app
 from cmip_ref_celery.tasks import register_celery_tasks
 from cmip_ref_metrics_example import provider
-from pytest_docker_tools import container, fetch, wrappers
 
 from cmip_ref.database import Database
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
@@ -21,36 +19,6 @@ from cmip_ref.models import MetricExecutionResult
 from cmip_ref.solver import solve_metrics
 
 ROOT_DIR = Path(__file__).parents[2]
-
-
-class RedisContainer(wrappers.Container):
-    def ready(self):
-        if super().ready() and len(self.ports["6379/tcp"]) > 0:
-            port = self.ports["6379/tcp"][0]
-            print(f"Redis using port: {port}")
-            # Perform a simple ping to check if the server is ready
-            r = redis.Redis(host="localhost", port=port)
-            try:
-                return r.ping()
-            except redis.ConnectionError:
-                print("Redis connection error, retrying...")
-                time.sleep(2)  # Increase the sleep time
-        return False
-
-    def connection_url(self) -> str:
-        port = self.ports["6379/tcp"][0]
-        return f"redis://localhost:{port}/0"
-
-
-redis_image = fetch(repository="redis:7")
-
-redis_container = container(
-    image="{redis_image.id}",
-    ports={
-        "6379/tcp": None,
-    },
-    wrapper_class=RedisContainer,
-)
 
 
 @pytest.fixture

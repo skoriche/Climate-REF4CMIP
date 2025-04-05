@@ -76,6 +76,9 @@ class PathConfig:
 
     These paths must be common across all systems that the REF is being run
     ///
+
+    If any of these paths are specified as relative paths,
+    they will be resolved to absolute paths.
     """
 
     log: Path = env_field(name="LOG_ROOT", converter=ensure_absolute_path)
@@ -114,19 +117,19 @@ class PathConfig:
 
     @log.default
     def _log_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "log"
+        return env.path("REF_CONFIGURATION").resolve() / "log"
 
     @scratch.default
     def _scratch_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "scratch"
+        return env.path("REF_CONFIGURATION").resolve() / "scratch"
 
     @software.default
     def _software_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "software"
+        return env.path("REF_CONFIGURATION").resolve() / "software"
 
     @results.default
     def _results_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION") / "results"
+        return env.path("REF_CONFIGURATION").resolve() / "results"
 
 
 @config(prefix=env_prefix)

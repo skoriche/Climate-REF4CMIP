@@ -76,6 +76,9 @@ class PathConfig:
 
     These paths must be common across all systems that the REF is being run
     ///
+
+    If any of these paths are specified as relative paths,
+    they will be resolved to absolute paths.
     """
 
     log: Path = env_field(name="LOG_ROOT", converter=ensure_absolute_path)

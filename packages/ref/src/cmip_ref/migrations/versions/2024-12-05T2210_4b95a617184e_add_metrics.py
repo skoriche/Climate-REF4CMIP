@@ -80,7 +80,6 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["metric_execution_id"],
             ["metric_execution.id"],
-            name="fk_metric_execution_result_metric_execution_id_metric_execution",
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("metric_execution_id", "dataset_hash", name="metric_execution_result_ident"),

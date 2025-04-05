@@ -70,6 +70,8 @@ def test_connect_and_migrations(config, postgres_container, cmip6_data_catalog):
     config.save()
 
     database = Database.from_config(config)
+    assert database.url.startswith("postgresql")
+    assert database._engine.dialect.name == "postgresql"
 
     adapter = CMIP6DatasetAdapter()
 

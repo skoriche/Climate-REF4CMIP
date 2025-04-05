@@ -1,12 +1,52 @@
+import subprocess
+import sys
 import time
 
 import psycopg2
 import redis
 from loguru import logger
 from pytest_docker_tools import container, fetch, wrappers
+from pytest_docker_tools.builder import fixture_factory
 
 POSTGRES_USER = "postgres"
 POSTGRES_PASSWORD = "example"  # noqa: S105
+
+
+@fixture_factory(scope="session")
+def build_local(request, docker_client, wrapper_class, **kwargs):
+    """
+    Docker image: built from "{file}"
+
+    This uses the docker build command directly, rather than the docker-py client.
+    `docker-py` doesn't support buildkit and it looks like they never will
+    https://github.com/docker/docker-py/issues/2230
+    """
+
+    context = kwargs.pop("context", ".")
+
+    if "file" in kwargs:
+        sys.stdout.write(f"Building {kwargs['file']}")
+    else:
+        sys.stdout.write("Building")
+
+    # Build the image via `docker build`
+    try:
+        cli_kwargs = []
+        for key, value in kwargs:
+            if value is True or value is False:
+                cli_kwargs.append(f"--{key}")
+            else:
+                cli_kwargs.append(f"--{key}={value}")
+
+        # We should use something like https://github.com/gabrieldemarmiesse/python-on-whales
+        # instead of rolling our own docker build
+        res = subprocess.check_output(["docker", "build", *cli_kwargs, context], text=True)  # noqa: S603, S607
+        image = res.strip()
+    finally:
+        sys.stdout.write("\n")
+
+    wrapper_class = wrapper_class or (lambda image: image)
+    return wrapper_class(image)
 
 
 class PostgresContainer(wrappers.Container):

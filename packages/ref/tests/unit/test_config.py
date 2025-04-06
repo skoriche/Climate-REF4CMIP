@@ -127,6 +127,7 @@ filename = "sqlite://cmip_ref.db"
         without_defaults = cfg.dump(defaults=False)
 
         assert without_defaults == {
+            "log_level": "INFO",
             "metric_providers": [
                 {"provider": "cmip_ref_metrics_esmvaltool.provider"},
                 {"provider": "cmip_ref_metrics_ilamb.provider"},

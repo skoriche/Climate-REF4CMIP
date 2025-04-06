@@ -18,7 +18,7 @@ from collections.abc import Callable
 from celery import Celery
 from loguru import logger
 
-from cmip_ref_core.executor import redirect_logs
+from cmip_ref_core.logging import redirect_logs
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 

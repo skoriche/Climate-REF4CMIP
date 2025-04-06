@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Test script for ingesting and solving the AR7 FT set of providers
+# Uses the sample data
+# WARNING this deletes your existing database
 
 export REF_CONFIGURATION=$PWD/.ref
 

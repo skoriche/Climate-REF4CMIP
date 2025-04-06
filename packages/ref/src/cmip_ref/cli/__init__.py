@@ -1,7 +1,6 @@
 """Entrypoint for the CLI"""
 
 import importlib
-import sys
 from enum import Enum
 from pathlib import Path
 from typing import Annotated, Optional
@@ -128,7 +127,6 @@ def main(
 
     logger.remove()
     add_log_handler(level=log_level.value)
-    logger.add(sys.stderr, level=log_level.value)
 
     config = _load_config(configuration_directory)
     config.log_level = log_level.value

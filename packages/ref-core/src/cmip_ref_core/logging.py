@@ -111,16 +111,15 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
         The logger will also be reset to this level after leaving the context manager.
 
     """
-    output_file = definition.output_directory / EXECUTION_LOG_FILENAME
-
-    # Remove existing default log hander
+    # Remove existing default log handler
     remove_log_handler()
 
+    # Add a new log handler for the execution log
+    output_file = definition.output_directory / EXECUTION_LOG_FILENAME
     file_handler_id = logger.add(output_file, level=log_level, colorize=False)
     capture_logging()
 
     logger.info(f"Running definition {pretty_repr(definition)}")
-
     try:
         yield
     except:
@@ -134,4 +133,4 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
         add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
 
 
-__all__ = ["capture_logging", "logger", "redirect_logs"]
+__all__ = ["add_log_handler", "capture_logging", "logger", "redirect_logs"]

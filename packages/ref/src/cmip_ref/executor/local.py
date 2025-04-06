@@ -61,7 +61,15 @@ class LocalExecutor:
             with redirect_logs(definition, self.config.log_level):
                 result = metric.run(definition=definition)
         except Exception:
-            logger.exception(f"Error running metric {metric.slug}")
+            if metric_execution_result is not None:  # pragma: no branch
+                info_msg = (
+                    f"\nAdditional information about this execution can be viewed using: "
+                    f"ref executions inspect {metric_execution_result.metric_execution_group_id}"
+                )
+            else:
+                info_msg = ""
+
+            logger.exception(f"Error running metric {metric.slug}. {info_msg}")
             result = MetricExecutionResult.build_from_failure(definition)
 
         if metric_execution_result:

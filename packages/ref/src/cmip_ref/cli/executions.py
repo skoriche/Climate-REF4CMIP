@@ -153,6 +153,25 @@ def _results_directory_panel(result_directory: pathlib.Path) -> Panel:
         )
 
 
+def _log_panel(result_directory: pathlib.Path) -> Panel | None:
+    log_file = result_directory / "out.log"
+
+    if log_file.exists():
+        with open(log_file) as f:
+            log_content = f.read()
+        log_text = Text.from_markup(f"[link file://{log_file}]{log_content}")
+
+        return Panel(
+            log_text,
+            title="Execution Logs",
+        )
+    else:
+        return Panel(
+            Text("Log file not found.", "bold red"),
+            title="Execution Logs",
+        )
+
+
 @app.command()
 def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
@@ -177,3 +196,4 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
 
     console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))
+    console.print(_log_panel(result_directory))

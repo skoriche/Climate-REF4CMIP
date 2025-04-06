@@ -129,6 +129,14 @@ def handle_execution_result(
     result
         The result of the metric execution, either successful or failed
     """
+    # Always copy log data
+    _copy_file_to_results(
+        config.paths.scratch,
+        config.paths.results,
+        metric_execution_result.output_fragment,
+        "out.log",
+    )
+
     if result.successful and result.metric_bundle_filename is not None:
         logger.info(f"{metric_execution_result} successful")
 

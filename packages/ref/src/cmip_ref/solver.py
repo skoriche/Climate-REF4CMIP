@@ -271,7 +271,10 @@ def solve_metrics(
                 db.session.flush()
 
             if metric_execution_group_model.should_run(definition.metric_dataset.hash):
-                logger.info(f"Running metric {metric_execution_group_model.dataset_key}")
+                logger.info(
+                    f"Running metric "
+                    f"{metric_execution.metric.slug}-{metric_execution_group_model.dataset_key}"
+                )
                 metric_execution_result = MetricExecutionResult(
                     metric_execution_group=metric_execution_group_model,
                     dataset_hash=definition.metric_dataset.hash,

@@ -70,7 +70,7 @@ class TestMetricSolver:
                     "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
                 }
             ),
-            [],
+            {},
             id="empty",
         ),
         pytest.param(

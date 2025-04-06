@@ -10,7 +10,7 @@ EXECUTION_LOG_FILENAME = "out.log"
 """
 Filename for the execution log.
 
-This file is written via [redirect_logs][].
+This file is written via [cmip_ref_core.logging.redirect_logs][].
 """
 
 

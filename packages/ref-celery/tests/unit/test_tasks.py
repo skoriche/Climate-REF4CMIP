@@ -7,7 +7,7 @@ from cmip_ref_core.metrics import MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
 
-def test_metric_task_factory(tmp_path):
+def test_metric_task_factory(tmp_path, caplog):
     # Mock Metric and MetricExecutionDefinition
     mock_metric = Mock()
 

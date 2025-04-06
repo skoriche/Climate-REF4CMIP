@@ -16,7 +16,7 @@ from cmip_ref.config import Config
 from cmip_ref.constants import config_filename
 from cmip_ref.database import Database
 from cmip_ref_core import __version__ as __core_version__
-from cmip_ref_core.logging import capture_logging
+from cmip_ref_core.logging import add_log_handler, capture_logging
 
 
 class LogLevel(str, Enum):
@@ -129,6 +129,7 @@ def main(
         log_level = LogLevel.Debug
 
     logger.remove()
+    add_log_handler(level=log_level.value)
     logger.add(sys.stderr, level=log_level.value)
 
     config = _load_config(configuration_directory)

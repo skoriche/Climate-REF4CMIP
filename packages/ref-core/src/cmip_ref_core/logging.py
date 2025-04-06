@@ -9,6 +9,7 @@ import inspect
 import logging
 import sys
 from collections.abc import Generator
+from typing import Any
 
 import pooch
 from loguru import logger
@@ -55,6 +56,43 @@ def capture_logging() -> None:
     logger.disable("pyproj.transformer")
 
 
+def add_log_handler(**kwargs: Any) -> None:
+    """
+    Add a log sink to the logger to capture logs.
+
+    This is useful for testing purposes, to ensure that logs are captured correctly.
+    """
+    if hasattr(logger, "default_handler_id"):
+        raise AssertionError("The default log handler has already been created")
+
+    kwargs.setdefault("sink", sys.stderr)
+
+    handled_id = logger.add(**kwargs)
+
+    # Track the current handler via custom attributes on the logger
+    # This is a bit of a workaround because of loguru's super slim API that doesn't allow for
+    # modificiation of existing handlers.
+    logger.default_handler_id = handled_id  # type: ignore[attr-defined]
+    logger.default_handler_kwargs = kwargs  # type: ignore[attr-defined]
+
+    capture_logging()
+
+
+def remove_log_handler() -> None:
+    """
+    Remove the default log handler from the logger.
+
+    This is useful for cleaning up after tests or when changing logging configurations.
+    The previously used logger kwargs are kept in `logger.default_handler_kwargs` if the
+    logger should be readded later
+    """
+    if hasattr(logger, "default_handler_id"):
+        logger.remove(logger.default_handler_id)
+        del logger.default_handler_id
+    else:
+        raise AssertionError("No default log handler to remove.")
+
+
 @contextlib.contextmanager
 def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Generator[None, None, None]:
     """
@@ -75,8 +113,10 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
     """
     output_file = definition.output_directory / EXECUTION_LOG_FILENAME
 
-    logger.remove()
-    logger.add(output_file, level=log_level, colorize=False)
+    # Remove existing default log hander
+    remove_log_handler()
+
+    file_handler_id = logger.add(output_file, level=log_level, colorize=False)
     capture_logging()
 
     logger.info(f"Running definition {pretty_repr(definition)}")
@@ -89,10 +129,9 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
     finally:
         logger.info(f"Metric execution complete. Results available in {definition.output_fragment()}")
 
-        # Reset the logger to stderr
-        logger.remove()
-        logger.add(sys.stderr, level=log_level)
-        capture_logging()
+        # Reset the logger to the default
+        logger.remove(file_handler_id)
+        add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
 
 
 __all__ = ["capture_logging", "logger", "redirect_logs"]

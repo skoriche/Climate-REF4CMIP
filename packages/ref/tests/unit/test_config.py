@@ -134,6 +134,7 @@ filename = "sqlite://cmip_ref.db"
             ],
         }
         assert with_defaults == {
+            "log_level": "INFO",
             "metric_providers": [
                 {
                     "provider": "cmip_ref_metrics_esmvaltool.provider",

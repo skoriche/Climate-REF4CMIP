@@ -12,6 +12,13 @@ from cmip_ref_core.providers import MetricsProvider
 if TYPE_CHECKING:
     from cmip_ref.models import MetricExecutionResult
 
+EXECUTION_LOG_FILENAME = "out.log"
+"""
+Filename for the execution log.
+
+This file is written via [redirect_logs][].
+"""
+
 
 @runtime_checkable
 class Executor(Protocol):
@@ -109,7 +116,7 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
         The logger will also be reset to this level after leaving the context manager.
 
     """
-    output_file = definition.output_directory / "out.log"
+    output_file = definition.output_directory / EXECUTION_LOG_FILENAME
     logger.remove()
     logger.add(output_file, level=log_level, colorize=False)
 

@@ -20,7 +20,7 @@ from cmip_ref.database import Database
 from cmip_ref.models.metric_execution import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
 from cmip_ref_core.exceptions import InvalidExecutorException
-from cmip_ref_core.executor import Executor
+from cmip_ref_core.executor import EXECUTION_LOG_FILENAME, Executor
 from cmip_ref_core.metrics import MetricExecutionResult, ensure_relative_path
 from cmip_ref_core.pycmec.output import CMECOutput, OutputDict
 
@@ -134,7 +134,7 @@ def handle_execution_result(
         config.paths.scratch,
         config.paths.results,
         metric_execution_result.output_fragment,
-        "out.log",
+        EXECUTION_LOG_FILENAME,
     )
 
     if result.successful and result.metric_bundle_filename is not None:

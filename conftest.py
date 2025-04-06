@@ -148,6 +148,10 @@ def invoke_cli():
             args=args,
         )
 
+        # Clean up the log handler the is added by the CLI
+        if hasattr(logger, "default_handler_id"):
+            remove_log_handler()
+
         if always_log or result.exit_code != expected_exit_code:
             print("## Command: ", " ".join(args))
             print("Exit code: ", result.exit_code)

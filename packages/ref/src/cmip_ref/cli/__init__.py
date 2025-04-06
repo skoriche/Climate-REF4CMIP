@@ -16,7 +16,7 @@ from cmip_ref.config import Config
 from cmip_ref.constants import config_filename
 from cmip_ref.database import Database
 from cmip_ref_core import __version__ as __core_version__
-from cmip_ref_core.logging import add_log_handler, capture_logging
+from cmip_ref_core.logging import add_log_handler
 
 
 class LogLevel(str, Enum):
@@ -123,8 +123,6 @@ def main(
     """
     cmip_ref: A CLI for the CMIP Rapid Evaluation Framework
     """
-    capture_logging()
-
     if verbose:
         log_level = LogLevel.Debug
 

@@ -6,6 +6,7 @@ import celery.result
 from loguru import logger
 from tqdm import tqdm
 
+from cmip_ref.config import Config
 from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref_celery.app import app
 from cmip_ref_celery.tasks import generate_task_name
@@ -31,7 +32,8 @@ class CeleryExecutor(Executor):
 
     name = "celery"
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, *, config: Config, **kwargs: Any) -> None:
+        self.config = config
         super().__init__(**kwargs)  # type: ignore
         self._results: list[celery.result.AsyncResult[MetricExecutionResult]] = []
 
@@ -76,9 +78,7 @@ class CeleryExecutor(Executor):
 
         async_result = app.send_task(
             name,
-            args=[
-                definition,
-            ],
+            args=[definition, self.config.log_level],
             queue=provider.slug,
             link=handle_result.s(metric_execution_result_id=metric_execution_result.id).set(queue="celery")
             if metric_execution_result

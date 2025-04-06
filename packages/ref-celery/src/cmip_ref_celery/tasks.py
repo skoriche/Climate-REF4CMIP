@@ -18,6 +18,7 @@ from collections.abc import Callable
 from celery import Celery
 from loguru import logger
 
+from cmip_ref_core.executor import redirect_logs
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 
@@ -32,20 +33,21 @@ def generate_task_name(provider: MetricsProvider, metric: Metric) -> str:
 def _metric_task_factory(
     metric: Metric,
 ) -> Callable[
-    [MetricExecutionDefinition],
+    [MetricExecutionDefinition, str],
     MetricExecutionResult,
 ]:
     """
     Create a new task for the given metric
     """
 
-    def task(definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def task(definition: MetricExecutionDefinition, log_level: str) -> MetricExecutionResult:
         """
         Task to run the metric
         """
         logger.info(f"Running metric {metric.name} with definition {definition}")
         try:
-            return metric.run(definition)
+            with redirect_logs(definition, log_level):
+                return metric.run(definition)
         except Exception:
             logger.exception(f"Error running metric {metric.slug}:{definition.dataset_key}")
             # TODO: This exception should be caught and a unsuccesful result returned.

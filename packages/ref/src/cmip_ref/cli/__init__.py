@@ -132,6 +132,8 @@ def main(
     logger.add(sys.stderr, level=log_level.value)
 
     config = _load_config(configuration_directory)
+    config.log_level = log_level.value
+
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))
 
 

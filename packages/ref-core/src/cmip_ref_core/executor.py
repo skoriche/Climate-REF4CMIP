@@ -1,4 +1,10 @@
+import contextlib
+import sys
+from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+
+from loguru import logger
+from rich.pretty import pretty_repr
 
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
@@ -83,3 +89,40 @@ class Executor(Protocol):
         TimeoutError
             If the timeout is reached
         """
+
+
+@contextlib.contextmanager
+def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Generator[None, None, None]:
+    """
+    Temporarily redirect log output to a file.
+
+    This also writes some common log messages
+
+    Parameters
+    ----------
+    definition
+        Metric definition to capture logging for
+
+    log_level
+        Log level as a string e.g. INFO, WARNING, DEBUG.
+        This log level will dictate what logs will be sent to disk
+        The logger will also be reset to this level after leaving the context manager.
+
+    """
+    output_file = definition.output_directory / "out.log"
+    logger.remove()
+    logger.add(output_file, level=log_level, colorize=False)
+
+    logger.info(f"Running definition {pretty_repr(definition)}")
+
+    try:
+        yield
+    except:
+        logger.exception("Execution failed")
+        raise
+    finally:
+        logger.info(f"Metric execution complete. Results available in {definition.output_fragment()}")
+
+        # Reset the logger to stderr
+        logger.remove()
+        logger.add(sys.stderr, level=log_level)

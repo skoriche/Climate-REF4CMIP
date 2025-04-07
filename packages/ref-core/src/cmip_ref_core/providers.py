@@ -59,6 +59,9 @@ class MetricsProvider:
 
         self._metrics: dict[str, Metric] = {}
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name!r}, version={self.version!r})"
+
     def configure(self, config: Config) -> None:
         """
         Configure the provider.

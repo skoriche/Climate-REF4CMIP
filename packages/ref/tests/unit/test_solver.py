@@ -14,7 +14,7 @@ from cmip_ref.solver import (
     solve_metric_executions,
     solve_metrics,
 )
-from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
+from cmip_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, FacetFilter
 from cmip_ref_core.providers import MetricsProvider
@@ -379,3 +379,77 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     }
     executions = solve_metric_executions(data_catalog, metric, provider)
     assert len(list(executions)) == expected
+
+
+def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
+    expected_dataset_key = "obs4mips_HadISST-1-1_ts__cmip6_ssp126_ACCESS-ESM1-5_tas"
+    mock_metric.data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.obs4MIPs,
+            filters=(FacetFilter(facets={"variable_id": "ts"}),),
+            group_by=("variable_id", "source_id"),
+        ),
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(FacetFilter(facets={"variable_id": "tas", "experiment_id": "ssp126"}),),
+            group_by=("variable_id", "experiment_id", "source_id"),
+            constraints=(AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),),
+        ),
+    )
+
+    cmip_data_catalog = pd.DataFrame(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+    cmip_data_catalog["instance_id"] = cmip_data_catalog.apply(
+        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
+    )
+
+    result_1 = next(
+        solve_metric_executions(
+            {
+                SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+                SourceDatasetType.CMIP6: cmip_data_catalog,
+            },
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_1.key == expected_dataset_key
+
+    # areacella added
+    # dataset key should remain the same
+    cmip_data_catalog = pd.DataFrame(
+        {
+            "variable_id": ["tas", "tas", "areacella", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": ["AMon", "AMon", "fx", "AMon"],
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+    cmip_data_catalog["instance_id"] = cmip_data_catalog.apply(
+        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
+    )
+
+    result_2 = next(
+        solve_metric_executions(
+            {
+                SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+                SourceDatasetType.CMIP6: cmip_data_catalog,
+            },
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_2.key == expected_dataset_key
+    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash

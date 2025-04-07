@@ -61,22 +61,6 @@ class TestMetricSolver:
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
                 filters=(),
-                group_by=(),
-            ),
-            pd.DataFrame(
-                {
-                    "variable_id": ["tas", "tas", "pr"],
-                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
-                    "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
-                }
-            ),
-            {},
-            id="group-by-empty",
-        ),
-        pytest.param(
-            DataRequirement(
-                source_type=SourceDatasetType.CMIP6,
-                filters=(),
                 group_by=None,
             ),
             pd.DataFrame(
@@ -276,6 +260,22 @@ def test_data_coverage(requirement, data_catalog, expected):
     for key, expected_value in expected.items():
         pd.testing.assert_frame_equal(result[key], expected_value)
     assert len(result) == len(expected)
+
+
+def test_extract_no_groups():
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=(),
+        group_by=(),
+    )
+    data_catalog = pd.DataFrame(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="No group keys passed!"):
+        extract_covered_datasets(data_catalog, requirement)
 
 
 def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):

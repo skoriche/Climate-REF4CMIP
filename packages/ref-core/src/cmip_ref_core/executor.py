@@ -6,6 +6,13 @@ from cmip_ref_core.providers import MetricsProvider
 if TYPE_CHECKING:
     from cmip_ref.models import MetricExecutionResult
 
+EXECUTION_LOG_FILENAME = "out.log"
+"""
+Filename for the execution log.
+
+This file is written via [cmip_ref_core.logging.redirect_logs][].
+"""
+
 
 @runtime_checkable
 class Executor(Protocol):

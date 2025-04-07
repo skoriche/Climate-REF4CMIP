@@ -9,7 +9,7 @@ class TestLocalExecutor:
         assert executor.name == "local"
         assert isinstance(executor, Executor)
 
-    def test_run_metric(self, metric_definition, provider, mock_metric, mocker):
+    def test_run_metric(self, metric_definition, provider, mock_metric, mocker, caplog):
         mock_handle_result = mocker.patch("cmip_ref.executor.local.handle_execution_result")
         mock_execution_result = mocker.MagicMock()
         executor = LocalExecutor()
@@ -25,6 +25,7 @@ class TestLocalExecutor:
         assert result.successful
         assert result.output_bundle_filename == metric_definition.output_directory / "output.json"
         assert result.metric_bundle_filename == metric_definition.output_directory / "metric.json"
+        assert (metric_definition.output_directory / "out.log").exists()
 
     def test_raises_exception(self, mocker, provider, metric_definition, mock_metric):
         mock_handle_result = mocker.patch("cmip_ref.executor.local.handle_execution_result")

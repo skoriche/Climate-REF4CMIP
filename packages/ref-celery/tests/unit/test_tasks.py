@@ -7,19 +7,19 @@ from cmip_ref_core.metrics import MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
 
-def test_metric_task_factory():
+def test_metric_task_factory(tmp_path, caplog):
     # Mock Metric and MetricExecutionDefinition
     mock_metric = Mock()
 
     definition = MetricExecutionDefinition(
-        dataset_key="test", metric_dataset=None, output_directory=None, root_directory=None
+        dataset_key="test", metric_dataset=None, output_directory=tmp_path / "output", root_directory=tmp_path
     )
 
     # Create task using factory
     task = _metric_task_factory(mock_metric)
 
     # Run task and check result
-    result = task(definition)
+    result = task(definition, "INFO")
     assert result == mock_metric.run.return_value
     mock_metric.run.assert_called_once_with(definition)
 

@@ -38,7 +38,7 @@ class TestConfig:
 
         # The default location is overridden in the config fixture
         loaded = Config.default()
-        assert loaded.paths.scratch == Path("data")
+        assert loaded.paths.scratch == Path("data").resolve()
 
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)
@@ -121,6 +121,7 @@ filename = "sqlite://cmip_ref.db"
         mocker.patch("cmip_ref.config.importlib.resources.files", return_value=Path("pycmec"))
 
         cfg = Config.load(Path("test.toml"))
+        default_path = Path("test").resolve()
 
         with_defaults = cfg.dump(defaults=True)
 
@@ -150,11 +151,11 @@ filename = "sqlite://cmip_ref.db"
             ],
             "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
-                "log": "test/log",
-                "results": "test/results",
-                "scratch": "test/scratch",
-                "software": "test/software",
-                "dimensions_cv": str(Path("pycmec") / "cv_cmip_ar7ft.yaml"),
+                "log": f"{default_path}/log",
+                "results": f"{default_path}/results",
+                "scratch": f"{default_path}/scratch",
+                "software": f"{default_path}/software",
+                "dimensions_cv": f"{default_path}/pycmec/cv_cmip_ar7ft.yaml",
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }

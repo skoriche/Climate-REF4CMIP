@@ -60,6 +60,46 @@ class TestMetricSolver:
         pytest.param(
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
+                filters=(),
+                group_by=(),
+            ),
+            pd.DataFrame(
+                {
+                    "variable_id": ["tas", "tas", "pr"],
+                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                    "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                }
+            ),
+            {},
+            id="group-by-empty",
+        ),
+        pytest.param(
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(),
+                group_by=None,
+            ),
+            pd.DataFrame(
+                {
+                    "variable_id": ["tas", "tas", "pr"],
+                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                    "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                }
+            ),
+            {
+                (): pd.DataFrame(
+                    {
+                        "variable_id": ["tas", "tas", "pr"],
+                        "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                        "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                    }
+                )
+            },
+            id="group-by-none",
+        ),
+        pytest.param(
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
                 filters=(FacetFilter(facets={"variable_id": "missing"}),),
                 group_by=("variable_id", "experiment_id"),
             ),

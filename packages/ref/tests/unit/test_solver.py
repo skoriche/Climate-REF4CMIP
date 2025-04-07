@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import mock
 
 import pandas as pd
@@ -381,7 +382,70 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     assert len(list(executions)) == expected
 
 
-def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
+def _prep_data_catalog(data_catalog: dict[str, Any]) -> pd.DataFrame:
+    data_catalog_df = pd.DataFrame(data_catalog)
+    data_catalog_df["instance_id"] = data_catalog_df.apply(
+        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
+    )
+
+    return data_catalog_df
+
+
+def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
+    expected_dataset_key = "cmip6_ACCESS-ESM1-5_tas"
+    mock_metric.data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(FacetFilter(facets={"variable_id": "tas"}),),
+            group_by=("variable_id", "source_id"),
+        ),
+    )
+
+    data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "pr"],
+            "experiment_id": ["ssp119", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+
+    result_1 = next(
+        solve_metric_executions(
+            {SourceDatasetType.CMIP6: data_catalog},
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_1.key == expected_dataset_key
+
+    data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+
+    result_2 = next(
+        solve_metric_executions(
+            {SourceDatasetType.CMIP6: data_catalog},
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_2.key == expected_dataset_key
+    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash
+
+
+def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
     expected_dataset_key = "obs4mips_HadISST-1-1_ts__cmip6_ssp126_ACCESS-ESM1-5_tas"
     mock_metric.data_requirements = (
         DataRequirement(
@@ -397,7 +461,7 @@ def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider
         ),
     )
 
-    cmip_data_catalog = pd.DataFrame(
+    cmip_data_catalog = _prep_data_catalog(
         {
             "variable_id": ["tas", "tas", "pr"],
             "experiment_id": ["ssp119", "ssp126", "ssp119"],
@@ -407,9 +471,6 @@ def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider
             "member_id": "r1i1pif1",
             "version": "v20210318",
         }
-    )
-    cmip_data_catalog["instance_id"] = cmip_data_catalog.apply(
-        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
     )
 
     result_1 = next(
@@ -426,7 +487,7 @@ def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider
 
     # areacella added
     # dataset key should remain the same
-    cmip_data_catalog = pd.DataFrame(
+    cmip_data_catalog = _prep_data_catalog(
         {
             "variable_id": ["tas", "tas", "areacella", "pr"],
             "experiment_id": ["ssp119", "ssp126", "ssp126", "ssp119"],
@@ -437,10 +498,6 @@ def test_extract_with_new_areacella(obs4mips_data_catalog, mock_metric, provider
             "version": "v20210318",
         }
     )
-    cmip_data_catalog["instance_id"] = cmip_data_catalog.apply(
-        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
-    )
-
     result_2 = next(
         solve_metric_executions(
             {

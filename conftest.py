@@ -52,7 +52,7 @@ def tmp_path_session():
         yield Path(tmpdir)
 
 
-@pytest.fixture()
+@pytest.fixture
 def caplog(caplog: LogCaptureFixture) -> Iterator[LogCaptureFixture]:
     """
     Capture logs from the default logger
@@ -64,6 +64,14 @@ def caplog(caplog: LogCaptureFixture) -> Iterator[LogCaptureFixture]:
     add_log_handler(sink=caplog.handler, level=0, format="{message}", filter=filter_)
     yield caplog
     remove_log_handler()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_log_handlers(request: pytest.FixtureRequest) -> Iterator[None]:
+    yield
+    if hasattr(logger, "default_handler_id"):
+        logger.warning("Logger handler not removed, removing it now")
+        remove_log_handler()
 
 
 @pytest.fixture(scope="session")

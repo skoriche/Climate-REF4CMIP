@@ -155,7 +155,7 @@ filename = "sqlite://cmip_ref.db"
                 "results": f"{default_path}/results",
                 "scratch": f"{default_path}/scratch",
                 "software": f"{default_path}/software",
-                "dimensions_cv": f"{default_path}/pycmec/cv_cmip_ar7ft.yaml",
+                "dimensions_cv": str(Path("pycmec") / "cv_cmip_ar7ft.yaml"),
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }

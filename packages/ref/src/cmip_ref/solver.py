@@ -30,6 +30,16 @@ from cmip_ref_core.exceptions import InvalidMetricException
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
+SelectorKey = tuple[tuple[str, str], ...]
+"""
+Type describing the key used to identify a group of datasets
+
+This is a tuple of tuples, where each inner tuple contains a metadata and dimension value
+that was used to group the datasets together.
+
+This SelectorKey type must be hashable, as it is used as a key in a dictionary.
+"""
+
 
 @frozen
 class MetricExecution:
@@ -52,10 +62,11 @@ class MetricExecution:
         key_values = []
         for requirement in self.metric.data_requirements:
             # Ensure the selector is sorted using the dimension names
+            # This will ensure a stable key even if the groupby order changes
             selector = self.metric_dataset[requirement.source_type].selector
-            selector = sorted(selector, key=lambda item: item[0])
+            selector_sorted = sorted(selector, key=lambda item: item[0])
 
-            source_key = f"{requirement.source_type.value}_" + "_".join(value for _, value in selector)
+            source_key = f"{requirement.source_type.value}_" + "_".join(value for _, value in selector_sorted)
             key_values.append(source_key)
 
         return "__".join(key_values)
@@ -77,7 +88,7 @@ class MetricExecution:
 
 def extract_covered_datasets(
     data_catalog: pd.DataFrame, requirement: DataRequirement
-) -> dict[tuple[tuple[str, str], ...], pd.DataFrame]:
+) -> dict[SelectorKey, pd.DataFrame]:
     """
     Determine the different metric executions that should be performed with the current data catalog
     """
@@ -95,12 +106,16 @@ def extract_covered_datasets(
         # Use a single group
         groups = [((), subset)]
     else:
-        groups = subset.groupby(list(requirement.group_by))  # type: ignore
+        groups = list(subset.groupby(list(requirement.group_by)))
 
     results = {}
 
     for name, group in groups:
-        group_keys = tuple(zip(requirement.group_by, name))
+        if requirement.group_by is None:
+            assert len(groups) == 1  # noqa: S101
+            group_keys: SelectorKey = ()
+        else:
+            group_keys = tuple(zip(requirement.group_by, name))
         constrained_group = _process_group_constraints(data_catalog, group, requirement)
 
         if constrained_group is not None:

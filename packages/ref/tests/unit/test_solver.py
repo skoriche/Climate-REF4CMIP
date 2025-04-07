@@ -86,8 +86,8 @@ class TestMetricSolver:
                     "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("experiment_id", "ssp119")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp119"],
@@ -95,7 +95,7 @@ class TestMetricSolver:
                     },
                     index=[0],
                 ),
-                pd.DataFrame(
+                (("variable_id", "tas"), ("experiment_id", "ssp126")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
@@ -103,7 +103,7 @@ class TestMetricSolver:
                     },
                     index=[1],
                 ),
-            ],
+            },
             id="simple-filter",
         ),
         pytest.param(
@@ -118,22 +118,22 @@ class TestMetricSolver:
                     "experiment_id": ["ssp119", "ssp126", "ssp119"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("experiment_id", "ssp119"),): pd.DataFrame(
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
                     },
                     index=[0, 2],
                 ),
-                pd.DataFrame(
+                (("experiment_id", "ssp126"),): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
                     },
                     index=[1],
                 ),
-            ],
+            },
             id="simple-or",
         ),
         pytest.param(
@@ -150,8 +150,8 @@ class TestMetricSolver:
                     "parent_experiment_id": ["historical", "none"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("experiment_id", "ssp119")): pd.DataFrame(
                     {
                         "variable_id": ["tas", "tas"],
                         "experiment_id": ["historical", "ssp119"],
@@ -159,7 +159,15 @@ class TestMetricSolver:
                     # The order of the rows is not guaranteed
                     index=[1, 0],
                 ),
-            ],
+                (("variable_id", "tas"), ("experiment_id", "historical")): pd.DataFrame(
+                    {
+                        "variable_id": ["tas", "tas"],
+                        "experiment_id": ["historical"],
+                    },
+                    # The order of the rows is not guaranteed
+                    index=[1, 0],
+                ),
+            },
             marks=[pytest.mark.xfail(reason="Parent experiment not implemented")],
             id="parent",
         ),
@@ -176,15 +184,15 @@ class TestMetricSolver:
                     "experiment_id": ["ssp119", "ssp126", "ssp119"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("experiment_id", "ssp119"),): pd.DataFrame(
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
                     },
                     index=[0, 2],
                 ),
-            ],
+            },
             id="simple-validation",
         ),
         pytest.param(
@@ -200,8 +208,8 @@ class TestMetricSolver:
                     "frequency": ["mon", "mon", "mon"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("source_id", "AIRX3STM-006")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "source_id": ["AIRX3STM-006"],
@@ -209,7 +217,7 @@ class TestMetricSolver:
                     },
                     index=[1],
                 ),
-                pd.DataFrame(
+                (("variable_id", "tas"), ("source_id", "ERA-5")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "source_id": ["ERA-5"],
@@ -217,7 +225,7 @@ class TestMetricSolver:
                     },
                     index=[0],
                 ),
-            ],
+            },
             id="simple-obs4MIPs",
         ),
     ],
@@ -225,8 +233,8 @@ class TestMetricSolver:
 def test_data_coverage(requirement, data_catalog, expected):
     result = extract_covered_datasets(data_catalog, requirement)
 
-    for res, exp in zip(result, expected):
-        pd.testing.assert_frame_equal(res, exp)
+    for key, expected_value in expected.items():
+        pd.testing.assert_frame_equal(result[key], expected_value)
     assert len(result) == len(expected)
 
 

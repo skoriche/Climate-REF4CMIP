@@ -52,7 +52,7 @@ class MetricExecution:
     metric_dataset: MetricDataset
 
     @property
-    def key(self) -> str:
+    def dataset_key(self) -> str:
         """
         Key used to uniquely identify the execution group
 
@@ -81,7 +81,7 @@ class MetricExecution:
         return MetricExecutionDefinition(
             root_directory=output_root,
             output_directory=output_root / fragment,
-            dataset_key=self.key,
+            dataset_key=self.dataset_key,
             metric_dataset=self.metric_dataset,
         )
 

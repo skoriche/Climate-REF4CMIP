@@ -420,7 +420,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
             provider,
         )
     )
-    assert result_1.key == expected_dataset_key
+    assert result_1.dataset_key == expected_dataset_key
 
     data_catalog = _prep_data_catalog(
         {
@@ -441,7 +441,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
             provider,
         )
     )
-    assert result_2.key == expected_dataset_key
+    assert result_2.dataset_key == expected_dataset_key
     assert result_2.metric_dataset.hash != result_1.metric_dataset.hash
 
 
@@ -483,7 +483,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
             provider,
         )
     )
-    assert result_1.key == expected_dataset_key
+    assert result_1.dataset_key == expected_dataset_key
 
     # areacella added
     # dataset key should remain the same
@@ -508,5 +508,5 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
             provider,
         )
     )
-    assert result_2.key == expected_dataset_key
+    assert result_2.dataset_key == expected_dataset_key
     assert result_2.metric_dataset.hash != result_1.metric_dataset.hash

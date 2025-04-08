@@ -34,6 +34,7 @@ The REF is agnostic to what types of data and metrics are to be performed.
 
 **Other info :**
 [![Licence](https://img.shields.io/github/license/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/blob/main/LICENCE)
+[![SPEC 0 — Minimum Supported Dependencies](https://img.shields.io/badge/SPEC-0-green?labelColor=%23004811&color=%235CA038)](https://scientific-python.org/specs/spec-0000/)
 [![Last Commit](https://img.shields.io/github/last-commit/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/graphs/contributors)
 
@@ -83,11 +84,12 @@ ref datasets fetch-sample-data
 These datasets can then be ingested into the REF and the metrics solved using:
 
 ```bash
-ref datasets ingest --source-type cmip6 {data_path}
+uv run ref datasets ingest --source-type cmip6 ./tests/test-data/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips ./tests/test-data/sample-data/obs4MIPs/
 ref solve
 ```
 
-The executed metrics can then be viewed using the `ref executions list` command.
+The executed metrics can then be viewed using the `ref executions list-groups` command.
 
 ### As a devops engineer
 

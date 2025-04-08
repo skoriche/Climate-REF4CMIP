@@ -11,7 +11,7 @@ from cmip_ref_core.metrics import (
     CommandLineMetric,
     DataRequirement,
     MetricExecutionDefinition,
-    MetricResult,
+    MetricExecutionResult,
     ensure_relative_path,
 )
 from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
@@ -166,10 +166,13 @@ class TestMetricResult:
         tmp_path,
     ):
         definition = MetricExecutionDefinition(
-            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
+            root_directory=tmp_path,
+            output_directory=tmp_path,
+            dataset_key="mocked-metric-slug",
+            metric_dataset=None,
         )
 
-        result = MetricResult.build_from_output_bundle(
+        result = MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_data,
             cmec_metric_bundle=cmec_right_metric_dict,
@@ -200,7 +203,7 @@ class TestMetricResult:
         # Setting the output directory generally happens as a side effect of the executor
         definition = evolve(definition, output_directory=tmp_path)
 
-        result = MetricResult.build_from_output_bundle(
+        result = MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_dict,
             cmec_metric_bundle=cmec_right_metric_data,
@@ -222,9 +225,12 @@ class TestMetricResult:
 
     def test_build_from_failure(self, tmp_path):
         definition = MetricExecutionDefinition(
-            root_directory=tmp_path, output_directory=tmp_path, key="mocked-metric-slug", metric_dataset=None
+            root_directory=tmp_path,
+            output_directory=tmp_path,
+            dataset_key="mocked-metric-slug",
+            metric_dataset=None,
         )
-        result = MetricResult.build_from_failure(definition)
+        result = MetricExecutionResult.build_from_failure(definition)
 
         assert not result.successful
         assert result.output_bundle_filename is None
@@ -336,6 +342,40 @@ def test_apply_filters_dont_keep(apply_data_catalog):
     )
 
 
+def test_apply_filters_dont_keep_multifacet(apply_data_catalog):
+    """Test that all facet values must match to exclude a file from the catalog."""
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=(
+            FacetFilter(
+                {
+                    "variable": "tas",
+                    "source_id": "CAS",
+                },
+                keep=False,
+            ),
+        ),
+        group_by=None,
+    )
+
+    filtered = requirement.apply_filters(apply_data_catalog)
+    pd.testing.assert_frame_equal(
+        filtered,
+        pd.DataFrame(
+            {
+                "variable": ["tas", "pr", "rsut", "tas"],
+                "source_id": [
+                    "CESM2",
+                    "CESM2",
+                    "CESM2",
+                    "ACCESS",
+                ],
+            },
+            index=[0, 1, 2, 3],
+        ),
+    )
+
+
 def test_apply_filters_missing(apply_data_catalog):
     requirement = DataRequirement(
         source_type=SourceDatasetType.CMIP6,
@@ -362,6 +402,20 @@ def test_apply_filters_missing(apply_data_catalog):
 )
 def test_ensure_relative_path(input_path, expected):
     assert ensure_relative_path(input_path, root_directory=Path("/example")) == expected
+
+
+@pytest.mark.parametrize(
+    "input_path, expected",
+    (
+        (Path("example/test"), Path("test")),
+        ("example/test", Path("test")),
+        ("example/test/other", Path("test/other")),
+        ("test/other", Path("test/other")),
+        (Path("test/other"), Path("test/other")),
+    ),
+)
+def test_ensure_relative_path_non_absolute(input_path, expected):
+    assert ensure_relative_path(input_path, root_directory=Path("example")) == expected
 
 
 def test_ensure_relative_path_failed():

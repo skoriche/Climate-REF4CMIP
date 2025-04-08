@@ -20,10 +20,26 @@ from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "slow: mark test as slow to run")
+
+
+def pytest_addoption(parser):
+    parser.addoption("--slow", action="store_true", help="include tests marked slow")
+
+
+def pytest_collection_modifyitems(config, items):
+    if not config.getoption("--slow"):
+        skip_slow = pytest.mark.skip(reason="need --slow option to run")
+        for item in items:
+            if item.get_closest_marker("slow"):
+                item.add_marker(skip_slow)
 
 
 @pytest.fixture(scope="session")
@@ -52,7 +68,20 @@ def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
 @pytest.fixture(scope="session")
 def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = Obs4MIPsDatasetAdapter()
-    return adapter.find_local_datasets(sample_data_dir / "obs4MIPs")
+    return pd.concat(
+        [
+            adapter.find_local_datasets(sample_data_dir / "obs4MIPs"),
+            adapter.find_local_datasets(sample_data_dir / "obs4REF"),
+        ]
+    )
+
+
+@pytest.fixture(scope="session")
+def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
+    return {
+        SourceDatasetType.CMIP6: cmip6_data_catalog,
+        SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -93,16 +122,22 @@ def invoke_cli():
     # stdout == output from commands
     runner = CliRunner(mix_stderr=False)
 
-    def _invoke_cli(args: list[str], expected_exit_code: int = 0) -> Result:
+    def _invoke_cli(args: list[str], expected_exit_code: int = 0, always_log: bool = False) -> Result:
         result = runner.invoke(
             app=cli.app,
             args=args,
         )
 
-        if result.exit_code != expected_exit_code:
+        if always_log or result.exit_code != expected_exit_code:
+            print("## Command: ", " ".join(args))
+            print("Exit code: ", result.exit_code)
+            print("Command stdout")
             print(result.stdout)
+            print("Command stderr")
             print(result.stderr)
+            print("## Command end")
 
+        if result.exit_code != expected_exit_code:
             if result.exception:
                 raise result.exception
             raise ValueError(f"Expected exit code {expected_exit_code}, got {result.exit_code}")
@@ -118,9 +153,9 @@ class MockMetric(Metric):
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         # TODO: This doesn't write output.json, use build function?
-        return MetricResult(
+        return MetricExecutionResult(
             output_bundle_filename=definition.output_directory / "output.json",
             metric_bundle_filename=definition.output_directory / "metric.json",
             successful=True,
@@ -134,8 +169,8 @@ class FailedMetric(Metric):
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
-        return MetricResult.build_from_failure(definition)
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+        return MetricExecutionResult.build_from_failure(definition)
 
 
 @pytest.fixture
@@ -169,7 +204,7 @@ def definition_factory(tmp_path: Path, config):
             metric_dataset = MetricDataset(datasets)
 
         return MetricExecutionDefinition(
-            key="key",
+            dataset_key="key",
             metric_dataset=metric_dataset,
             root_directory=config.paths.scratch,
             output_directory=config.paths.scratch / "output_fragment",

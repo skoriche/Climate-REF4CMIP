@@ -1,6 +1,7 @@
 import inspect
 import logging
 
+import pooch
 from loguru import logger
 
 
@@ -28,8 +29,17 @@ def capture_logging() -> None:
 
     Note that this replaces the root logger, so any other handlers attached to it will be removed.
     """
-    # logger.debug("Capturing logging from the standard library")
+    # Pooch adds a handler to its own logger which circumvents the REF logger
+    pooch.get_logger().handlers.clear()
+    pooch.get_logger().addHandler(_InterceptHandler())
+
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
+
+    # Disable some overly verbose logs
+    logger.disable("matplotlib.colorbar")
+    logger.disable("matplotlib.ticker")
+    logger.disable("matplotlib.font_manager")
+    logger.disable("pyproj.transformer")
 
 
 __all__ = ["capture_logging", "logger"]

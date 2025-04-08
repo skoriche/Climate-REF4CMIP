@@ -20,7 +20,7 @@ from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.models import Metric as MetricModel
-from cmip_ref.models import MetricExecution as MetricExecutionModel
+from cmip_ref.models import MetricExecutionGroup as MetricExecutionGroupModel
 from cmip_ref.models import Provider as ProviderModel
 from cmip_ref.models.metric_execution import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
@@ -64,7 +64,7 @@ class MetricExecution:
         return MetricExecutionDefinition(
             root_directory=output_root,
             output_directory=output_root / fragment,
-            key=key,
+            dataset_key=key,
             metric_dataset=self.metric_dataset,
         )
 
@@ -110,6 +110,54 @@ def _process_group_constraints(
 
         group = constrained_group
     return group
+
+
+def solve_metric_executions(
+    data_catalog: dict[SourceDatasetType, pd.DataFrame], metric: Metric, provider: MetricsProvider
+) -> typing.Generator["MetricExecution", None, None]:
+    """
+    Calculate the metric executions that need to be performed for a given metric
+
+    Parameters
+    ----------
+    data_catalog
+        Data catalogs for each source dataset type
+    metric
+        Metric of interest
+    provider
+        Provider of the metric
+
+    Returns
+    -------
+    :
+        A generator that yields the metric executions that need to be performed
+
+    """
+    # Collect up the different data groups that can be used to calculate the metric
+    dataset_groups = {}
+
+    for requirement in metric.data_requirements:
+        if requirement.source_type not in data_catalog:
+            raise InvalidMetricException(metric, f"No data catalog for source type {requirement.source_type}")
+
+        dataset_groups[requirement.source_type] = extract_covered_datasets(
+            data_catalog[requirement.source_type], requirement
+        )
+
+    # I'm not sure if the right approach here is a product of the groups
+    for items in itertools.product(*dataset_groups.values()):
+        yield MetricExecution(
+            provider=provider,
+            metric=metric,
+            metric_dataset=MetricDataset(
+                {
+                    key: DatasetCollection(
+                        datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
+                    )
+                    for key, value in zip(dataset_groups.keys(), items)
+                }
+            ),
+        )
 
 
 @define
@@ -160,54 +208,7 @@ class MetricSolver:
         """
         for provider in self.provider_registry.providers:
             for metric in provider.metrics():
-                yield from self.solve_metric_executions(metric, provider)
-
-    def solve_metric_executions(
-        self, metric: Metric, provider: MetricsProvider
-    ) -> typing.Generator[MetricExecution, None, None]:
-        """
-        Calculate the metric executions that need to be performed for a given metric
-
-        Parameters
-        ----------
-        metric
-            Metric of interest
-        provider
-            Provider of the metric
-
-        Returns
-        -------
-        :
-            A generator that yields the metric executions that need to be performed
-
-        """
-        # Collect up the different data groups that can be used to calculate the metric
-        dataset_groups = {}
-
-        for requirement in metric.data_requirements:
-            if requirement.source_type not in self.data_catalog:
-                raise InvalidMetricException(
-                    metric, f"No data catalog for source type {requirement.source_type}"
-                )
-
-            dataset_groups[requirement.source_type] = extract_covered_datasets(
-                self.data_catalog[requirement.source_type], requirement
-            )
-
-        # I'm not sure if the right approach here is a product of the groups
-        for items in itertools.product(*dataset_groups.values()):
-            yield MetricExecution(
-                provider=provider,
-                metric=metric,
-                metric_dataset=MetricDataset(
-                    {
-                        key: DatasetCollection(
-                            datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
-                        )
-                        for key, value in zip(dataset_groups.keys(), items)
-                    }
-                ),
-            )
+                yield from solve_metric_executions(self.data_catalog, metric, provider)
 
 
 def solve_metrics(
@@ -241,7 +242,7 @@ def solve_metrics(
         # The metric output is first written to the scratch directory
         definition = metric_execution.build_metric_execution_info(output_root=config.paths.scratch)
 
-        logger.debug(f"Identified candidate metric execution {definition.key}")
+        logger.debug(f"Identified candidate metric execution {definition.dataset_key}")
 
         if dry_run:
             continue
@@ -249,9 +250,9 @@ def solve_metrics(
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
-            metric_execution_model, created = db.get_or_create(
-                MetricExecutionModel,
-                key=definition.key,
+            metric_execution_group_model, created = db.get_or_create(
+                MetricExecutionGroupModel,
+                dataset_key=definition.dataset_key,
                 metric_id=db.session.query(MetricModel)
                 .join(MetricModel.provider)
                 .filter(
@@ -263,18 +264,17 @@ def solve_metrics(
                 .id,
                 defaults={
                     "dirty": True,
-                    "retracted": False,
                 },
             )
 
             if created:
-                logger.info(f"Created metric execution {definition.key}")
+                logger.info(f"Created metric execution {definition.dataset_key}")
                 db.session.flush()
 
-            if metric_execution_model.should_run(definition.metric_dataset.hash):
-                logger.info(f"Running metric {metric_execution_model.key}")
+            if metric_execution_group_model.should_run(definition.metric_dataset.hash):
+                logger.info(f"Running metric {metric_execution_group_model.dataset_key}")
                 metric_execution_result = MetricExecutionResult(
-                    metric_execution=metric_execution_model,
+                    metric_execution_group=metric_execution_group_model,
                     dataset_hash=definition.metric_dataset.hash,
                     output_fragment=str(definition.output_fragment()),
                 )

@@ -1,12 +1,12 @@
 [project]
 name = "cmip_ref_core"
-version = "0.2.0"
+version = "0.3.1"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
     { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Operating System :: OS Independent",
@@ -14,17 +14,22 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "attrs>=22.1.0",
+    "attrs>=23.2.0",
     "pydantic>=2.10.6",
     "typing_extensions",
     "requests",
+
+    # SPEC 0000 constraints
+    # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)
+    # which defines a 2-year support window for key libraries and 3-year window for Python versions
+    "pandas>=2.1.0",
+    "numpy>=1.25.0"
 ]
 
 [project.license]

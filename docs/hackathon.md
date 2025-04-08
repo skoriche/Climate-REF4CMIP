@@ -17,7 +17,7 @@ If you couldn't make it to the hackathon but still want to get started in REF de
 
 ## Technical Requirements
 
-* A laptop with Python 3.10 or later installed
+* A laptop with Python 3.11 or later installed
 * A GitHub account
 * Docker installed (Optional)
 * [uv](https://docs.astral.sh/uv) installed

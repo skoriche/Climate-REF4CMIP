@@ -7,7 +7,13 @@ from cmip_ref_metrics_example import provider
 from cmip_ref.config import ExecutorConfig
 from cmip_ref.models import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
-from cmip_ref.solver import MetricExecution, MetricSolver, extract_covered_datasets, solve_metrics
+from cmip_ref.solver import (
+    MetricExecution,
+    MetricSolver,
+    extract_covered_datasets,
+    solve_metric_executions,
+    solve_metrics,
+)
 from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, FacetFilter
@@ -242,7 +248,7 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     execution_result = db_seeded.session.query(MetricExecutionResult).first()
     assert execution_result.output_fragment == "output_fragment"
     assert execution_result.dataset_hash == "123456"
-    assert execution_result.metric_execution.key == "key"
+    assert execution_result.metric_execution_group.dataset_key == "key"
 
     # Solver should be created
     assert mock_build_solver.call_count == 1
@@ -270,7 +276,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     # Create a dictionary of the metric key and the source datasets that were used
     output = {}
     for definition in definitions:
-        output[definition.key] = {
+        output[definition.dataset_key] = {
             str(source_type): ds_collection.instance_id.unique().tolist()
             for source_type, ds_collection in definition.metric_dataset.items()
         }
@@ -307,7 +313,7 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     provider = MetricsProvider("mock_provider", "v0.1.0")
     provider.register(mock_metric)
 
-    solver.data_catalog = {
+    data_catalog = {
         SourceDatasetType.obs4MIPs: pd.DataFrame(
             {
                 "variable_id": ["tas", "tas", "pr"],
@@ -323,5 +329,5 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
             }
         ),
     }
-    executions = solver.solve_metric_executions(metric, provider)
+    executions = solve_metric_executions(data_catalog, metric, provider)
     assert len(list(executions)) == expected

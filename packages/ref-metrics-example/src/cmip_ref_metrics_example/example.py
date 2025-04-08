@@ -3,13 +3,13 @@ from typing import Any
 
 import xarray as xr
 
-from cmip_ref_core.constraints import AddSupplementaryDataset
+from cmip_ref_core.constraints import AddSupplementaryDataset, RequireContiguousTimerange
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
     Metric,
     MetricExecutionDefinition,
-    MetricResult,
+    MetricExecutionResult,
 )
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
@@ -138,18 +138,21 @@ class GlobalMeanTimeseries(Metric):
             filters=(
                 FacetFilter(facets={"variable_id": ("tas", "rsut")}),
                 # Ignore some experiments because they are not relevant
-                FacetFilter(facets={"experiment_id": ("1pctCO2-*", "hist-*")}, keep=False),
+                FacetFilter(
+                    facets={"experiment_id": ("esm-1pct-brch-1000PgC", "1pctCO2", "hist-*")}, keep=False
+                ),
             ),
             # Run the metric on each unique combination of model, variable, experiment, and variant
             group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
             constraints=(
                 # Add cell areas to the groups
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                RequireContiguousTimerange(group_by=("instance_id",)),
             ),
         ),
     )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Run a metric
 
@@ -173,7 +176,7 @@ class GlobalMeanTimeseries(Metric):
             input_files=input_datasets.path.to_list()
         )
 
-        return MetricResult.build_from_output_bundle(
+        return MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=format_cmec_output_bundle(annual_mean_global_mean_timeseries),
             cmec_metric_bundle=format_cmec_metric_bundle(annual_mean_global_mean_timeseries),

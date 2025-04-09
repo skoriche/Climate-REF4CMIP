@@ -54,6 +54,8 @@ def as_timerange(group: pd.DataFrame) -> str | None:
     -------
         A timerange.
     """
+    # TODO: apply some rounding to avoid problems?
+    # https://github.com/ESMValGroup/ESMValCore/issues/2048
     start_times = group.start_time.dropna()
     if start_times.empty:
         return None

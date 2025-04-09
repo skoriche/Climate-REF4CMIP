@@ -326,16 +326,15 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             suffix = hashlib.sha1(file.read_bytes(), usedforsecurity=False).hexdigest()
         return self.prefix / f"{self.slug}-{suffix}"
 
-    def create_env(self, dev: str | bool = True) -> None:
+    def create_env(self, dev: bool = True) -> None:
         """
         Create a conda environment.
 
         Parameters
         ----------
         dev:
-            Path or URL to a development version of the package that can be
-            installed by pip. If True, the default path/URL from the provider
-            will be used. If False, no development version will be installed.
+            If True, the archive path/URL from the provider will be used to
+            install the development version of the metrics package.
 
         """
         logger.debug(f"Attempting to create environment at {self.env_path}")
@@ -357,24 +356,17 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
                 logger.debug(f"Running {' '.join(cmd)}")
                 subprocess.run(cmd, check=True)  # noqa: S603
 
-        if dev is True:
-            url = self.url
-        elif dev is False:
-            url = None
-        else:
-            url = dev
-
-        if url is not None:
+        if dev is True and self.url is not None:
             # Run this even when the environment already exists because
             # the url/path may not uniquely define the version.
-            logger.info(f"Installing development version of {self.slug} from {url}")
+            logger.info(f"Installing development version of {self.slug} from {self.url}")
             cmd = [
                 conda_exe,
                 "run",
                 "pip",
                 "install",
                 "--no-deps",
-                url,
+                self.url,
             ]
             logger.debug(f"Running {' '.join(cmd)}")
             subprocess.run(cmd, check=True)  # noqa: S603

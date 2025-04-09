@@ -59,7 +59,8 @@ def db_seeded_template(tmp_path_session, cmip6_data_catalog, obs4mips_data_catal
     template_db_path = tmp_path_session / "cmip_ref_template_seeded.db"
 
     config = Config.default()  # This is just dummy config
-    database = Database(f"sqlite:///{template_db_path}", run_migrations=True)
+    database = Database(f"sqlite:///{template_db_path}")
+    database.migrate(config)
 
     # Seed the CMIP6 sample datasets
     adapter = CMIP6DatasetAdapter()

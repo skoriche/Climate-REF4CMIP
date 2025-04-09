@@ -76,20 +76,29 @@ class Database:
     The database migrations are optionally run after the connection to the database is established.
     """
 
-    def __init__(self, url: str, run_migrations: bool = True) -> None:
+    def __init__(self, url: str) -> None:
         logger.info(f"Connecting to database at {url}")
         self.url = url
         self._engine = sqlalchemy.create_engine(self.url)
         self.session = Session(self._engine)
-        if run_migrations:
-            self._migrate()
 
-    def _migrate(self) -> None:
+    def migrate(self, config: "Config") -> None:
+        """
+        Migrate the database to the latest revision
+
+        Parameters
+        ----------
+        config
+            REF Configuration
+
+            This is passed to alembic
+        """
         alembic_config_filename = importlib.resources.files("cmip_ref") / "alembic.ini"
         if not alembic_config_filename.is_file():  # pragma: no cover
             raise FileNotFoundError(f"{alembic_config_filename} not found")
         alembic_config = AlembicConfig(str(alembic_config_filename))
         alembic_config.attributes["connection"] = self._engine
+        alembic_config.attributes["ref_config"] = config
 
         script = ScriptDirectory.from_config(alembic_config)
         head = script.get_current_head()
@@ -122,7 +131,12 @@ class Database:
         database_url = validate_database_url(database_url)
 
         cv = CV.load_from_file(config.paths.dimensions_cv)
-        db = Database(database_url, run_migrations=run_migrations)
+        db = Database(database_url)
+
+        if run_migrations:
+            # Run any outstanding migrations
+            # This also adds any metric value columns to the DB if they don't exist
+            db.migrate(config)
         # Register the CV dimensions with the MetricValue model
         # This will add new columns to the db if the CVs have changed
         MetricValue.register_cv_dimensions(cv)

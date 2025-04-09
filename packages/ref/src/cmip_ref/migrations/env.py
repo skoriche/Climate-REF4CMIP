@@ -1,5 +1,3 @@
-import importlib.resources
-
 from alembic import context, op
 from loguru import logger
 from sqlalchemy import Connection, inspect
@@ -17,7 +15,7 @@ logger.debug("Running alembic env")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-ref_config = Config.default()
+ref_config: Config = config.attributes.get("ref_config")
 
 target_metadata = Base.metadata
 
@@ -55,14 +53,12 @@ def _add_metric_value_columns(connection: Connection) -> None:
     # Extract the current columns in the DB
     existing_columns = [c["name"] for c in inspector.get_columns(metric_table)]
 
-    # TODO: Load CV from configration
-    cv_file = str(importlib.resources.files("cmip_ref_core.pycmec") / "cv_cmip_ar7ft.yaml")
+    cv_file = ref_config.paths.dimensions_cv
     cv = CV.load_from_file(cv_file)
 
     for dimension in cv.dimensions:
         if dimension.name not in existing_columns:
             logger.info(f"Adding missing metric value dimension: {dimension.name!r}")
-
             op.add_column(metric_table, MetricValue.build_dimension_column(dimension))
 
 

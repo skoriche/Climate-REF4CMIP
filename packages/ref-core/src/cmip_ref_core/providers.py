@@ -233,10 +233,13 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         name: str,
         version: str,
         slug: str | None = None,
+        repo: str | None = None,
+        tag_or_commit: str | None = None,
     ) -> None:
         super().__init__(name, version, slug)
         self._conda_exe: Path | None = None
         self._prefix: Path | None = None
+        self.url = f"git+{repo}@{tag_or_commit}" if repo and tag_or_commit else None
 
     @property
     def prefix(self) -> Path:
@@ -321,8 +324,10 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         A unique path for storing the conda environment.
         """
         with self.get_environment_file() as file:
-            suffix = hashlib.sha1(file.read_bytes(), usedforsecurity=False).hexdigest()
-        return self.prefix / f"{self.slug}-{suffix}"
+            suffix = hashlib.sha1(file.read_bytes(), usedforsecurity=False)
+            if self.url is not None:
+                suffix.update(bytes(self.url, encoding="utf-8"))
+        return self.prefix / f"{self.slug}-{suffix.hexdigest()}"
 
     def create_env(self) -> None:
         """
@@ -333,9 +338,10 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             logger.info(f"Environment at {self.env_path} already exists, skipping.")
             return
 
+        conda_exe = f"{self.get_conda_exe(update=True)}"
         with self.get_environment_file() as file:
             cmd = [
-                f"{self.get_conda_exe(update=True)}",
+                conda_exe,
                 "create",
                 "--yes",
                 "--file",
@@ -345,6 +351,21 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             ]
             logger.debug(f"Running {' '.join(cmd)}")
             subprocess.run(cmd, check=True)  # noqa: S603
+
+            if self.url is not None:
+                logger.info(f"Installing development version of {self.slug} from {self.url}")
+                cmd = [
+                    conda_exe,
+                    "run",
+                    "--prefix",
+                    f"{self.env_path}",
+                    "pip",
+                    "install",
+                    "--no-deps",
+                    self.url,
+                ]
+                logger.debug(f"Running {' '.join(cmd)}")
+                subprocess.run(cmd, check=True)  # noqa: S603
 
     def run(self, cmd: Iterable[str]) -> None:
         """

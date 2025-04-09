@@ -11,7 +11,8 @@ from cmip_ref_metrics_esmvaltool.recipe import _ESMVALTOOL_COMMIT
 provider = CondaMetricsProvider(
     "ESMValTool",
     __version__,
-    url=f"git+https://github.com/ESMValGroup/ESMValTool.git@{_ESMVALTOOL_COMMIT}",
+    repo="https://github.com/ESMValGroup/ESMValTool.git",
+    tag_or_commit=_ESMVALTOOL_COMMIT,
 )
 
 # Register the metrics.

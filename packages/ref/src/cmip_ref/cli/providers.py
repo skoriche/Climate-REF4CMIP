@@ -76,7 +76,7 @@ def create_env(
         txt = f"virtual environment for provider {provider_.slug}"
         if isinstance(provider_, CondaMetricsProvider):
             logger.info(f"Creating {txt} in {provider_.env_path}")
-            provider_.create_env(dev=True)
+            provider_.create_env()
             logger.info(f"Finished creating {txt}")
         else:
             logger.info(f"Skipping creating {txt} because it does use virtual environments.")

@@ -20,7 +20,8 @@ from alembic.script import ScriptDirectory
 from loguru import logger
 from sqlalchemy.orm import Session
 
-from cmip_ref.models import Table
+from cmip_ref.models import MetricValue, Table
+from cmip_ref_core.pycmec.controlled_vocabulary import CV
 
 if TYPE_CHECKING:
     from cmip_ref.config import Config
@@ -119,7 +120,14 @@ class Database:
         database_url: str = config.db.database_url
 
         database_url = validate_database_url(database_url)
-        return Database(database_url, run_migrations=run_migrations)
+
+        cv = CV.load_from_file(config.paths.dimensions_cv)
+        db = Database(database_url, run_migrations=run_migrations)
+        # Register the CV dimensions with the MetricValue model
+        # This will add new columns to the db if the CVs have changed
+        MetricValue.register_cv_dimensions(cv)
+
+        return db
 
     def get_or_create(
         self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any

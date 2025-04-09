@@ -335,36 +335,37 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         """
         logger.debug(f"Attempting to create environment at {self.env_path}")
         if self.env_path.exists():
-            logger.info(f"Environment at {self.env_path} already exists, not creating it.")
-        else:
-            conda_exe = f"{self.get_conda_exe(update=True)}"
-            with self.get_environment_file() as file:
+            logger.info(f"Environment at {self.env_path} already exists, skipping.")
+            return
+
+        conda_exe = f"{self.get_conda_exe(update=True)}"
+        with self.get_environment_file() as file:
+            cmd = [
+                conda_exe,
+                "create",
+                "--yes",
+                "--file",
+                f"{file}",
+                "--prefix",
+                f"{self.env_path}",
+            ]
+            logger.debug(f"Running {' '.join(cmd)}")
+            subprocess.run(cmd, check=True)  # noqa: S603
+
+            if self.url is not None:
+                logger.info(f"Installing development version of {self.slug} from {self.url}")
                 cmd = [
                     conda_exe,
-                    "create",
-                    "--yes",
-                    "--file",
-                    f"{file}",
+                    "run",
                     "--prefix",
                     f"{self.env_path}",
+                    "pip",
+                    "install",
+                    "--no-deps",
+                    self.url,
                 ]
                 logger.debug(f"Running {' '.join(cmd)}")
                 subprocess.run(cmd, check=True)  # noqa: S603
-
-                if self.url is not None:
-                    logger.info(f"Installing development version of {self.slug} from {self.url}")
-                    cmd = [
-                        conda_exe,
-                        "run",
-                        "--prefix",
-                        f"{self.env_path}",
-                        "pip",
-                        "install",
-                        "--no-deps",
-                        self.url,
-                    ]
-                    logger.debug(f"Running {' '.join(cmd)}")
-                    subprocess.run(cmd, check=True)  # noqa: S603
 
     def run(self, cmd: Iterable[str]) -> None:
         """

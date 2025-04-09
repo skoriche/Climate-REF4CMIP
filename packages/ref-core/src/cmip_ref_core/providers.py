@@ -233,10 +233,12 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
         name: str,
         version: str,
         slug: str | None = None,
+        url: str | None = None,
     ) -> None:
         super().__init__(name, version, slug)
         self._conda_exe: Path | None = None
         self._prefix: Path | None = None
+        self.url = url
 
     @property
     def prefix(self) -> Path:
@@ -324,24 +326,55 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             suffix = hashlib.sha1(file.read_bytes(), usedforsecurity=False).hexdigest()
         return self.prefix / f"{self.slug}-{suffix}"
 
-    def create_env(self) -> None:
+    def create_env(self, dev: str | bool = True) -> None:
         """
         Create a conda environment.
+
+        Parameters
+        ----------
+        dev:
+            Path or URL to a development version of the package that can be
+            installed by pip. If True, the default path/URL from the provider
+            will be used. If False, no development version will be installed.
+
         """
         logger.debug(f"Attempting to create environment at {self.env_path}")
         if self.env_path.exists():
-            logger.info(f"Environment at {self.env_path} already exists, skipping.")
-            return
+            logger.info(f"Environment at {self.env_path} already exists, not creating it.")
+            conda_exe = f"{self.get_conda_exe(update=False)}"
+        else:
+            conda_exe = f"{self.get_conda_exe(update=True)}"
+            with self.get_environment_file() as file:
+                cmd = [
+                    conda_exe,
+                    "create",
+                    "--yes",
+                    "--file",
+                    f"{file}",
+                    "--prefix",
+                    f"{self.env_path}",
+                ]
+                logger.debug(f"Running {' '.join(cmd)}")
+                subprocess.run(cmd, check=True)  # noqa: S603
 
-        with self.get_environment_file() as file:
+        if dev is True:
+            url = self.url
+        elif dev is False:
+            url = None
+        else:
+            url = dev
+
+        if url is not None:
+            # Run this even when the environment already exists because
+            # the url/path may not uniquely define the version.
+            logger.info(f"Installing development version of {self.slug} from {url}")
             cmd = [
-                f"{self.get_conda_exe(update=True)}",
-                "create",
-                "--yes",
-                "--file",
-                f"{file}",
-                "--prefix",
-                f"{self.env_path}",
+                conda_exe,
+                "run",
+                "pip",
+                "install",
+                "--no-deps",
+                url,
             ]
             logger.debug(f"Running {' '.join(cmd)}")
             subprocess.run(cmd, check=True)  # noqa: S603
@@ -356,7 +389,7 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             The command to run.
 
         """
-        self.create_env()
+        self.create_env(dev=False)
 
         cmd = [
             f"{self.get_conda_exe(update=False)}",

@@ -2,6 +2,8 @@
 Manage the REF providers.
 """
 
+from typing import Annotated
+
 import pandas as pd
 import typer
 from loguru import logger
@@ -47,7 +49,24 @@ def list_(ctx: typer.Context) -> None:
 
 
 @app.command()
-def create_env(ctx: typer.Context, provider: str | None = None) -> None:
+def create_env(
+    ctx: typer.Context,
+    provider: Annotated[
+        str | None,
+        typer.Option(help="Only install the environment for the named provider."),
+    ] = None,
+    dev: Annotated[
+        str | None,
+        typer.Option(
+            help=(
+                "Install the development version of the metrics package using pip. "
+                "Any archive url/path accepted by pip can be provided. "
+                "If no url/path is provided, the default path for the metrics "
+                "provider will be used."
+            ),
+        ),
+    ] = None,
+) -> None:
     """
     Create a virtual environment containing the provider software.
     """
@@ -56,7 +75,12 @@ def create_env(ctx: typer.Context, provider: str | None = None) -> None:
     with db.session.begin():
         providers = ProviderRegistry.build_from_config(config, db).providers
 
-    if provider is not None:
+    if provider is None:
+        if dev is not None:
+            msg = f'Please use the --provider argument to select the environment to install "{dev}" in.'
+            logger.error(msg)
+            raise typer.Exit(code=1)
+    else:
         available = ", ".join([f'"{p.slug}"' for p in providers])
         providers = [p for p in providers if p.slug == provider]
         if not providers:
@@ -68,7 +92,7 @@ def create_env(ctx: typer.Context, provider: str | None = None) -> None:
         txt = f"virtual environment for provider {provider_.slug}"
         if isinstance(provider_, CondaMetricsProvider):
             logger.info(f"Creating {txt} in {provider_.env_path}")
-            provider_.create_env()
+            provider_.create_env(True if dev is None else dev)
             logger.info(f"Finished creating {txt}")
         else:
             logger.info(f"Skipping creating {txt} because it does use virtual environments.")

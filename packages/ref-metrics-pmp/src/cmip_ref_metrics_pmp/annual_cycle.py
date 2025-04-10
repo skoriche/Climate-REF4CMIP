@@ -16,8 +16,12 @@ class AnnualCycle(CommandLineMetric):
         self.data_requirements = (
             DataRequirement(
                 source_type=SourceDatasetType.obs4MIPs,
-                filters=(FacetFilter(facets={"source_id": ("GPCP-2-3"), "variable_id": ("pr")}),),
-                group_by=("source_id", "variable_id"),
+                filters=(
+                    FacetFilter(
+                        facets={"source_id": ("GPCP-2-3", "HadISST-1-1"), "variable_id": ("pr", "ts")}
+                    ),
+                ),
+                group_by=("variable_id", "source_id"),
             ),
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
@@ -26,11 +30,11 @@ class AnnualCycle(CommandLineMetric):
                         facets={
                             "frequency": "mon",
                             "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                            "variable_id": ("pr"),
+                            "variable_id": ("pr", "ts"),
                         }
                     ),
                 ),
-                group_by=("source_id", "experiment_id", "variant_label", "member_id", "variable_id"),
+                group_by=("variable_id", "source_id", "experiment_id", "variant_label", "member_id"),
             ),
         )
 
@@ -75,6 +79,10 @@ class AnnualCycle(CommandLineMetric):
 
         print("build_cmd start")
 
+        print("input_datasets:", input_datasets)
+        print("input_datasets.keys():", input_datasets.keys())
+        print("input_datasets['variable_id']:", input_datasets["variable_id"])
+
         print("source_id:", source_id)
         print("experiment_id:", experiment_id)
         print("member_id:", member_id)
@@ -83,6 +91,10 @@ class AnnualCycle(CommandLineMetric):
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
+
+        print("reference_dataset.datasets:", reference_dataset.datasets)
+        print("reference_dataset['source_id']:", reference_dataset["source_id"])
+        print("reference_dataset.datasets.iloc[0]:", reference_dataset.datasets.iloc[0])
 
         print("reference_dataset_name:", reference_dataset_name)
         print("reference_dataset_path:", reference_dataset_path)

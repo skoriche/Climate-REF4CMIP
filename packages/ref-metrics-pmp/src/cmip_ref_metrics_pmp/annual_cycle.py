@@ -1,7 +1,12 @@
 from collections.abc import Iterable
 
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
-from cmip_ref_core.metrics import CommandLineMetric, DataRequirement, MetricExecutionDefinition, MetricResult
+from cmip_ref_core.metrics import (
+    CommandLineMetric,
+    DataRequirement,
+    MetricExecutionDefinition,
+    MetricExecutionResult,
+)
 from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
 
 
@@ -100,7 +105,7 @@ class AnnualCycle(CommandLineMetric):
         print("reference_dataset_path:", reference_dataset_path)
 
         parameter_file_1_clims = self.parameter_file_1
-        # parameter_file_2_metrics = self.parameter_file_2
+        parameter_file_2_metrics = self.parameter_file_2
 
         development_mode = True
 
@@ -115,7 +120,9 @@ class AnnualCycle(CommandLineMetric):
 
         cmds = []
 
-        # Build the command for climatologies
+        # -------------------------------------------
+        # PART 1: Build the command for climatologies
+        # -------------------------------------------
         for data in ["reference", "model"]:
             if data == "reference":
                 data_name = reference_dataset_name
@@ -143,13 +150,42 @@ class AnnualCycle(CommandLineMetric):
 
             cmds.append(self.build_cmd(params))
 
-        # Build the command for metrics
+        # -------------------------------------------
+        # PART 2: Build the command for metrics
+        # -------------------------------------------
+        obs_dict = {
+            variable_id: {
+                source_id: {
+                    "template": f"{variable_id}_reference_clims.nc",
+                },
+                "default": source_id,
+            }
+        }
+
+        # Generate a JSON file based on the obs_dict
+        import json
+
+        with open(f"{output_directory_path}/obs_dict.json", "w") as f:
+            json.dump(obs_dict, f)
+
+        params = {
+            "driver_file": "mean_climate/mean_climate_driver.py",
+            "parameter_file": parameter_file_2_metrics,
+            "vars": [variable_id],
+            "reference_data_path": output_directory_path,
+            "custom_obs": f"{output_directory_path}/obs_dict.json",
+            "test_data_path": output_directory_path,
+            "filename_template": f"{variable_id}_model_clims.nc",
+            "outfile": f"{output_directory_path}/{variable_id}_{data_name}_metrics.nc",
+        }
+
+        cmds.append(self.build_cmd(params))
 
         print("jwlee123_test ac cmds:", cmds)
 
         return cmds
 
-    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Build a metric result from the output of the PMP driver
 
@@ -165,7 +201,7 @@ class AnnualCycle(CommandLineMetric):
         print("build_metric_result start")
         results_files = list(definition.output_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
-            return MetricResult.build_from_failure(definition)
+            return MetricExecutionResult.build_from_failure(definition)
 
         # Find the other outputs
         png_files = list(definition.output_directory.glob("*.png"))
@@ -173,13 +209,13 @@ class AnnualCycle(CommandLineMetric):
 
         cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 
-        return MetricResult.build_from_output_bundle(
+        return MetricExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output,
             cmec_metric_bundle=cmec_metric,
         )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricResult:
+    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """
         Run the metric on the given configuration.
 

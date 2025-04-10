@@ -116,9 +116,9 @@ class EquilibriumClimateSensitivity(ESMValToolMetric):
         source_id = input_files.iloc[0].source_id
 
         ecs_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "ecs.nc")
-        ecs = ecs_ds["ecs"].values[0]
+        ecs = float(ecs_ds["ecs"].values[0])
         lambda_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "lambda.nc")
-        lambda_ = lambda_ds["lambda"].values[0]
+        lambda_ = float(lambda_ds["lambda"].values[0])
 
         # Update the metric bundle arguments with the computed metrics.
         metric_args[MetricCV.DIMENSIONS.value] = {

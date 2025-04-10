@@ -41,7 +41,7 @@ def mock_execution_result(mocker):
     return mock_result
 
 
-def test_handle_execution_result_successful(  # noqa: PLR0913
+def test_handle_execution_result_successful(
     db, config, mock_execution_result, mocker, definition_factory, test_data_dir
 ):
     metric_bundle_filename = pathlib.Path("bundle.json")

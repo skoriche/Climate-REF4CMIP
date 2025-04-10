@@ -164,7 +164,7 @@ def handle_execution_result(
         try:
             cv = CV.load_from_file(config.paths.dimensions_cv)
             cv.validate_metrics(cmec_metric_bundle)
-        except ResultValidationError:
+        except (ResultValidationError, AssertionError):
             logger.exception("Metric values do not conform with the controlled vocabulary")
             # TODO: Mark the metric execution result as failed once the CV has stabilised
             # metric_execution_result.mark_failed()

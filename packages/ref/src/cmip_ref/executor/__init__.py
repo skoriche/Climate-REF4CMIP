@@ -22,7 +22,7 @@ from cmip_ref.models.metric_execution import MetricExecutionResult as MetricExec
 from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
 from cmip_ref.models.metric_value import MetricValue
 from cmip_ref_core.exceptions import InvalidExecutorException, ResultValidationError
-from cmip_ref_core.executor import Executor
+from cmip_ref_core.executor import EXECUTION_LOG_FILENAME, Executor
 from cmip_ref_core.metrics import MetricExecutionResult, ensure_relative_path
 from cmip_ref_core.pycmec.controlled_vocabulary import CV
 from cmip_ref_core.pycmec.metric import CMECMetric
@@ -133,6 +133,14 @@ def handle_execution_result(
     result
         The result of the metric execution, either successful or failed
     """
+    # Always copy log data
+    _copy_file_to_results(
+        config.paths.scratch,
+        config.paths.results,
+        metric_execution_result.output_fragment,
+        EXECUTION_LOG_FILENAME,
+    )
+
     if result.successful and result.metric_bundle_filename is not None:
         logger.info(f"{metric_execution_result} successful")
 

@@ -294,6 +294,12 @@ class Config:
     This class is used to store the configuration of the REF application.
     """
 
+    log_level: str = field(default="INFO")
+    """
+    Log level of messages that are displayed by the REF
+
+    This value is overridden if a value is specified via the CLI.
+    """
     paths: PathConfig = Factory(PathConfig)
     db: DbConfig = Factory(DbConfig)
     executor: ExecutorConfig = Factory(ExecutorConfig)

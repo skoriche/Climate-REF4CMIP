@@ -4,8 +4,8 @@ from cmip_ref_celery.worker_tasks import handle_result
 
 
 @pytest.mark.parametrize("include_execution_result", [True, False])
-def test_run_metric(provider, mock_metric, metric_definition, mocker, include_execution_result):
-    executor = CeleryExecutor()
+def test_run_metric(provider, config, mock_metric, metric_definition, mocker, include_execution_result):
+    executor = CeleryExecutor(config=config)
     mock_app = mocker.patch("cmip_ref_celery.executor.app")
     mock_execution_result = mocker.MagicMock()
 
@@ -14,7 +14,7 @@ def test_run_metric(provider, mock_metric, metric_definition, mocker, include_ex
 
         mock_app.send_task.assert_called_once_with(
             "mock_provider.mock",
-            args=[metric_definition],
+            args=[metric_definition, "INFO"],
             link=handle_result.s(metric_execution_result_id=mock_execution_result.id).set(queue="celery"),
             queue="mock_provider",
         )
@@ -23,7 +23,7 @@ def test_run_metric(provider, mock_metric, metric_definition, mocker, include_ex
 
         mock_app.send_task.assert_called_once_with(
             "mock_provider.mock",
-            args=[metric_definition],
+            args=[metric_definition, "INFO"],
             link=None,
             queue="mock_provider",
         )
@@ -32,13 +32,13 @@ def test_run_metric(provider, mock_metric, metric_definition, mocker, include_ex
 
 
 def test_join_empty():
-    executor = CeleryExecutor()
+    executor = CeleryExecutor(config=None)
 
     executor.join(1)
 
 
 def test_join_returns_on_completion(mocker):
-    executor = CeleryExecutor()
+    executor = CeleryExecutor(config=None)
     result = mocker.Mock()
     result.ready.return_value = True
     executor._results = [result]
@@ -49,7 +49,7 @@ def test_join_returns_on_completion(mocker):
 
 
 def test_join_raises(mocker):
-    executor = CeleryExecutor()
+    executor = CeleryExecutor(config=None)  # type: ignore
     result = mocker.Mock()
     result.ready.return_value = False
     executor._results = [result]

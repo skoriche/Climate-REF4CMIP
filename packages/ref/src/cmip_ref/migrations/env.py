@@ -2,10 +2,10 @@ from alembic import context, op
 from loguru import logger
 from sqlalchemy import Connection, inspect
 
-from cmip_ref.cli import capture_logging
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.models import Base, MetricValue
+from cmip_ref_core.logging import capture_logging
 from cmip_ref_core.pycmec.controlled_vocabulary import CV
 
 # Setup logging

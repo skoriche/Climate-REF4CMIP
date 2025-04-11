@@ -2,6 +2,8 @@
 Manage the REF providers.
 """
 
+from typing import Annotated
+
 import pandas as pd
 import typer
 from loguru import logger
@@ -47,7 +49,13 @@ def list_(ctx: typer.Context) -> None:
 
 
 @app.command()
-def create_env(ctx: typer.Context, provider: str | None = None) -> None:
+def create_env(
+    ctx: typer.Context,
+    provider: Annotated[
+        str | None,
+        typer.Option(help="Only install the environment for the named provider."),
+    ] = None,
+) -> None:
     """
     Create a virtual environment containing the provider software.
     """

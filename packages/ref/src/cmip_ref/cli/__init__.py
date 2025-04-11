@@ -1,7 +1,6 @@
 """Entrypoint for the CLI"""
 
 import importlib
-import sys
 from enum import Enum
 from pathlib import Path
 from typing import Annotated, Optional
@@ -12,11 +11,11 @@ from loguru import logger
 
 from cmip_ref import __version__
 from cmip_ref.cli import config, datasets, executions, providers, solve
-from cmip_ref.cli._logging import capture_logging
 from cmip_ref.config import Config
 from cmip_ref.constants import config_filename
 from cmip_ref.database import Database
 from cmip_ref_core import __version__ as __core_version__
+from cmip_ref_core.logging import add_log_handler
 
 
 class LogLevel(str, Enum):
@@ -123,15 +122,15 @@ def main(
     """
     cmip_ref: A CLI for the CMIP Rapid Evaluation Framework
     """
-    capture_logging()
-
     if verbose:
         log_level = LogLevel.Debug
 
     logger.remove()
-    logger.add(sys.stderr, level=log_level.value)
+    add_log_handler(level=log_level.value)
 
     config = _load_config(configuration_directory)
+    config.log_level = log_level.value
+
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))
 
 

@@ -6,8 +6,9 @@ from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatas
 @pytest.fixture
 def dataset_collection(cmip6_data_catalog) -> DatasetCollection:
     return DatasetCollection(
-        cmip6_data_catalog[cmip6_data_catalog.variable_id == "tas"],
-        "instance_id",
+        selector=(("variable_id", "tas"),),
+        datasets=cmip6_data_catalog[cmip6_data_catalog.variable_id == "tas"],
+        slug_column="instance_id",
     )
 
 

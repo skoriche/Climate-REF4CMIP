@@ -30,6 +30,16 @@ from cmip_ref_core.exceptions import InvalidMetricException
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition
 from cmip_ref_core.providers import MetricsProvider
 
+SelectorKey = tuple[tuple[str, str], ...]
+"""
+Type describing the key used to identify a group of datasets
+
+This is a tuple of tuples, where each inner tuple contains a metadata and dimension value
+that was used to group the datasets together.
+
+This SelectorKey type must be hashable, as it is used as a key in a dictionary.
+"""
+
 
 @frozen
 class MetricExecution:
@@ -41,61 +51,75 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
+    @property
+    def dataset_key(self) -> str:
+        """
+        Key used to uniquely identify the execution group
+
+        This key is unique to an execution group and should be stable if new datasets are added
+        that
+        """
+        key_values = []
+        for requirement in self.metric.data_requirements:
+            # Ensure the selector is sorted using the dimension names
+            # This will ensure a stable key even if the groupby order changes
+            selector = self.metric_dataset[requirement.source_type].selector
+            selector_sorted = sorted(selector, key=lambda item: item[0])
+
+            source_key = f"{requirement.source_type.value}_" + "_".join(value for _, value in selector_sorted)
+            key_values.append(source_key)
+
+        return "__".join(key_values)
+
     def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """
         Build the metric execution info for the current metric execution
         """
-        # TODO: We might want to pretty print the dataset slug
-        key_values = []
-        for requirement in self.metric.data_requirements:
-            source_datasets = self.metric_dataset[requirement.source_type]
-
-            _subset = source_datasets[list(requirement.group_by)] if requirement.group_by else source_datasets
-            unique_values = _subset.drop_duplicates()
-            for i, row in enumerate(unique_values.itertuples(index=False), 1):
-                key_values.append(f"dataset{i}")
-                key_values.extend(row)
-
-        key = "_".join(key_values)
-
         # This is the desired path relative to the output directory
         fragment = pathlib.Path() / self.provider.slug / self.metric.slug / self.metric_dataset.hash
 
         return MetricExecutionDefinition(
             root_directory=output_root,
             output_directory=output_root / fragment,
-            dataset_key=key,
+            dataset_key=self.dataset_key,
             metric_dataset=self.metric_dataset,
         )
 
 
-def extract_covered_datasets(data_catalog: pd.DataFrame, requirement: DataRequirement) -> list[pd.DataFrame]:
+def extract_covered_datasets(
+    data_catalog: pd.DataFrame, requirement: DataRequirement
+) -> dict[SelectorKey, pd.DataFrame]:
     """
     Determine the different metric executions that should be performed with the current data catalog
     """
     if len(data_catalog) == 0:
         logger.error(f"No datasets found in the data catalog: {requirement.source_type.value}")
-        return []
+        return {}
 
     subset = requirement.apply_filters(data_catalog)
 
     if len(subset) == 0:
         logger.debug(f"No datasets found for requirement {requirement}")
-        return []
+        return {}
 
     if requirement.group_by is None:
         # Use a single group
-        groups = [(None, subset)]
+        groups = [((), subset)]
     else:
-        groups = subset.groupby(list(requirement.group_by))  # type: ignore
+        groups = list(subset.groupby(list(requirement.group_by)))
 
-    results = []
+    results = {}
 
     for name, group in groups:
+        if requirement.group_by is None:
+            assert len(groups) == 1  # noqa: S101
+            group_keys: SelectorKey = ()
+        else:
+            group_keys = tuple(zip(requirement.group_by, name))
         constrained_group = _process_group_constraints(data_catalog, group, requirement)
 
         if constrained_group is not None:
-            results.append(constrained_group)
+            results[group_keys] = constrained_group
 
     return results
 
@@ -144,7 +168,7 @@ def solve_metric_executions(
             data_catalog[requirement.source_type], requirement
         )
 
-    # I'm not sure if the right approach here is a product of the groups
+    # Calculate the product across each of the source types
     for items in itertools.product(*dataset_groups.values()):
         yield MetricExecution(
             provider=provider,
@@ -152,9 +176,11 @@ def solve_metric_executions(
             metric_dataset=MetricDataset(
                 {
                     key: DatasetCollection(
-                        datasets=value, slug_column=get_dataset_adapter(key.value).slug_column
+                        datasets=dataset_groups[key][dataset_group_key],
+                        slug_column=get_dataset_adapter(key.value).slug_column,
+                        selector=dataset_group_key,
                     )
-                    for key, value in zip(dataset_groups.keys(), items)
+                    for key, dataset_group_key in zip(dataset_groups.keys(), items)
                 }
             ),
         )

@@ -112,7 +112,8 @@ from cmip_ref.solver import extract_covered_datasets
 
 # %% tags=["remove_input"]
 def display_groups(frames):
-    for frame in frames:
+    for selector, frame in frames.items():
+        display(f"selector: {selector}")
         display(frame[["instance_id", "source_id", "variable_id"]].drop_duplicates())
 
 

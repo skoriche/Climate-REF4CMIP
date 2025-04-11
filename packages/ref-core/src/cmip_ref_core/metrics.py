@@ -445,6 +445,9 @@ class Metric(AbstractMetric):
         super().__init__()
         self._provider: MetricsProvider | None = None
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name!r})"
+
     @property
     def provider(self) -> MetricsProvider:
         """

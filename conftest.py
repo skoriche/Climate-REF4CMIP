@@ -206,9 +206,9 @@ class FailedMetric(Metric):
 
 
 @pytest.fixture
-def provider(tmp_path) -> MetricsProvider:
+def provider(tmp_path, mock_metric) -> MetricsProvider:
     provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(MockMetric())
+    provider.register(mock_metric)
     provider.register(FailedMetric())
 
     return provider

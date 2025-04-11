@@ -373,8 +373,13 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
 
         Parameters
         ----------
-        cmd :
+        cmd
             The command to run.
+
+        Raises
+        ------
+        subprocess.CalledProcessError
+            If the command fails
 
         """
         self.create_env()
@@ -386,6 +391,20 @@ class CondaMetricsProvider(CommandLineMetricsProvider):
             f"{self.env_path}",
             *cmd,
         ]
-        logger.info(f"Running {' '.join(cmd)}")
-        subprocess.run(cmd, check=True)  # noqa: S603
-        logger.info(f"Successfully ran {cmd}")
+        logger.info(f"Running '{' '.join(cmd)}'")
+        try:
+            # This captures the log output until the execution is complete
+            # We could poll using `subprocess.Popen` if we want something more responsive
+            res = subprocess.run(  # noqa: S603
+                cmd,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            logger.info("Command output: \n" + res.stdout)
+            logger.info("Command execution successful")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to run {cmd}")
+            logger.error(e.stdout)
+            raise e

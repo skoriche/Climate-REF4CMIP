@@ -3,7 +3,6 @@ Celery app creation
 """
 
 import os
-import sys
 from typing import Any
 
 from celery import Celery
@@ -12,6 +11,7 @@ from loguru import logger
 from rich.pretty import pretty_repr
 
 from cmip_ref.config import Config
+from cmip_ref_core.logging import add_log_handler, capture_logging
 
 os.environ.setdefault("CELERY_CONFIG_MODULE", "cmip_ref_celery.celeryconf.dev")
 
@@ -33,8 +33,6 @@ def create_celery_app(name: str) -> Celery:
 @setup_logging.connect
 def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:  # pragma: no cover
     """Set up logging for the Celery worker using the celery signal"""
-    from cmip_ref.cli._logging import capture_logging
-
     capture_logging()
 
     # Include process name in celery logs
@@ -44,7 +42,7 @@ def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:  # pragma: no c
     )
 
     logger.remove()
-    logger.add(sys.stderr, level=loglevel, format=msg_format, colorize=True)
+    add_log_handler(level=loglevel, format=msg_format, colorize=True)
 
 
 @worker_ready.connect

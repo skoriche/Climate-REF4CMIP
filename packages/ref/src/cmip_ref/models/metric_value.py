@@ -151,7 +151,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
         Build a MetricValue from a collection of dimensions and a value
 
         This is a helper method that validates the dimensions supplied and provides an interface
-        similar to [cmip_ref_core.pycmec.metrics.MetricValue][].
+        similar to [cmip_ref_core.pycmec.metric.MetricValue][].
 
         Parameters
         ----------

@@ -94,7 +94,7 @@ test-metrics-esmvaltool:  ## run the tests
 
 .PHONY: test-metrics-ilamb
 test-metrics-ilamb:  ## run the tests
-	uv run --package cmip_ref_metrics_ilamb python ./scripts/fetch-ilamb-data.py test.txt
+	uv run ref datasets fetch-data --registry test
 	uv run --package cmip_ref_metrics_ilamb \
 		pytest packages/ref-metrics-ilamb \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append

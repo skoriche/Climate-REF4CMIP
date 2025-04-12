@@ -170,7 +170,7 @@ class TestFetchSampleData:
 
 @pytest.fixture(scope="function")
 def mock_obs4ref(mocker):
-    mock_data_registry = mocker.patch("cmip_ref.cli.datasets.data_registry")
+    mock_data_registry = mocker.patch("cmip_ref.cli.datasets.dataset_registry_manager")
     mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_all_files")
 
     return mock_data_registry, mock_fetch

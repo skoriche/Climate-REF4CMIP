@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref_core.dataset_registry import ReferenceDataRegistry, data_registry, fetch_all_files
+from cmip_ref_core.dataset_registry import DatasetRegistryManager, dataset_registry_manager, fetch_all_files
 
 
 @pytest.fixture
@@ -27,12 +27,12 @@ class TestDatasetRegistry:
         return package, resource
 
     def test_dataset_registry(self):
-        registry = ReferenceDataRegistry()
-        assert isinstance(registry, ReferenceDataRegistry)
+        registry = DatasetRegistryManager()
+        assert isinstance(registry, DatasetRegistryManager)
         assert len(registry._registries) == 0
 
     def test_register(self, fake_registry_file):
-        registry = ReferenceDataRegistry()
+        registry = DatasetRegistryManager()
         name = "test_registry"
         base_url = "http://example.com"
 
@@ -46,7 +46,7 @@ class TestDatasetRegistry:
         assert len(r.registry_files) == 2
 
     def test_register_invalid(self, fake_registry_file):
-        registry = ReferenceDataRegistry()
+        registry = DatasetRegistryManager()
         name = "test_registry"
         base_url = "http://example.com"
 
@@ -58,12 +58,12 @@ class TestDatasetRegistry:
             registry.register(name, base_url, package, resource)
 
     def test_getitem_missing(self):
-        registry = ReferenceDataRegistry()
+        registry = DatasetRegistryManager()
         with pytest.raises(KeyError):
             registry["missing_registry"]
 
     def test_getitem(self, mocker, fake_registry_file):
-        registry = ReferenceDataRegistry()
+        registry = DatasetRegistryManager()
         name = "test_registry"
         base_url = "http://example.com"
 
@@ -78,7 +78,7 @@ class TestDatasetRegistry:
 
     @pytest.mark.parametrize("cache_name, expected", [(None, "ref"), ("custom_cache", "custom_cache")])
     def test_with_cache_name(self, mocker, fake_registry_file, cache_name, expected):
-        registry = ReferenceDataRegistry()
+        registry = DatasetRegistryManager()
         name = "test_registry"
         base_url = "http://example.com"
 
@@ -97,7 +97,7 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     downloaded_file = tmp_path / "out.txt"
     downloaded_file.write_text("foo")
 
-    registry = data_registry["obs4ref"]
+    registry = dataset_registry_manager["obs4ref"]
     registry.fetch = mocker.MagicMock(return_value=downloaded_file)
 
     fetch_all_files(registry, tmp_path, symlink=symlink)
@@ -113,7 +113,7 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
 
 
 def test_fetch_all_files_no_output(mocker):
-    registry = data_registry["obs4ref"]
+    registry = dataset_registry_manager["obs4ref"]
     registry.fetch = mocker.MagicMock()
 
     fetch_all_files(registry, None)

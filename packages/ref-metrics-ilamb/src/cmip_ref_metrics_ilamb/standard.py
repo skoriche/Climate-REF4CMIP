@@ -8,7 +8,7 @@ import pandas as pd
 import pooch
 from ilamb3 import run
 
-from cmip_ref_core.dataset_registry import data_registry
+from cmip_ref_core.dataset_registry import dataset_registry_manager
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
@@ -162,9 +162,9 @@ class ILAMBStandard(Metric):
 
         # Setup ILAMB data and options
         self.registry_file = registry_file
-        self.registry = data_registry[self.registry_file]
+        self.registry = dataset_registry_manager[self.registry_file]
         self.ilamb_data = registry_to_collection(
-            data_registry[self.registry_file],
+            dataset_registry_manager[self.registry_file],
         )
 
     def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:

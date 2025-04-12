@@ -2,7 +2,7 @@ import ilamb3
 import pytest
 from cmip_ref_metrics_ilamb.standard import ILAMBStandard, _set_ilamb3_options
 
-from cmip_ref_core.dataset_registry import data_registry
+from cmip_ref_core.dataset_registry import dataset_registry_manager
 from cmip_ref_core.datasets import DatasetCollection
 
 
@@ -86,5 +86,5 @@ def test_standard_fail():
 
 
 def test_options():
-    _set_ilamb3_options(data_registry["ilamb"], "ilamb")
+    _set_ilamb3_options(dataset_registry_manager["ilamb"], "ilamb")
     assert set(["global", "tropical"]).issubset(ilamb3.conf["regions"])

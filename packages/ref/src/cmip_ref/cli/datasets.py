@@ -19,7 +19,7 @@ from cmip_ref.models import Dataset
 from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import solve_metrics
 from cmip_ref.testing import fetch_sample_data
-from cmip_ref_core.dataset_registry import data_registry, fetch_all_files
+from cmip_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 from cmip_ref_core.datasets import SourceDatasetType
 
 app = typer.Typer(help=__doc__)
@@ -196,10 +196,10 @@ def fetch_data(
         shutil.rmtree(output_directory)
 
     try:
-        _registry = data_registry[registry]
+        _registry = dataset_registry_manager[registry]
     except KeyError:
         logger.error(f"Registry {registry} not found")
-        logger.error(f"Available registries: {', '.join(data_registry.keys())}")
+        logger.error(f"Available registries: {', '.join(dataset_registry_manager.keys())}")
         raise typer.Exit(code=1)
 
     fetch_all_files(_registry, output_directory, symlink=symlink)

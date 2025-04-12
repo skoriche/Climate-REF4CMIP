@@ -7,7 +7,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from cmip_ref_core.dataset_registry import data_registry, fetch_all_files
+from cmip_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 
 
 def _determine_test_directory() -> Path | None:
@@ -26,13 +26,13 @@ def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> Non
     """
     Fetch the sample data for the given version.
 
+    The sample data is produced in the [Climate-REF/ref-sample-data](https://github.com/Climate-REF/ref-sample-data)
+    repository.
+    This repository contains decimated versions of key datasets used by the diagnostics packages.
+    Decimating these data greatly reduces the data volumes needed to run the test-suite.
+
     Parameters
     ----------
-    version
-        The version tag of the sample data to fetch.
-
-        This will fail if the version is not found in the sample data data_registry
-        or if the sample data data_registry file is incompatible with this version.
     force_cleanup
         If True, remove any existing files
     symlink
@@ -46,7 +46,7 @@ def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> Non
         logger.warning("Test data directory not found, skipping sample data fetch")
         return
 
-    sample_data_registry = data_registry["sample-data"]
+    sample_data_registry = dataset_registry_manager["sample-data"]
 
     output_dir = TEST_DATA_DIR / "sample-data"
     version_file = output_dir / "version.txt"

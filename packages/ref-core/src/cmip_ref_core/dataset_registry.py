@@ -62,12 +62,22 @@ def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, syml
             logger.info(f"File {linked_file} already exists. Skipping.")
 
 
-class ReferenceDataRegistry:
+class DatasetRegistryManager:
     """
-    Registry of reference datasets
+    A collection of reference datasets registries
 
-    This is a singleton class that contains a registry of reference datasets
+    The REF requires additional reference datasets
+    in addition to obs4MIPs data which can be downloaded via ESGF.
+    Each provider may have different sets of reference data that are needed.
+    These are provider-specific datasets are datasets not yet available in obs4MIPs,
+    or are post-processed from obs4MIPs.
 
+    A dataset registry consists of a file that contains a list of files and checksums,
+    in combination with a base URL that is used to fetch the files.
+    [Pooch](https://www.fatiando.org/pooch/latest/) is used within the DataRegistry
+    to manage the caching, downloading and validation of the files.
+
+    All datasets that are registered here are expected to be openly licensed and freely available.
     """
 
     def __init__(self) -> None:
@@ -75,7 +85,7 @@ class ReferenceDataRegistry:
 
     def __getitem__(self, item: str) -> pooch.Pooch:
         """
-        Get a pooch registry by name
+        Get a registry by name
         """
         return self._registries[item]
 
@@ -95,10 +105,10 @@ class ReferenceDataRegistry:
         version: str | None = None,
     ) -> None:
         """
-        Build a pooch registry of reference data
+        Register a new dataset registry
 
-        This will create a new registry and add it to the list of registries.
-        This is typically used by a provider to register a new collections of datasets.
+        This will create a new Pooch registry and add it to the list of registries.
+        This is typically used by a provider to register a new collections of datasets at runtime.
 
         Parameters
         ----------
@@ -136,4 +146,4 @@ class ReferenceDataRegistry:
         self._registries[name] = registry
 
 
-data_registry = ReferenceDataRegistry()
+dataset_registry_manager = DatasetRegistryManager()

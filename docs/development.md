@@ -168,8 +168,8 @@ The sample data is versioned and periodically we need to update the targeted ver
 Updating the sample data can be done by running the following command:
 
 ```bash
-# Fetch the latest data_registry from the sample data repository
-make update-sample-data-data_registry
+# Fetch the latest registry from the sample data repository
+make update-sample-data-registry
 
 # Manually edit the `SAMPLE_VERSION` in `packages/ref/src/cmip_ref/testing.py`
 

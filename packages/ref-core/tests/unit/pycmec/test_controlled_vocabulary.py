@@ -16,6 +16,12 @@ def test_load_from_file(datadir):
     assert len(cv.dimensions)
 
 
+def test_load_from_file_failed(tmp_path):
+    (tmp_path / "cv_sample.yaml").touch()
+    with pytest.raises(AttributeError, match="'NoneType' object has no attribute 'keys'"):
+        CV.load_from_file(tmp_path / "cv_sample.yaml")
+
+
 def test_validate(cv, cmec_metric):
     cv.validate_metrics(cmec_metric)
 

@@ -168,8 +168,10 @@ def _fetch_sample_data(
 
 @app.command(name="fetch-data")
 def fetch_data(
-    output_directory: Annotated[Path | None, typer.Option(help="Output directory where files will be saved")],
     registry: Annotated[str, typer.Option(help="Name of the data registry to use")],
+    output_directory: Annotated[
+        Path | None, typer.Option(help="Output directory where files will be saved")
+    ] = None,
     force_cleanup: Annotated[bool, typer.Option(help="If True, remove any existing files")] = False,
     symlink: Annotated[
         bool, typer.Option(help="If True, symlink files into the output directory, otherwise perform a copy")

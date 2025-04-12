@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref_core.dataset_registry import build_reference_data_registry, fetch_all_files
+from cmip_ref_core.dataset_registry import ReferenceDataRegistry, fetch_all_files
 
 
 @pytest.mark.parametrize("symlink", [True, False])
@@ -8,7 +8,7 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     downloaded_file = tmp_path / "out.txt"
     downloaded_file.write_text("foo")
 
-    registry = build_reference_data_registry()
+    registry = ReferenceDataRegistry()["obs4REF"]
     registry.fetch = mocker.MagicMock(return_value=downloaded_file)
 
     fetch_all_files(registry, tmp_path, symlink=symlink)

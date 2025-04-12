@@ -85,5 +85,5 @@ def test_standard_fail():
 
 
 def test_options():
-    _set_ilamb3_options("ilamb.txt")
+    _set_ilamb3_options("ilamb")
     assert set(["global", "tropical"]).issubset(ilamb3.conf["regions"])

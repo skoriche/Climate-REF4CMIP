@@ -171,13 +171,13 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 .PHONY: fetch-test-data
 fetch-test-data:  ## Download any data needed by the test suite
 	uv run ref datasets fetch-sample-data
-	uv run python ./scripts/fetch-ilamb-data.py test.txt
+	uv run ref datasets fetch-data --registry ilamb-test
 
 .PHONY: fetch-ref-data
 fetch-ref-data:  ## Download reference data needed by providers and (temporarily) not in obs4mips
-	uv run python ./scripts/fetch-ilamb-data.py ilamb.txt
-	uv run python ./scripts/fetch-ilamb-data.py iomb.txt
+	uv run ref datasets fetch-data --registry ilamb
+	uv run ref datasets fetch-data --registry iomb
 
 .PHONY: update-sample-data-registry
 update-sample-data-registry:  ## Update the sample data registry
-	curl --output packages/ref/src/cmip_ref/datasets/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt
+	curl --output packages/ref/src/cmip_ref/dataset_registry/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt

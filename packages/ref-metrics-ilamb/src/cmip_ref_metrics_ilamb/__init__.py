@@ -20,7 +20,7 @@ provider = MetricsProvider("ILAMB", __version__)
 data_registry.register(
     "ilamb-test",
     base_url="https://www.ilamb.org/ILAMB-Data/DATA",
-    package="cmip_ref_metric_ilamb.dataset_registry",
+    package="cmip_ref_metrics_ilamb.dataset_registry",
     resource="test.txt",
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,
@@ -28,15 +28,15 @@ data_registry.register(
 data_registry.register(
     "ilamb",
     base_url="https://www.ilamb.org/ILAMB-Data/DATA",
-    package="cmip_ref_metric_ilamb.dataset_registry",
-    resource="ilamb3.txt",
+    package="cmip_ref_metrics_ilamb.dataset_registry",
+    resource="ilamb.txt",
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,
 )
 data_registry.register(
-    "ilamb",
+    "iomb",
     base_url="https://www.ilamb.org/IOMB-Data/DATA",
-    package="cmip_ref_metric_ilamb.dataset_registry",
+    package="cmip_ref_metrics_ilamb.dataset_registry",
     resource="iomb.txt",
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,

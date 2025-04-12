@@ -57,8 +57,10 @@ def _apply_fixes(data_catalog: pd.DataFrame) -> pd.DataFrame:
         .reset_index(level="instance_id")
     )
 
-    data_catalog["branch_time_in_child"] = _clean_branch_time(data_catalog["branch_time_in_child"])
-    data_catalog["branch_time_in_parent"] = _clean_branch_time(data_catalog["branch_time_in_parent"])
+    if "branch_time_in_child" in data_catalog:
+        data_catalog["branch_time_in_child"] = _clean_branch_time(data_catalog["branch_time_in_child"])
+    if "branch_time_in_parent" in data_catalog:
+        data_catalog["branch_time_in_parent"] = _clean_branch_time(data_catalog["branch_time_in_parent"])
 
     return data_catalog
 
@@ -66,7 +68,7 @@ def _apply_fixes(data_catalog: pd.DataFrame) -> pd.DataFrame:
 def _clean_branch_time(branch_time: pd.Series[str]) -> pd.Series[float]:
     # EC-Earth3 uses "D" as a suffix for the branch_time_in_child and branch_time_in_parent columns
     # Handle missing values (these result in nan values)
-    return pd.to_numeric(branch_time.astype(str).str.replace("D", "").replace("None", ""), errors="raise")
+    return pd.to_numeric(branch_time.astype(str).str.replace("D", ""), errors="coerce")
 
 
 class CMIP6DatasetAdapter(DatasetAdapter):
@@ -104,12 +106,12 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         "variable_id",
         "variant_label",
         "member_id",
+        "vertical_levels",
+        "version",
+        # Variable identifiers
         "standard_name",
         "long_name",
         "units",
-        "vertical_levels",
-        "init_year",
-        "version",
         slug_column,
     )
 

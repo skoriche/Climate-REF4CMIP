@@ -5,8 +5,10 @@ import ilamb3  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
 import matplotlib.pyplot as plt
 import pandas as pd
+import pooch
 from ilamb3 import run
 
+from cmip_ref_core.dataset_registry import registry
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     DataRequirement,
@@ -17,9 +19,6 @@ from cmip_ref_core.metrics import (
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 from cmip_ref_metrics_ilamb.datasets import (
-    ILAMB_DATA_VERSION,
-    ILAMBRegistryFile,
-    build_ilamb_data_registry,
     registry_to_collection,
 )
 
@@ -84,20 +83,19 @@ def _form_bundles(key: str, df: pd.DataFrame) -> tuple[CMECMetric, CMECOutput]:
     return CMECMetric.model_validate(metric_bundle), CMECOutput.model_validate(output_bundle)
 
 
-def _set_ilamb3_options(registry_file: ILAMBRegistryFile) -> None:
+def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
     """
     Set options for ILAMB based on which registry file is being used.
     """
     ilamb3.conf.reset()
-    reg = build_ilamb_data_registry(registry_file, ILAMB_DATA_VERSION)
     ilamb_regions = ilr.Regions()
     if registry_file == "ilamb.txt":
-        ilamb_regions.add_netcdf(reg.fetch("regions/GlobalLand.nc"))
-        ilamb_regions.add_netcdf(reg.fetch("regions/Koppen_coarse.nc"))
+        ilamb_regions.add_netcdf(registry.fetch("regions/GlobalLand.nc"))
+        ilamb_regions.add_netcdf(registry.fetch("regions/Koppen_coarse.nc"))
         ilamb3.conf.set(regions=["global", "tropical"])
 
 
-def _measure_facets(registry_file: ILAMBRegistryFile) -> list[str]:
+def _measure_facets(registry_file: str) -> list[str]:
     """
     Set options for ILAMB based on which registry file is being used.
     """
@@ -124,7 +122,7 @@ class ILAMBStandard(Metric):
 
     def __init__(
         self,
-        registry_file: ILAMBRegistryFile,
+        registry_file: str,
         metric_name: str,
         sources: dict[str, str],
         **ilamb_kwargs: Any,
@@ -148,14 +146,14 @@ class ILAMBStandard(Metric):
                 filters=(
                     FacetFilter(
                         facets={
-                            "variable_id": [
+                            "variable_id": (
                                 self.variable_id,
                                 *ilamb_kwargs.get("relationships", {}).keys(),
                                 *_measure_facets(registry_file),
-                            ]
+                            )
                         }
                     ),
-                    FacetFilter(facets={"frequency": ["mon", "fx"]}),
+                    FacetFilter(facets={"frequency": ("mon", "fx")}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
                 ),
                 group_by=("experiment_id",),
@@ -164,8 +162,9 @@ class ILAMBStandard(Metric):
 
         # Setup ILAMB data and options
         self.registry_file = registry_file
+        self.registry = registry[self.registry_file]
         self.ilamb_data = registry_to_collection(
-            build_ilamb_data_registry(self.registry_file, ILAMB_DATA_VERSION)
+            registry[self.registry_file],
         )
 
     def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
@@ -173,7 +172,7 @@ class ILAMBStandard(Metric):
         Run the ILAMB standard analysis.
         """
         plt.rcParams.update({"figure.max_open_warning": 0})
-        _set_ilamb3_options(self.registry_file)
+        _set_ilamb3_options(self.registry, self.registry_file)
         ref_datasets = self.ilamb_data.datasets.set_index(self.ilamb_data.slug_column)
         run.run_simple(
             ref_datasets,

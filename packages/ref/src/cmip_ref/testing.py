@@ -2,14 +2,12 @@
 Testing utilities
 """
 
-import importlib.resources
 import shutil
 from pathlib import Path
 
-import pooch
 from loguru import logger
 
-from cmip_ref_core.dataset_registry import fetch_all_files
+from cmip_ref_core.dataset_registry import fetch_all_files, registry
 
 
 def _determine_test_directory() -> Path | None:
@@ -20,32 +18,11 @@ def _determine_test_directory() -> Path | None:
     return expected
 
 
-def _build_sample_data_registry(sample_data_version: str) -> pooch.Pooch:
-    registry = pooch.create(
-        path=pooch.os_cache("ref_sample_data"),
-        base_url="https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/tags/{version}/data/",
-        version=sample_data_version,
-        env="REF_SAMPLE_DATA_DIR",
-    )
-
-    with (
-        importlib.resources.files("cmip_ref")
-        .joinpath("datasets")
-        .joinpath("sample_data.txt")
-        .open("rb") as fh
-    ):
-        registry.load_registry(fh)
-
-    return registry
-
-
 TEST_DATA_DIR = _determine_test_directory()
 SAMPLE_DATA_VERSION = "v0.4.3"
 
 
-def fetch_sample_data(
-    version: str = SAMPLE_DATA_VERSION, force_cleanup: bool = False, symlink: bool = False
-) -> None:
+def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> None:
     """
     Fetch the sample data for the given version.
 
@@ -69,7 +46,7 @@ def fetch_sample_data(
         logger.warning("Test data directory not found, skipping sample data fetch")
         return
 
-    sample_data_registry = _build_sample_data_registry(version)
+    sample_data_registry = registry["sample-data"]
 
     output_dir = TEST_DATA_DIR / "sample-data"
     version_file = output_dir / "version.txt"

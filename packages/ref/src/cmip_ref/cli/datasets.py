@@ -6,7 +6,6 @@ import errno
 import os
 import shutil
 from collections.abc import Iterable
-from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -18,8 +17,9 @@ from cmip_ref.cli._utils import pretty_print_df
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.models import Dataset
 from cmip_ref.solver import solve_metrics
-from cmip_ref.testing import SAMPLE_DATA_VERSION, fetch_sample_data
-from cmip_ref_core.dataset_registry import build_reference_data_registry, fetch_all_files
+from cmip_ref.testing import fetch_sample_data
+from cmip_ref_core.dataset_registry import fetch_all_files
+from cmip_ref_core.dataset_registry import registry as _registry
 from cmip_ref_core.datasets import SourceDatasetType
 
 app = typer.Typer(help=__doc__)
@@ -152,11 +152,6 @@ def ingest(  # noqa: PLR0913
 
 @app.command(name="fetch-sample-data")
 def _fetch_sample_data(
-    version: Annotated[
-        str,
-        "The version tag of the sample data to fetch. "
-        "Defaults to the current version of data expected by the test suite",
-    ] = SAMPLE_DATA_VERSION,
     force_cleanup: Annotated[bool, typer.Option(help="If True, remove any existing files")] = False,
     symlink: Annotated[
         bool, typer.Option(help="If True, symlink files into the output directory, otherwise perform a copy")
@@ -169,44 +164,32 @@ def _fetch_sample_data(
     This operation may fail if the test data directory does not exist,
     as is the case for non-source-based installations.
     """
-    logger.info(f"Fetching data for version {version}")
-    fetch_sample_data(version=version, force_cleanup=force_cleanup, symlink=symlink)
+    fetch_sample_data(force_cleanup=force_cleanup, symlink=symlink)
 
 
-class _DatasetRegistry(str, Enum):
-    PMP_OBS4REF = "pmp-obs4ref"
-    PMP_ANNUAL_CYCLE = "pmp-annual-cycle"
-
-
-@app.command(name="fetch-obs4ref-data")
-def fetch_obs4ref_data(
-    output_directory: Annotated[Path, typer.Option(help="Output directory where files will be saved")],
+@app.command(name="fetch-data")
+def fetch_data(
+    output_directory: Annotated[Path | None, typer.Option(help="Output directory where files will be saved")],
+    registry: Annotated[str, typer.Option(help="Name of the data registry to use")],
     force_cleanup: Annotated[bool, typer.Option(help="If True, remove any existing files")] = False,
     symlink: Annotated[
         bool, typer.Option(help="If True, symlink files into the output directory, otherwise perform a copy")
     ] = False,
-    registry: Annotated[
-        _DatasetRegistry, typer.Option(help="Registry to use")
-    ] = _DatasetRegistry.PMP_OBS4REF,
 ) -> None:
     """
-    Fetch non-published Obs4MIPs data that is used by the REF
+    Fetch REF-specific datasets
 
     These datasets have been verified to have open licenses
     and are in the process of being added to Obs4MIPs.
     """
-    if force_cleanup and output_directory.exists():
+    if output_directory and force_cleanup and output_directory.exists():
         logger.warning(f"Removing existing directory {output_directory}")
         shutil.rmtree(output_directory)
 
-    if registry == _DatasetRegistry.PMP_OBS4REF:
-        data_registry = build_reference_data_registry()
-    elif registry == _DatasetRegistry.PMP_ANNUAL_CYCLE:
-        data_registry = build_reference_data_registry(
-            registry_package="cmip_ref_metrics_pmp.dataset_registry",
-            registry_resource="pmp_annual_cycle.txt",
-        )
-    else:
-        raise typer.BadParameter(f"Registry {registry} not supported")
+    try:
+        data_registry = _registry[registry]
+    except KeyError:
+        logger.error(f"Registry {registry} not found")
+        raise typer.Exit(code=1)
 
     fetch_all_files(data_registry, output_directory, symlink=symlink)

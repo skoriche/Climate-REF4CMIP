@@ -7,7 +7,7 @@ import importlib.resources
 
 import yaml
 
-from cmip_ref_core.dataset_registry import registry
+from cmip_ref_core.dataset_registry import data_registry
 from cmip_ref_core.providers import MetricsProvider
 from cmip_ref_metrics_ilamb.datasets import ILAMB_DATA_VERSION
 from cmip_ref_metrics_ilamb.standard import ILAMBStandard
@@ -17,7 +17,7 @@ __version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
 provider = MetricsProvider("ILAMB", __version__)
 
 # Register some datasets
-registry.register(
+data_registry.register(
     "ilamb-test",
     base_url="https://www.ilamb.org/ILAMB-Data/DATA",
     package="cmip_ref_metric_ilamb.dataset_registry",
@@ -25,7 +25,7 @@ registry.register(
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,
 )
-registry.register(
+data_registry.register(
     "ilamb",
     base_url="https://www.ilamb.org/ILAMB-Data/DATA",
     package="cmip_ref_metric_ilamb.dataset_registry",
@@ -33,7 +33,7 @@ registry.register(
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,
 )
-registry.register(
+data_registry.register(
     "ilamb",
     base_url="https://www.ilamb.org/IOMB-Data/DATA",
     package="cmip_ref_metric_ilamb.dataset_registry",

@@ -130,4 +130,4 @@ class ReferenceDataRegistry:
         self._registries[name] = registry
 
 
-registry = ReferenceDataRegistry()
+data_registry = ReferenceDataRegistry()

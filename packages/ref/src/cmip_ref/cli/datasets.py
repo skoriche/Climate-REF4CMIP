@@ -18,8 +18,7 @@ from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.models import Dataset
 from cmip_ref.solver import solve_metrics
 from cmip_ref.testing import fetch_sample_data
-from cmip_ref_core.dataset_registry import fetch_all_files
-from cmip_ref_core.dataset_registry import registry as _registry
+from cmip_ref_core.dataset_registry import data_registry, fetch_all_files
 from cmip_ref_core.datasets import SourceDatasetType
 
 app = typer.Typer(help=__doc__)
@@ -187,9 +186,9 @@ def fetch_data(
         shutil.rmtree(output_directory)
 
     try:
-        data_registry = _registry[registry]
+        _registry = data_registry[registry]
     except KeyError:
         logger.error(f"Registry {registry} not found")
         raise typer.Exit(code=1)
 
-    fetch_all_files(data_registry, output_directory, symlink=symlink)
+    fetch_all_files(_registry, output_directory, symlink=symlink)

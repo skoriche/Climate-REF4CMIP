@@ -16,6 +16,7 @@ from rich.console import Console
 from cmip_ref.cli._utils import pretty_print_df
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.models import Dataset
+from cmip_ref.provider_registry import ProviderRegistry
 from cmip_ref.solver import solve_metrics
 from cmip_ref.testing import fetch_sample_data
 from cmip_ref_core.dataset_registry import data_registry, fetch_all_files
@@ -168,6 +169,7 @@ def _fetch_sample_data(
 
 @app.command(name="fetch-data")
 def fetch_data(
+    ctx: typer.Context,
     registry: Annotated[str, typer.Option(help="Name of the data registry to use")],
     output_directory: Annotated[
         Path | None, typer.Option(help="Output directory where files will be saved")
@@ -183,6 +185,12 @@ def fetch_data(
     These datasets have been verified to have open licenses
     and are in the process of being added to Obs4MIPs.
     """
+    config = ctx.obj.config
+    db = ctx.obj.database
+
+    # Setup the provider registry to register any dataset registries in the configured providers
+    ProviderRegistry.build_from_config(config, db)
+
     if output_directory and force_cleanup and output_directory.exists():
         logger.warning(f"Removing existing directory {output_directory}")
         shutil.rmtree(output_directory)
@@ -191,6 +199,7 @@ def fetch_data(
         _registry = data_registry[registry]
     except KeyError:
         logger.error(f"Registry {registry} not found")
+        logger.error(f"Available registries: {', '.join(data_registry.keys())}")
         raise typer.Exit(code=1)
 
     fetch_all_files(_registry, output_directory, symlink=symlink)

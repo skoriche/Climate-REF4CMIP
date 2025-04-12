@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref_core.dataset_registry import ReferenceDataRegistry, fetch_all_files
+from cmip_ref_core.dataset_registry import ReferenceDataRegistry, data_registry, fetch_all_files
 
 
 @pytest.fixture
@@ -97,17 +97,24 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     downloaded_file = tmp_path / "out.txt"
     downloaded_file.write_text("foo")
 
-    registry = ReferenceDataRegistry()["obs4ref"]
+    registry = data_registry["obs4ref"]
     registry.fetch = mocker.MagicMock(return_value=downloaded_file)
 
     fetch_all_files(registry, tmp_path, symlink=symlink)
     assert registry.fetch.call_count == 2
 
     expected_file = (
-        tmp_path
-        / "obs4MIPs_PCMDI_monthly/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"  # noqa: E501
+        tmp_path / "obs4ref/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
     )
 
     assert expected_file.exists()
     assert expected_file.is_symlink() == symlink
     assert expected_file.read_text() == "foo"
+
+
+def test_fetch_all_files_no_output(mocker):
+    registry = data_registry["obs4ref"]
+    registry.fetch = mocker.MagicMock()
+
+    fetch_all_files(registry, None)
+    assert registry.fetch.call_count == 2

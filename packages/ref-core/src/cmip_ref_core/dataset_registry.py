@@ -79,6 +79,12 @@ class ReferenceDataRegistry:
         """
         return self._registries[item]
 
+    def keys(self) -> list[str]:
+        """
+        Get the list of registry names
+        """
+        return list(self._registries.keys())
+
     def register(  # noqa: PLR0913
         self,
         name: str,

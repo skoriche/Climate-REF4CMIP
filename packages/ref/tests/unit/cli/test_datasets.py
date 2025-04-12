@@ -5,7 +5,6 @@ import pytest
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.models import Dataset
 from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File
-from cmip_ref.testing import SAMPLE_DATA_VERSION
 
 
 def test_ingest_help(invoke_cli):
@@ -153,7 +152,7 @@ class TestFetchSampleData:
             ]
         )
 
-        mock_fetch.assert_called_once_with(version=SAMPLE_DATA_VERSION, force_cleanup=False, symlink=False)
+        mock_fetch.assert_called_once_with(force_cleanup=False, symlink=False)
 
     def test_fetch(self, mocker, invoke_cli):
         mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_sample_data")
@@ -161,42 +160,73 @@ class TestFetchSampleData:
             [
                 "datasets",
                 "fetch-sample-data",
-                "--version",
-                "v0.1.0",
                 "--force-cleanup",
                 "--symlink",
             ]
         )
 
-        mock_fetch.assert_called_once_with(version="v0.1.0", force_cleanup=True, symlink=True)
+        mock_fetch.assert_called_once_with(force_cleanup=True, symlink=True)
 
 
 @pytest.fixture(scope="function")
 def mock_obs4ref(mocker):
-    mock_build_registry = mocker.patch("cmip_ref.cli.datasets.build_reference_data_registry")
+    mock_data_registry = mocker.patch("cmip_ref.cli.datasets.data_registry")
     mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_all_files")
 
-    return mock_build_registry, mock_fetch
+    return mock_data_registry, mock_fetch
 
 
 class TestFetchObs4REFData:
     def test_fetch_defaults(self, mock_obs4ref, invoke_cli, tmp_path):
-        mock_build_registry, mock_fetch = mock_obs4ref
+        mock_data_registry, mock_fetch = mock_obs4ref
 
-        invoke_cli(["datasets", "fetch-obs4ref-data", "--output-directory", str(tmp_path)])
+        invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref", "--output-directory", str(tmp_path)])
 
-        mock_fetch.assert_called_once_with(mock_build_registry(), tmp_path, symlink=False)
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], tmp_path, symlink=False)
+
+    def test_fetch_without_output_directory(self, mock_obs4ref, invoke_cli, tmp_path):
+        mock_data_registry, mock_fetch = mock_obs4ref
+
+        invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref"])
+
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], None, symlink=False)
+
+    def test_fetch_missing(self, mock_obs4ref, invoke_cli, tmp_path):
+        mock_data_registry, mock_fetch = mock_obs4ref
+        mock_data_registry.__getitem__.side_effect = KeyError
+
+        invoke_cli(["datasets", "fetch-data", "--registry", "missing"], expected_exit_code=1)
 
     def test_fetch_symlink(self, mock_obs4ref, invoke_cli, tmp_path):
-        mock_build_registry, mock_fetch = mock_obs4ref
-        invoke_cli(["datasets", "fetch-obs4ref-data", "--output-directory", str(tmp_path), "--symlink"])
+        mock_data_registry, mock_fetch = mock_obs4ref
+        invoke_cli(
+            [
+                "datasets",
+                "fetch-data",
+                "--registry",
+                "obs4ref",
+                "--output-directory",
+                str(tmp_path),
+                "--symlink",
+            ]
+        )
 
-        mock_fetch.assert_called_once_with(mock_build_registry(), tmp_path, symlink=True)
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], tmp_path, symlink=True)
 
     def test_fetch_force_cleanup(self, mock_obs4ref, invoke_cli, tmp_path):
         assert tmp_path.exists()
 
-        invoke_cli(["datasets", "fetch-obs4ref-data", "--output-directory", str(tmp_path), "--force-cleanup"])
+        invoke_cli(
+            [
+                "datasets",
+                "fetch-data",
+                "--registry",
+                "obs4ref",
+                "--output-directory",
+                str(tmp_path),
+                "--force-cleanup",
+            ]
+        )
 
         assert not tmp_path.exists()
 
@@ -204,7 +234,9 @@ class TestFetchObs4REFData:
         invoke_cli(
             [
                 "datasets",
-                "fetch-obs4ref-data",
+                "fetch-data",
+                "--registry",
+                "obs4ref",
                 "--output-directory",
                 str(tmp_path / "missing"),
                 "--force-cleanup",

@@ -33,6 +33,9 @@ def validate_result(config, result: MetricExecutionResult):
     CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
     CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
 
+    # Create a fake log file
+    result.to_output_path("out.log").touch()
+
     # This checks if the bundles are valid
     handle_execution_result(
         config, database=database, metric_execution_result=metric_execution_result, result=result

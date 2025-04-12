@@ -104,7 +104,7 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     assert registry.fetch.call_count == 2
 
     expected_file = (
-        tmp_path / "obs4ref/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+        tmp_path / "obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
     )
 
     assert expected_file.exists()

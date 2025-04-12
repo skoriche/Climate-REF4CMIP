@@ -12,6 +12,8 @@ __version__ = importlib.metadata.version("cmip_ref_metrics_pmp")
 
 # Initialise the metrics manager and register the example metric
 provider = CondaMetricsProvider("PMP", __version__)
+
+# Extratropical modes of variability
 provider.register(ExtratropicalModesOfVariability("PDO"))
 provider.register(ExtratropicalModesOfVariability("NPGO"))
 provider.register(ExtratropicalModesOfVariability("NAO"))

@@ -1,5 +1,6 @@
 import datetime
 import logging
+import subprocess
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -293,4 +294,7 @@ class TestCondaMetricsProvider:
                 "mock-command",
             ],
             check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )

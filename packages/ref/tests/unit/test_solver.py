@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import mock
 
 import pandas as pd
@@ -7,8 +8,14 @@ from cmip_ref_metrics_example import provider
 from cmip_ref.config import ExecutorConfig
 from cmip_ref.models import MetricExecutionResult
 from cmip_ref.provider_registry import ProviderRegistry
-from cmip_ref.solver import MetricExecution, MetricSolver, extract_covered_datasets, solve_metrics
-from cmip_ref_core.constraints import RequireFacets, SelectParentExperiment
+from cmip_ref.solver import (
+    MetricExecution,
+    MetricSolver,
+    extract_covered_datasets,
+    solve_metric_executions,
+    solve_metrics,
+)
+from cmip_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, FacetFilter
 from cmip_ref_core.providers import MetricsProvider
@@ -54,6 +61,30 @@ class TestMetricSolver:
         pytest.param(
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
+                filters=(),
+                group_by=None,
+            ),
+            pd.DataFrame(
+                {
+                    "variable_id": ["tas", "tas", "pr"],
+                    "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                    "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                }
+            ),
+            {
+                (): pd.DataFrame(
+                    {
+                        "variable_id": ["tas", "tas", "pr"],
+                        "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                        "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+                    }
+                )
+            },
+            id="group-by-none",
+        ),
+        pytest.param(
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
                 filters=(FacetFilter(facets={"variable_id": "missing"}),),
                 group_by=("variable_id", "experiment_id"),
             ),
@@ -64,7 +95,7 @@ class TestMetricSolver:
                     "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
                 }
             ),
-            [],
+            {},
             id="empty",
         ),
         pytest.param(
@@ -80,8 +111,8 @@ class TestMetricSolver:
                     "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("experiment_id", "ssp119")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp119"],
@@ -89,7 +120,7 @@ class TestMetricSolver:
                     },
                     index=[0],
                 ),
-                pd.DataFrame(
+                (("variable_id", "tas"), ("experiment_id", "ssp126")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
@@ -97,7 +128,7 @@ class TestMetricSolver:
                     },
                     index=[1],
                 ),
-            ],
+            },
             id="simple-filter",
         ),
         pytest.param(
@@ -112,22 +143,22 @@ class TestMetricSolver:
                     "experiment_id": ["ssp119", "ssp126", "ssp119"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("experiment_id", "ssp119"),): pd.DataFrame(
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
                     },
                     index=[0, 2],
                 ),
-                pd.DataFrame(
+                (("experiment_id", "ssp126"),): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "experiment_id": ["ssp126"],
                     },
                     index=[1],
                 ),
-            ],
+            },
             id="simple-or",
         ),
         pytest.param(
@@ -144,8 +175,8 @@ class TestMetricSolver:
                     "parent_experiment_id": ["historical", "none"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("experiment_id", "ssp119")): pd.DataFrame(
                     {
                         "variable_id": ["tas", "tas"],
                         "experiment_id": ["historical", "ssp119"],
@@ -153,7 +184,15 @@ class TestMetricSolver:
                     # The order of the rows is not guaranteed
                     index=[1, 0],
                 ),
-            ],
+                (("variable_id", "tas"), ("experiment_id", "historical")): pd.DataFrame(
+                    {
+                        "variable_id": ["tas", "tas"],
+                        "experiment_id": ["historical"],
+                    },
+                    # The order of the rows is not guaranteed
+                    index=[1, 0],
+                ),
+            },
             marks=[pytest.mark.xfail(reason="Parent experiment not implemented")],
             id="parent",
         ),
@@ -170,15 +209,15 @@ class TestMetricSolver:
                     "experiment_id": ["ssp119", "ssp126", "ssp119"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("experiment_id", "ssp119"),): pd.DataFrame(
                     {
                         "variable_id": ["tas", "pr"],
                         "experiment_id": ["ssp119", "ssp119"],
                     },
                     index=[0, 2],
                 ),
-            ],
+            },
             id="simple-validation",
         ),
         pytest.param(
@@ -194,8 +233,8 @@ class TestMetricSolver:
                     "frequency": ["mon", "mon", "mon"],
                 }
             ),
-            [
-                pd.DataFrame(
+            {
+                (("variable_id", "tas"), ("source_id", "AIRX3STM-006")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "source_id": ["AIRX3STM-006"],
@@ -203,7 +242,7 @@ class TestMetricSolver:
                     },
                     index=[1],
                 ),
-                pd.DataFrame(
+                (("variable_id", "tas"), ("source_id", "ERA-5")): pd.DataFrame(
                     {
                         "variable_id": ["tas"],
                         "source_id": ["ERA-5"],
@@ -211,7 +250,7 @@ class TestMetricSolver:
                     },
                     index=[0],
                 ),
-            ],
+            },
             id="simple-obs4MIPs",
         ),
     ],
@@ -219,9 +258,25 @@ class TestMetricSolver:
 def test_data_coverage(requirement, data_catalog, expected):
     result = extract_covered_datasets(data_catalog, requirement)
 
-    for res, exp in zip(result, expected):
-        pd.testing.assert_frame_equal(res, exp)
+    for key, expected_value in expected.items():
+        pd.testing.assert_frame_equal(result[key], expected_value)
     assert len(result) == len(expected)
+
+
+def test_extract_no_groups():
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=(),
+        group_by=(),
+    )
+    data_catalog = pd.DataFrame(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="No group keys passed!"):
+        extract_covered_datasets(data_catalog, requirement)
 
 
 def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):
@@ -307,7 +362,7 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     provider = MetricsProvider("mock_provider", "v0.1.0")
     provider.register(mock_metric)
 
-    solver.data_catalog = {
+    data_catalog = {
         SourceDatasetType.obs4MIPs: pd.DataFrame(
             {
                 "variable_id": ["tas", "tas", "pr"],
@@ -323,5 +378,135 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
             }
         ),
     }
-    executions = solver.solve_metric_executions(metric, provider)
+    executions = solve_metric_executions(data_catalog, metric, provider)
     assert len(list(executions)) == expected
+
+
+def _prep_data_catalog(data_catalog: dict[str, Any]) -> pd.DataFrame:
+    data_catalog_df = pd.DataFrame(data_catalog)
+    data_catalog_df["instance_id"] = data_catalog_df.apply(
+        lambda row: "CMIP6." + ".".join([row[item] for item in ["variable_id", "experiment_id"]]), axis=1
+    )
+
+    return data_catalog_df
+
+
+def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
+    expected_dataset_key = "cmip6_ACCESS-ESM1-5_tas"
+    mock_metric.data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(FacetFilter(facets={"variable_id": "tas"}),),
+            group_by=("variable_id", "source_id"),
+        ),
+    )
+
+    data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "pr"],
+            "experiment_id": ["ssp119", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+
+    result_1 = next(
+        solve_metric_executions(
+            {SourceDatasetType.CMIP6: data_catalog},
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_1.dataset_key == expected_dataset_key
+
+    data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+
+    result_2 = next(
+        solve_metric_executions(
+            {SourceDatasetType.CMIP6: data_catalog},
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_2.dataset_key == expected_dataset_key
+    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash
+
+
+def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
+    expected_dataset_key = "obs4mips_HadISST-1-1_ts__cmip6_ssp126_ACCESS-ESM1-5_tas"
+    mock_metric.data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.obs4MIPs,
+            filters=(FacetFilter(facets={"variable_id": "ts"}),),
+            group_by=("variable_id", "source_id"),
+        ),
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(FacetFilter(facets={"variable_id": "tas", "experiment_id": "ssp126"}),),
+            group_by=("variable_id", "experiment_id", "source_id"),
+            constraints=(AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),),
+        ),
+    )
+
+    cmip_data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "tas", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": "AMon",
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+
+    result_1 = next(
+        solve_metric_executions(
+            {
+                SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+                SourceDatasetType.CMIP6: cmip_data_catalog,
+            },
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_1.dataset_key == expected_dataset_key
+
+    # areacella added
+    # dataset key should remain the same
+    cmip_data_catalog = _prep_data_catalog(
+        {
+            "variable_id": ["tas", "tas", "areacella", "pr"],
+            "experiment_id": ["ssp119", "ssp126", "ssp126", "ssp119"],
+            "source_id": "ACCESS-ESM1-5",
+            "grid_label": "gn",
+            "table_id": ["AMon", "AMon", "fx", "AMon"],
+            "member_id": "r1i1pif1",
+            "version": "v20210318",
+        }
+    )
+    result_2 = next(
+        solve_metric_executions(
+            {
+                SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+                SourceDatasetType.CMIP6: cmip_data_catalog,
+            },
+            mock_metric,
+            provider,
+        )
+    )
+    assert result_2.dataset_key == expected_dataset_key
+    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash

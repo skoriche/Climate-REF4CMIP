@@ -19,6 +19,7 @@ from rich.tree import Tree
 from cmip_ref.cli._utils import df_to_table, pretty_print_df
 from cmip_ref.models import MetricExecutionGroup, MetricExecutionResult
 from cmip_ref.models.metric_execution import get_execution_group_and_latest_result
+from cmip_ref_core.executor import EXECUTION_LOG_FILENAME
 
 app = typer.Typer(help=__doc__)
 console = Console()
@@ -153,6 +154,25 @@ def _results_directory_panel(result_directory: pathlib.Path) -> Panel:
         )
 
 
+def _log_panel(result_directory: pathlib.Path) -> Panel | None:
+    log_file = result_directory / EXECUTION_LOG_FILENAME
+
+    if log_file.exists():
+        with open(log_file) as f:
+            log_content = f.read()
+        log_text = Text.from_markup(f"[link file://{log_file}]{log_content}")
+
+        return Panel(
+            log_text,
+            title="Execution Logs",
+        )
+    else:
+        return Panel(
+            Text("Log file not found.", "bold red"),
+            title="Execution Logs",
+        )
+
+
 @app.command()
 def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
@@ -177,3 +197,4 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
 
     console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))
+    console.print(_log_panel(result_directory))

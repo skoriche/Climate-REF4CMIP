@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Test script for ingesting and solving the AR7 FT set of providers
+# Uses the sample data
+# WARNING this deletes your existing database
+
+export REF_CONFIGURATION=$PWD/.ref
+
+rm $REF_CONFIGURATION/db/cmip_ref.db
+
+# Ingest datasets
+ref datasets ingest --source-type cmip6 tests/test-data/sample-data/CMIP6
+ref datasets ingest --source-type obs4mips tests/test-data/sample-data/obs4MIPs
+ref datasets ingest --source-type obs4mips tests/test-data/sample-data/obs4REF
+
+# Run everything
+ref --verbose solve
+
+# Display the results
+ref executions list-groups

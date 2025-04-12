@@ -40,8 +40,11 @@ def ensure_relative_path(path: pathlib.Path | str, root_directory: pathlib.Path)
         The path relative to the root directory
     """
     path = pathlib.Path(path)
-    if path.is_absolute():
+    try:
         return path.relative_to(root_directory)
+    except ValueError:
+        if path.is_absolute():
+            raise
     return path
 
 
@@ -441,6 +444,9 @@ class Metric(AbstractMetric):
     def __init__(self) -> None:
         super().__init__()
         self._provider: MetricsProvider | None = None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name!r})"
 
     @property
     def provider(self) -> MetricsProvider:

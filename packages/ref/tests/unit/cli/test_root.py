@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 import pytest
 
@@ -37,6 +38,9 @@ def test_config_directory_custom(config, invoke_cli):
     config.paths.scratch = "test-value"
     config.save()
 
+    # The loaded value is converted into an absolute path
+    expected_value = Path("test-value").resolve()
+
     result = invoke_cli(
         [
             "--configuration-directory",
@@ -45,7 +49,7 @@ def test_config_directory_custom(config, invoke_cli):
             "list",
         ],
     )
-    assert 'scratch = "test-value"\n' in result.output
+    assert f'scratch = "{expected_value}"\n' in result.output
 
 
 def test_config_directory_append(config, invoke_cli):

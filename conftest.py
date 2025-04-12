@@ -7,11 +7,14 @@ See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing
 import os
 import re
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
 
 import pandas as pd
 import pytest
+from _pytest.logging import LogCaptureFixture
 from click.testing import Result
+from loguru import logger
 from typer.testing import CliRunner
 
 from cmip_ref import cli
@@ -20,16 +23,55 @@ from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from cmip_ref_core.logging import add_log_handler, remove_log_handler
 from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
 
 
+def pytest_configure(config):
+    config.addinivalue_line("markers", "slow: mark test as slow to run")
+
+
+def pytest_addoption(parser):
+    parser.addoption("--slow", action="store_true", help="include tests marked slow")
+
+
+def pytest_collection_modifyitems(config, items):
+    if not config.getoption("--slow"):
+        skip_slow = pytest.mark.skip(reason="need --slow option to run")
+        for item in items:
+            if item.get_closest_marker("slow"):
+                item.add_marker(skip_slow)
+
+
 @pytest.fixture(scope="session")
 def tmp_path_session():
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
+
+
+@pytest.fixture
+def caplog(caplog: LogCaptureFixture) -> Iterator[LogCaptureFixture]:
+    """
+    Capture logs from the default logger
+    """
+
+    def filter_(record):
+        return record["level"].no >= caplog.handler.level
+
+    add_log_handler(sink=caplog.handler, level=0, format="{message}", filter=filter_)
+    yield caplog
+    remove_log_handler()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_log_handlers(request: pytest.FixtureRequest) -> Iterator[None]:
+    yield
+    if hasattr(logger, "default_handler_id"):
+        logger.warning("Logger handler not removed, removing it now")
+        remove_log_handler()
 
 
 @pytest.fixture(scope="session")
@@ -40,7 +82,9 @@ def sample_data_dir() -> Path:
 @pytest.fixture(autouse=True, scope="session")
 def sample_data() -> None:
     # Downloads the sample data if it doesn't exist
+    logger.disable("cmip_ref_core.dataset_registry")
     fetch_sample_data(force_cleanup=False, symlink=False)
+    logger.enable("cmip_ref_core.dataset_registry")
 
 
 @pytest.fixture(scope="session")
@@ -58,6 +102,14 @@ def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
             adapter.find_local_datasets(sample_data_dir / "obs4REF"),
         ]
     )
+
+
+@pytest.fixture(scope="session")
+def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
+    return {
+        SourceDatasetType.CMIP6: cmip6_data_catalog,
+        SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -103,6 +155,10 @@ def invoke_cli():
             app=cli.app,
             args=args,
         )
+
+        # Clean up the log handler the is added by the CLI
+        if hasattr(logger, "default_handler_id"):
+            remove_log_handler()
 
         if always_log or result.exit_code != expected_exit_code:
             print("## Command: ", " ".join(args))
@@ -150,9 +206,9 @@ class FailedMetric(Metric):
 
 
 @pytest.fixture
-def provider(tmp_path) -> MetricsProvider:
+def provider(tmp_path, mock_metric) -> MetricsProvider:
     provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(MockMetric())
+    provider.register(mock_metric)
     provider.register(FailedMetric())
 
     return provider

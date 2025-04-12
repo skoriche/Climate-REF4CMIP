@@ -49,7 +49,13 @@ def test_handle_execution_result_successful(db, config, mock_execution_result, m
 
     handle_execution_result(config, db, mock_execution_result, result)
 
-    mock_copy.assert_called_once_with(
+    mock_copy.assert_any_call(
+        config.paths.scratch,
+        config.paths.results,
+        mock_execution_result.output_fragment,
+        "out.log",
+    )
+    mock_copy.assert_called_with(
         config.paths.scratch,
         config.paths.results,
         mock_execution_result.output_fragment,
@@ -99,6 +105,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     )
 
     # The outputs must exist
+    definition.to_output_path("out.log").touch()
     definition.to_output_path("fig_1.jpg").touch()
     definition.to_output_path("fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
@@ -120,9 +127,11 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
 
 
 def test_handle_execution_result_failed(config, db, mock_execution_result, definition_factory):
-    result = MetricExecutionResult(
-        definition=definition_factory(), successful=False, metric_bundle_filename=None
-    )
+    definition = definition_factory()
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
+    definition.to_output_path("out.log").touch()
+
+    result = MetricExecutionResult(definition=definition, successful=False, metric_bundle_filename=None)
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -130,8 +139,12 @@ def test_handle_execution_result_failed(config, db, mock_execution_result, defin
 
 
 def test_handle_execution_result_missing_file(config, db, mock_execution_result, definition_factory):
+    definition = definition_factory()
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
+    definition.to_output_path("out.log").touch()
+
     result = MetricExecutionResult(
-        definition=definition_factory(), successful=True, metric_bundle_filename=pathlib.Path("metric.json")
+        definition=definition, successful=True, metric_bundle_filename=pathlib.Path("metric.json")
     )
 
     with pytest.raises(FileNotFoundError, match="Could not find metric.json in .*/scratch/output_fragment"):

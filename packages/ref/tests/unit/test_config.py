@@ -38,7 +38,7 @@ class TestConfig:
 
         # The default location is overridden in the config fixture
         loaded = Config.default()
-        assert loaded.paths.scratch == Path("data")
+        assert loaded.paths.scratch == Path("data").resolve()
 
     def test_load(self, config, tmp_path):
         res = config.dump(defaults=True)
@@ -120,12 +120,14 @@ filename = "sqlite://cmip_ref.db"
         monkeypatch.setenv("REF_CONFIGURATION", "test")
 
         cfg = Config.load(Path("test.toml"))
+        default_path = Path("test").resolve()
 
         with_defaults = cfg.dump(defaults=True)
 
         without_defaults = cfg.dump(defaults=False)
 
         assert without_defaults == {
+            "log_level": "INFO",
             "metric_providers": [
                 {"provider": "cmip_ref_metrics_esmvaltool.provider"},
                 {"provider": "cmip_ref_metrics_ilamb.provider"},
@@ -133,6 +135,7 @@ filename = "sqlite://cmip_ref.db"
             ],
         }
         assert with_defaults == {
+            "log_level": "INFO",
             "metric_providers": [
                 {
                     "provider": "cmip_ref_metrics_esmvaltool.provider",
@@ -149,10 +152,10 @@ filename = "sqlite://cmip_ref.db"
             ],
             "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
-                "log": "test/log",
-                "results": "test/results",
-                "scratch": "test/scratch",
-                "software": "test/software",
+                "log": f"{default_path}/log",
+                "results": f"{default_path}/results",
+                "scratch": f"{default_path}/scratch",
+                "software": f"{default_path}/software",
             },
             "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
         }

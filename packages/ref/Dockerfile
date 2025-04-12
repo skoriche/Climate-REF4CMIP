@@ -2,7 +2,7 @@
 # This docker container packages up the REF cli tool with the default set of metric providers
 # used as part of the CMIP7 FastTrack process.
 
-FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS build
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Runtime container
 # Copy the installed packages from the build stage to decrease the size of the final image
-FROM python:3.10-slim AS runtime
+FROM python:3.11-slim AS runtime
 
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
 LABEL description="Docker image for the REF compute engine"

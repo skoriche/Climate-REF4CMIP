@@ -78,7 +78,7 @@ class MetricExecution:
         return "__".join(key_values)
 
     @property
-    def selectors(self) -> dict[SourceDatasetType, SelectorKey]:
+    def selectors(self) -> dict[str, SelectorKey]:
         """
         Collection of selectors used to identify the datasets
 
@@ -87,7 +87,11 @@ class MetricExecution:
         """
         source_type_order = self._source_type_order()
 
-        return {source_type: self.metric_dataset[source_type].selector for source_type in source_type_order}
+        # The value of SourceType is used here so that this
+        # result can be stored in the db
+        return {
+            source_type.value: self.metric_dataset[source_type].selector for source_type in source_type_order
+        }
 
     def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """

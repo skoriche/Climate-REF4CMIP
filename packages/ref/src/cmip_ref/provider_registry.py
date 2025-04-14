@@ -14,6 +14,7 @@ from loguru import logger
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
+from cmip_ref_core.metrics import Metric
 from cmip_ref_core.providers import MetricsProvider, import_provider
 
 
@@ -65,6 +66,54 @@ class ProviderRegistry:
     """
 
     providers: list[MetricsProvider] = field(factory=list)
+
+    def get(self, slug: str) -> MetricsProvider:
+        """
+        Retrieve a provider by name
+
+        Parameters
+        ----------
+        slug
+            Slug of the provider of interest
+
+        Raises
+        ------
+        KeyError
+            A provider with the matching slug has not been registered
+
+        Returns
+        -------
+            The requested provider
+        """
+        for p in self.providers:
+            if p.slug == slug:
+                return p
+
+        raise KeyError(f"No provider with slug matching: {slug}")
+
+    def get_metric(self, provider_slug: str, metric_slug: str) -> "Metric":
+        """
+        Retrieve a metric by name
+
+        This is a convenience method to retrieve a metric from a provider
+
+        Parameters
+        ----------
+        provider_slug :
+            Slug of the provider of interest
+        metric_slug
+            Slug of the metric of interest
+
+        Raises
+        ------
+        KeyError
+            If the provider/metric with the given slugs is not found.
+
+        Returns
+        -------
+            The requested metric.
+        """
+        return self.get(provider_slug).get(metric_slug)
 
     @staticmethod
     def build_from_config(config: Config, db: Database) -> "ProviderRegistry":

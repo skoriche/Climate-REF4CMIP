@@ -15,7 +15,7 @@ logger.debug("Running alembic env")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-ref_config: Config = config.attributes.get("ref_config")
+ref_config: Config = config.attributes.get("ref_config") or Config.default()
 
 target_metadata = Base.metadata
 

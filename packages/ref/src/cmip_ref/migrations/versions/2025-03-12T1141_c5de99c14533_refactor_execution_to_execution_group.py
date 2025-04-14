@@ -108,9 +108,11 @@ def downgrade() -> None:
         schema=None,
         naming_convention={"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"},
     ) as batch_op:
-        batch_op.drop_constraint(
-            "fk_metric_execution_result_metric_execution_group_id_metric_execution_group", type_="foreignkey"
-        )
+        # This drop breaks the downgrading process
+        # batch_op.drop_constraint(
+        #     "fk_metric_execution_result_metric_execution_group_id_metric_execution_group",
+        #     type_="foreignkey"
+        # )
         batch_op.alter_column("metric_execution_group_id", new_column_name="metric_execution_id")
         batch_op.create_foreign_key(
             "fk_metric_execution_result_metric_execution_id_metric_execution",

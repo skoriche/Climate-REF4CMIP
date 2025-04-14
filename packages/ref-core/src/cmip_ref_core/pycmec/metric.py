@@ -165,10 +165,10 @@ class MetricResults(RootModel[Any]):
             # -)
             raise ValueError(
                 f"Dimension key mismatch in '{dim_name}' and level {level}\n"
-                f"Expected keys: {sorted(dict_key)}\n"
-                f"Actual keys: {sorted(metdims[dim_name].keys())}\n"
-                "Full expected structure:\n" + json.dumps(dict_key, indent=2) + "\n\n"
-                "Full actual structure:\n" + json.dumps(metdims[dim_name], indent=2)
+                f"Actual keys: {sorted(dict_key)}\n"
+                f"Expected keys: {sorted(metdims[dim_name].keys())}\n"
+                "Full actual structure:\n" + json.dumps(dict_key, indent=2) + "\n\n"
+                "Full expected structure:\n" + json.dumps(metdims[dim_name], indent=2)
             )
 
         for key, value in nested.items():

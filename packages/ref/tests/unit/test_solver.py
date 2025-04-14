@@ -37,6 +37,7 @@ def mock_metric_execution(tmp_path, definition_factory) -> MetricExecution:
     mock_execution = mock.MagicMock(spec=MetricExecution)
     mock_execution.provider = provider
     mock_execution.metric = provider.metrics()[0]
+    mock_execution.selectors = {"cmip6": (("source_id", "Test"),)}
 
     mock_metric_dataset = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
 
@@ -298,6 +299,12 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     assert execution_result.output_fragment == "output_fragment"
     assert execution_result.dataset_hash == "123456"
     assert execution_result.metric_execution_group.dataset_key == "key"
+    # Nested tuples are converted into nested lists after going through the DB
+    assert execution_result.metric_execution_group.selectors == {
+        "cmip6": [
+            ["source_id", "Test"],
+        ]
+    }
 
     # Solver should be created
     assert mock_build_solver.call_count == 1
@@ -446,7 +453,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
 
 
 def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
-    expected_dataset_key = "obs4mips_HadISST-1-1_ts__cmip6_ssp126_ACCESS-ESM1-5_tas"
+    expected_dataset_key = "cmip6_ssp126_ACCESS-ESM1-5_tas__obs4mips_HadISST-1-1_ts"
     mock_metric.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.obs4MIPs,

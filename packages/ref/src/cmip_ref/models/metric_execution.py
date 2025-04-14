@@ -58,7 +58,7 @@ class MetricExecutionGroup(CreatedUpdatedMixin, Base):
     updated since the last execution.
     """
 
-    selectors: Mapped[dict[str, Any]] = mapped_column()
+    selectors: Mapped[dict[str, Any]] = mapped_column(default=dict)
     """
     Collection of selectors that define the group
 

@@ -68,6 +68,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
         """
         Create a column representing a CV dimension
 
+        These columns are not automatically generated with alembic revisions.
         Any changes to this functionality likely require a manual database migration
         of the existing columns.
 
@@ -86,7 +87,13 @@ class MetricValue(CreatedUpdatedMixin, Base):
             but enables the ORM to access it.
 
         """
-        return Column(dimension.name, Text, index=True, nullable=True)
+        return Column(
+            dimension.name,
+            Text,
+            index=True,
+            nullable=True,
+            info={"skip_autogenerate": True},
+        )
 
     @classmethod
     def register_cv_dimensions(cls, cv: CV) -> None:

@@ -81,7 +81,7 @@ class Database:
         self._engine = sqlalchemy.create_engine(self.url)
         self.session = Session(self._engine)
 
-    def alembic_config(self, config: Config) -> AlembicConfig:
+    def alembic_config(self, config: "Config") -> AlembicConfig:
         """
         Get the Alembic configuration object for the database
 

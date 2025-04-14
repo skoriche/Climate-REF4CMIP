@@ -62,6 +62,20 @@ def _add_metric_value_columns(connection: Connection) -> None:
             op.add_column(metric_table, MetricValue.build_dimension_column(dimension))
 
 
+def include_object(object_, name: str, type_, reflected, compare_to) -> bool:
+    """
+    Object-level check to include or exclude objects from the migration
+
+    Excludes columns that are marked with `skip_autogenerate` in the info dict
+
+    Based on  https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-based-on-object
+    """
+    if object_.info.get("skip_autogenerate", False):
+        return False
+    else:
+        return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -82,6 +96,7 @@ def run_migrations_offline() -> None:
         dialect_name="sqlite",
         dialect_opts={"paramstyle": "named"},
         render_as_batch=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -101,7 +116,12 @@ def run_migrations_online() -> None:
         connectable = db._engine
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=True,
+            include_object=include_object,
+        )
 
         with context.begin_transaction():
             context.run_migrations()

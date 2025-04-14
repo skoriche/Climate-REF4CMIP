@@ -16,7 +16,6 @@ from urllib import parse as urlparse
 import alembic.command
 import sqlalchemy
 from alembic.config import Config as AlembicConfig
-from alembic.script import ScriptDirectory
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -82,6 +81,27 @@ class Database:
         self._engine = sqlalchemy.create_engine(self.url)
         self.session = Session(self._engine)
 
+    def alembic_config(self, config: Config) -> AlembicConfig:
+        """
+        Get the Alembic configuration object for the database
+
+        This includes an open connection with the database engine and the REF configuration.
+
+        Returns
+        -------
+        :
+            The Alembic configuration object that can be used with alembic commands
+        """
+        alembic_config_filename = importlib.resources.files("cmip_ref") / "alembic.ini"
+        if not alembic_config_filename.is_file():  # pragma: no cover
+            raise FileNotFoundError(f"{alembic_config_filename} not found")
+
+        alembic_config = AlembicConfig(str(alembic_config_filename))
+        alembic_config.attributes["connection"] = self._engine
+        alembic_config.attributes["ref_config"] = config
+
+        return alembic_config
+
     def migrate(self, config: "Config") -> None:
         """
         Migrate the database to the latest revision
@@ -93,18 +113,7 @@ class Database:
 
             This is passed to alembic
         """
-        alembic_config_filename = importlib.resources.files("cmip_ref") / "alembic.ini"
-        if not alembic_config_filename.is_file():  # pragma: no cover
-            raise FileNotFoundError(f"{alembic_config_filename} not found")
-        alembic_config = AlembicConfig(str(alembic_config_filename))
-        alembic_config.attributes["connection"] = self._engine
-        alembic_config.attributes["ref_config"] = config
-
-        script = ScriptDirectory.from_config(alembic_config)
-        head = script.get_current_head()
-
-        # Run migrations
-        alembic.command.upgrade(alembic_config, head or "heads")
+        alembic.command.upgrade(self.alembic_config(config), "heads")
 
     @staticmethod
     def from_config(config: "Config", run_migrations: bool = True) -> "Database":
@@ -118,8 +127,6 @@ class Database:
         ----------
         config
             The Config instance that includes information about where the database is located
-        run_migrations
-            If true, run the migrations when the database is loaded
 
         Returns
         -------

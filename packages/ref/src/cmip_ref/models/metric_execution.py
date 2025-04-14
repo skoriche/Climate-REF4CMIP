@@ -120,7 +120,12 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
     This directory may contain multiple input and output files.
     """
 
-    metric_execution_group_id: Mapped[int] = mapped_column(ForeignKey("metric_execution_group.id"))
+    metric_execution_group_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "metric_execution_group.id",
+            name="fk_metric_execution_result_group_id",
+        )
+    )
     """
     The target metric execution group
     """

@@ -81,13 +81,13 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.create_table(
         "metric_execution",
-        sa.Column("id", sa.INTEGER(), nullable=False),
-        sa.Column("retracted", sa.BOOLEAN(), nullable=False),
-        sa.Column("metric_id", sa.INTEGER(), nullable=False),
-        sa.Column("key", sa.VARCHAR(), nullable=False),
-        sa.Column("dirty", sa.BOOLEAN(), nullable=False),
-        sa.Column("created_at", sa.DATETIME(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),
-        sa.Column("updated_at", sa.DATETIME(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("retracted", sa.Boolean(), nullable=False),
+        sa.Column("metric_id", sa.Integer(), nullable=False),
+        sa.Column("key", sa.String(), nullable=False),
+        sa.Column("dirty", sa.Boolean(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False),
         sa.ForeignKeyConstraint(
             ["metric_id"],
             ["metric.id"],
@@ -108,9 +108,12 @@ def downgrade() -> None:
         schema=None,
         naming_convention={"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"},
     ) as batch_op:
-        batch_op.drop_constraint(
-            "fk_metric_execution_result_metric_execution_group_id_metric_execution_group", type_="foreignkey"
-        )
+        # We don't need to drop the sqlite fk for an unknown reason
+        if batch_op.get_context().dialect.name == "postgresql":
+            batch_op.drop_constraint(
+                "fk_metric_execution_result_group_id",
+                type_="foreignkey",
+            )
         batch_op.alter_column("metric_execution_group_id", new_column_name="metric_execution_id")
         batch_op.create_foreign_key(
             "fk_metric_execution_result_metric_execution_id_metric_execution",

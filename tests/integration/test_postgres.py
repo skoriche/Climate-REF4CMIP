@@ -68,14 +68,14 @@ postgres_container = container(
 
 
 @pytest.fixture
-def config(config):
+def config(config, postgres_container):
     config.db.database_url = postgres_container.connection_url()
     config.save()
 
     return config
 
 
-def test_connect_and_migrations(config, postgres_container, cmip6_data_catalog):
+def test_connect_and_migrations(config, cmip6_data_catalog):
     database = Database.from_config(config)
     assert database.url.startswith("postgresql")
     assert database._engine.dialect.name == "postgresql"
@@ -87,7 +87,7 @@ def test_connect_and_migrations(config, postgres_container, cmip6_data_catalog):
             adapter.register_dataset(config, database, data_catalog_dataset)
 
 
-def test_check_up_to_date(config, postgres_container):
+def test_check_up_to_date(config):
     database = Database.from_config(config)
 
     # Verify that the migrations match the codebase for postgres

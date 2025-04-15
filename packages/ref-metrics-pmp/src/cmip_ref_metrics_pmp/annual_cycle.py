@@ -101,7 +101,9 @@ class AnnualCycle(CommandLineMetric):
 
         logger.debug(f"reference_dataset.datasets: {reference_dataset.datasets}")
         logger.debug(f"reference_dataset['source_id']: {reference_dataset['source_id']}")
-        logger.debug(f"reference_dataset.datasets.iloc[0]['path']: {reference_dataset.datasets.iloc[0]['path']}")
+        logger.debug(
+            f"reference_dataset.datasets.iloc[0]['path']: {reference_dataset.datasets.iloc[0]['path']}"
+        )
 
         logger.debug(f"reference_dataset_name: {reference_dataset_name}")
         logger.debug(f"reference_dataset_path: {reference_dataset_path}")

@@ -179,7 +179,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
             ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
-        datasets = builder.df
+        datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)
 
         # Convert the start_time and end_time columns to datetime objects
         # We don't know the calendar used in the dataset (TODO: Check what ecgtools does)

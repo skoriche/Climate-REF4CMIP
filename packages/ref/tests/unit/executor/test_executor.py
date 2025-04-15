@@ -119,6 +119,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     # The outputs must exist
     definition.to_output_path("out.log").touch()
     definition.to_output_path("fig_1.jpg").touch()
+    definition.to_output_path("folder").mkdir()
     definition.to_output_path("folder/fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
 

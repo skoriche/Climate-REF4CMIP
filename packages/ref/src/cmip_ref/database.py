@@ -19,7 +19,8 @@ from alembic.config import Config as AlembicConfig
 from loguru import logger
 from sqlalchemy.orm import Session
 
-from cmip_ref.models import Table
+from cmip_ref.models import MetricValue, Table
+from cmip_ref_core.pycmec.controlled_vocabulary import CV
 
 if TYPE_CHECKING:
     from cmip_ref.config import Config
@@ -74,15 +75,13 @@ class Database:
     The database migrations are optionally run after the connection to the database is established.
     """
 
-    def __init__(self, url: str, run_migrations: bool = True) -> None:
+    def __init__(self, url: str) -> None:
         logger.info(f"Connecting to database at {url}")
         self.url = url
         self._engine = sqlalchemy.create_engine(self.url)
         self.session = Session(self._engine)
-        if run_migrations:
-            self._migrate()
 
-    def alembic_config(self) -> AlembicConfig:
+    def alembic_config(self, config: "Config") -> AlembicConfig:
         """
         Get the Alembic configuration object for the database
 
@@ -99,10 +98,22 @@ class Database:
 
         alembic_config = AlembicConfig(str(alembic_config_filename))
         alembic_config.attributes["connection"] = self._engine
+        alembic_config.attributes["ref_config"] = config
+
         return alembic_config
 
-    def _migrate(self) -> None:
-        alembic.command.upgrade(self.alembic_config(), "heads")
+    def migrate(self, config: "Config") -> None:
+        """
+        Migrate the database to the latest revision
+
+        Parameters
+        ----------
+        config
+            REF Configuration
+
+            This is passed to alembic
+        """
+        alembic.command.upgrade(self.alembic_config(config), "heads")
 
     @staticmethod
     def from_config(config: "Config", run_migrations: bool = True) -> "Database":
@@ -116,8 +127,6 @@ class Database:
         ----------
         config
             The Config instance that includes information about where the database is located
-        run_migrations
-            If true, run the migrations when the database is loaded
 
         Returns
         -------
@@ -127,7 +136,19 @@ class Database:
         database_url: str = config.db.database_url
 
         database_url = validate_database_url(database_url)
-        return Database(database_url, run_migrations=run_migrations)
+
+        cv = CV.load_from_file(config.paths.dimensions_cv)
+        db = Database(database_url)
+
+        if run_migrations:
+            # Run any outstanding migrations
+            # This also adds any metric value columns to the DB if they don't exist
+            db.migrate(config)
+        # Register the CV dimensions with the MetricValue model
+        # This will add new columns to the db if the CVs have changed
+        MetricValue.register_cv_dimensions(cv)
+
+        return db
 
     def get_or_create(
         self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any

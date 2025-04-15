@@ -75,8 +75,15 @@ def cleanup_log_handlers(request: pytest.FixtureRequest) -> Iterator[None]:
 
 
 @pytest.fixture(scope="session")
-def sample_data_dir() -> Path:
-    return TEST_DATA_DIR / "sample-data"
+def test_data_dir() -> Path:
+    if TEST_DATA_DIR is None:
+        raise ValueError("Test data should exist when running tests")
+    return TEST_DATA_DIR
+
+
+@pytest.fixture(scope="session")
+def sample_data_dir(test_data_dir) -> Path:
+    return test_data_dir / "sample-data"
 
 
 @pytest.fixture(autouse=True, scope="session")

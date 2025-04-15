@@ -14,7 +14,7 @@ def test_check_up_to_date(config):
     database = Database.from_config(config)
 
     # Verify that the migrations match the codebase for postgres
-    alembic.command.check(database.alembic_config())
+    alembic.command.check(database.alembic_config(config))
 
     # Verify that we can go downgrade to an empty db
-    alembic.command.downgrade(database.alembic_config(), "base")
+    alembic.command.downgrade(database.alembic_config(config), "base")

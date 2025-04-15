@@ -16,7 +16,6 @@ from urllib import parse as urlparse
 import alembic.command
 import sqlalchemy
 from alembic.config import Config as AlembicConfig
-from alembic.script import ScriptDirectory
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -83,18 +82,27 @@ class Database:
         if run_migrations:
             self._migrate()
 
-    def _migrate(self) -> None:
+    def alembic_config(self) -> AlembicConfig:
+        """
+        Get the Alembic configuration object for the database
+
+        This includes an open connection with the database engine and the REF configuration.
+
+        Returns
+        -------
+        :
+            The Alembic configuration object that can be used with alembic commands
+        """
         alembic_config_filename = importlib.resources.files("cmip_ref") / "alembic.ini"
         if not alembic_config_filename.is_file():  # pragma: no cover
             raise FileNotFoundError(f"{alembic_config_filename} not found")
+
         alembic_config = AlembicConfig(str(alembic_config_filename))
         alembic_config.attributes["connection"] = self._engine
+        return alembic_config
 
-        script = ScriptDirectory.from_config(alembic_config)
-        head = script.get_current_head()
-
-        # Run migrations
-        alembic.command.upgrade(alembic_config, head or "heads")
+    def _migrate(self) -> None:
+        alembic.command.upgrade(self.alembic_config(), "heads")
 
     @staticmethod
     def from_config(config: "Config", run_migrations: bool = True) -> "Database":

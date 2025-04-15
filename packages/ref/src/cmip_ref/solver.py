@@ -56,8 +56,10 @@ class MetricExecution:
         """
         Key used to uniquely identify the execution group
 
-        This key is unique to an execution group and should be stable if new datasets are added
-        that
+        This key is unique to an execution group and uses unique set of metadata (selectors)
+         that defines the group.
+        This key is combines the selectors from each source dataset type into a single key
+        and should be stable if new datasets are added or removed.
         """
         key_values = []
         for requirement in self.metric.data_requirements:

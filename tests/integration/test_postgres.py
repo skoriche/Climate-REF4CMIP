@@ -8,7 +8,9 @@ This test requires a running PostgreSQL server, which is started as a Docker con
 
 import time
 
+import alembic.command
 import psycopg2
+import pytest
 from loguru import logger
 from pytest_docker_tools import container, fetch, wrappers
 
@@ -65,10 +67,15 @@ postgres_container = container(
 )
 
 
-def test_connect_and_migrations(config, postgres_container, cmip6_data_catalog):
+@pytest.fixture
+def config(config, postgres_container):
     config.db.database_url = postgres_container.connection_url()
     config.save()
 
+    return config
+
+
+def test_connect_and_migrations(config, cmip6_data_catalog):
     database = Database.from_config(config)
     assert database.url.startswith("postgresql")
     assert database._engine.dialect.name == "postgresql"
@@ -78,3 +85,13 @@ def test_connect_and_migrations(config, postgres_container, cmip6_data_catalog):
     with database.session.begin():
         for instance_id, data_catalog_dataset in cmip6_data_catalog.groupby(adapter.slug_column):
             adapter.register_dataset(config, database, data_catalog_dataset)
+
+
+def test_check_up_to_date(config):
+    database = Database.from_config(config)
+
+    # Verify that the migrations match the codebase for postgres
+    alembic.command.check(database.alembic_config())
+
+    # Verify that we can go downgrade to an empty db
+    alembic.command.downgrade(database.alembic_config(), "base")

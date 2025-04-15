@@ -20,7 +20,7 @@ class AnnualCycle(CommandLineMetric):
         self.slug = "pmp-annual-cycle"
         self.data_requirements = (
             DataRequirement(
-                source_type=SourceDatasetType.obs4MIPs,
+                source_type=SourceDatasetType.pmp_clims,
                 filters=(
                     FacetFilter(
                         facets={"source_id": ("GPCP-2-3", "HadISST-1-1"), "variable_id": ("pr", "ts")}
@@ -179,9 +179,7 @@ class AnnualCycle(CommandLineMetric):
             "outfile": f"{output_directory_path}/{variable_id}_{data_name}_metrics.nc",
         }
 
-        cmds.append(self.build_cmd(params))
-
-        print("jwlee123_test ac cmds:", cmds)
+        cmds.append(build_pmp_command(**params))
 
         return cmds
 

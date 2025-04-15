@@ -14,12 +14,12 @@ REF is a community project, and we welcome contributions from anyone.
 ## Deployments
 
 The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
-to enable the near-realtime evaluation of AR7 FastTrack datasets.
+to enable the near-realtime evaluation of CMIP7 Assessment Fast Track (AFT) datasets.
 This particular deployment will feature a set of metrics selected by
-the MBTT in consultation with the community (URL with the AR7 FastTrack configuration to come).
+the MBTT in consultation with the community (URL with the CMIP7 AFT configuration to come).
 
 The individual components of the REF have been designed to be useful for
-applications past the lifetime of the AR7 Fast Track.
+applications past the lifetime of the CMIP7 AFT.
 These components can be extended to support evaluating other types of climate data.
 The REF is agnostic to what types of data and metrics are to be performed.
 
@@ -104,7 +104,7 @@ These docker containers are not yet published, but can be built from the source 
 docker-compose build
 ```
 
-An example docker-compose file is provided in the repository for the AR7 FastTrack deployment of the REF,
+An example docker-compose file is provided in the repository for the CMIP7 AFT deployment of the REF,
 using the Celery executor and Redis as the message broker.
 This can be run with:
 

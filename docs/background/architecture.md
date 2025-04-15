@@ -1,6 +1,6 @@
 # Architecture
 
-The CMIP AR7 Fast Track REF aims to provide a community tool for the benchmarking of Earth System Models (ESMs)
+The CMIP7 Assessment Fast Track REF aims to provide a community tool for the benchmarking of Earth System Models (ESMs)
 against observational datasets as they are submitted.
 This near-real-time model evaluation will produce a set of scalar,
 timeseries or gridded diagnostics in combination with static web pages and figures that will be made publicly available.

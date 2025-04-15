@@ -31,9 +31,9 @@ def create_execution_dataframe(executions: Iterable[MetricExecutionGroup]) -> pd
 
 
 @pytest.fixture
-def config_ar7_ft(config):
+def config_cmip7_aft(config):
     """
-    Overwrite the default test config to use the metric providers for AR7 FT
+    Overwrite the default test config to use the metric providers for CMIP7 Assessment Fast Track
     """
     # Force the default metric providers
     config.metric_providers = default_metric_providers()
@@ -46,9 +46,9 @@ def config_ar7_ft(config):
 
 
 @pytest.mark.slow
-def test_solve_ar7_ft(
+def test_solve_cmip7_aft(
     sample_data_dir,
-    config_ar7_ft,
+    config_cmip7_aft,
     invoke_cli,
     monkeypatch,
 ):
@@ -56,9 +56,9 @@ def test_solve_ar7_ft(
     if platform.system() == "Darwin" and platform.machine() == "arm64":
         monkeypatch.setenv("MAMBA_PLATFORM", "osx-64")
 
-    assert len(config_ar7_ft.metric_providers) == 3
+    assert len(config_cmip7_aft.metric_providers) == 3
 
-    db = Database.from_config(config_ar7_ft)
+    db = Database.from_config(config_cmip7_aft)
 
     # Ingest the sample data
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])

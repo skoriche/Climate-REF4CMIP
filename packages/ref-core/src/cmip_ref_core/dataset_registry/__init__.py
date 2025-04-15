@@ -2,7 +2,7 @@
 Data registries for non-published reference data
 
 These data are placeholders until these data have been added to obs4MIPs.
-The AR7 FT REF requires that reference datasets are openly licensed before it is included
+The CMIP7 AFT REF requires that reference datasets are openly licensed before it is included
 in any published data catalogs.
 """
 

@@ -1,6 +1,6 @@
 import enum
 import pathlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
@@ -56,6 +56,15 @@ class MetricExecutionGroup(CreatedUpdatedMixin, Base):
 
     An execution group is dirty if the metric or any of the input datasets has been
     updated since the last execution.
+    """
+
+    selectors: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    """
+    Collection of selectors that define the group
+
+    These selectors are the unique key, value pairs that were selected during the initial groupby
+    operation.
+    These are also used to define the dataset key.
     """
 
     metric: Mapped["Metric"] = relationship(back_populates="execution_groups")

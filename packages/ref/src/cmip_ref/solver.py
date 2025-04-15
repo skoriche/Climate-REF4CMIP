@@ -2,8 +2,6 @@
 Solver to determine which metrics need to be calculated
 
 This module provides a solver to determine which metrics need to be calculated.
-
-This module is still a work in progress and is not yet fully implemented.
 """
 
 import itertools
@@ -51,6 +49,10 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
+    def _source_type_order(self) -> list[SourceDatasetType]:
+        source_types = [requirement.source_type for requirement in self.metric.data_requirements]
+        return sorted(source_types, key=lambda x: x.value)
+
     @property
     def dataset_key(self) -> str:
         """
@@ -62,16 +64,34 @@ class MetricExecution:
         and should be stable if new datasets are added or removed.
         """
         key_values = []
-        for requirement in self.metric.data_requirements:
+
+        source_type_order = self._source_type_order()
+        for source_type in source_type_order:
             # Ensure the selector is sorted using the dimension names
             # This will ensure a stable key even if the groupby order changes
-            selector = self.metric_dataset[requirement.source_type].selector
+            selector = self.metric_dataset[source_type].selector
             selector_sorted = sorted(selector, key=lambda item: item[0])
 
-            source_key = f"{requirement.source_type.value}_" + "_".join(value for _, value in selector_sorted)
+            source_key = f"{source_type.value}_" + "_".join(value for _, value in selector_sorted)
             key_values.append(source_key)
 
         return "__".join(key_values)
+
+    @property
+    def selectors(self) -> dict[str, SelectorKey]:
+        """
+        Collection of selectors used to identify the datasets
+
+        These are the key, value pairs that were selected during the initial group-by,
+        for each data requirement.
+        """
+        source_type_order = self._source_type_order()
+
+        # The value of SourceType is used here so that this
+        # result can be stored in the db
+        return {
+            source_type.value: self.metric_dataset[source_type].selector for source_type in source_type_order
+        }
 
     def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """
@@ -278,10 +298,8 @@ def solve_metrics(
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
-            metric_execution_group_model, created = db.get_or_create(
-                MetricExecutionGroupModel,
-                dataset_key=definition.dataset_key,
-                metric_id=db.session.query(MetricModel)
+            metric = (
+                db.session.query(MetricModel)
                 .join(MetricModel.provider)
                 .filter(
                     ProviderModel.slug == metric_execution.provider.slug,
@@ -289,8 +307,13 @@ def solve_metrics(
                     MetricModel.slug == metric_execution.metric.slug,
                 )
                 .one()
-                .id,
+            )
+            metric_execution_group_model, created = db.get_or_create(
+                MetricExecutionGroupModel,
+                dataset_key=definition.dataset_key,
+                metric_id=metric.id,
                 defaults={
+                    "selectors": metric_execution.selectors,
                     "dirty": True,
                 },
             )

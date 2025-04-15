@@ -97,7 +97,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
         short_name="example2",
         dict_content={
             "long_name": "awesome figure",
-            "filename": "fig_2.jpg",
+            "filename": "folder/fig_2.jpg",
             "description": "test add plots",
         },
     )

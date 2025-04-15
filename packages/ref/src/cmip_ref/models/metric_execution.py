@@ -64,7 +64,7 @@ class MetricExecutionGroup(CreatedUpdatedMixin, Base):
 
     These selectors are the unique key, value pairs that were selected during the initial groupby
     operation.
-    These are also used to define dataset key.
+    These are also used to define the dataset key.
     """
 
     metric: Mapped["Metric"] = relationship(back_populates="execution_groups")

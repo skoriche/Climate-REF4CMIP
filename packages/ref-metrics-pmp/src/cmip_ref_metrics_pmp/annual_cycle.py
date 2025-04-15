@@ -1,5 +1,7 @@
 from collections.abc import Iterable
 
+from loguru import logger
+
 from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import (
     CommandLineMetric,
@@ -82,27 +84,27 @@ class AnnualCycle(CommandLineMetric):
         variable_id = input_datasets["variable_id"].unique()[0]
         model_files = input_datasets.path.to_list()[0]  # Limits to one file, needs to be fixed in the future
 
-        print("build_cmd start")
+        logger.debug("build_cmd start")
 
-        print("input_datasets:", input_datasets)
-        print("input_datasets.keys():", input_datasets.keys())
-        print("input_datasets['variable_id']:", input_datasets["variable_id"])
+        logger.debug(f"input_datasets: {input_datasets}")
+        logger.debug(f"input_datasets.keys(): {input_datasets.keys()}")
+        logger.debug(f"input_datasets['variable_id']: {input_datasets['variable_id']}")
 
-        print("source_id:", source_id)
-        print("experiment_id:", experiment_id)
-        print("member_id:", member_id)
-        print("variable_id:", variable_id)
+        logger.debug(f"source_id: {source_id}")
+        logger.debug(f"experiment_id: {experiment_id}")
+        logger.debug(f"member_id: {member_id}")
+        logger.debug(f"variable_id: {variable_id}")
 
         reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
-        print("reference_dataset.datasets:", reference_dataset.datasets)
-        print("reference_dataset['source_id']:", reference_dataset["source_id"])
-        print("reference_dataset.datasets.iloc[0]:", reference_dataset.datasets.iloc[0])
+        logger.debug(f"reference_dataset.datasets: {reference_dataset.datasets}")
+        logger.debug(f"reference_dataset['source_id']: {reference_dataset['source_id']}")
+        logger.debug(f"reference_dataset.datasets.iloc[0]['path']: {reference_dataset.datasets.iloc[0]['path']}")
 
-        print("reference_dataset_name:", reference_dataset_name)
-        print("reference_dataset_path:", reference_dataset_path)
+        logger.debug(f"reference_dataset_name: {reference_dataset_name}")
+        logger.debug(f"reference_dataset_path: {reference_dataset_path}")
 
         parameter_file_1_clims = self.parameter_file_1
         parameter_file_2_metrics = self.parameter_file_2
@@ -227,10 +229,10 @@ class AnnualCycle(CommandLineMetric):
         :
             The result of running the metric.
         """
-        print("PMP annual cycle run start")
+        logger.debug("PMP annual cycle run start")
         cmds = self.build_cmds(definition)
 
         runs = [self.provider.run(cmd) for cmd in cmds]
-        print("jwlee test, runs:", runs)
+        logger.debug(f"runs: {runs}")
 
         return self.build_metric_result(definition)

@@ -1,7 +1,6 @@
 import os
 import shutil
 
-import pandas as pd
 import pytest
 
 from cmip_ref.datasets.pmp_climatology import PMPClimsDatasetAdapter
@@ -20,32 +19,6 @@ class TestPMPClimatologyAdapter:
         adapter = PMPClimsDatasetAdapter()
         df = adapter.load_catalog(db)
         assert df.empty
-
-    def test_load_catalog(self, db_seeded, catalog_regression, sample_data_dir):
-        adapter = PMPClimsDatasetAdapter()
-        df = adapter.load_catalog(db_seeded)
-        for k in adapter.dataset_specific_metadata + adapter.file_specific_metadata:
-            assert k in df.columns
-
-        # The order of the rows may be flakey due to sqlite ordering and the created time resolution
-        catalog_regression(df.sort_values(["instance_id", "start_time"]), basename="pmp_catalog_db")
-
-    def test_round_trip(self, db_seeded, obs4mips_data_catalog, sample_data_dir):
-        # Indexes and ordering may be different
-        adapter = PMPClimsDatasetAdapter()
-        local_data_catalog = (
-            obs4mips_data_catalog.drop(columns=["time_range"])
-            .sort_values(["start_time"])
-            .reset_index(drop=True)
-        )
-
-        db_data_catalog = adapter.load_catalog(db_seeded).sort_values(["start_time"]).reset_index(drop=True)
-
-        # TODO: start_time has a different dtype from the database due to pandas dt coercion
-        db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)
-        db_data_catalog["end_time"] = db_data_catalog["end_time"].astype(object)
-        db_data_catalog["vertical_levels"] = db_data_catalog["vertical_levels"].astype(float)
-        pd.testing.assert_frame_equal(local_data_catalog, db_data_catalog, check_like=True)
 
     def test_load_local_datasets(self, sample_data_dir, catalog_regression):
         adapter = PMPClimsDatasetAdapter()

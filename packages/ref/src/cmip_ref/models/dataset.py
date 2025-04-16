@@ -246,7 +246,7 @@ class PMPClimatologyFile(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("obs4mips_dataset.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("pmp_climatology_dataset.id", ondelete="CASCADE"), nullable=False
     )
     """
     Foreign key to the dataset table

@@ -1,3 +1,7 @@
+"""
+Dataset management and filtering
+"""
+
 import enum
 import hashlib
 from collections.abc import Iterable

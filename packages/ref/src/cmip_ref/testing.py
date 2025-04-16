@@ -2,14 +2,12 @@
 Testing utilities
 """
 
-import importlib.resources
 import shutil
 from pathlib import Path
 
-import pooch
 from loguru import logger
 
-from cmip_ref_core.dataset_registry import fetch_all_files
+from cmip_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 
 
 def _determine_test_directory() -> Path | None:
@@ -20,42 +18,21 @@ def _determine_test_directory() -> Path | None:
     return expected
 
 
-def _build_sample_data_registry(sample_data_version: str) -> pooch.Pooch:
-    registry = pooch.create(
-        path=pooch.os_cache("ref_sample_data"),
-        base_url="https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/tags/{version}/data/",
-        version=sample_data_version,
-        env="REF_SAMPLE_DATA_DIR",
-    )
-
-    with (
-        importlib.resources.files("cmip_ref")
-        .joinpath("datasets")
-        .joinpath("sample_data.txt")
-        .open("rb") as fh
-    ):
-        registry.load_registry(fh)
-
-    return registry
-
-
 TEST_DATA_DIR = _determine_test_directory()
 SAMPLE_DATA_VERSION = "v0.4.3"
 
 
-def fetch_sample_data(
-    version: str = SAMPLE_DATA_VERSION, force_cleanup: bool = False, symlink: bool = False
-) -> None:
+def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> None:
     """
     Fetch the sample data for the given version.
 
+    The sample data is produced in the [Climate-REF/ref-sample-data](https://github.com/Climate-REF/ref-sample-data)
+    repository.
+    This repository contains decimated versions of key datasets used by the diagnostics packages.
+    Decimating these data greatly reduces the data volumes needed to run the test-suite.
+
     Parameters
     ----------
-    version
-        The version tag of the sample data to fetch.
-
-        This will fail if the version is not found in the sample data registry
-        or if the sample data registry file is incompatible with this version.
     force_cleanup
         If True, remove any existing files
     symlink
@@ -69,7 +46,7 @@ def fetch_sample_data(
         logger.warning("Test data directory not found, skipping sample data fetch")
         return
 
-    sample_data_registry = _build_sample_data_registry(version)
+    sample_data_registry = dataset_registry_manager["sample-data"]
 
     output_dir = TEST_DATA_DIR / "sample-data"
     version_file = output_dir / "version.txt"

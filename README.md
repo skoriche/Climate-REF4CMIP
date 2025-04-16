@@ -73,23 +73,22 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-For the tutorials and test suite,
-we maintain a set of test data that can be used to evaluate the REF.
-These datasets can be fetched using
+The REF requires some reference data to be available to run the metrics. Some of the reference datasets needed by the REF are available on ESGF yet. The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
 
 ```bash
-ref datasets fetch-sample-data
+ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
+ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
 ```
 
 These datasets can then be ingested into the REF and the metrics solved using:
 
 ```bash
-uv run ref datasets ingest --source-type cmip6 ./tests/test-data/sample-data/CMIP6/
-uv run ref datasets ingest --source-type obs4mips ./tests/test-data/sample-data/obs4MIPs/
+uv run ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips datasets/obs4ref
 ref solve
 ```
 
-The executed metrics can then be viewed using the `ref executions list-groups` command.
+The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.
 
 ### As a devops engineer
 

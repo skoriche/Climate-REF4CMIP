@@ -41,7 +41,7 @@ jobs:
       - name: Run tests
         run: |
           make fetch-test-data
-          uv run python scripts/fetch-ilamb-data.py ilamb.txt
+          uv run ref datasets fetch-data ilamb
           make test
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

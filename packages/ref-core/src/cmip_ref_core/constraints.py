@@ -1,3 +1,7 @@
+"""
+Dataset selection constraints
+"""
+
 import sys
 import warnings
 from collections import defaultdict

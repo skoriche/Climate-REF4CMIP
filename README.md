@@ -14,12 +14,12 @@ REF is a community project, and we welcome contributions from anyone.
 ## Deployments
 
 The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
-to enable the near-realtime evaluation of AR7 FastTrack datasets.
+to enable the near-realtime evaluation of CMIP7 Assessment Fast Track (AFT) datasets.
 This particular deployment will feature a set of metrics selected by
-the MBTT in consultation with the community (URL with the AR7 FastTrack configuration to come).
+the MBTT in consultation with the community (URL with the CMIP7 AFT configuration to come).
 
 The individual components of the REF have been designed to be useful for
-applications past the lifetime of the AR7 Fast Track.
+applications past the lifetime of the CMIP7 AFT.
 These components can be extended to support evaluating other types of climate data.
 The REF is agnostic to what types of data and metrics are to be performed.
 
@@ -73,23 +73,22 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-For the tutorials and test suite,
-we maintain a set of test data that can be used to evaluate the REF.
-These datasets can be fetched using
+The REF requires some reference data to be available to run the metrics. Some of the reference datasets needed by the REF are available on ESGF yet. The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
 
 ```bash
-ref datasets fetch-sample-data
+ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
+ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
 ```
 
 These datasets can then be ingested into the REF and the metrics solved using:
 
 ```bash
-uv run ref datasets ingest --source-type cmip6 ./tests/test-data/sample-data/CMIP6/
-uv run ref datasets ingest --source-type obs4mips ./tests/test-data/sample-data/obs4MIPs/
+uv run ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips datasets/obs4ref
 ref solve
 ```
 
-The executed metrics can then be viewed using the `ref executions list-groups` command.
+The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.
 
 ### As a devops engineer
 
@@ -104,7 +103,7 @@ These docker containers are not yet published, but can be built from the source 
 docker-compose build
 ```
 
-An example docker-compose file is provided in the repository for the AR7 FastTrack deployment of the REF,
+An example docker-compose file is provided in the repository for the CMIP7 AFT deployment of the REF,
 using the Celery executor and Redis as the message broker.
 This can be run with:
 

@@ -9,7 +9,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.CSIRO.ACCESS-ESM1-5.esm-1pct-brch-1000PgC.r1i1p1f1.Amon.tas.gn.v20191206
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -46,7 +45,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.CSIRO.ACCESS-ESM1-5.esm-1pct-brch-1000PgC.r1i1p1f1.fx.areacella.gn.v20191206
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -82,7 +80,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.fco2antt.gn.v20190815
   institution_id: MPI-M
   long_name: Carbon Mass Flux into Atmosphere Due to All Anthropogenic Emissions of
@@ -119,7 +116,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.fco2antt.gn.v20190815
   institution_id: MPI-M
   long_name: Carbon Mass Flux into Atmosphere Due to All Anthropogenic Emissions of
@@ -156,7 +152,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.fco2antt.gn.v20190815
   institution_id: MPI-M
   long_name: Carbon Mass Flux into Atmosphere Due to All Anthropogenic Emissions of
@@ -193,7 +188,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.fco2antt.gn.v20190815
   institution_id: MPI-M
   long_name: Carbon Mass Flux into Atmosphere Due to All Anthropogenic Emissions of
@@ -230,7 +224,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -266,7 +259,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -302,7 +294,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -338,7 +329,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.C4MIP CDRMIP.MPI-M.MPI-ESM1-2-LR.esm-1pctCO2.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -374,7 +364,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.1pctCO2.r1i1p1f1.Amon.tas.gn.v20191115
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -410,7 +399,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.1pctCO2.r1i1p1f1.Amon.tas.gn.v20191115
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -446,7 +434,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.1pctCO2.r1i1p1f1.fx.areacella.gn.v20191115
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -482,7 +469,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rlut.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Outgoing Longwave Radiation
@@ -518,7 +504,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rsdt.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Incident Shortwave Radiation
@@ -554,7 +539,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.rsut.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Outgoing Shortwave Radiation
@@ -590,7 +574,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.Amon.tas.gn.v20191115
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -626,7 +609,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.abrupt-4xCO2.r1i1p1f1.fx.areacella.gn.v20191115
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -662,7 +644,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.pr.gn.v20191115
   institution_id: CSIRO
   long_name: Precipitation
@@ -698,7 +679,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.rlut.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Outgoing Longwave Radiation
@@ -734,7 +714,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.rsdt.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Incident Shortwave Radiation
@@ -770,7 +749,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.rsut.gn.v20191115
   institution_id: CSIRO
   long_name: TOA Outgoing Shortwave Radiation
@@ -806,7 +784,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.tas.gn.v20191115
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -842,7 +819,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.ts.gn.v20191115
   institution_id: CSIRO
   long_name: Surface Temperature
@@ -878,7 +854,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Lmon.gpp.gn.v20191115
   institution_id: CSIRO
   long_name: Carbon Mass Flux out of Atmosphere Due to Gross Primary Production on
@@ -915,7 +890,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Omon.tos.gn.v20191115
   institution_id: CSIRO
   long_name: Sea Surface Temperature
@@ -951,7 +925,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.fx.areacella.gn.v20191115
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -987,7 +960,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.fx.sftlf.gn.v20191115
   institution_id: CSIRO
   long_name: Percentage of the grid  cell occupied by land (including lakes)
@@ -1023,7 +995,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r2i1p1f1.Amon.ts.gn.v20191128
   institution_id: CSIRO
   long_name: Surface Temperature
@@ -1059,7 +1030,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r2i1p1f1.fx.areacella.gn.v20191128
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -1095,7 +1065,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rlut.gn.v20210316
   institution_id: CSIRO
   long_name: TOA Outgoing Longwave Radiation
@@ -1131,7 +1100,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rsdt.gn.v20210316
   institution_id: CSIRO
   long_name: TOA Incident Shortwave Radiation
@@ -1167,7 +1135,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.rsut.gn.v20210316
   institution_id: CSIRO
   long_name: TOA Outgoing Shortwave Radiation
@@ -1203,7 +1170,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.tas.gn.v20210316
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -1239,7 +1205,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.Amon.tas.gn.v20210316
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -1275,7 +1240,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.piControl.r1i1p1f1.fx.areacella.gn.v20210316
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -1311,7 +1275,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.MPI-M.MPI-ESM1-2-LR.esm-piControl.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -1347,7 +1310,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.MPI-M.MPI-ESM1-2-LR.esm-piControl.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -1383,7 +1345,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.MPI-M.MPI-ESM1-2-LR.esm-piControl.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -1419,7 +1380,6 @@
   frequency: mon
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.MPI-M.MPI-ESM1-2-LR.esm-piControl.r1i1p1f1.Amon.tas.gn.v20190815
   institution_id: MPI-M
   long_name: Near-Surface Air Temperature
@@ -1455,7 +1415,6 @@
   frequency: fx
   grid: gn
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.CMIP.MPI-M.MPI-ESM1-2-LR.esm-piControl.r1i1p1f1.fx.areacella.gn.v20190815
   institution_id: MPI-M
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -1491,7 +1450,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.DAMIP.CSIRO.ACCESS-ESM1-5.hist-GHG.r1i1p1f1.Amon.ts.gn.v20200615
   institution_id: CSIRO
   long_name: Surface Temperature
@@ -1527,7 +1485,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.DAMIP.CSIRO.ACCESS-ESM1-5.hist-GHG.r1i1p1f1.fx.areacella.gn.v20200615
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -1563,7 +1520,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.DAMIP.CSIRO.ACCESS-ESM1-5.hist-GHG.r2i1p1f1.Amon.ts.gn.v20200615
   institution_id: CSIRO
   long_name: Surface Temperature
@@ -1599,7 +1555,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.DAMIP.CSIRO.ACCESS-ESM1-5.hist-GHG.r2i1p1f1.fx.areacella.gn.v20200615
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables
@@ -1635,7 +1590,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsdt.gn.v20210318
   institution_id: CSIRO
   long_name: TOA Incident Shortwave Radiation
@@ -1671,7 +1625,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318
   institution_id: CSIRO
   long_name: TOA Outgoing Shortwave Radiation
@@ -1707,7 +1660,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.tas.gn.v20210318
   institution_id: CSIRO
   long_name: Near-Surface Air Temperature
@@ -1743,7 +1695,6 @@
   frequency: mon
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Omon.tos.gn.v20210318
   institution_id: CSIRO
   long_name: Sea Surface Temperature
@@ -1779,7 +1730,6 @@
   frequency: fx
   grid: native atmosphere N96 grid (145x192 latxlon)
   grid_label: gn
-  init_year: null
   instance_id: CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318
   institution_id: CSIRO
   long_name: Grid-Cell Area for Atmospheric Grid Variables

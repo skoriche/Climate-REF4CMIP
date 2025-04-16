@@ -54,6 +54,7 @@ def capture_logging() -> None:
     logger.disable("matplotlib.ticker")
     logger.disable("matplotlib.font_manager")
     logger.disable("pyproj.transformer")
+    logger.disable("pint.facets.plain.registry")
 
 
 def add_log_handler(**kwargs: Any) -> None:

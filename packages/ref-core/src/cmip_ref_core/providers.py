@@ -2,6 +2,7 @@
 Interfaces for metrics providers.
 
 This defines how metrics packages interoperate with the REF framework.
+Each metrics package may contain multiple metrics.
 """
 
 from __future__ import annotations

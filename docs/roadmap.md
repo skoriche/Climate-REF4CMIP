@@ -1,6 +1,6 @@
 # Roadmap
 
-Below is a high-level roadmap for the CMIP AR7 Fast Track REF  project towards the goal of a public release in October 2025.
+Below is a high-level roadmap for the CMIP7 Assessment Fast Track(AFT)  project towards the goal of a public release in October 2025.
 This roadmap outlines the key milestones and tasks that need to be completed to achieve this goal.
 
 We have broken down the roadmap into several sections to provide a clear overview of the project's progress.
@@ -23,7 +23,7 @@ Click on [] in the top right corner of the diagram to make it full screen.
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
-    title       REF for AR7 Fast Track
+    title       REF for CMIP7 Assessment Fast Track
     excludes    weekends
 
     section Metrics
@@ -35,7 +35,7 @@ gantt
     Create ILAMB integration                      :done, ilamb, after metricsPrototype, 2025-01-20
     Create PMP integration                        :done, pmp, after metricsPrototype, 2025-03-04
 
-    Implement missing metrics                     :active, missing, after esmvaltool, 2025-04-01
+    Implement missing metrics                     :active, missing, after esmvaltool, 2025-05-14
     Incorporate missing reference datasets        :after beta, 4w
     Fixes                                         :after missing, 6w
 
@@ -50,16 +50,16 @@ gantt
     Conda-forge environments                      :conda, 2025-04-05, 3w
     Provider docker containers                    :after conda, 3w
     Develop a remote executor                     :done, celery, 2025-01-01, 30d
-    Ingest scalar results into database           :ingest, after results, 30d
-    Develop a remote executor (slurm)             :slurm, after hackathon, 10d
-    Ingest AR7 FT datasets                        :2025-04-20, 4w
+    Ingest scalar results into database           :active,ingest, after results, 30d
+    Develop a remote executor (slurm)             :slurm, 2025-04-20, 10d
+    Ingest CMIP7 AFT datasets                        :2025-06-01, 2w
 
     section Visualisation
 
     CMEC validation                               :done, cmec, 2025-01-15, 20d
     CMEC helpers                                  :done, cmecHelpers, after cmec, 4w
-    Basic API for results                         :active, results, 2025-03-01, 15d
-    Integrate Unified Dashboard                   :ud, after results, 20d
+    Basic API for results                         :done, results, 2025-03-01, 20d
+    Integrate Unified Dashboard                   :active, ud, after results, 20d
     Search results via API                        :api-result, after beta, 2w
     Example prototype dashboard                   :dashboad, after api-result, 6w
     Python package for consuming results          :after api-result, 4w
@@ -68,16 +68,16 @@ gantt
     section Testing
     Validate package licences                     :done, 2024-11-15, 2024-12-02
     Develop testing framework                     :done, 2024-11-10, 2024-12-10
-    Documentation and tutorials                   :active, 2025-03-06, 2025-04-01
-    Initial modelling center testing (MetOffice)  :active, mc1, 2025-03-10, 14d
-    Initial modelling center testing (MC 2)       :mc2, after mc1, 14d
-    Initial modelling center testing (MC 3)       :mc3, after mc1, 14d
-    MB TT stress-testing                          :2025-05-01, 20d
-    MB TT Documentation Review                    :2025-05-01, 20d
+    Documentation and tutorials                   :active, 2025-05-06, 2025-04-01
+    Initial modelling center testing (MetOffice)  :done, mc1, 2025-03-10, 14d
+    Initial modelling center testing (MC 2)       :mc2, 2025-05-10, 14d
+    Initial modelling center testing (MC 3)       :mc3, 2025-05-10, 14d
+    MB TT stress-testing                          :2025-05-10, 20d
+    MB TT Documentation Review                    :2025-05-20, 20d
 
     section Deployment
-    Discuss options with ESGF deployment          :active, esgf, 2024-12-01, 90d
-    Build K8 helm charts                          :helm, after 2025-04-01, 4w
+    Discuss options with ESGF deployment          :done, esgf, 2024-12-01, 90d
+    Build K8 helm charts                          :active, helm, after 2025-04-01, 4w
     ESGF Staging deployment for testing                :staging, after helm, 1w
     CMIP6 stress-test                             :after staging, 4w
     ESGF index integration                        :crit, after beta, 4w
@@ -92,7 +92,7 @@ gantt
     ESA CMUG Colocation                           :done, 2024-10-16, 3d
     Project Launch                                :done, 2024-11-04, 1d
     AGU                                           :done, 2024-12-01, 1w
-    Hackathon                                     :active, hackathon, 2025-03-10, 5d
+    Hackathon                                     :done, hackathon, 2025-03-10, 5d
     EGU                                           :egu, 2025-04-20, 1w
     Beta feature freeze                           :milestone, beta, 2025-05-01, 1d
     Beta Release                                  :milestone, beta, 2025-05-30, 1d
@@ -108,7 +108,7 @@ gantt
 
 An overview of the current state of the selected metrics can be found in the
 [Metrics Github board](https://github.com/orgs/Climate-REF/projects/2/views/2) document.
-This is being updated as the new metrics are integrated into the CMIP AR7 Fast Track REF.
+This is being updated as the new metrics are integrated into the CMIP7 AFT REF.
 
 
 ## What will be in the beta:
@@ -119,7 +119,7 @@ before a public release in October 2025 which will be deployed at ESGF.
 
 The beta will include the following features:
 
-* Ingesting local CMIP6, CMIP AR7 FT, obs4MIPs datasets
+* Ingesting local CMIP6, CMIP7 AFT, obs4MIPs datasets
     * We will include documention to allow users to ingest their own datasets (we welcome any contributions)
 * Examples of ESMValTool, ILAMB, and PMP metrics.
     * Some reference datasets may be missing as we are work through integrating these with obs4MIPs.

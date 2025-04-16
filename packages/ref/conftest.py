@@ -43,15 +43,15 @@ def db(config) -> Database:
 
 
 @pytest.fixture(scope="session")
-def ar7_ft_cv() -> CV:
-    cv_file = str(importlib.resources.files("cmip_ref_core.pycmec") / "cv_cmip_ar7ft.yaml")
+def cmip7_aft_cv() -> CV:
+    cv_file = str(importlib.resources.files("cmip_ref_core.pycmec") / "cv_cmip7_aft.yaml")
 
     return CV.load_from_file(cv_file)
 
 
 @pytest.fixture(scope="session")
-def prepare_db(ar7_ft_cv):
-    MetricValue.register_cv_dimensions(ar7_ft_cv)
+def prepare_db(cmip7_aft_cv):
+    MetricValue.register_cv_dimensions(cmip7_aft_cv)
 
 
 @pytest.fixture(scope="session")

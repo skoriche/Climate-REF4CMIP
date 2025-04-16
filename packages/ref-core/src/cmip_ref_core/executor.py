@@ -1,3 +1,7 @@
+"""
+Executor interface for running metrics
+"""
+
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition

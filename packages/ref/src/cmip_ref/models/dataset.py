@@ -55,31 +55,32 @@ class CMIP6Dataset(Dataset):
     """
     Represents a CMIP6 dataset
 
-    TODO: Should the metadata fields be part of the file or dataset?
+    Fields that are not marked as required in
+    https://wcrp-cmip.github.io/WGCM_Infrastructure_Panel/Papers/CMIP6_global_attributes_filenames_CVs_v6.2.7.pdf
+    are optional.
     """
 
     __tablename__ = "cmip6_dataset"
     id: Mapped[int] = mapped_column(ForeignKey("dataset.id"), primary_key=True)
 
     activity_id: Mapped[str] = mapped_column()
-    branch_method: Mapped[str] = mapped_column()
-    branch_time_in_child: Mapped[float] = mapped_column()
-    branch_time_in_parent: Mapped[float] = mapped_column()
+    branch_method: Mapped[str] = mapped_column(nullable=True)
+    branch_time_in_child: Mapped[float] = mapped_column(nullable=True)
+    branch_time_in_parent: Mapped[float] = mapped_column(nullable=True)
     experiment: Mapped[str] = mapped_column()
     experiment_id: Mapped[str] = mapped_column()
     frequency: Mapped[str] = mapped_column()
     grid: Mapped[str] = mapped_column()
     grid_label: Mapped[str] = mapped_column()
-    init_year: Mapped[int] = mapped_column(nullable=True)
     institution_id: Mapped[str] = mapped_column()
-    long_name: Mapped[str] = mapped_column()
+    long_name: Mapped[str] = mapped_column(nullable=True)
     member_id: Mapped[str] = mapped_column()
     nominal_resolution: Mapped[str] = mapped_column()
-    parent_activity_id: Mapped[str] = mapped_column()
-    parent_experiment_id: Mapped[str] = mapped_column()
-    parent_source_id: Mapped[str] = mapped_column()
-    parent_time_units: Mapped[str] = mapped_column()
-    parent_variant_label: Mapped[str] = mapped_column()
+    parent_activity_id: Mapped[str] = mapped_column(nullable=True)
+    parent_experiment_id: Mapped[str] = mapped_column(nullable=True)
+    parent_source_id: Mapped[str] = mapped_column(nullable=True)
+    parent_time_units: Mapped[str] = mapped_column(nullable=True)
+    parent_variant_label: Mapped[str] = mapped_column(nullable=True)
     realm: Mapped[str] = mapped_column()
     product: Mapped[str] = mapped_column()
     source_id: Mapped[str] = mapped_column()
@@ -91,7 +92,7 @@ class CMIP6Dataset(Dataset):
     units: Mapped[str] = mapped_column()
     variable_id: Mapped[str] = mapped_column()
     variant_label: Mapped[str] = mapped_column()
-    vertical_levels: Mapped[int] = mapped_column()
+    vertical_levels: Mapped[int] = mapped_column(nullable=True)
     version: Mapped[str] = mapped_column()
 
     instance_id: Mapped[str] = mapped_column()

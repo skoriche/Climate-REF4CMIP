@@ -22,7 +22,7 @@ class AnnualCycle(CommandLineMetric):
         self.slug = "pmp-annual-cycle"
         self.data_requirements = (
             DataRequirement(
-                source_type=SourceDatasetType.pmp_clims,
+                source_type=SourceDatasetType.obs4MIPs,
                 filters=(
                     FacetFilter(
                         facets={"source_id": ("GPCP-2-3", "HadISST-1-1"), "variable_id": ("pr", "ts")}
@@ -48,7 +48,7 @@ class AnnualCycle(CommandLineMetric):
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
         self.parameter_file_2 = "pmp_param_annualcycle_1-metrics.py"
 
-    def build_cmd(self, params: dict) -> Iterable[str]:
+    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run the metric
 
@@ -62,7 +62,7 @@ class AnnualCycle(CommandLineMetric):
             Command arguments to execute in the PMP environment
         """
         # Pass the parameters using **kwargs
-        return build_pmp_command(**params)
+        raise NotImplementedError("Function not required")
 
     def build_cmds(self, definition: MetricExecutionDefinition) -> list[Iterable[str]]:
         """

@@ -94,7 +94,7 @@ test-metrics-esmvaltool:  ## run the tests
 
 .PHONY: test-metrics-ilamb
 test-metrics-ilamb:  ## run the tests
-	uv run --package cmip_ref_metrics_ilamb python ./scripts/fetch-ilamb-data.py test.txt
+	uv run ref datasets fetch-data --registry ilamb-test
 	uv run --package cmip_ref_metrics_ilamb \
 		pytest packages/ref-metrics-ilamb \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append
@@ -170,13 +170,13 @@ virtual-environment:  ## update virtual environment, create a new one if it does
 .PHONY: fetch-test-data
 fetch-test-data:  ## Download any data needed by the test suite
 	uv run ref datasets fetch-sample-data
-	uv run python ./scripts/fetch-ilamb-data.py test.txt
+	uv run ref datasets fetch-data --registry ilamb-test
 
 .PHONY: fetch-ref-data
 fetch-ref-data:  ## Download reference data needed by providers and (temporarily) not in obs4mips
-	uv run python ./scripts/fetch-ilamb-data.py ilamb.txt
-	uv run python ./scripts/fetch-ilamb-data.py iomb.txt
+	uv run ref datasets fetch-data --registry ilamb
+	uv run ref datasets fetch-data --registry iomb
 
 .PHONY: update-sample-data-registry
 update-sample-data-registry:  ## Update the sample data registry
-	curl --output packages/ref/src/cmip_ref/datasets/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt
+	curl --output packages/ref/src/cmip_ref/dataset_registry/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt

@@ -9,14 +9,13 @@ import pandas as pd
 import xarray as xr
 from ecgtools import Builder
 from loguru import logger
-from sqlalchemy.orm import joinedload
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.base import DatasetAdapter
 from cmip_ref.datasets.cmip6 import _parse_datetime
-from cmip_ref.datasets.utils import validate_path
-from cmip_ref.models.dataset import Dataset, Obs4MIPsDataset, Obs4MIPsFile
+from cmip_ref.datasets.utils import load_catalog_with_files, validate_path
+from cmip_ref.models.dataset import Obs4MIPsDataset, Obs4MIPsFile
 from cmip_ref_core.exceptions import RefException
 
 
@@ -126,6 +125,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
     """
 
     dataset_cls = Obs4MIPsDataset
+    file_cls = Obs4MIPsFile
     slug_column = "instance_id"
 
     dataset_specific_metadata = (
@@ -264,7 +264,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
             path = validate_path(dataset_file.pop("path"))
 
             db.session.add(
-                Obs4MIPsFile(
+                self.file_cls(
                     path=str(path),
                     dataset_id=dataset.id,
                     start_time=dataset_file.pop("start_time"),
@@ -290,39 +290,12 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
         :
             Data catalog containing the metadata for the currently ingested datasets
         """
-        # TODO: Paginate this query to avoid loading all the data at once
-        if include_files:
-            result = (
-                db.session.query(Obs4MIPsFile)
-                # The join is necessary to be able to order by the dataset columns
-                .join(Obs4MIPsFile.dataset)
-                # The joinedload is necessary to avoid N+1 queries (one for each dataset)
-                # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(Obs4MIPsFile.dataset))
-                .order_by(Dataset.updated_at.desc())
-                .limit(limit)
-                .all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {
-                        **{k: getattr(file, k) for k in self.file_specific_metadata},
-                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
-                    }
-                    for file in result
-                ],
-                index=[file.dataset.id for file in result],
-            )
-        else:
-            result_datasets = (
-                db.session.query(Obs4MIPsDataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
-                    for dataset in result_datasets
-                ],
-                index=[file.id for file in result_datasets],
-            )
+        return load_catalog_with_files(
+            db,
+            Obs4MIPsDataset,
+            Obs4MIPsFile,
+            self.dataset_specific_metadata,
+            self.file_specific_metadata,
+            include_files,
+            limit,
+        )

@@ -9,13 +9,12 @@ import ecgtools.parsers
 import pandas as pd
 from ecgtools import Builder
 from loguru import logger
-from sqlalchemy.orm import joinedload
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.base import DatasetAdapter
-from cmip_ref.datasets.utils import validate_path
-from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File, Dataset
+from cmip_ref.datasets.utils import load_catalog_with_files, validate_path
+from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File
 from cmip_ref_core.exceptions import RefException
 
 
@@ -274,39 +273,12 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         :
             Data catalog containing the metadata for the currently ingested datasets
         """
-        # TODO: Paginate this query to avoid loading all the data at once
-        if include_files:
-            result = (
-                db.session.query(CMIP6File)
-                # The join is necessary to be able to order by the dataset columns
-                .join(CMIP6File.dataset)
-                # The joinedload is necessary to avoid N+1 queries (one for each dataset)
-                # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(CMIP6File.dataset))
-                .order_by(Dataset.updated_at.desc())
-                .limit(limit)
-                .all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {
-                        **{k: getattr(file, k) for k in self.file_specific_metadata},
-                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
-                    }
-                    for file in result
-                ],
-                index=[file.dataset.id for file in result],
-            )
-        else:
-            result_datasets = (
-                db.session.query(CMIP6Dataset).order_by(Dataset.updated_at.desc()).limit(limit).all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
-                    for dataset in result_datasets
-                ],
-                index=[file.id for file in result_datasets],
-            )
+        return load_catalog_with_files(
+            db,
+            CMIP6Dataset,
+            CMIP6File,
+            self.dataset_specific_metadata,
+            self.file_specific_metadata,
+            include_files,
+            limit,
+        )

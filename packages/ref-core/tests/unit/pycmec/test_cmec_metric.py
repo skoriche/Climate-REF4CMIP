@@ -68,6 +68,9 @@ def test_metric_missing_deepest_dimension(cmec_right_metric_dict):
 def test_metric_missing_deepest_dimension_key(cmec_right_metric_dict):
     cmec_metric = cmec_right_metric_dict
     cmec_metric["RESULTS"]["E3SM"]["Hydrology Cycle"].pop("rmse")
+    CMECMetric(**cmec_metric)
+
+    cmec_metric["RESULTS"]["E3SM"]["Hydrology Cycle"]["unknown"] = 0.0
     with pytest.raises(ValidationError):
         CMECMetric(**cmec_metric)
 
@@ -191,6 +194,32 @@ def test_validate_result_wo_dim(cmec_right_metric_dict):
         MetricResults(cmec_right_metric_dict["RESULTS"])
 
 
+def test_metric_deepest_dictionary_value(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"]["overall score"] = {
+        "value": 0.11,
+    }
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"]["overall score"] = "best"
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_mismatch_dimension_key(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["unknow_model"] = cmec_right_metric_dict["RESULTS"]["CESM2"]
+
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_nested_dict(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"] = 1.0
+
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
 def test_metric_merge():
     dict_pmp = {
         "DIMENSIONS": {
@@ -266,16 +295,12 @@ def test_metric_merge():
         "RESULTS": {
             "E3SM": {
                 "carbon": 0.11,
-                "NinoSstDiversity_2": -999.0,
-                "BiasTauxLonRmse": -999.0,
                 "attributes": {
                     "score": "ILAMB scoring system",
                 },
             },
             "CESM": {
                 "carbon": 0.05,
-                "NinoSstDiversity_2": -999.0,
-                "BiasTauxLonRmse": -999.0,
             },
             "GFDL-ESM2M": {
                 "NinoSstDiversity_2": -75,
@@ -299,6 +324,15 @@ def test_metric_merge():
     }
 
     assert json.loads(CMECMetric.merge(dict_pmp, dict_ilamb).model_dump_json(indent=2)) == dict_merged
+
+    mdim_pmp = dict_pmp["DIMENSIONS"]
+    mdim_ilamb = dict_ilamb["DIMENSIONS"]
+
+    mdim_ilamb["json_structure"] = ["model"]
+    mdim_ilamb.pop("metric")
+
+    with pytest.raises(ValueError):
+        MetricDimensions.merge_dimension(mdim_pmp, mdim_ilamb)
 
 
 def test_metric_create_template():

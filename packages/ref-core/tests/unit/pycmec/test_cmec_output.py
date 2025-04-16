@@ -56,13 +56,25 @@ def test_output_update(cmec_right_output_dict):
         "description": "test add plots",
     }
 
+    add_html = {
+        "long_name": "index html page",
+        "filename": "index.html",
+        "description": "test add html",
+    }
+
     cmec_output = CMECOutput(**cmec_right_output_dict)
 
     cmec_output.update("plots", short_name=add_sname, dict_content=add_plots)
 
+    cmec_output.update("html", short_name="index", dict_content=add_html)
+
     assert cmec_output["plots"]["awesome_fig1"]["long_name"] == "awesome figure"
     assert cmec_output["plots"]["awesome_fig1"]["filename"] == "fig_1.jpg"
     assert cmec_output["plots"]["awesome_fig1"]["description"] == "test add plots"
+
+    assert cmec_output["html"]["index"]["long_name"] == "index html page"
+    assert cmec_output["html"]["index"]["filename"] == "index.html"
+    assert cmec_output["html"]["index"]["description"] == "test add html"
 
 
 def test_output_create_template():

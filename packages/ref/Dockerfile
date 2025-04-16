@@ -50,8 +50,8 @@ ENV REF_CONFIGURATION=/ref
 ENV REF_METRICS_ILAMB_DATA_DIR=/app/cache/ilamb
 ENV REF_METRICS_ESMVALTOOL_DATA_DIR=/app/cache/esmvaltool
 
-#RUN python /app/scripts/fetch-ilamb-data.py ilamb.txt
-#RUN python /app/scripts/fetch-ilamb-data.py iomb.txt
+#RUN ref datasets fetch-data --registry ilamb
+#RUN ref datasets fetch-data --registry iomb
 
 # Run the REF CLI tool by default
 ENTRYPOINT ["/app/.venv/bin/ref"]

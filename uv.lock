@@ -791,7 +791,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-celery" },
     { name = "pytest-cov" },
-    { name = "pytest-loguru" },
     { name = "pytest-mock" },
     { name = "pytest-regressions" },
     { name = "ruff" },
@@ -838,7 +837,6 @@ dev = [
     { name = "pytest", specifier = ">=7.3.1" },
     { name = "pytest-celery", specifier = ">=1.1.3" },
     { name = "pytest-cov", specifier = ">=4.0.0" },
-    { name = "pytest-loguru", specifier = ">=0.4.0" },
     { name = "pytest-mock", specifier = ">=3.12" },
     { name = "pytest-regressions", specifier = ">=2.5.0" },
     { name = "ruff", specifier = ">=0.6.9" },
@@ -3273,18 +3271,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4f/a2/620ff42d20a2c2b107805a12633a2cb9eb01db3a4eb371a6bc1f71728217/pytest_docker_tools-3.1.3.tar.gz", hash = "sha256:c7e28841839d67b3ac80ad7b345b953701d5ae61ffda97586114244292aeacc0", size = 37136 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/90/f6/961e9b5c6a3006be78d2725713e0d6b2811dc20ae78b2b21b575185b448d/pytest_docker_tools-3.1.3-py3-none-any.whl", hash = "sha256:63e659043160f41d89f94ea42616102594bcc85682aac394fcbc14f14cd1b189", size = 24807 },
-]
-
-[[package]]
-name = "pytest-loguru"
-version = "0.4.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "loguru" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/f2/8ca6c8780e714fbfd35d7dcc772af99310272a01457b0887c90c75f2ec52/pytest_loguru-0.4.0.tar.gz", hash = "sha256:0d9e4e72ae9bfd92f774c666e7353766af11b0b78edd59c290e89be116050f03", size = 6696 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/ef/b0c2e96e3508bca8d1874e39789d541cd7f4731b38bcf9c7098f0b882001/pytest_loguru-0.4.0-py3-none-any.whl", hash = "sha256:3cc7b9c6b22cb158209ccbabf0d678dacd3f3c7497d6f46f1c338c13bee1ac77", size = 3886 },
 ]
 
 [[package]]

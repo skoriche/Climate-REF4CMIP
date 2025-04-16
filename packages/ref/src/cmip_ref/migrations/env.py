@@ -1,10 +1,12 @@
-from alembic import context
+from alembic import context, op
 from loguru import logger
+from sqlalchemy import Connection, inspect
 
-from cmip_ref.cli import capture_logging
 from cmip_ref.config import Config
 from cmip_ref.database import Database
-from cmip_ref.models import Base
+from cmip_ref.models import Base, MetricValue
+from cmip_ref_core.logging import capture_logging
+from cmip_ref_core.pycmec.controlled_vocabulary import CV
 
 # Setup logging
 capture_logging()
@@ -13,6 +15,7 @@ logger.debug("Running alembic env")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+ref_config: Config = config.attributes.get("ref_config") or Config.default()
 
 target_metadata = Base.metadata
 
@@ -20,6 +23,57 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+
+# Custom migration functions that are run on every migration
+
+
+def _add_metric_value_columns(connection: Connection) -> None:
+    """
+    Add any missing columns in the current CV to the database
+
+    This must be run in online mode
+
+    Parameters
+    ----------
+    connection
+        Open connection to the database
+    """
+    metric_table = "metric_value"
+
+    inspector = inspect(connection)
+
+    # Check if table already exists
+    # Skip if it doesn't
+    tables = inspector.get_table_names()
+    if metric_table not in tables:
+        logger.warning(f"No table named {metric_table!r} found")
+        return
+
+    # Extract the current columns in the DB
+    existing_columns = [c["name"] for c in inspector.get_columns(metric_table)]
+
+    cv_file = ref_config.paths.dimensions_cv
+    cv = CV.load_from_file(cv_file)
+
+    for dimension in cv.dimensions:
+        if dimension.name not in existing_columns:
+            logger.info(f"Adding missing metric value dimension: {dimension.name!r}")
+            op.add_column(metric_table, MetricValue.build_dimension_column(dimension))
+
+
+def include_object(object_, name: str, type_, reflected, compare_to) -> bool:
+    """
+    Object-level check to include or exclude objects from the migration
+
+    Excludes columns that are marked with `skip_autogenerate` in the info dict
+
+    Based on  https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-based-on-object
+    """
+    if object_.info.get("skip_autogenerate", False):
+        return False
+    else:
+        return True
 
 
 def run_migrations_offline() -> None:
@@ -42,6 +96,7 @@ def run_migrations_offline() -> None:
         dialect_name="sqlite",
         dialect_opts={"paramstyle": "named"},
         render_as_batch=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -53,22 +108,32 @@ def run_migrations_online() -> None:
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
     connectable = config.attributes.get("connection", None)
 
     if connectable is None:
-        db = Database.from_config(Config(), run_migrations=False)
+        db = Database.from_config(ref_config, run_migrations=False)
         connectable = db._engine
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=True,
+            include_object=include_object,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
 
+            # Set up the Operations context
+            # This is needed to alter the tables
+            with op.Operations.context(context.get_context()):  # type: ignore
+                _add_metric_value_columns(connection)
+
 
 if context.is_offline_mode():
+    logger.warning("Running in offline mode")
     run_migrations_offline()
 else:
     run_migrations_online()

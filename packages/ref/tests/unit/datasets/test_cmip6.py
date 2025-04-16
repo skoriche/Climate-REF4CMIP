@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
 
 
 @pytest.fixture
@@ -26,6 +26,13 @@ def test_parse_datetime():
             dtype="object",
         ),
     )
+
+
+def test_clean_branch_time():
+    inp = pd.Series(["0D", "12", "12.0", "12.000", "12.0000", "12.00000", None, np.nan])
+    exp = pd.Series([0.0, 12.0, 12.0, 12.0, 12.0, 12.0, np.nan, np.nan])
+
+    pd.testing.assert_series_equal(_clean_branch_time(inp), exp)
 
 
 class TestCMIP6Adapter:
@@ -83,7 +90,7 @@ def test_apply_fixes():
             "parent_variant_label": ["r1i1p1f1", "r1i1p1f2", "r1i1p1f2"],
             "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "branch_time_in_child": ["0D", "12", "12.0"],
-            "branch_time_in_parent": [None, "12", "12.0"],
+            "branch_time_in_parent": [None, np.nan, "12.0"],
         }
     )
 
@@ -95,7 +102,7 @@ def test_apply_fixes():
             "parent_variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "branch_time_in_child": [0.0, 12.0, 12.0],
-            "branch_time_in_parent": [np.nan, 12.0, 12.0],
+            "branch_time_in_parent": [np.nan, np.nan, 12.0],
         }
     )
     pd.testing.assert_frame_equal(res, exp)

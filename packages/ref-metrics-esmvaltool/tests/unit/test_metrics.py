@@ -1,7 +1,6 @@
 import cmip_ref_metrics_esmvaltool
 import pytest
 
-import cmip_ref_core.providers
 from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
@@ -22,11 +21,6 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
 
 def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, definition_factory):
     provider = cmip_ref_metrics_esmvaltool.provider
-    provider.prefix = tmp_path / "conda"
-    provider.prefix.mkdir()
-    provider._conda_exe = provider.prefix / "mock_micromamba"
-    provider._conda_exe.touch()
-    provider.env_path.mkdir()
 
     metric = next(
         metric for metric in provider.metrics() if metric.slug == "esmvaltool-global-mean-timeseries"
@@ -44,34 +38,22 @@ def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, de
         result.touch()
 
     mock_run = mocker.patch.object(
-        cmip_ref_core.providers.subprocess,
+        provider,
         "run",
         autospec=True,
         spec_set=True,
         side_effect=mock_run_fn,
     )
-    open_dataset = mocker.patch.object(
-        cmip_ref_metrics_esmvaltool.metrics.example.xarray,
-        "open_dataset",
-        autospec=True,
-        spec_set=True,
-    )
-    open_dataset.return_value.attrs.__getitem__.return_value = "ABC"
 
     result = metric.run(definition)
 
     mock_run.assert_called_with(
         [
-            f"{provider._conda_exe}",
-            "run",
-            "--prefix",
-            f"{provider.env_path}",
             "esmvaltool",
             "run",
             f"--config-dir={definition.to_output_path('config')}",
             f"{definition.to_output_path('recipe.yml')}",
         ],
-        check=True,
     )
 
     output_bundle_path = definition.output_directory / result.output_bundle_filename

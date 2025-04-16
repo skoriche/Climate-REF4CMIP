@@ -6,6 +6,7 @@ from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.executor import handle_execution_result
 from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from cmip_ref_core.logging import redirect_logs
 from cmip_ref_core.metrics import Metric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.providers import MetricsProvider
 
@@ -57,9 +58,18 @@ class LocalExecutor:
         definition.output_directory.mkdir(parents=True, exist_ok=True)
 
         try:
-            result = metric.run(definition=definition)
+            with redirect_logs(definition, self.config.log_level):
+                result = metric.run(definition=definition)
         except Exception:
-            logger.exception(f"Error running metric {metric.slug}")
+            if metric_execution_result is not None:  # pragma: no branch
+                info_msg = (
+                    f"\nAdditional information about this execution can be viewed using: "
+                    f"ref executions inspect {metric_execution_result.metric_execution_group_id}"
+                )
+            else:
+                info_msg = ""
+
+            logger.exception(f"Error running metric {metric.slug}. {info_msg}")
             result = MetricExecutionResult.build_from_failure(definition)
 
         if metric_execution_result:

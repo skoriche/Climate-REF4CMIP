@@ -1,5 +1,6 @@
 import datetime
 import logging
+import subprocess
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -19,6 +20,7 @@ class TestMetricsProvider:
         assert provider.name == "provider_name"
         assert provider.version == "v0.23"
         assert len(provider) == 0
+        assert repr(provider) == "MetricsProvider(name='provider_name', version='v0.23')"
 
     def test_provider_register(self, mock_metric):
         provider = MetricsProvider("provider_name", "v0.23")
@@ -293,4 +295,7 @@ class TestCondaMetricsProvider:
                 "mock-command",
             ],
             check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )

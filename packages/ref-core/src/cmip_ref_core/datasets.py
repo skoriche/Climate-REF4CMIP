@@ -67,6 +67,10 @@ class DatasetCollection:
     """
     Column in datasets that contains the unique identifier for the dataset
     """
+    selector: tuple[tuple[str, str], ...] = ()
+    """
+    Unique key, value pairs that were selected during the initial groupby
+    """
 
     def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)

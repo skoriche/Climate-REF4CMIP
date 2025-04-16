@@ -84,7 +84,7 @@ from the examples given in that link.
   ([#160](https://github.com/Climate-REF/climate-ref/pulls/160))
 - Add activity and institute to ESMValTool recipes to allow running with models
   and experiments that are not in the CMIP6 controlled vocabulary. ([#166](https://github.com/Climate-REF/climate-ref/pulls/166))
-- Add an integration test for the AR7 Fast-track metric providers.
+- Add an integration test for the CMIP7 AFT metric providers.
   This will be run nightly as part of the Climate-REF CI pipeline. ([#187](https://github.com/Climate-REF/climate-ref/pulls/187))
 - Improved the error message when running `ref datasets list` with the `--column` argument.
   If a column is specified that is not available, the error message now only mentions

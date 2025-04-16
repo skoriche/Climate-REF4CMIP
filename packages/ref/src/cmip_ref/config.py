@@ -120,7 +120,7 @@ class PathConfig:
     """
     Path to a file containing the controlled vocabulary for the dimensions in a CMEC metrics bundle
 
-    This defaults to the controlled vocabulary for the AR7-FT metrics,
+    This defaults to the controlled vocabulary for the CMIP7 Assessment Fast Track metrics,
     which is included in the `cmip_ref_core` package.
 
     This controlled vocabulary is used to validate the dimensions in the metrics bundle.
@@ -146,7 +146,7 @@ class PathConfig:
 
     @dimensions_cv.default
     def _dimensions_cv_factory(self) -> Path:
-        filename = "cv_cmip_ar7ft.yaml"
+        filename = "cv_cmip7_aft.yaml"
         return Path(str(importlib.resources.files("cmip_ref_core.pycmec") / filename))
 
 

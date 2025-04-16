@@ -1,3 +1,7 @@
+"""
+Celery worker tasks for handling metric execution results.
+"""
+
 from celery import current_app
 from loguru import logger
 

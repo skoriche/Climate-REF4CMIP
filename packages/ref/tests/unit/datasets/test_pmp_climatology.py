@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 
-from cmip_ref.datasets.pmp_climatology import PMPClimsDatasetAdapter
+from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
 
 
 @pytest.fixture
@@ -16,12 +16,12 @@ def test_empty_dir():
 
 class TestPMPClimatologyAdapter:
     def test_catalog_empty(self, db):
-        adapter = PMPClimsDatasetAdapter()
+        adapter = PMPClimatologyDatasetAdapter()
         df = adapter.load_catalog(db)
         assert df.empty
 
     def test_load_local_datasets(self, sample_data_dir, catalog_regression):
-        adapter = PMPClimsDatasetAdapter()
+        adapter = PMPClimatologyDatasetAdapter()
         data_catalog = adapter.find_local_datasets(str(sample_data_dir) + "/obs4MIPs")
 
         # TODO: add time_range to the db?
@@ -35,12 +35,12 @@ class TestPMPClimatologyAdapter:
 
     def test_load_local_CMIP6_datasets(self, sample_data_dir):
         with pytest.raises(ValueError) as excinfo:
-            adapter = PMPClimsDatasetAdapter()
+            adapter = PMPClimatologyDatasetAdapter()
             adapter.find_local_datasets(str(sample_data_dir) + "/CMIP6")
         assert str(excinfo.value) == "No obs4MIPs-compliant datasets found"
 
     def test_empty_directory_exception(self, test_empty_dir):
         with pytest.raises(ValueError) as excinfo:
-            adapter = PMPClimsDatasetAdapter()
+            adapter = PMPClimatologyDatasetAdapter()
             adapter.find_local_datasets(test_empty_dir)
         assert str(excinfo.value) == "asset list provided is None. Please run `.get_assets()` first"

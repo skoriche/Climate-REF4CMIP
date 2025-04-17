@@ -37,6 +37,7 @@ class SeaIceAreaSeasonalCycle(ESMValToolMetric):
                 AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
             ),
         ),
+        # TODO: Use OSI-450-nh and OSI-450-sh from obs4MIPs once available.
     )
 
     @staticmethod

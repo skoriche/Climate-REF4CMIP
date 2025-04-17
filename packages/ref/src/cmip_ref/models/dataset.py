@@ -262,3 +262,7 @@ class PMPClimatologyFile(Base):
     """
 
     dataset = relationship("PMPClimatologyDataset", backref="files")
+
+
+DatasetFile = CMIP6File | Obs4MIPsFile | PMPClimatologyFile
+# This should be handled via polymorphic association rather than a union

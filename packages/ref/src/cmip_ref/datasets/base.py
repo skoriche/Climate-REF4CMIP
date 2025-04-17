@@ -8,8 +8,7 @@ from sqlalchemy.orm import joinedload
 from cmip_ref.config import Config
 from cmip_ref.database import Database
 from cmip_ref.datasets.utils import validate_path
-from cmip_ref.models import Base
-from cmip_ref.models.dataset import Dataset
+from cmip_ref.models.dataset import Dataset, DatasetFile
 from cmip_ref_core.exceptions import RefException
 
 
@@ -44,7 +43,7 @@ class DatasetAdapter(Protocol):
     """
 
     dataset_cls: type[Dataset]
-    file_cls: type[Base]
+    file_cls: type[DatasetFile]
     slug_column: str
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...] = ()
@@ -150,6 +149,8 @@ class DatasetAdapter(Protocol):
             path = validate_path(dataset_file.pop("path"))
 
             db.session.add(
+                # TODO: The kwargs here should likely be sourced from a function
+                # This only works at the moment because all source types look the same
                 FileModel(
                     path=str(path),
                     dataset_id=dataset.id,
@@ -183,10 +184,10 @@ class DatasetAdapter(Protocol):
             result = (
                 db.session.query(FileModel)
                 # The join is necessary to be able to order by the dataset columns
-                .join(FileModel.dataset)  # type: ignore
+                .join(FileModel.dataset)
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(FileModel.dataset))  # type: ignore
+                .options(joinedload(FileModel.dataset))
                 .order_by(Dataset.updated_at.desc())
                 .limit(limit)
                 .all()

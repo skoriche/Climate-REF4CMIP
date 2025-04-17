@@ -16,7 +16,12 @@ from loguru import logger
 from rich.progress import track
 
 
-def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, symlink: bool = False) -> None:
+def fetch_all_files(
+    registry: pooch.Pooch,
+    name: str,
+    output_dir: pathlib.Path | None,
+    symlink: bool = False,
+) -> None:
     """
     Fetch all files associated with a pooch registry and write them to an output directory.
 
@@ -27,6 +32,8 @@ def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, syml
     ----------
     registry
         Pooch directory containing a set of files that should be fetched.
+    name
+        Name of the registry.
     output_dir
         The root directory to write the files to.
 
@@ -42,7 +49,7 @@ def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, syml
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
 
-    for key in track(registry.registry.keys(), description=""):
+    for key in track(registry.registry.keys(), description=f"Fetching {name} data"):
         fetch_file = registry.fetch(key)
 
         if output_dir is None:

@@ -13,6 +13,7 @@ import shutil
 
 import pooch
 from loguru import logger
+from rich.progress import track
 
 
 def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, symlink: bool = False) -> None:
@@ -41,7 +42,7 @@ def fetch_all_files(registry: pooch.Pooch, output_dir: pathlib.Path | None, syml
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
 
-    for key in registry.registry.keys():
+    for key in track(registry.registry.keys(), description=""):
         fetch_file = registry.fetch(key)
 
         if output_dir is None:

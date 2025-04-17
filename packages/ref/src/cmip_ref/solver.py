@@ -97,6 +97,9 @@ class MetricExecution:
         """
         Build the metric execution info for the current metric execution
         """
+        # Ensure that the output root is always an absolute path
+        output_root = output_root.resolve()
+
         # This is the desired path relative to the output directory
         fragment = pathlib.Path() / self.provider.slug / self.metric.slug / self.metric_dataset.hash
 

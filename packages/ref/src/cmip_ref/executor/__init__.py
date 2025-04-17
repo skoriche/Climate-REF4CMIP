@@ -104,10 +104,10 @@ def _copy_file_to_results(
     if not (input_directory / filename).exists():
         raise FileNotFoundError(f"Could not find {filename} in {input_directory}")
 
-    if not output_directory.exists():
-        output_directory.mkdir(parents=True)
+    output_filename = output_directory / filename
+    output_filename.parent.mkdir(parents=True, exist_ok=True)
 
-    shutil.copy(input_directory / filename, output_directory / filename)
+    shutil.copy(input_directory / filename, output_filename)
 
 
 def handle_execution_result(

@@ -40,8 +40,9 @@ jobs:
           key: ilamb
       - name: Run tests
         run: |
+          make virtual-environment
           make fetch-test-data
-          uv run ref datasets fetch-data ilamb
+          uv run ref datasets fetch-data --registry ilamb
           make test
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

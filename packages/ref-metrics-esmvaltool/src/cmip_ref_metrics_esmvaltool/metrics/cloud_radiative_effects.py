@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pandas
 
 from cmip_ref_core.constraints import (
@@ -12,7 +10,7 @@ from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement
 from cmip_ref_metrics_esmvaltool.metrics.base import ESMValToolMetric
 from cmip_ref_metrics_esmvaltool.recipe import dataframe_to_recipe
-from cmip_ref_metrics_esmvaltool.types import OutputBundle, Recipe
+from cmip_ref_metrics_esmvaltool.types import Recipe
 
 
 class CloudRadiativeEffects(ESMValToolMetric):
@@ -49,6 +47,7 @@ class CloudRadiativeEffects(ESMValToolMetric):
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
+        # TODO: Use CERES-EBAF, ESACCI-CLOUD, and ISCCP-FH from obs4MIPs once available.
     )
 
     @staticmethod
@@ -73,25 +72,3 @@ class CloudRadiativeEffects(ESMValToolMetric):
             dataset.pop("timerange")
         recipe["datasets"] = datasets
         recipe["timerange_for_models"] = timerange
-
-    @staticmethod
-    def format_result(result_dir: Path) -> OutputBundle:
-        """Format the result."""
-        # TODO: Remove this method once https://github.com/Climate-REF/climate-ref/pull/237 has been merged
-        cmec_output = {
-            "DIMENSIONS": {
-                "model": {"abc": {}},
-                "region": {"global": {}},
-                "metric": {"tas": {}},
-                "json_structure": [
-                    "model",
-                    "region",
-                    "metric",
-                ],
-            },
-            "RESULTS": {
-                "abc": {"global": {"tas": 0}},
-            },
-        }
-
-        return cmec_output

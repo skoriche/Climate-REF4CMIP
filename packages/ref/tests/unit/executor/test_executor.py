@@ -1,4 +1,5 @@
 import pathlib
+import shutil
 
 import pytest
 from sqlalchemy.orm import Session
@@ -40,11 +41,22 @@ def mock_execution_result(mocker):
     return mock_result
 
 
-def test_handle_execution_result_successful(db, config, mock_execution_result, mocker, definition_factory):
-    metric_bundle_filename = pathlib.Path("bundle.zip")
+def test_handle_execution_result_successful(
+    db, config, mock_execution_result, mocker, definition_factory, test_data_dir
+):
+    metric_bundle_filename = pathlib.Path("bundle.json")
+    definition = definition_factory()
     result = MetricExecutionResult(
-        definition=definition_factory(), successful=True, metric_bundle_filename=metric_bundle_filename
+        definition=definition, successful=True, metric_bundle_filename=metric_bundle_filename
     )
+
+    # Copy a sample metric bundle to the output directory
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
+    shutil.copy(
+        test_data_dir / "cmec-output" / "pr_v3-LR_0101_1x1_esmf_metrics_default_v20241023_cmec.json",
+        definition.to_output_path(metric_bundle_filename),
+    )
+
     mock_copy = mocker.patch("cmip_ref.executor._copy_file_to_results")
 
     handle_execution_result(config, db, mock_execution_result, result)
@@ -85,7 +97,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
         short_name="example2",
         dict_content={
             "long_name": "awesome figure",
-            "filename": "fig_2.jpg",
+            "filename": "folder/fig_2.jpg",
             "description": "test add plots",
         },
     )
@@ -107,7 +119,8 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     # The outputs must exist
     definition.to_output_path("out.log").touch()
     definition.to_output_path("fig_1.jpg").touch()
-    definition.to_output_path("fig_2.jpg").touch()
+    definition.to_output_path("folder").mkdir()
+    definition.to_output_path("folder/fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
 
     mock_result_output = mocker.patch("cmip_ref.executor.ResultOutput", spec=ResultOutput)
@@ -152,14 +165,15 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
 
 
 @pytest.mark.parametrize("is_relative", [True, False])
-def test_copy_file_to_results_success(mocker, is_relative):
-    scratch_directory = pathlib.Path("/scratch")
-    results_directory = pathlib.Path("/results")
+@pytest.mark.parametrize("filename", ("bundle.zip", "nested/bundle.zip"))
+def test_copy_file_to_results_success(filename, is_relative, tmp_path):
+    scratch_directory = (tmp_path / "scratch").resolve()
+    results_directory = (tmp_path / "results").resolve()
     fragment = "output_fragment"
-    filename = "bundle.zip"
 
-    mocker.patch("pathlib.Path.exists", return_value=True)
-    mock_copy = mocker.patch("shutil.copy")
+    scratch_filename = scratch_directory / fragment / filename
+    scratch_filename.parent.mkdir(parents=True, exist_ok=True)
+    scratch_filename.touch()
 
     if is_relative:
         _copy_file_to_results(scratch_directory, results_directory, fragment, filename)
@@ -168,9 +182,7 @@ def test_copy_file_to_results_success(mocker, is_relative):
             scratch_directory, results_directory, fragment, scratch_directory / fragment / filename
         )
 
-    mock_copy.assert_called_once_with(
-        scratch_directory / fragment / filename, results_directory / fragment / filename
-    )
+    assert (results_directory / fragment / filename).exists()
 
 
 def test_copy_file_to_results_file_not_found(mocker):

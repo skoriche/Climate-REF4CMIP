@@ -54,6 +54,7 @@ def capture_logging() -> None:
     logger.disable("matplotlib.ticker")
     logger.disable("matplotlib.font_manager")
     logger.disable("pyproj.transformer")
+    logger.disable("pint.facets.plain.registry")
 
 
 def add_log_handler(**kwargs: Any) -> None:
@@ -111,8 +112,14 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
         The logger will also be reset to this level after leaving the context manager.
 
     """
+    app_logger_configured = hasattr(logger, "default_handler_id")
+
     # Remove existing default log handler
-    remove_log_handler()
+    # This swallows the logs from the app logger
+    # If the app logger hasn't been configured yet, we don't need to remove it,
+    # as logs will also be written to the console as loguru adds a stderr handler by default
+    if app_logger_configured:
+        remove_log_handler()
 
     # Add a new log handler for the execution log
     output_file = definition.output_directory / EXECUTION_LOG_FILENAME
@@ -130,7 +137,10 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
 
         # Reset the logger to the default
         logger.remove(file_handler_id)
-        add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
+
+        # We only re-add the app handler if it was configured before
+        if app_logger_configured:
+            add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
 
 
 __all__ = ["add_log_handler", "capture_logging", "logger", "redirect_logs"]

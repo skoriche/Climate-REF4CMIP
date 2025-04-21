@@ -2,20 +2,8 @@ import datetime
 
 import numpy as np
 import pandas as pd
-import pytest
 
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _parse_datetime
-
-
-@pytest.fixture
-def catalog_regression(data_regression, sample_data_dir):
-    def check(df: pd.DataFrame, basename: str):
-        # Strip the path to make the test more robust
-        df["path"] = df["path"].str.replace(str(sample_data_dir), "{esgf_data_dir}")
-
-        data_regression.check(df.to_dict(orient="records"), basename=basename)
-
-    return check
+from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
 
 
 def test_parse_datetime():
@@ -26,6 +14,13 @@ def test_parse_datetime():
             dtype="object",
         ),
     )
+
+
+def test_clean_branch_time():
+    inp = pd.Series(["0D", "12", "12.0", "12.000", "12.0000", "12.00000", None, np.nan])
+    exp = pd.Series([0.0, 12.0, 12.0, 12.0, 12.0, 12.0, np.nan, np.nan])
+
+    pd.testing.assert_series_equal(_clean_branch_time(inp), exp)
 
 
 class TestCMIP6Adapter:
@@ -83,7 +78,7 @@ def test_apply_fixes():
             "parent_variant_label": ["r1i1p1f1", "r1i1p1f2", "r1i1p1f2"],
             "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "branch_time_in_child": ["0D", "12", "12.0"],
-            "branch_time_in_parent": [None, "12", "12.0"],
+            "branch_time_in_parent": [None, np.nan, "12.0"],
         }
     )
 
@@ -95,7 +90,7 @@ def test_apply_fixes():
             "parent_variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f2"],
             "branch_time_in_child": [0.0, 12.0, 12.0],
-            "branch_time_in_parent": [np.nan, 12.0, 12.0],
+            "branch_time_in_parent": [np.nan, np.nan, 12.0],
         }
     )
     pd.testing.assert_frame_equal(res, exp)

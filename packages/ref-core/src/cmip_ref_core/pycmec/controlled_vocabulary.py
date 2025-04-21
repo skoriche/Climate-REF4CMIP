@@ -1,6 +1,7 @@
 import pathlib
+from typing import Any
 
-from attrs import field, frozen
+from attrs import field, frozen, validators
 from cattrs import Converter, transform_error
 from loguru import logger
 from ruamel.yaml import YAML
@@ -9,6 +10,14 @@ from cmip_ref_core.exceptions import ResultValidationError
 from cmip_ref_core.pycmec.metric import CMECMetric
 
 yaml = YAML()
+
+
+RESERVED_DIMENSION_NAMES = {"attributes", "json_structure", "created_at", "updated_at", "value", "id"}
+"""
+These names are reserved for internal use and should not be used as dimension names.
+
+These names have other meanings that would conflict with the controlled vocabulary.
+"""
 
 
 @frozen
@@ -31,11 +40,11 @@ class Dimension:
     This information is also used by the frontend for presentation purposes.
     """
 
-    name: str
+    name: str = field(validator=validators.not_(validators.in_(RESERVED_DIMENSION_NAMES)))
     """
-    A short idenfifier of the dimension.
+    A short identifier of the dimension.
 
-    This is used as a key in the metric bundle.
+    This is used as a key in the metric bundle and must be unique.
     """
     long_name: str
     """
@@ -77,7 +86,20 @@ class CV:
 
     # TODO: There might be some additional fields in future if this CV is project-specific
 
-    dimensions: list[Dimension]
+    dimensions: tuple[Dimension, ...] = field()
+
+    @dimensions.validator
+    def _validate_dimensions(self, _: Any, value: tuple[Dimension, ...]) -> None:
+        """
+        Validate that all dimension names are unique and do not conflict with reserved names
+        """
+        seen = set()
+        for dim in value:
+            if dim.name in seen:
+                raise ValueError(f"Duplicate dimension name: {dim.name}")
+            if dim.name in RESERVED_DIMENSION_NAMES:
+                raise ValueError(f"Reserved dimension name: {dim.name}")
+            seen.add(dim.name)
 
     def get_dimension_by_name(self, name: str) -> Dimension:
         """

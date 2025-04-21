@@ -2,11 +2,13 @@
 
 **Hackathon at the Met Office, Exeter, UK, 10 - 14 May 2025**
 
-This hybrid hackathon is being run by the Model Benchmarking Task Team and the REF delivery team. We welcome attendance from technical and domain scientists from modelling centres involved in the CMIP AR7 Fast Track, observation dataset providers, as well as ESGF nodes and developers.
+This hybrid hackathon is being run by the Model Benchmarking Task Team and the REF delivery team.
+We welcome attendance from technical and domain scientists from modelling centres involved in the CMIP7 Assessment Fast Track (AFT),
+observation dataset providers, as well as ESGF nodes and developers.
 
 During the hackathon, there will also be dedicated drop-ins for wider community interest:
 
-* **10 March 14:00 UTC – 15:00 UTC**: Hackathon launch - providing a brief overview of the REF and a status update by the AR7 FT REF delivery team
+* **10 March 14:00 UTC – 15:00 UTC**: Hackathon launch - providing a brief overview of the REF and a status update by the CMIP AFT delivery team
 * **11 March 17:00 – 18:00 UTC**: Modelling Centres
 * **13 March 08:00 – 09:00 UTC**: Modelling Centres
 * **13 March 11:00 – Midday UTC**: Observation dataset providers
@@ -73,7 +75,7 @@ How a metric is actually calculated depends on which metrics provider the metric
 The rest of the complexity that comes from figuring out which datasets to use, how to run the metric, and how to visualise the results is handled by the REF.
 
 ### Metric Providers
-Metrics are grouped into packages, one for each of the metric providers selected for the AR7 Fast Track.
+Metrics are grouped into packages, one for each of the metric providers selected for the CMIP7 AFT.
 These metric packages (ESMValTool, ILAMB and PMP) each have different ways of calculating metrics.
 
 For some metric providers (ILAMB and ESMValTool),

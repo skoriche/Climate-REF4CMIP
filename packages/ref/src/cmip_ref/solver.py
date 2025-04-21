@@ -2,8 +2,6 @@
 Solver to determine which metrics need to be calculated
 
 This module provides a solver to determine which metrics need to be calculated.
-
-This module is still a work in progress and is not yet fully implemented.
 """
 
 import itertools
@@ -19,6 +17,7 @@ from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
+from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
 from cmip_ref.models import Metric as MetricModel
 from cmip_ref.models import MetricExecutionGroup as MetricExecutionGroupModel
 from cmip_ref.models import Provider as ProviderModel
@@ -51,30 +50,57 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
+    def _source_type_order(self) -> list[SourceDatasetType]:
+        source_types = [requirement.source_type for requirement in self.metric.data_requirements]
+        return sorted(source_types, key=lambda x: x.value)
+
     @property
     def dataset_key(self) -> str:
         """
         Key used to uniquely identify the execution group
 
-        This key is unique to an execution group and should be stable if new datasets are added
-        that
+        This key is unique to an execution group and uses unique set of metadata (selectors)
+         that defines the group.
+        This key is combines the selectors from each source dataset type into a single key
+        and should be stable if new datasets are added or removed.
         """
         key_values = []
-        for requirement in self.metric.data_requirements:
+
+        source_type_order = self._source_type_order()
+        for source_type in source_type_order:
             # Ensure the selector is sorted using the dimension names
             # This will ensure a stable key even if the groupby order changes
-            selector = self.metric_dataset[requirement.source_type].selector
+            selector = self.metric_dataset[source_type].selector
             selector_sorted = sorted(selector, key=lambda item: item[0])
 
-            source_key = f"{requirement.source_type.value}_" + "_".join(value for _, value in selector_sorted)
+            source_key = f"{source_type.value}_" + "_".join(value for _, value in selector_sorted)
             key_values.append(source_key)
 
         return "__".join(key_values)
+
+    @property
+    def selectors(self) -> dict[str, SelectorKey]:
+        """
+        Collection of selectors used to identify the datasets
+
+        These are the key, value pairs that were selected during the initial group-by,
+        for each data requirement.
+        """
+        source_type_order = self._source_type_order()
+
+        # The value of SourceType is used here so that this
+        # result can be stored in the db
+        return {
+            source_type.value: self.metric_dataset[source_type].selector for source_type in source_type_order
+        }
 
     def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """
         Build the metric execution info for the current metric execution
         """
+        # Ensure that the output root is always an absolute path
+        output_root = output_root.resolve()
+
         # This is the desired path relative to the output directory
         fragment = pathlib.Path() / self.provider.slug / self.metric.slug / self.metric_dataset.hash
 
@@ -215,6 +241,7 @@ class MetricSolver:
             data_catalog={
                 SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
                 SourceDatasetType.obs4MIPs: Obs4MIPsDatasetAdapter().load_catalog(db),
+                SourceDatasetType.PMPClimatology: PMPClimatologyDatasetAdapter().load_catalog(db),
             },
         )
 
@@ -276,10 +303,8 @@ def solve_metrics(
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
-            metric_execution_group_model, created = db.get_or_create(
-                MetricExecutionGroupModel,
-                dataset_key=definition.dataset_key,
-                metric_id=db.session.query(MetricModel)
+            metric = (
+                db.session.query(MetricModel)
                 .join(MetricModel.provider)
                 .filter(
                     ProviderModel.slug == metric_execution.provider.slug,
@@ -287,8 +312,13 @@ def solve_metrics(
                     MetricModel.slug == metric_execution.metric.slug,
                 )
                 .one()
-                .id,
+            )
+            metric_execution_group_model, created = db.get_or_create(
+                MetricExecutionGroupModel,
+                dataset_key=definition.dataset_key,
+                metric_id=metric.id,
                 defaults={
+                    "selectors": metric_execution.selectors,
                     "dirty": True,
                 },
             )

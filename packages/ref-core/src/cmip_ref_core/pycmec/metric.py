@@ -154,17 +154,17 @@ class MetricResults(RootModel[Any]):
     def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:
         dim_name = metdims[MetricCV.JSON_STRUCTURE.value][level]
 
-        dict_key = list(nested.keys())
-        if MetricCV.ATTRIBUTES.value in dict_key:
-            dict_key.remove(MetricCV.ATTRIBUTES.value)
+        dict_keys = set(nested.keys())
+        if MetricCV.ATTRIBUTES.value in dict_keys:
+            dict_keys.remove(MetricCV.ATTRIBUTES.value)
 
         if level < len(metdims[MetricCV.JSON_STRUCTURE.value]) - 1:
-            if not (Counter(list(metdims[dim_name].keys())) == Counter(dict_key)):
+            if not (Counter(list(metdims[dim_name].keys())) == Counter(dict_keys)):
                 raise ValueError(
                     f"Dimension key mismatch in '{dim_name}' and level {level}\n"
-                    f"Actual keys: {sorted(dict_key)}\n"
+                    f"Actual keys: {sorted(dict_keys)}\n"
                     f"Expected keys: {sorted(metdims[dim_name].keys())}\n"
-                    "Full actual structure:\n" + json.dumps(dict_key, indent=2) + "\n\n"
+                    "Full actual structure:\n" + json.dumps(list(dict_keys), indent=2) + "\n\n"
                     "Full expected structure:\n" + json.dumps(metdims[dim_name], indent=2)
                 )
 
@@ -181,8 +181,9 @@ class MetricResults(RootModel[Any]):
                         f"a dictionary is expected for the key {key}"
                     )
         else:
-            if not (set(dict_key).issubset(metdims[dim_name].keys())):
-                raise ValueError("Keys in the deepest dictionary are not defined in DIMENSIONS")
+            expected_keys = set(metdims[dim_name].keys())
+            if not (dict_keys.issubset(expected_keys)):
+                raise ValueError(f"Unknown dimension values: {dict_keys - expected_keys}")
 
             tmp = dict(nested)
             if MetricCV.ATTRIBUTES.value in tmp:
@@ -210,7 +211,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float | int]
+    root: dict[str, float | int | list[str|float|int]]
 
 
 class MetricValue(BaseModel):

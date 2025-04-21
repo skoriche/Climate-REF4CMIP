@@ -1,3 +1,7 @@
+"""
+Executor for running metrics asynchronously using Celery
+"""
+
 import time
 from typing import Any
 

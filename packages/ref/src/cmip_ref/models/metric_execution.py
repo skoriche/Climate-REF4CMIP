@@ -1,6 +1,6 @@
 import enum
 import pathlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
@@ -14,6 +14,7 @@ from cmip_ref_core.datasets import MetricDataset
 if TYPE_CHECKING:
     from cmip_ref.database import Database
     from cmip_ref.models.metric import Metric
+    from cmip_ref.models.metric_value import MetricValue
 
 
 class MetricExecutionGroup(CreatedUpdatedMixin, Base):
@@ -55,6 +56,15 @@ class MetricExecutionGroup(CreatedUpdatedMixin, Base):
 
     An execution group is dirty if the metric or any of the input datasets has been
     updated since the last execution.
+    """
+
+    selectors: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    """
+    Collection of selectors that define the group
+
+    These selectors are the unique key, value pairs that were selected during the initial groupby
+    operation.
+    These are also used to define the dataset key.
     """
 
     metric: Mapped["Metric"] = relationship(back_populates="execution_groups")
@@ -120,7 +130,12 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
     This directory may contain multiple input and output files.
     """
 
-    metric_execution_group_id: Mapped[int] = mapped_column(ForeignKey("metric_execution_group.id"))
+    metric_execution_group_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "metric_execution_group.id",
+            name="fk_metric_execution_result_group_id",
+        )
+    )
     """
     The target metric execution group
     """
@@ -155,6 +170,7 @@ class MetricExecutionResult(CreatedUpdatedMixin, Base):
 
     metric_execution_group: Mapped["MetricExecutionGroup"] = relationship(back_populates="results")
     outputs: Mapped[list["ResultOutput"]] = relationship(back_populates="metric_execution_result")
+    values: Mapped[list["MetricValue"]] = relationship(back_populates="metric_execution_result")
 
     datasets: Mapped[list[Dataset]] = relationship(secondary=metric_datasets)
 

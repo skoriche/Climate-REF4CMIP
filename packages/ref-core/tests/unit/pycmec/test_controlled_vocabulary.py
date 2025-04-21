@@ -1,7 +1,7 @@
 import pytest
 
 from cmip_ref_core.exceptions import ResultValidationError
-from cmip_ref_core.pycmec.controlled_vocabulary import CV
+from cmip_ref_core.pycmec.controlled_vocabulary import CV, Dimension
 from cmip_ref_core.pycmec.metric import CMECMetric
 
 
@@ -16,8 +16,51 @@ def test_load_from_file(datadir):
     assert len(cv.dimensions)
 
 
+def test_load_from_file_failed(tmp_path):
+    (tmp_path / "cv_sample.yaml").touch()
+    with pytest.raises(AttributeError, match="'NoneType' object has no attribute 'keys'"):
+        CV.load_from_file(tmp_path / "cv_sample.yaml")
+
+
 def test_validate(cv, cmec_metric):
     cv.validate_metrics(cmec_metric)
+
+
+def test_cv_duplicate_dimension(cv):
+    with pytest.raises(ValueError):
+        CV(
+            dimensions=(
+                Dimension(
+                    name="model",
+                    long_name="Model",
+                    description="Model name",
+                    allow_extra_values=True,
+                    required=True,
+                ),
+                Dimension(
+                    name="model",
+                    long_name="Model",
+                    description="Model name",
+                    allow_extra_values=True,
+                    required=True,
+                ),
+            )
+        )
+
+
+def test_cv_reserved_dimension(cv):
+    with pytest.raises(ValueError):
+        CV(
+            dimensions=(
+                Dimension(
+                    name="attributes",
+                    long_name="Model",
+                    description="Model name",
+                    allow_extra_values=True,
+                    required=True,
+                ),
+            )
+        )
 
 
 def test_invalid_dimension(cv, cmec_metric):

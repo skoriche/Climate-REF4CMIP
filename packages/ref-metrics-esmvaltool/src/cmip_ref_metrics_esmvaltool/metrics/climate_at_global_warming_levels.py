@@ -14,7 +14,7 @@ from cmip_ref_metrics_esmvaltool.types import Recipe
 
 class ClimateAtGlobalWarmingLevels(ESMValToolMetric):
     """
-    Calculate the annual mean global mean timeseries for a dataset.
+    Calculate climate variables at global warming levels.
     """
 
     name = "Climate variables at global warming levels"

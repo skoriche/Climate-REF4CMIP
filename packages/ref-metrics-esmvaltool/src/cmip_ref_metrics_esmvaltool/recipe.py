@@ -115,8 +115,8 @@ def dataframe_to_recipe(files: pd.DataFrame) -> dict[str, Any]:
     return variables
 
 
-_ESMVALTOOL_COMMIT = "864a0b9328e6d29d0591ffb593fdfcc88b22f1b8"
-_ESMVALTOOL_VERSION = f"2.13.0.dev21+{_ESMVALTOOL_COMMIT[:10]}"
+_ESMVALTOOL_COMMIT = "a759ce46d5185e3784997ce38a3956e39322cdac"
+_ESMVALTOOL_VERSION = f"2.13.0.dev27+g{_ESMVALTOOL_COMMIT[:9]}"
 
 _RECIPES = pooch.create(
     path=pooch.os_cache("cmip_ref_metrics_esmvaltool"),

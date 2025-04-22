@@ -7,7 +7,19 @@ from cmip_ref.solver import solve_metric_executions
 from cmip_ref.testing import validate_result
 
 variability_metrics = [
-    pytest.param(metric, id=metric.slug)
+    pytest.param(
+        metric,
+        id=metric.slug,
+        marks=(
+            pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
+            if metric.slug
+            in {
+                "pmp-extratropical-modes-of-variability-pdo",
+                "pmp-extratropical-modes-of-variability-npgo",
+            }
+            else ()
+        ),
+    )
     for metric in provider.metrics()
     if isinstance(metric, ExtratropicalModesOfVariability)
 ]

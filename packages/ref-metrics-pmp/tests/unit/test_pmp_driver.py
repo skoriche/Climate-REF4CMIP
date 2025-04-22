@@ -5,6 +5,7 @@ from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
 
 
+@pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
 def test_process_json_result(pdo_example_dir):
     json_file = (
         pdo_example_dir

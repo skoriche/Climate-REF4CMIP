@@ -27,8 +27,8 @@ provider.register(AnnualCycle())
 
 
 dataset_registry_manager.register(
-    "pmp-annual-cycle",
+    "pmp-climatology",
     "https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/",
     package="cmip_ref_metrics_pmp.dataset_registry",
-    resource="pmp_annual_cycle.txt",
+    resource="pmp_climatology.txt",
 )

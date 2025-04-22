@@ -10,17 +10,6 @@ from cmip_ref.testing import TEST_DATA_DIR
 
 
 @pytest.fixture
-def catalog_regression(data_regression, sample_data_dir):
-    def check(df: pd.DataFrame, basename: str):
-        # Strip the path to make the test more robust
-        df["path"] = df["path"].str.replace(str(sample_data_dir), "{esgf_data_dir}")
-
-        data_regression.check(df.to_dict(orient="records"), basename=basename)
-
-    return check
-
-
-@pytest.fixture
 def test_empty_dir():
     dir_path = "test_empty_directory"
     os.makedirs(dir_path, exist_ok=True)

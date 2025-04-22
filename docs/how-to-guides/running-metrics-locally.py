@@ -94,7 +94,7 @@ metric_executions = solve_metric_executions(
     data_catalog={
         SourceDatasetType.CMIP6: data_catalog,
     },
-    metric=provider.get("global-mean-timeseries"),
+    metric=metric,
     provider=provider,
 )
 
@@ -144,6 +144,7 @@ prettyprinter.pprint(definition)
 # This will not perform and validation/verification of the output results.
 
 # %%
+definition.output_directory.mkdir(parents=True, exist_ok=True)
 direct_result = metric.run(definition=definition)
 assert direct_result.successful
 

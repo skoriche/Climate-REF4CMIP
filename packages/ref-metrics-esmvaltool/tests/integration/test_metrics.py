@@ -1,28 +1,20 @@
 import pytest
-from cmip_ref_metrics_pmp import provider
-from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability
+from cmip_ref_metrics_esmvaltool import provider
 
 from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.solver import solve_metric_executions
 from cmip_ref.testing import validate_result
+from cmip_ref_core.metrics import Metric
 
-variability_metrics = [
-    pytest.param(metric, id=metric.slug)
-    for metric in provider.metrics()
-    if isinstance(metric, ExtratropicalModesOfVariability)
-]
+metrics = [pytest.param(metric, id=metric.slug) for metric in provider.metrics()]
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("metric", variability_metrics)
-def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog, tmp_path, config, mocker):
+@pytest.mark.parametrize("metric", metrics)
+def test_metrics(metric: Metric, data_catalog, tmp_path, config, mocker):
     mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
-
     # Ensure the conda prefix is set
     provider.configure(config)
-
-    if metric.mode_id in ExtratropicalModesOfVariability.psl_modes:
-        pytest.xfail("Missing PSL sample data")
 
     # Get the first match from the data catalog
     execution = next(
@@ -35,6 +27,7 @@ def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog
 
     # Run the metric
     definition = execution.build_metric_execution_info(output_root=config.paths.scratch)
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
     result = metric.run(definition)
 
     # Check the result

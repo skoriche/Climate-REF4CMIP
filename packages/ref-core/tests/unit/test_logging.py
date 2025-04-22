@@ -52,6 +52,31 @@ def test_redirect_logs(definition, caplog):
     assert text_inner in output_file.read_text()
 
 
+def test_redirect_logs_without_handler(definition):
+    definition, output_file = definition
+
+    assert not hasattr(logger, "default_handler_id")
+    with redirect_logs(definition, "INFO"):
+        logger.info("inner")
+    assert not hasattr(logger, "default_handler_id")
+
+    assert "inner" in output_file.read_text()
+
+
+def test_redirect_logs_stdlog_captured(definition):
+    definition, output_file = definition
+
+    with redirect_logs(definition, "INFO"):
+        import logging
+
+        stdlog = logging.getLogger("stdlog")
+        stdlog.info("stdlog inner")
+        stdlog.debug("stdlog debug")
+
+    assert "stdlog inner" in output_file.read_text()
+    assert "stdlog debug" not in output_file.read_text()
+
+
 def test_redirect_logs_exception(definition, caplog):
     log_level = "DEBUG"
 

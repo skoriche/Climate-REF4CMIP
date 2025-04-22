@@ -142,7 +142,7 @@ class ESMValToolMetric(CommandLineMetric):
             metadata = yaml.load(metadata_file.read_text(encoding="utf-8"))
             for filename in metadata:
                 caption = metadata[filename].get("caption", "")
-                relative_path = Path(filename).relative_to(result_dir.absolute())
+                relative_path = definition.as_relative_path(filename)
                 if relative_path.suffix in plot_suffixes:
                     key = OutputCV.PLOTS.value
                 else:

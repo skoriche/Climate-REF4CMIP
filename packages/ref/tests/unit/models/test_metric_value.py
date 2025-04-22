@@ -36,7 +36,7 @@ class TestMetricValue:
                 dimensions={"not_a_dimension": "test"},
             )
 
-    def test_register_dimensions(self, ar7_ft_cv):
+    def test_register_dimensions(self, cmip7_aft_cv):
         metric_value_kwargs = dict(
             metric_execution_result_id=1, value=1.0, attributes=None, dimensions={"model": "test"}
         )
@@ -46,8 +46,8 @@ class TestMetricValue:
         with pytest.raises(KeyError):
             MetricValue.build(**metric_value_kwargs)
 
-        MetricValue.register_cv_dimensions(ar7_ft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in ar7_ft_cv.dimensions]
+        MetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
 
         # Should work now that the dimension has been registered
         item = MetricValue.build(**metric_value_kwargs)
@@ -55,12 +55,12 @@ class TestMetricValue:
         for k in MetricValue._cv_dimensions:
             assert hasattr(item, k)
 
-    def test_register_dimensions_multiple_times(self, ar7_ft_cv):
+    def test_register_dimensions_multiple_times(self, cmip7_aft_cv):
         MetricValue._reset_cv_dimensions()
         assert MetricValue._cv_dimensions == []
 
-        MetricValue.register_cv_dimensions(ar7_ft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in ar7_ft_cv.dimensions]
+        MetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
 
-        MetricValue.register_cv_dimensions(ar7_ft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in ar7_ft_cv.dimensions]
+        MetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]

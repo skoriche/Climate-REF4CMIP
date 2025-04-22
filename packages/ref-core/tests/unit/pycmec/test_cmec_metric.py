@@ -57,6 +57,24 @@ def cmec_wrongdim_metric_dict(cmec_right_metric_dict):
     return cmec_right_metric_dict
 
 
+def test_metric_missing_deepest_dimension(cmec_right_metric_dict):
+    cmec_metric = cmec_right_metric_dict
+    cmec_metric["DIMENSIONS"]["json_structure"] = cmec_right_metric_dict["DIMENSIONS"]["json_structure"][:-1]
+    cmec_metric["DIMENSIONS"].pop("statistic")
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_metric)
+
+
+def test_metric_missing_deepest_dimension_key(cmec_right_metric_dict):
+    cmec_metric = cmec_right_metric_dict
+    cmec_metric["RESULTS"]["E3SM"]["Hydrology Cycle"].pop("rmse")
+    CMECMetric(**cmec_metric)
+
+    cmec_metric["RESULTS"]["E3SM"]["Hydrology Cycle"]["unknown"] = 0.0
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_metric)
+
+
 def test_metric_right(cmec_right_metric_data):
     CMECMetric.model_validate(cmec_right_metric_data)
 
@@ -176,6 +194,32 @@ def test_validate_result_wo_dim(cmec_right_metric_dict):
         MetricResults(cmec_right_metric_dict["RESULTS"])
 
 
+def test_metric_deepest_dictionary_value(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"]["overall score"] = {
+        "value": 0.11,
+    }
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"]["overall score"] = "best"
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_mismatch_dimension_key(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["unknow_model"] = cmec_right_metric_dict["RESULTS"]["CESM2"]
+
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
+def test_metric_nested_dict(cmec_right_metric_dict):
+    cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"] = 1.0
+
+    with pytest.raises(ValidationError):
+        CMECMetric(**cmec_right_metric_dict)
+
+
 def test_metric_merge():
     dict_pmp = {
         "DIMENSIONS": {
@@ -213,19 +257,16 @@ def test_metric_merge():
         },
         "RESULTS": {
             "E3SM": {
-                "carbon": {
-                    "overall score": 0.11,
-                    "bias": 0.56,
-                    "attributes": {
-                        "score": "ILAMB scoring system",
-                    },
+                "carbon": 0.11,
+                "attributes": {
+                    "score": "ILAMB scoring system",
                 },
             },
             "CESM": {
-                "carbon": {"overall score": 0.05, "bias": 0.72},
+                "carbon": 0.05,
             },
             "GFDL-ESM2M": {
-                "carbon": {"overall score": 0.35, "bias": 0.37},
+                "carbon": 0.35,
                 "attributes": {
                     "score": "ILAMB scoring system",
                 },
@@ -253,20 +294,13 @@ def test_metric_merge():
         },
         "RESULTS": {
             "E3SM": {
-                "carbon": {
-                    "overall score": 0.11,
-                    "bias": 0.56,
-                    "attributes": {
-                        "score": "ILAMB scoring system",
-                    },
+                "carbon": 0.11,
+                "attributes": {
+                    "score": "ILAMB scoring system",
                 },
-                "NinoSstDiversity_2": {},
-                "BiasTauxLonRmse": {},
             },
             "CESM": {
-                "carbon": {"overall score": 0.05, "bias": 0.72},
-                "NinoSstDiversity_2": {},
-                "BiasTauxLonRmse": {},
+                "carbon": 0.05,
             },
             "GFDL-ESM2M": {
                 "NinoSstDiversity_2": -75,
@@ -276,7 +310,7 @@ def test_metric_merge():
                     "BiasTauxLonRmse": "Bias Taux RMSE",
                     "score": "ILAMB scoring system",
                 },
-                "carbon": {"overall score": 0.35, "bias": 0.37},
+                "carbon": 0.35,
             },
             "attributes": {
                 "package": "ilamb",
@@ -290,6 +324,15 @@ def test_metric_merge():
     }
 
     assert json.loads(CMECMetric.merge(dict_pmp, dict_ilamb).model_dump_json(indent=2)) == dict_merged
+
+    mdim_pmp = dict_pmp["DIMENSIONS"]
+    mdim_ilamb = dict_ilamb["DIMENSIONS"]
+
+    mdim_ilamb["json_structure"] = ["model"]
+    mdim_ilamb.pop("metric")
+
+    with pytest.raises(ValueError):
+        MetricDimensions.merge_dimension(mdim_pmp, mdim_ilamb)
 
 
 def test_metric_create_template():

@@ -32,5 +32,9 @@ def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
         from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 
         return Obs4MIPsDatasetAdapter(**kwargs)
+    elif source_type.lower() == SourceDatasetType.PMPClimatology.value.lower():
+        from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
+
+        return PMPClimatologyDatasetAdapter(**kwargs)
     else:
         raise ValueError(f"Unknown source type: {source_type}")

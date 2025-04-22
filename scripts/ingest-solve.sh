@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test script for ingesting and solving the AR7 FT set of providers
+# Test script for ingesting and solving the CMIP7 Assessment Fast Track set of providers
 # Uses the sample data
 # WARNING this deletes your existing database
 

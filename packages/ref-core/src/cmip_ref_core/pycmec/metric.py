@@ -11,6 +11,7 @@ metric bundle standards, please use:
 Both ways will create the CMECMetric instance (cmec)
 """
 
+import json
 import pathlib
 from collections import Counter
 from collections.abc import Generator
@@ -157,24 +158,37 @@ class MetricResults(RootModel[Any]):
         if MetricCV.ATTRIBUTES.value in dict_keys:
             dict_keys.remove(MetricCV.ATTRIBUTES.value)
 
-        expected_keys = set(metdims[dim_name].keys())
+        if level < len(metdims[MetricCV.JSON_STRUCTURE.value]) - 1:
+            if not (Counter(list(metdims[dim_name].keys())) == Counter(dict_keys)):
+                raise ValueError(
+                    f"Dimension key mismatch in '{dim_name}' and level {level}\n"
+                    f"Actual keys: {sorted(dict_keys)}\n"
+                    f"Expected keys: {sorted(metdims[dim_name].keys())}\n"
+                    "Full actual structure:\n" + json.dumps(list(dict_keys), indent=2) + "\n\n"
+                    "Full expected structure:\n" + json.dumps(metdims[dim_name], indent=2)
+                )
 
-        if not dict_keys.issubset(expected_keys):
-            raise ValueError(f"Unknown dimension values: {dict_keys - expected_keys}")
+            for key, value in nested.items():
+                if key == MetricCV.ATTRIBUTES.value:
+                    continue
 
-        for key in dict_keys:
-            value = nested[key]
+                elif isinstance(value, dict):
+                    cls._check_nested_dict_keys(value, metdims, level + 1)
 
-            if key == MetricCV.ATTRIBUTES.value:
-                continue
+                else:
+                    raise ValueError(
+                        f"{dim_name} is not the last/deepest dimension, \n"
+                        f"a dictionary is expected for the key {key}"
+                    )
+        else:
+            expected_keys = set(metdims[dim_name].keys())
+            if not (dict_keys.issubset(expected_keys)):
+                raise ValueError(f"Unknown dimension values: {dict_keys - expected_keys}")
 
-            elif isinstance(value, dict) and level < len(metdims[MetricCV.JSON_STRUCTURE.value]) - 1:
-                cls._check_nested_dict_keys(value, metdims, level + 1)
-            elif isinstance(value, dict):
-                tmp = dict(value)
-                if MetricCV.ATTRIBUTES.value in tmp:
-                    tmp.pop(MetricCV.ATTRIBUTES.value)
-                StrNumDict(tmp)
+            tmp = dict(nested)
+            if MetricCV.ATTRIBUTES.value in tmp:
+                tmp.pop(MetricCV.ATTRIBUTES.value)
+            StrNumDict(tmp)
 
     @field_validator("root", mode="after")
     @classmethod
@@ -197,7 +211,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float | str]
+    root: dict[str, float | int | list[str | float | int]]
 
 
 class MetricValue(BaseModel):
@@ -318,7 +332,8 @@ class CMECMetric(BaseModel):
         dim_name = mdims[MetricCV.JSON_STRUCTURE.value][level]
         for key in mdims[dim_name].keys():
             if key not in mdict:
-                mdict[key] = {}
+                if level < len(mdims[MetricCV.JSON_STRUCTURE.value]) - 1:
+                    mdict[key] = {}
 
         for key, value in mdict.items():
             if (
@@ -388,10 +403,6 @@ class CMECMetric(BaseModel):
 
         """
         dimensions = cast(list[str], self.DIMENSIONS[MetricCV.JSON_STRUCTURE.value])
-        # TODO: This is pretty hacky
-        # A missing dimension in the results should be a validationError
-        if "statistic" not in dimensions:
-            dimensions = [*dimensions, "statistic"]
 
         yield from _walk_results(dimensions, self.RESULTS, {})
 

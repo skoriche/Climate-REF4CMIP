@@ -4,16 +4,16 @@ from pathlib import Path
 from typing import ClassVar
 
 import pandas
-from ruamel.yaml import YAML
+import yaml
+from loguru import logger
 
+from cmip_ref_core.dataset_registry import dataset_registry_manager
 from cmip_ref_core.datasets import MetricDataset, SourceDatasetType
 from cmip_ref_core.metrics import CommandLineMetric, MetricExecutionDefinition, MetricExecutionResult
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput, OutputCV
 from cmip_ref_metrics_esmvaltool.recipe import load_recipe, prepare_climate_data
 from cmip_ref_metrics_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
-
-yaml = YAML()
 
 
 class ESMValToolMetric(CommandLineMetric):
@@ -23,7 +23,10 @@ class ESMValToolMetric(CommandLineMetric):
 
     @staticmethod
     @abstractmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """
         Update the base recipe for the run.
 
@@ -77,35 +80,70 @@ class ESMValToolMetric(CommandLineMetric):
         :
             The result of running the metric.
         """
-        input_files = definition.metric_dataset[SourceDatasetType.CMIP6].datasets
+        input_files = {
+            project: definition.metric_dataset[project].datasets for project in definition.metric_dataset
+        }
         recipe = load_recipe(self.base_recipe)
         self.update_recipe(recipe, input_files)
 
         recipe_path = definition.to_output_path("recipe.yml")
         with recipe_path.open("w", encoding="utf-8") as file:
-            yaml.dump(recipe, file)
+            yaml.safe_dump(recipe, file)
 
         climate_data = definition.to_output_path("climate_data")
 
-        prepare_climate_data(
-            definition.metric_dataset[SourceDatasetType.CMIP6].datasets,
-            climate_data_dir=climate_data,
-        )
+        for metric_dataset in definition.metric_dataset.values():
+            prepare_climate_data(
+                metric_dataset.datasets,
+                climate_data_dir=climate_data,
+            )
 
         config = {
             "drs": {
                 "CMIP6": "ESGF",
+                "obs4MIPs": "ESGF",
             },
             "output_dir": str(definition.to_output_path("results")),
             "rootpath": {
-                "default": str(climate_data),
+                "CMIP6": str(climate_data),
+                "obs4MIPs": str(climate_data),
             },
             "search_esgf": "never",
         }
+
+        # Configure the paths to OBS/OBS6/native6 and non-compliant obs4MIPs data
+        registry = dataset_registry_manager["esmvaltool"]
+        data_dir = registry.abspath / "ESMValTool"  # type: ignore[attr-defined]
+        if not data_dir.exists():
+            logger.warning(
+                "ESMValTool observational and reanalysis data is not available "
+                f"in {data_dir}, you may want to run the command "
+                "`ref datasets fetch-data --registry esmvaltool`."
+            )
+        else:
+            config["drs"].update(  # type: ignore[attr-defined]
+                {
+                    "OBS": "default",
+                    "OBS6": "default",
+                    "native6": "default",
+                }
+            )
+            config["rootpath"].update(  # type: ignore[attr-defined]
+                {
+                    "OBS": str(data_dir / "OBS"),
+                    "OBS6": str(data_dir / "OBS"),
+                    "native6": str(data_dir / "RAWOBS"),
+                }
+            )
+            config["rootpath"]["obs4MIPs"] = [  # type: ignore[index]
+                config["rootpath"]["obs4MIPs"],  # type: ignore[index]
+                str(data_dir),
+            ]
+
         config_dir = definition.to_output_path("config")
         config_dir.mkdir()
         with (config_dir / "config.yml").open("w", encoding="utf-8") as file:
-            yaml.dump(config, file)
+            yaml.safe_dump(config, file)
 
         return [
             "esmvaltool",
@@ -139,7 +177,7 @@ class ESMValToolMetric(CommandLineMetric):
         # Add the plots and data files
         plot_suffixes = {".png", ".jpg", ".pdf", ".ps"}
         for metadata_file in result_dir.glob("run/*/*/diagnostic_provenance.yml"):
-            metadata = yaml.load(metadata_file.read_text(encoding="utf-8"))
+            metadata = yaml.safe_load(metadata_file.read_text(encoding="utf-8"))
             for filename in metadata:
                 caption = metadata[filename].get("caption", "")
                 relative_path = definition.as_relative_path(filename)

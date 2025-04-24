@@ -22,10 +22,10 @@ class AnnualCycle(CommandLineMetric):
         self.slug = "pmp-annual-cycle"
         self.data_requirements = (
             DataRequirement(
-                source_type=SourceDatasetType.obs4MIPs,
+                source_type=SourceDatasetType.PMPClimatology,
                 filters=(
                     FacetFilter(
-                        facets={"source_id": ("GPCP-2-3", "HadISST-1-1"), "variable_id": ("pr", "ts")}
+                        facets={"source_id": ("GPCP-Monthly-3-2", "ERA-5"), "variable_id": ("pr", "ts")}
                     ),
                 ),
                 group_by=("variable_id", "source_id"),

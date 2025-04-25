@@ -95,7 +95,7 @@ class AnnualCycle(CommandLineMetric):
         logger.debug(f"member_id: {member_id}")
         logger.debug(f"variable_id: {variable_id}")
 
-        reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
+        reference_dataset = definition.metric_dataset[SourceDatasetType.PMPClimatology]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 

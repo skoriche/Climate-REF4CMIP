@@ -17,6 +17,7 @@ from cmip_ref.database import Database
 from cmip_ref.datasets import get_dataset_adapter
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
+from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
 from cmip_ref.models import Metric as MetricModel
 from cmip_ref.models import MetricExecutionGroup as MetricExecutionGroupModel
 from cmip_ref.models import Provider as ProviderModel
@@ -240,6 +241,7 @@ class MetricSolver:
             data_catalog={
                 SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
                 SourceDatasetType.obs4MIPs: Obs4MIPsDatasetAdapter().load_catalog(db),
+                SourceDatasetType.PMPClimatology: PMPClimatologyDatasetAdapter().load_catalog(db),
             },
         )
 

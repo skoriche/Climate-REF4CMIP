@@ -19,6 +19,7 @@ class SourceDatasetType(enum.Enum):
     CMIP6 = "cmip6"
     CMIP7 = "cmip7"
     obs4MIPs = "obs4mips"
+    PMPClimatology = "pmp-climatology"
 
 
 def _clean_facets(raw_values: dict[str, str | tuple[str, ...] | list[str]]) -> dict[str, tuple[str, ...]]:

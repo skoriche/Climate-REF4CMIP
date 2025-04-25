@@ -3,10 +3,13 @@ from typing import Protocol
 
 import pandas as pd
 from loguru import logger
+from sqlalchemy.orm import joinedload
 
 from cmip_ref.config import Config
 from cmip_ref.database import Database
-from cmip_ref.models.dataset import Dataset
+from cmip_ref.datasets.utils import validate_path
+from cmip_ref.models.dataset import Dataset, DatasetFile
+from cmip_ref_core.exceptions import RefException
 
 
 def _log_duplicate_metadata(
@@ -40,6 +43,7 @@ class DatasetAdapter(Protocol):
     """
 
     dataset_cls: type[Dataset]
+    file_cls: type[DatasetFile]
     slug_column: str
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...] = ()
@@ -56,14 +60,6 @@ class DatasetAdapter(Protocol):
 
         This data catalog should contain all the metadata needed by the database.
         The index of the data catalog should be the dataset slug.
-        """
-        ...
-
-    def register_dataset(
-        self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
-    ) -> Dataset | None:
-        """
-        Register a dataset in the database using the data catalog
         """
         ...
 
@@ -114,11 +110,64 @@ class DatasetAdapter(Protocol):
 
         return data_catalog
 
+    def register_dataset(
+        self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
+    ) -> Dataset | None:
+        """
+        Register a dataset in the database using the data catalog
+
+        Parameters
+        ----------
+        config
+            Configuration object
+        db
+            Database instance
+        data_catalog_dataset
+            A subset of the data catalog containing the metadata for a single dataset
+
+        Returns
+        -------
+        :
+            Registered dataset if successful, else None
+        """
+        DatasetModel = self.dataset_cls
+        FileModel = self.file_cls
+
+        self.validate_data_catalog(data_catalog_dataset)
+        unique_slugs = data_catalog_dataset[self.slug_column].unique()
+        if len(unique_slugs) != 1:
+            raise RefException(f"Found multiple datasets in the same directory: {unique_slugs}")
+        slug = unique_slugs[0]
+
+        dataset_metadata = data_catalog_dataset[list(self.dataset_specific_metadata)].iloc[0].to_dict()
+        dataset, created = db.get_or_create(DatasetModel, slug=slug, **dataset_metadata)
+        if not created:
+            logger.warning(f"{dataset} already exists in the database. Skipping")
+            return None
+        db.session.flush()
+        for dataset_file in data_catalog_dataset.to_dict(orient="records"):
+            path = validate_path(dataset_file.pop("path"))
+
+            db.session.add(
+                # TODO: The kwargs here should likely be sourced from a function
+                # This only works at the moment because all source types look the same
+                FileModel(
+                    path=str(path),
+                    dataset_id=dataset.id,
+                    start_time=dataset_file.pop("start_time"),
+                    end_time=dataset_file.pop("end_time"),
+                )
+            )
+        return dataset
+
     def load_catalog(
         self, db: Database, include_files: bool = True, limit: int | None = None
     ) -> pd.DataFrame:
         """
-        Load the data catalog from the database
+        Load the data catalog containing the currently tracked datasets/files from the database
+
+        Iterating over different datasets within the data catalog can be done using a `groupby`
+        operation for the `instance_id` column.
 
         The index of the data catalog is the primary key of the dataset.
         This should be maintained during any processing.
@@ -128,4 +177,41 @@ class DatasetAdapter(Protocol):
         :
             Data catalog containing the metadata for the currently ingested datasets
         """
-        ...
+        DatasetModel = self.dataset_cls
+        FileModel = self.file_cls
+        # TODO: Paginate this query to avoid loading all the data at once
+        if include_files:
+            result = (
+                db.session.query(FileModel)
+                # The join is necessary to be able to order by the dataset columns
+                .join(FileModel.dataset)
+                # The joinedload is necessary to avoid N+1 queries (one for each dataset)
+                # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
+                .options(joinedload(FileModel.dataset))
+                .order_by(Dataset.updated_at.desc())
+                .limit(limit)
+                .all()
+            )
+
+            return pd.DataFrame(
+                [
+                    {
+                        **{k: getattr(file, k) for k in self.file_specific_metadata},
+                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},  # type: ignore
+                    }
+                    for file in result
+                ],
+                index=[file.dataset.id for file in result],  # type: ignore
+            )
+        else:
+            result_datasets = (
+                db.session.query(DatasetModel).order_by(Dataset.updated_at.desc()).limit(limit).all()
+            )
+
+            return pd.DataFrame(
+                [
+                    {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
+                    for dataset in result_datasets
+                ],
+                index=[file.id for file in result_datasets],
+            )

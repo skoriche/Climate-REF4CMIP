@@ -2,20 +2,8 @@ import datetime
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
-
-
-@pytest.fixture
-def catalog_regression(data_regression, sample_data_dir):
-    def check(df: pd.DataFrame, basename: str):
-        # Strip the path to make the test more robust
-        df["path"] = df["path"].str.replace(str(sample_data_dir), "{esgf_data_dir}")
-
-        data_regression.check(df.to_dict(orient="records"), basename=basename)
-
-    return check
 
 
 def test_parse_datetime():

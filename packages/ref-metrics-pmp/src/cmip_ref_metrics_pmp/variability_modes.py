@@ -143,32 +143,6 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
             params["osyear"] = 1950
             params["oeyear"] = 2005
 
-        print("jwlee123_test-1 params:", params)
-
-        development_mode = True
-
-        if development_mode:  # pragma: no cover
-            # Get current time in 'yyyymmdd-hhmm' format
-            from datetime import datetime
-
-            current_time = datetime.now().strftime("%Y%m%d")
-            output_directory_path = f"/Users/lee1043/Documents/Research/REF/output/{current_time}/{self.slug}"
-            params.update(
-                {
-                    "msyear": 2000,
-                    "meyear": 2005,
-                    "osyear": 2000,
-                    "oeyear": 2005,
-                    "results_dir": output_directory_path,
-                }
-            )
-
-            print("jwlee123_test-2 params:", params)
-
-            # definition.output_directory = output_directory_path
-
-        print("jwlee123_test-3 done")
-
         # Pass the parameters using **kwargs
         return build_pmp_command(**params)
 

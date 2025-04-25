@@ -11,6 +11,9 @@ from cmip_ref_core.metrics import (
 )
 from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
 
+import json
+
+
 
 class AnnualCycle(CommandLineMetric):
     """
@@ -46,7 +49,7 @@ class AnnualCycle(CommandLineMetric):
         )
 
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
-        self.parameter_file_2 = "pmp_param_annualcycle_1-metrics.py"
+        self.parameter_file_2 = "pmp_param_annualcycle_2-metrics.py"
 
     def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
         """
@@ -108,19 +111,7 @@ class AnnualCycle(CommandLineMetric):
         logger.debug(f"reference_dataset_name: {reference_dataset_name}")
         logger.debug(f"reference_dataset_path: {reference_dataset_path}")
 
-        parameter_file_1_clims = self.parameter_file_1
-        parameter_file_2_metrics = self.parameter_file_2
-
-        development_mode = True
-
-        if development_mode:  # pragma: no cover
-            # Get current time in 'yyyymmdd-hhmm' format
-            from datetime import datetime
-
-            current_time = datetime.now().strftime("%Y%m%d")
-            output_directory_path = f"/Users/lee1043/Documents/Research/REF/output/{current_time}/{self.slug}"
-        else:
-            output_directory_path = str(definition.output_directory)
+        output_directory_path = str(definition.output_directory)
 
         cmds = []
 
@@ -137,22 +128,13 @@ class AnnualCycle(CommandLineMetric):
 
             params = {
                 "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
-                "parameter_file": parameter_file_1_clims,
+                "parameter_file": self.parameter_file_1,
                 "vars": variable_id,
                 "infile": data_path,
                 "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
             }
 
-            if development_mode:  # pragma: no cover
-                params.update(
-                    {
-                        "start": "2000-01",
-                        "end": "2005-12",
-                        "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
-                    }
-                )
-
-            cmds.append(self.build_cmd(params))
+            cmds.append(build_pmp_command(**params))
 
         # -------------------------------------------
         # PART 2: Build the command for metrics
@@ -167,14 +149,12 @@ class AnnualCycle(CommandLineMetric):
         }
 
         # Generate a JSON file based on the obs_dict
-        import json
-
         with open(f"{output_directory_path}/obs_dict.json", "w") as f:
             json.dump(obs_dict, f)
 
         params = {
             "driver_file": "mean_climate/mean_climate_driver.py",
-            "parameter_file": parameter_file_2_metrics,
+            "parameter_file": self.parameter_file_2,
             "vars": [variable_id],
             "reference_data_path": output_directory_path,
             "custom_obs": f"{output_directory_path}/obs_dict.json",

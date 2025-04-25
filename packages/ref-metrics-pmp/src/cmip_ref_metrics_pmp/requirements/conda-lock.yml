@@ -8431,8 +8431,8 @@ package:
     xmltodict: ''
   url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9.1-pyhd8ed1ab_0.conda
   hash:
-    md5: e1508ea93cc8dff08ab6e177fc5235c1
-    sha256: db9d0ce32bf2ac1010964bb2970fa471083cba4f5a0e70e414bfd38782162a31
+    md5: 453d450c0821bee2af2099dcf870d649
+    sha256: b0e984cd739bcfb0b7554452a45ab146593dcdb30d3e1ecdf0c04abcaf5e6c16
   category: main
   optional: false
 - name: pcmdi_metrics
@@ -8468,8 +8468,8 @@ package:
     xcdat: '>=0.6.1'
   url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9.1-pyhd8ed1ab_0.conda
   hash:
-    md5: e1508ea93cc8dff08ab6e177fc5235c1
-    sha256: db9d0ce32bf2ac1010964bb2970fa471083cba4f5a0e70e414bfd38782162a31
+    md5: 453d450c0821bee2af2099dcf870d649
+    sha256: b0e984cd739bcfb0b7554452a45ab146593dcdb30d3e1ecdf0c04abcaf5e6c16
   category: main
   optional: false
 - name: pcre2

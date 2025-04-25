@@ -8399,7 +8399,7 @@ package:
   category: main
   optional: false
 - name: pcmdi_metrics
-  version: '3.9'
+  version: '3.9.1'
   manager: conda
   platform: linux-64
   dependencies:
@@ -8429,14 +8429,14 @@ package:
     xcdat: '>=0.6.1'
     xclim: ''
     xmltodict: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9.1-pyhd8ed1ab_0.conda
   hash:
     md5: e1508ea93cc8dff08ab6e177fc5235c1
     sha256: db9d0ce32bf2ac1010964bb2970fa471083cba4f5a0e70e414bfd38782162a31
   category: main
   optional: false
 - name: pcmdi_metrics
-  version: '3.9'
+  version: '3.9.1'
   manager: conda
   platform: osx-64
   dependencies:
@@ -8466,7 +8466,7 @@ package:
     numpy: '>=2.0.0,<3.0.0'
     notebook: <7.0.0
     xcdat: '>=0.6.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pcmdi_metrics-3.9.1-pyhd8ed1ab_0.conda
   hash:
     md5: e1508ea93cc8dff08ab6e177fc5235c1
     sha256: db9d0ce32bf2ac1010964bb2970fa471083cba4f5a0e70e414bfd38782162a31

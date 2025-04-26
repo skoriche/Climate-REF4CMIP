@@ -47,7 +47,8 @@ regions = {"rlut": ["Global"]}
 test_data_path = "demo_data_tmp/CMIP5_demo_clims/"
 # ROOT PATH FOR OBSERVATIONS
 # Note that atm/mo/%(variable)/ac will be added to this
-reference_data_path = "demo_data_tmp/obs4MIPs_PCMDI_clims"
+reference_data_path = ""
+custom_observations = "obs_dict.json"
 
 # DIRECTORY WHERE TO PUT RESULTS
 metrics_output_path = os.path.join("demo_output_tmp", "%(case_id)")

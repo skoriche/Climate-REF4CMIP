@@ -115,36 +115,29 @@ class AnnualCycle(CommandLineMetric):
 
         cmds = []
 
-        # -------------------------------------------
-        # PART 1: Build the command for climatologies
-        # -------------------------------------------
-        for data in ["reference", "model"]:
-            if data == "reference":
-                data_name = reference_dataset_name
-                data_path = reference_dataset_path
-            else:
-                data_name = f"{source_id}-{experiment_id}-{member_id}"
-                data_path = model_files
+        # ----------------------------------------------
+        # PART 1: Build the command to get climatologies
+        # ----------------------------------------------
+        # Model
+        data_name = f"{source_id}-{experiment_id}-{member_id}"
+        data_path = model_files
+        params = {
+            "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
+            "parameter_file": self.parameter_file_1,
+            "vars": variable_id,
+            "infile": data_path,
+            "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
+        }
 
-            params = {
-                "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
-                "parameter_file": self.parameter_file_1,
-                "vars": variable_id,
-                "infile": data_path,
-                "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
-            }
+        cmds.append(build_pmp_command(**params))
 
-            cmds.append(build_pmp_command(**params))
-
-        # -------------------------------------------
-        # PART 2: Build the command for metrics
-        # -------------------------------------------
+        # Reference
         obs_dict = {
             variable_id: {
-                source_id: {
-                    "template": f"{variable_id}_reference_clims.nc",
+                reference_dataset_name: {
+                    "template": reference_dataset_path,
                 },
-                "default": source_id,
+                "default": reference_dataset_name,
             }
         }
 
@@ -152,11 +145,15 @@ class AnnualCycle(CommandLineMetric):
         with open(f"{output_directory_path}/obs_dict.json", "w") as f:
             json.dump(obs_dict, f)
 
+        # ----------------------------------------------
+        # PART 2: Build the command to calculate metrics
+        # ----------------------------------------------
+
         params = {
             "driver_file": "mean_climate/mean_climate_driver.py",
             "parameter_file": self.parameter_file_2,
             "vars": [variable_id],
-            "reference_data_path": output_directory_path,
+            "reference_data_path": "",
             "custom_obs": f"{output_directory_path}/obs_dict.json",
             "test_data_path": output_directory_path,
             "filename_template": f"{variable_id}_model_clims.nc",

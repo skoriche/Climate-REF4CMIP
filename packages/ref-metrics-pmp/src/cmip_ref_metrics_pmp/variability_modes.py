@@ -14,7 +14,7 @@ from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_resu
 
 class ExtratropicalModesOfVariability(CommandLineMetric):
     """
-    Calculate the annual cycle for a dataset
+    Calculate the extratropical modes of variability for a given area
     """
 
     ts_modes = ("PDO", "NPGO", "AMO")
@@ -22,8 +22,8 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
 
     def __init__(self, mode_id: str):
         self.mode_id = mode_id.upper()
-        self.name = f"PMP Extratropical modes of variability {mode_id}"
-        self.slug = f"pmp-extratropical-modes-of-variability-{mode_id.lower()}"
+        self.name = f"Extratropical modes of variability: {mode_id}"
+        self.slug = f"extratropical-modes-of-variability-{mode_id.lower()}"
 
         def get_data_requirements(
             obs_source: str,

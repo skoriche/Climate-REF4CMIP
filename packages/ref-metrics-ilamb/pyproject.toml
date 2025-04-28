@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "cmip_ref_core",
-    "ilamb3>=2025.4.26",
+    "ilamb3>=2025.4.28",
     "types-pyyaml>=6.0.12.20241230",
 ]
 

@@ -724,7 +724,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cmip-ref-core", editable = "packages/ref-core" },
-    { name = "ilamb3", specifier = ">=2025.4.26" },
+    { name = "ilamb3", specifier = ">=2025.4.28" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
 ]
 
@@ -1385,7 +1385,7 @@ wheels = [
 
 [[package]]
 name = "ilamb3"
-version = "2025.4.26"
+version = "2025.4.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cartopy" },
@@ -1405,9 +1405,9 @@ dependencies = [
     { name = "statsmodels" },
     { name = "xarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f6/6a/c9daebc1b6f9046617aaf4ea2a574ff12e6a1e5b4e3ead0879a0284c5259/ilamb3-2025.4.26.tar.gz", hash = "sha256:eea9baa4ea882d3bf686e9e2806708f9fdbc48bfad18125e99550ea389f5c680", size = 414509 }
+sdist = { url = "https://files.pythonhosted.org/packages/03/15/18be6e5490162d7076b0d839e488169a67a8bfc3134bf850d8ebd86347b7/ilamb3-2025.4.28.tar.gz", hash = "sha256:309a70f259e34f538a4dcdab41d65093267cd2c3b8f85c0f726f1b512bc4de3c", size = 413810 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4c/da/6b0162c978f02b89f8843c14bbc2c2a03a5cc4ca29830d7b4f50586a8410/ilamb3-2025.4.26-py3-none-any.whl", hash = "sha256:ba8bb367b66019bfaa065224d44d80b0b466a207afeac0e605c1fe29fcc34341", size = 82761 },
+    { url = "https://files.pythonhosted.org/packages/6d/54/e627139829a263f851dc61c1fa00087119338cb6ca7871753bd94ca05ef9/ilamb3-2025.4.28-py3-none-any.whl", hash = "sha256:dd1a42353b138ceadc177dcf38701f991d01509fc44ee7352c58125e38709e8c", size = 82772 },
 ]
 
 [[package]]

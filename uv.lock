@@ -724,7 +724,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cmip-ref-core", editable = "packages/ref-core" },
-    { name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3?rev=v2025.4.24" },
+    { name = "ilamb3", specifier = ">=2025.4.26" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
 ]
 
@@ -1385,8 +1385,8 @@ wheels = [
 
 [[package]]
 name = "ilamb3"
-version = "2025.4.24"
-source = { git = "https://github.com/rubisco-sfa/ilamb3?rev=v2025.4.24#e83f0e194c572adc165def78249cbbfd1323b018" }
+version = "2025.4.26"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cartopy" },
     { name = "cf-xarray" },
@@ -1404,6 +1404,10 @@ dependencies = [
     { name = "scipy" },
     { name = "statsmodels" },
     { name = "xarray" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f6/6a/c9daebc1b6f9046617aaf4ea2a574ff12e6a1e5b4e3ead0879a0284c5259/ilamb3-2025.4.26.tar.gz", hash = "sha256:eea9baa4ea882d3bf686e9e2806708f9fdbc48bfad18125e99550ea389f5c680", size = 414509 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4c/da/6b0162c978f02b89f8843c14bbc2c2a03a5cc4ca29830d7b4f50586a8410/ilamb3-2025.4.26-py3-none-any.whl", hash = "sha256:ba8bb367b66019bfaa065224d44d80b0b466a207afeac0e605c1fe29fcc34341", size = 82761 },
 ]
 
 [[package]]

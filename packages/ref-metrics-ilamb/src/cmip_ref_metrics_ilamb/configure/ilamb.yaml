@@ -20,7 +20,7 @@ mrro-LORA:
 
 mrsos-WangMao:
   sources:
-    mrsol: mrsol/Wang2021/mrsol_olc.nc
+    mrsol: mrsol/WangMao/mrsol_olc.nc
   alternate_vars:
   - mrsos
   depth: 0.0

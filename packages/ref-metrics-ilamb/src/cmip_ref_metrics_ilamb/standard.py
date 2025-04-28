@@ -150,6 +150,7 @@ class ILAMBStandard(Metric):
                             "variable_id": (
                                 self.variable_id,
                                 *ilamb_kwargs.get("relationships", {}).keys(),
+                                *ilamb_kwargs.get("alternate_vars", []),
                                 *_measure_facets(registry_file),
                             )
                         }

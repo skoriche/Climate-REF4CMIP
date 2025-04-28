@@ -35,7 +35,7 @@ dataset_registry_manager.register(
 )
 dataset_registry_manager.register(
     "iomb",
-    base_url="https://www.ilamb.org/IOMB-Data/DATA",
+    base_url="https://www.ilamb.org/ilamb3-data/",
     package="cmip_ref_metrics_ilamb.dataset_registry",
     resource="iomb.txt",
     cache_name="ilamb3",

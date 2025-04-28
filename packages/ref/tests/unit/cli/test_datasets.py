@@ -52,9 +52,10 @@ class TestIngest:
     def test_ingest(self, sample_data_dir, db, invoke_cli):
         invoke_cli(["datasets", "ingest", str(sample_data_dir / self.data_dir), "--source-type", "cmip6"])
 
-        assert db.session.query(Dataset).count() == 5
-        assert db.session.query(CMIP6Dataset).count() == 5
-        assert db.session.query(CMIP6File).count() == 5
+        expected_dataset_count = 6
+        assert db.session.query(Dataset).count() == expected_dataset_count
+        assert db.session.query(CMIP6Dataset).count() == expected_dataset_count
+        assert db.session.query(CMIP6File).count() == expected_dataset_count
 
     def test_ingest_and_solve(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(
@@ -182,14 +183,14 @@ class TestFetchObs4REFData:
 
         invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref", "--output-directory", str(tmp_path)])
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], tmp_path, symlink=False)
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=False)
 
     def test_fetch_without_output_directory(self, mock_obs4ref, invoke_cli, tmp_path):
         mock_data_registry, mock_fetch = mock_obs4ref
 
         invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref"])
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], None, symlink=False)
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", None, symlink=False)
 
     def test_fetch_missing(self, mock_obs4ref, invoke_cli, tmp_path):
         mock_data_registry, mock_fetch = mock_obs4ref
@@ -211,7 +212,7 @@ class TestFetchObs4REFData:
             ]
         )
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], tmp_path, symlink=True)
+        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=True)
 
     def test_fetch_force_cleanup(self, mock_obs4ref, invoke_cli, tmp_path):
         assert tmp_path.exists()

@@ -34,6 +34,7 @@ def provider(tmp_path):
     return provider
 
 
+@pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
 def test_pdo_metric(
     cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
 ):

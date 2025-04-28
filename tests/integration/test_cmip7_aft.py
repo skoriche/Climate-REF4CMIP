@@ -75,7 +75,6 @@ def test_solve_cmip7_aft(
     print(df)
 
     # Check that all 3 metric providers have been used
-    # TODO: Update once the PMP metrics are solving
     assert set(df["provider"].unique()) == {"esmvaltool", "ilamb", "pmp"}
 
     # Check that all metrics have been successful

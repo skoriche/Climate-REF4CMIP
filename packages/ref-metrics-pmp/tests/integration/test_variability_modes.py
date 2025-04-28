@@ -50,4 +50,4 @@ def test_variability_modes(metric: ExtratropicalModesOfVariability, data_catalog
     result = metric.run(definition)
 
     # Check the result
-    validate_result(config, result)
+    validate_result(metric, config, result)

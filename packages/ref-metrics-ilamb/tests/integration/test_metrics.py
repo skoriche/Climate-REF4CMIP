@@ -1,5 +1,5 @@
 import pytest
-from cmip_ref_metrics_esmvaltool import provider
+from cmip_ref_metrics_ilamb import provider
 
 from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.solver import solve_metric_executions
@@ -12,6 +12,9 @@ metrics = [pytest.param(metric, id=metric.slug) for metric in provider.metrics()
 @pytest.mark.slow
 @pytest.mark.parametrize("metric", metrics)
 def test_metrics(metric: Metric, data_catalog, tmp_path, config, mocker):
+    if metric.slug.startswith("thetao"):
+        pytest.xfail("Skipping thetao metric: Missing sample data")
+
     mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
     # Ensure the conda prefix is set
     provider.configure(config)

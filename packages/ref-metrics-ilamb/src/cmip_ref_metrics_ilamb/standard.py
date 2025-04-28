@@ -112,7 +112,6 @@ def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
     df = pd.concat(
         [pd.read_csv(f, keep_default_na=False, na_values=["NaN"]) for f in output_directory.glob("*.csv")]
     ).drop_duplicates(subset=["source", "region", "analysis", "name"])
-    df["name"] = df["name"] + " [" + df["units"] + "]"
     return df
 
 

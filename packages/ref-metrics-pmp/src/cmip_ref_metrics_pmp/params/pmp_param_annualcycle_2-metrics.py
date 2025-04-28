@@ -26,10 +26,10 @@ reference_data_set = ["all"]
 # INTERPOLATION OPTIONS
 target_grid = "2.5x2.5"  # OPTIONS: '2.5x2.5' or an actual cdms2 grid object
 regrid_tool = "regrid2"  # 'regrid2' # OPTIONS: 'regrid2','esmf'
-# OPTIONS: 'linear','conservative', only if tool is esmf
+# -- OPTIONS: 'linear','conservative', only if tool is esmf
 regrid_method = "linear"
 regrid_tool_ocn = "esmf"  # OPTIONS: "regrid2","esmf"
-# OPTIONS: 'linear','conservative', only if tool is esmf
+# -- OPTIONS: 'linear','conservative', only if tool is esmf
 regrid_method_ocn = "linear"
 
 # Templates for climatology files

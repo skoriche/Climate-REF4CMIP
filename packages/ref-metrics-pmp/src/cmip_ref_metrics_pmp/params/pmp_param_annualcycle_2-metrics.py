@@ -12,11 +12,11 @@ case_id = "basicTest"
 
 # LIST OF MODEL VERSIONS TO BE TESTED - WHICH ARE EXPECTED TO BE PART OF
 # CLIMATOLOGY FILENAME
-test_data_set = ["ACCESS1-0", "CanCM4"]
+# test_data_set = ["ACCESS1-0", "CanCM4"]
 
 
 # VARIABLES TO USE
-vars = ["rlut"]
+# vars = ["rlut"]
 
 
 # Observations to use at the moment "default" or "alternate"

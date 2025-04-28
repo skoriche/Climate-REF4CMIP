@@ -4,7 +4,7 @@
 #
 
 # VARIABLES TO USE
-vars = ["rlut"]
+# vars = ["rlut"]
 
 # START AND END DATES FOR CLIMATOLOGY
 start = "1981-01"

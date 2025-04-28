@@ -1,3 +1,5 @@
+import datetime
+import json
 from collections.abc import Iterable
 
 from loguru import logger
@@ -10,9 +12,6 @@ from cmip_ref_core.metrics import (
     MetricExecutionResult,
 )
 from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
-
-import json
-
 
 
 class AnnualCycle(CommandLineMetric):
@@ -67,7 +66,7 @@ class AnnualCycle(CommandLineMetric):
         # Pass the parameters using **kwargs
         raise NotImplementedError("Function not required")
 
-    def build_cmds(self, definition: MetricExecutionDefinition) -> list[Iterable[str]]:
+    def build_cmds(self, definition: MetricExecutionDefinition) -> list[list[str]]:
         """
         Build the command to run the metric
 
@@ -119,7 +118,7 @@ class AnnualCycle(CommandLineMetric):
         # PART 1: Build the command to get climatologies
         # ----------------------------------------------
         # Model
-        data_name = f"{source_id}-{experiment_id}-{member_id}"
+        data_name = f"{source_id}_{experiment_id}_{member_id}"
         data_path = model_files
         params = {
             "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
@@ -130,6 +129,10 @@ class AnnualCycle(CommandLineMetric):
         }
 
         cmds.append(build_pmp_command(**params))
+
+        # ----------------------------------------------
+        # PART 2: Build the command to calculate metrics
+        # ----------------------------------------------
 
         # Reference
         obs_dict = {
@@ -145,19 +148,19 @@ class AnnualCycle(CommandLineMetric):
         with open(f"{output_directory_path}/obs_dict.json", "w") as f:
             json.dump(obs_dict, f)
 
-        # ----------------------------------------------
-        # PART 2: Build the command to calculate metrics
-        # ----------------------------------------------
+        date = datetime.datetime.now().strftime("%Y%m%d")
 
         params = {
             "driver_file": "mean_climate/mean_climate_driver.py",
             "parameter_file": self.parameter_file_2,
-            "vars": [variable_id],
-            "reference_data_path": "",
-            "custom_obs": f"{output_directory_path}/obs_dict.json",
+            "vars": variable_id,
+            "custom_observations": f"{output_directory_path}/obs_dict.json",
             "test_data_path": output_directory_path,
-            "filename_template": f"{variable_id}_model_clims.nc",
-            "outfile": f"{output_directory_path}/{variable_id}_{data_name}_metrics.nc",
+            "test_data_set": source_id,
+            "realization": member_id,
+            "filename_template": f"{variable_id}_{data_name}_clims.198101-200512.AC.v{date}.nc",
+            "metrics_output_path": output_directory_path,
+            "cmec": "",
         }
 
         cmds.append(build_pmp_command(**params))
@@ -178,13 +181,21 @@ class AnnualCycle(CommandLineMetric):
             Result of the metric execution
         """
         print("build_metric_result start")
-        results_files = list(definition.output_directory.glob("*_cmec.json"))
+
+        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+        variable_id = input_datasets["variable_id"].unique()[0]
+
+        results_directory = definition.output_directory
+        png_directory = results_directory / variable_id
+        data_directory = results_directory / variable_id
+
+        results_files = list(results_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
             return MetricExecutionResult.build_from_failure(definition)
 
         # Find the other outputs
-        png_files = list(definition.output_directory.glob("*.png"))
-        data_files = list(definition.output_directory.glob("*.nc"))
+        png_files = list(png_directory.glob("*.png"))
+        data_files = list(data_directory.glob("*.nc"))
 
         cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 

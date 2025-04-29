@@ -85,6 +85,11 @@ class AnnualCycle(CommandLineMetric):
         member_id = input_datasets["member_id"].unique()[0]
         variable_id = input_datasets["variable_id"].unique()[0]
 
+        logger.debug(f"input_datasets['source_id'].unique(): {input_datasets['source_id'].unique()}")
+        logger.debug(f"input_datasets['experiment_id'].unique(): {input_datasets['experiment_id'].unique()}")
+        logger.debug(f"input_datasets['member_id'].unique(): {input_datasets['member_id'].unique()}")
+        logger.debug(f"input_datasets['variable_id'].unique(): {input_datasets['variable_id'].unique()}")
+
         model_files_raw = input_datasets.path.to_list()
         if len(model_files_raw) == 1:
             model_files = model_files_raw[0]  # If only one file, use it directly

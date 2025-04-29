@@ -25,6 +25,7 @@ class AnnualCycle(CommandLineMetric):
         self.data_requirements = (
             DataRequirement(
                 source_type=SourceDatasetType.PMPClimatology,
+                # TODO: Add or operators and enable more varaiables
                 filters=(
                     FacetFilter(
                         facets={"source_id": ("GPCP-Monthly-3-2", "ERA-5"), "variable_id": ("pr", "ts")}
@@ -34,7 +35,7 @@ class AnnualCycle(CommandLineMetric):
             ),
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
-                # TODO: Add or operators
+                # TODO: Add or operators and enable more varaiables
                 filters=(
                     FacetFilter(
                         facets={

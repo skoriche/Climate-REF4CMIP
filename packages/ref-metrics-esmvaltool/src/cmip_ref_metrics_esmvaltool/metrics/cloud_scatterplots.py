@@ -45,23 +45,21 @@ def update_recipe(
     input_files: dict[SourceDatasetType, pandas.DataFrame],
     var_x: str,
     var_y: str,
-    source_type: SourceDatasetType,
 ) -> None:
     """Update the recipe."""
-    recipe_variables = dataframe_to_recipe(input_files[source_type], equalize_timerange=True)
+    recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6], equalize_timerange=True)
     diagnostics = recipe["diagnostics"]
-    if source_type is SourceDatasetType.CMIP6:
-        diagnostic_name = f"plot_joint_{var_x}_{var_y}_model"
-        diagnostic = diagnostics.pop(diagnostic_name)
-        diagnostics.clear()
-        diagnostics[diagnostic_name] = diagnostic
-        datasets = next(iter(recipe_variables.values()))["additional_datasets"]
-        diagnostic["additional_datasets"] = datasets
-        suptitle = "CMIP6 {dataset} {ensemble} {grid} {timerange}".format(**datasets[0])
-        diagnostic["scripts"]["plot"]["suptitle"] = suptitle
-        diagnostic["scripts"]["plot"]["plot_filename"] = (
-            f"jointplot_{var_x}_{var_y}_{suptitle.replace(' ', '_').replace('/', '-')}"
-        )
+    diagnostic_name = f"plot_joint_{var_x}_{var_y}_model"
+    diagnostic = diagnostics.pop(diagnostic_name)
+    diagnostics.clear()
+    diagnostics[diagnostic_name] = diagnostic
+    datasets = next(iter(recipe_variables.values()))["additional_datasets"]
+    diagnostic["additional_datasets"] = datasets
+    suptitle = "CMIP6 {dataset} {ensemble} {grid} {timerange}".format(**datasets[0])
+    diagnostic["scripts"]["plot"]["suptitle"] = suptitle
+    diagnostic["scripts"]["plot"]["plot_filename"] = (
+        f"jointplot_{var_x}_{var_y}_{suptitle.replace(' ', '_').replace('/', '-')}"
+    )
 
 
 class CloudScatterplotCltSwcre(ESMValToolMetric):
@@ -73,12 +71,7 @@ class CloudScatterplotCltSwcre(ESMValToolMetric):
     slug = "cloud-scatterplots-clt-swcre"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
     data_requirements = get_cmip6_data_requirements(("clt", "rsut", "rsutcs"))
-    update_recipe = partial(
-        update_recipe,
-        var_x="clt",
-        var_y="swcre",
-        source_type=SourceDatasetType.CMIP6,
-    )
+    update_recipe = partial(update_recipe, var_x="clt", var_y="swcre")
 
 
 class CloudScatterplotClwviPr(ESMValToolMetric):
@@ -90,12 +83,7 @@ class CloudScatterplotClwviPr(ESMValToolMetric):
     slug = "cloud-scatterplots-clwvi-pr"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
     data_requirements = get_cmip6_data_requirements(("clwvi", "pr"))
-    update_recipe = partial(
-        update_recipe,
-        var_x="clwvi",
-        var_y="pr",
-        source_type=SourceDatasetType.CMIP6,
-    )
+    update_recipe = partial(update_recipe, var_x="clwvi", var_y="pr")
 
 
 class CloudScatterplotCliviLwcre(ESMValToolMetric):
@@ -107,12 +95,7 @@ class CloudScatterplotCliviLwcre(ESMValToolMetric):
     slug = "cloud-scatterplots-clivi-lwcre"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
     data_requirements = get_cmip6_data_requirements(("clivi", "rlut", "rlutcs"))
-    update_recipe = partial(
-        update_recipe,
-        var_x="clivi",
-        var_y="lwcre",
-        source_type=SourceDatasetType.CMIP6,
-    )
+    update_recipe = partial(update_recipe, var_x="clivi", var_y="lwcre")
 
 
 class CloudScatterplotCliTa(ESMValToolMetric):
@@ -124,12 +107,7 @@ class CloudScatterplotCliTa(ESMValToolMetric):
     slug = "cloud-scatterplots-cli-ta"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
     data_requirements = get_cmip6_data_requirements(("cli", "ta"))
-    update_recipe = partial(
-        update_recipe,
-        var_x="cli",
-        var_y="ta",
-        source_type=SourceDatasetType.CMIP6,
-    )
+    update_recipe = partial(update_recipe, var_x="cli", var_y="ta")
 
 
 class CloudScatterplotsReference(ESMValToolMetric):

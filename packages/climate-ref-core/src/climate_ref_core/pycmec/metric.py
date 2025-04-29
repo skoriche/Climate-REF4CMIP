@@ -389,6 +389,45 @@ class CMECMetric(BaseModel):
 
         return cls(DIMENSIONS=merged_obj_dims, RESULTS=merged_obj_rlts)
 
+    @validate_call
+    def prepend_values(self, values: dict[str, str]) -> "CMECMetric":
+        """
+        Prepend the existing metric values with additional dimensions
+
+        Parameters
+        ----------
+        values
+            Additional metric dimensions and their values to be added to the metric bundle
+
+        Returns
+        -------
+        :
+            A new CMECMetric object with the additional dimensions prepended to the existing metric bundle
+        """
+        results: dict[str, Any] = {}
+        current = results
+
+        existing_dimensions = self.DIMENSIONS.root[MetricCV.JSON_STRUCTURE.value]
+        for dim in existing_dimensions:
+            if dim in values:
+                raise ValueError(f"Dimension {dim!r} is already defined in the metric bundle")
+
+        dimensions = self.DIMENSIONS.model_copy(deep=True)
+        dimensions.root[MetricCV.JSON_STRUCTURE.value] = [
+            *list(values.keys()),
+            *existing_dimensions,
+        ]
+
+        for key, value in values.items():
+            current[value] = {}
+            current = current[value]
+            dimensions.root[key] = {value: {}}
+        current.update(self.RESULTS)
+
+        MetricResults.model_validate(results, context=dimensions)
+
+        return CMECMetric(DIMENSIONS=dimensions, RESULTS=results)
+
     @staticmethod
     def create_template() -> dict[str, Any]:
         """

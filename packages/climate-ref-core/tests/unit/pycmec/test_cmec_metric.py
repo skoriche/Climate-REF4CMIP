@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from climate_ref_core.pycmec.metric import (
     CMECMetric,
+    MetricCV,
     MetricDimensions,
     MetricResults,
 )
@@ -356,3 +357,27 @@ def test_metric_json_schema(data_regression):
     cmec_model_schema = CMECMetric.model_json_schema(schema_generator=CMECGenerateJsonSchema)
 
     data_regression.check(cmec_model_schema)
+
+
+def test_metric_prepend(cmec_right_metric_dict):
+    metric = CMECMetric(**cmec_right_metric_dict)
+
+    result = metric.prepend_values({"test": "value", "other": "inner"})
+
+    assert id(result) != id(metric)
+
+    assert result.DIMENSIONS.root[MetricCV.JSON_STRUCTURE.value] == [
+        "test",
+        "other",
+        "model",
+        "metric",
+        "statistic",
+    ]
+    assert result.RESULTS == {"value": {"inner": metric.RESULTS}}
+
+
+def test_metric_prepend_duplicate(cmec_right_metric_dict):
+    metric = CMECMetric(**cmec_right_metric_dict)
+
+    with pytest.raises(ValueError, match="Dimension 'model' is already defined in the metric bundle"):
+        metric.prepend_values({"model": "value", "other": "inner"})

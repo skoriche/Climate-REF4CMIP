@@ -22,9 +22,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
 def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, definition_factory):
     provider = cmip_ref_metrics_esmvaltool.provider
 
-    metric = next(
-        metric for metric in provider.metrics() if metric.slug == "esmvaltool-global-mean-timeseries"
-    )
+    metric = next(metric for metric in provider.metrics() if metric.slug == "global-mean-timeseries")
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
 
     definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))

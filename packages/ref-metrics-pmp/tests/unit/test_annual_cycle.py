@@ -130,3 +130,22 @@ def test_annual_cycle_metric(
         str(output_dir),
         "--cmec",
     ]
+
+
+def test_metric_run(mocker, provider):
+    metric = AnnualCycle()
+    metric.provider = mocker.MagicMock()
+    metric.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
+    metric.build_metric_result = mocker.MagicMock()
+
+    metric.run("definition")
+
+    assert metric.build_cmds.called_once_with("definition")
+    assert metric.provider.run.call_count == 2
+    assert metric.build_metric_result.called_once_with("definition")
+
+
+def test_build_cmd_raises(provider):
+    metric = AnnualCycle()
+    with pytest.raises(NotImplementedError):
+        metric.build_cmd("definition")

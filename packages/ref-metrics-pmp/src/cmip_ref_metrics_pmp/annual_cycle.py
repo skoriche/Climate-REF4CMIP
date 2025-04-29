@@ -34,6 +34,7 @@ class AnnualCycle(CommandLineMetric):
             ),
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
+                # TODO: Add or operators
                 filters=(
                     FacetFilter(
                         facets={
@@ -180,8 +181,6 @@ class AnnualCycle(CommandLineMetric):
         -------
             Result of the metric execution
         """
-        print("build_metric_result start")
-
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
         variable_id = input_datasets["variable_id"].unique()[0]
 

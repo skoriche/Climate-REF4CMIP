@@ -186,7 +186,7 @@ class CloudScatterplotsReference(ESMValToolMetric):
         era5_dataset["alias"] = era5_dataset["dataset"]
         diagnostic = recipe["diagnostics"]["plot_joint_cli_ta_ref"]
         diagnostic["variables"]["ta"]["additional_datasets"] = [era5_dataset]
-        suptitle = "'CALIPSO-ICECLOUD / {dataset} {timerange}".format(**era5_dataset)
+        suptitle = "CALIPSO-ICECLOUD / {dataset} {timerange}".format(**era5_dataset)
         diagnostic["scripts"]["plot"]["suptitle"] = suptitle
         diagnostic["scripts"]["plot"]["plot_filename"] = (
             f"jointplot_cli_ta_{suptitle.replace(' ', '_').replace('/', '-')}"

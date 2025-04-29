@@ -85,5 +85,5 @@ def test_build_glob_pattern_same_directory():
     ]
 
     pattern = build_glob_pattern(paths)
-    expected = "/home/user/data/folder1/sample*.nc"
+    expected = "/home/user/data/folder1/sample_*.nc"
     assert pattern == expected

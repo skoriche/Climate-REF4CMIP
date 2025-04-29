@@ -21,6 +21,75 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.4.0 (2025-04-29)
+
+### Breaking Changes
+
+- Removed `cmip_ref.solver.MetricSolver.solve_metric_executions` in preference for a standalone function `cmip_ref.solver.solve_metric_executions`
+  with identical functionality. ([#229](https://github.com/Climate-REF/climate-ref/pulls/229))
+- Updated the algorithm to generate the unique identifier for a Metric Execution Group.
+  This will cause duplicate entries in the database if the old identifier was used.
+  We recommend removing your existing database and starting fresh. ([#233](https://github.com/Climate-REF/climate-ref/pulls/233))
+- Removed the implicit treatment of the deepest dimension. The change will cause a validation error if the deepest dimension in the `RESULTS` is a dictionary. ([#246](https://github.com/Climate-REF/climate-ref/pulls/246))
+- Ensure that the order of the source dataset types in the MetricExecutionGroup dataset key are stable ([#248](https://github.com/Climate-REF/climate-ref/pulls/248))
+
+### Deprecations
+
+- Removes support for Python 3.10.
+  The minimum and default supported Python version is now 3.11. ([#226](https://github.com/Climate-REF/climate-ref/pulls/226))
+
+### Features
+
+- Add the basic framework for enforcing a controlled vocabulary
+  for the results in a CMEC metrics bundle.
+  This is still in the prototype stage
+  and is not yet integrated into post-metric execution processing. ([#183](https://github.com/Climate-REF/climate-ref/pulls/183))
+- Scalar values from the metrics are now stored in the database
+  if they pass validation.
+  The controlled vocabulary for these metrics is still under development. ([#185](https://github.com/Climate-REF/climate-ref/pulls/185))
+- Added Zero Emission Commitment (ZEC) metric to the ESMValTool metrics package. ([#204](https://github.com/Climate-REF/climate-ref/pulls/204))
+- Added Transient Climate Response to Cumulative CO2 Emissions (TCRE) metric to the ESMValTool metrics package. ([#208](https://github.com/Climate-REF/climate-ref/pulls/208))
+- Add `ref datasets fetch-obs4ref-data` CLI command to fetch datasets that are in the process of being published to obs4MIPs and are appropriately licensed for use within the REF.
+  The CLI command fetches the datasets and writes them to a local directory.
+  These datasets can then be ingested into the REF as obs4MIPs datasets. ([#219](https://github.com/Climate-REF/climate-ref/pulls/219))
+- Enabled metric providers to register registries of datasets for download.
+  This unifies the fetching of datasets across the REF via the `ref datasets fetch-data` CLI command.
+  Added registries for the datasets that haven't been published to obs4MIPs yet (`obs4REF`) as well as PMP annual cycle datasets. ([#227](https://github.com/Climate-REF/climate-ref/pulls/227))
+- Capture log output for each execution and display via `ref executions inspect`. ([#232](https://github.com/Climate-REF/climate-ref/pulls/232))
+- Added the option to install development versions of metrics packages. ([#236](https://github.com/Climate-REF/climate-ref/pulls/236))
+- Added seasonal cycle and time series of sea ice area metrics. ([#239](https://github.com/Climate-REF/climate-ref/pulls/239))
+- The unique group identifiers for a MetricExecutionGroup are now tracked in the database. These values are used for presentation. ([#248](https://github.com/Climate-REF/climate-ref/pulls/248))
+- Added a new dataset source type to track PMP climatology data ([#253](https://github.com/Climate-REF/climate-ref/pulls/253))
+
+### Improvements
+
+- Refactored `MetricSolver.solve_metric_executions` to be a standalone function for easier testing.
+  Also added some additional integration tests for the Extratropical Modes of Variability metric from PMP. ([#229](https://github.com/Climate-REF/climate-ref/pulls/229))
+- The configuration paths are now all resolved to absolute paths ([#230](https://github.com/Climate-REF/climate-ref/pulls/230))
+- Verified support for PostgreSQL database backends ([#231](https://github.com/Climate-REF/climate-ref/pulls/231))
+- Updated the ESMValTool metric and output bundles. ([#235](https://github.com/Climate-REF/climate-ref/pulls/235))
+- Update to v0.5.0 of the sample data ([#264](https://github.com/Climate-REF/climate-ref/pulls/264))
+
+### Bug Fixes
+
+- Relax some of the requirements for the availability of metadata in CMIP6 datasets. ([#245](https://github.com/Climate-REF/climate-ref/pulls/245))
+- Added a missing migration and tests to ensure that the migration are up to date. ([#247](https://github.com/Climate-REF/climate-ref/pulls/247))
+- Fixed how the path to ESMValTool outputs was determined,
+  and added support for outputs in nested directories. ([#250](https://github.com/Climate-REF/climate-ref/pulls/250))
+- Marked failing tests as xfail as a temporary solution. ([#259](https://github.com/Climate-REF/climate-ref/pulls/259))
+- Fetch ESMValTool reference data in the integration test suite ([#265](https://github.com/Climate-REF/climate-ref/pulls/265))
+
+### Improved Documentation
+
+- Now following [SPEC-0000](https://scientific-python.org/specs/spec-0000/) for dependency support windows.
+  Support for Python versions will be dropped after 3 years and support for key scientific libraries will be dropped after 2 years. ([#226](https://github.com/Climate-REF/climate-ref/pulls/226))
+- Migrate from the use of ‘AR7 Fast Track’ to ‘Assessment Fast Track’ in response to the CMIP Panel decision to [change the name of the CMIP7 fast track](https://wcrp-cmip.org/fast-track-name-update/). ([#251](https://github.com/Climate-REF/climate-ref/pulls/251))
+
+### Trivial/Internal Changes
+
+- [#220](https://github.com/Climate-REF/climate-ref/pulls/220)
+
+
 ## cmip_ref 0.3.1 (2025-03-28)
 
 ### Trivial/Internal Changes

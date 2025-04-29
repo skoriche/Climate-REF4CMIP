@@ -64,7 +64,6 @@ class AnnualCycle(CommandLineMetric):
         -------
             Command arguments to execute in the PMP environment
         """
-        # Pass the parameters using **kwargs
         raise NotImplementedError("Function not required")
 
     def build_cmds(self, definition: MetricExecutionDefinition) -> list[list[str]]:

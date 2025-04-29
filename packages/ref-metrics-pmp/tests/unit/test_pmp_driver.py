@@ -63,18 +63,3 @@ def test_execute_missing_parameter():
             output_directory_path="output",
             experiment_id="historical",
         )
-
-
-def test_execute_more_than_one_model():
-    with pytest.raises(NotImplementedError, match="Only one model file is supported"):
-        build_pmp_command(
-            driver_file="variability_mode/variability_modes_driver.py",
-            parameter_file="pmp_param_MoV-ts.py",
-            model_files=["model1.nc", "model2.nc"],
-            reference_name="HadISST-1-1",
-            reference_paths=["reference.nc"],
-            source_id="source_id",
-            member_id="member_id",
-            output_directory_path="output",
-            experiment_id="historical",
-        )

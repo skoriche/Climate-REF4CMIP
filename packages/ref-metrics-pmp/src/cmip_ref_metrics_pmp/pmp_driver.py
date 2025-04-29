@@ -1,6 +1,7 @@
 import importlib.metadata
 import importlib.resources
 import json
+import os
 import pathlib
 from typing import Any
 
@@ -183,3 +184,69 @@ def build_pmp_command(
     logger.info("[PMP] Command generation for the driver completed.")
 
     return cmd
+
+
+def build_glob_pattern(paths: list[str]) -> str:
+    """
+    Generate a glob pattern that matches files.
+
+    Generate a glob pattern that matches all files in the given list of paths,
+    based on their common directory, filename prefix, and suffix.
+
+    Parameters
+    ----------
+    paths : list of str
+        A list of full file paths. The paths should point to actual files,
+        and should have enough similarity in their structure and naming
+        to extract common patterns.
+
+    Returns
+    -------
+    str
+        A glob pattern string that can be used with `glob.glob(pattern, recursive=True)`
+        to match all the provided files and others with the same structural pattern.
+
+    Examples
+    --------
+    >>> paths = [
+    ...     "/home/user/data/folder1/file1.txt",
+    ...     "/home/user/data/folder1/file2.txt",
+    ...     "/home/user/data/folder2/file3.txt",
+    ... ]
+    >>> pattern = build_glob_pattern(paths)
+    >>> print(pattern)
+    /home/user/data/**/file*.txt
+    """
+    if not paths:
+        raise ValueError("The path list is empty.")
+
+    # Find the common directory path
+    common_path = os.path.commonpath(paths)
+
+    # Extract filenames
+    filenames = [os.path.basename(path) for path in paths]
+
+    # Helper to find common prefix
+    def common_prefix(strings: list[str]) -> str:
+        if not strings:
+            return ""
+        prefix = strings[0]
+        for s in strings[1:]:
+            while not s.startswith(prefix):
+                prefix = prefix[:-1]
+                if not prefix:
+                    break
+        return prefix
+
+    # Helper to find common suffix
+    def common_suffix(strings: list[str]) -> str:
+        reversed_strings = [s[::-1] for s in strings]
+        reversed_suffix = common_prefix(reversed_strings)
+        return reversed_suffix[::-1]
+
+    prefix = common_prefix(filenames)
+    suffix = common_suffix(filenames)
+
+    # Build the glob pattern
+    pattern = os.path.join(common_path, "**", f"{prefix}*{suffix}")
+    return pattern

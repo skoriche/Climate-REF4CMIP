@@ -11,7 +11,7 @@ from cmip_ref_core.metrics import (
     MetricExecutionDefinition,
     MetricExecutionResult,
 )
-from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
+from cmip_ref_metrics_pmp.pmp_driver import build_glob_pattern, build_pmp_command, process_json_result
 
 
 class AnnualCycle(CommandLineMetric):
@@ -84,7 +84,14 @@ class AnnualCycle(CommandLineMetric):
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
         variable_id = input_datasets["variable_id"].unique()[0]
-        model_files = input_datasets.path.to_list()[0]  # Limits to one file, needs to be fixed in the future
+
+        model_files_raw = input_datasets.path.to_list()
+        if len(model_files_raw) == 1:
+            model_files = model_files_raw[0]  # If only one file, use it directly
+        elif len(model_files_raw) > 1:
+            model_files = build_glob_pattern(model_files_raw)  # If multiple files, build a glob pattern
+        else:
+            raise ValueError("No model files found")
 
         logger.debug("build_cmd start")
 

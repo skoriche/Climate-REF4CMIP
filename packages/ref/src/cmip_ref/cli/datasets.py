@@ -59,7 +59,7 @@ def list_(
                 f"Choose from: {format_(data_catalog.columns)}"
             )
             raise typer.Exit(code=1)
-        data_catalog = data_catalog[column]
+        data_catalog = data_catalog[column].sort_values(by=column)
 
     pretty_print_df(data_catalog, console=console)
 
@@ -202,4 +202,4 @@ def fetch_data(
         logger.error(f"Available registries: {', '.join(dataset_registry_manager.keys())}")
         raise typer.Exit(code=1)
 
-    fetch_all_files(_registry, output_directory, symlink=symlink)
+    fetch_all_files(_registry, registry, output_directory, symlink=symlink)

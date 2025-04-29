@@ -131,7 +131,7 @@ class ESMValToolMetric(CommandLineMetric):
             config["rootpath"].update(  # type: ignore[attr-defined]
                 {
                     "OBS": str(data_dir / "OBS"),
-                    "OBS6": str(data_dir / "OBS"),
+                    "OBS6": str(data_dir / "OBS6"),
                     "native6": str(data_dir / "RAWOBS"),
                 }
             )

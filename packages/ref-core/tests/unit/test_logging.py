@@ -87,6 +87,6 @@ def test_redirect_logs_exception(definition, caplog):
             logger.debug("This will raise an exception")
             raise ValueError()
 
-    assert orig_handler != logger.default_handler_id, (
-        "The default handler should have changed during the redirect and cleanup."
-    )
+    assert (
+        orig_handler != logger.default_handler_id
+    ), "The default handler should have changed during the redirect and cleanup."

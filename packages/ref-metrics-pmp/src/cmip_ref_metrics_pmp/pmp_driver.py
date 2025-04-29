@@ -188,7 +188,7 @@ def build_pmp_command(
 
 def build_glob_pattern(paths: list[str]) -> str:
     """
-    Generate a glob pattern that matches files.
+    Generate a glob pattern that matches files based on common path, prefix, and suffix.
 
     Generate a glob pattern that matches all files in the given list of paths,
     based on their common directory, filename prefix, and suffix.
@@ -223,8 +223,10 @@ def build_glob_pattern(paths: list[str]) -> str:
     # Find the common directory path
     common_path = os.path.commonpath(paths)
 
-    # Extract filenames
+    # Extract filenames and parent directories
     filenames = [os.path.basename(path) for path in paths]
+    dirnames = [os.path.dirname(path) for path in paths]
+    same_dir = all(d == dirnames[0] for d in dirnames)
 
     # Helper to find common prefix
     def common_prefix(strings: list[str]) -> str:
@@ -247,6 +249,10 @@ def build_glob_pattern(paths: list[str]) -> str:
     prefix = common_prefix(filenames)
     suffix = common_suffix(filenames)
 
-    # Build the glob pattern
-    pattern = os.path.join(common_path, "**", f"{prefix}*{suffix}")
+    # Use simpler pattern if all files are in the same directory
+    if same_dir:
+        pattern = os.path.join(dirnames[0], f"{prefix}*{suffix}")
+    else:
+        pattern = os.path.join(common_path, "**", f"{prefix}*{suffix}")
+
     return pattern

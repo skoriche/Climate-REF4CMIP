@@ -23,10 +23,10 @@ class CloudRadiativeEffects(ESMValToolMetric):
     base_recipe = "ref/recipe_ref_cre.yml"
 
     variables = (
-        "rsut",
-        "rsutcs",
         "rlut",
         "rlutcs",
+        "rsut",
+        "rsutcs",
     )
     data_requirements = (
         DataRequirement(

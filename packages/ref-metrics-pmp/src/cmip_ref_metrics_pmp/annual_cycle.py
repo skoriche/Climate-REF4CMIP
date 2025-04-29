@@ -90,8 +90,6 @@ class AnnualCycle(CommandLineMetric):
             model_files = model_files_raw[0]  # If only one file, use it directly
         elif len(model_files_raw) > 1:
             model_files = build_glob_pattern(model_files_raw)  # If multiple files, build a glob pattern
-            print(f"model_files_raw: {model_files_raw}")
-            print(f"model_files: {model_files}")
         else:
             raise ValueError("No model files found")
 

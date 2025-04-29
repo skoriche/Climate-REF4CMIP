@@ -23,7 +23,7 @@ class ZeroEmissionCommitment(ESMValToolMetric):
     """
 
     name = "Zero Emission Commitment"
-    slug = "esmvaltool-zero-emission-commitment"
+    slug = "zero-emission-commitment"
     base_recipe = "recipe_zec.yml"
 
     experiments = (

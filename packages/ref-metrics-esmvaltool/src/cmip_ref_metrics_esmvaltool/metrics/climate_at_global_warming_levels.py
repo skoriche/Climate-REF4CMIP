@@ -18,7 +18,7 @@ class ClimateAtGlobalWarmingLevels(ESMValToolMetric):
     """
 
     name = "Climate variables at global warming levels"
-    slug = "esmvaltool-climate-at-global-warming-levels"
+    slug = "climate-at-global-warming-levels"
     base_recipe = "recipe_calculate_gwl_exceedance_stats.yml"
 
     variables = (

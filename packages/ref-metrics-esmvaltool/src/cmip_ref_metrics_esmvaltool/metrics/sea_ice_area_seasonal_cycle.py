@@ -17,7 +17,7 @@ class SeaIceAreaSeasonalCycle(ESMValToolMetric):
     """
 
     name = "Sea ice area seasonal cycle"
-    slug = "esmvaltool-sea-ice-area-seasonal-cycle"
+    slug = "sea-ice-area-seasonal-cycle"
     base_recipe = "ref/recipe_ref_sea_ice_area_basic.yml"
 
     data_requirements = (

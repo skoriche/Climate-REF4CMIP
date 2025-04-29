@@ -23,7 +23,7 @@ class TransientClimateResponse(ESMValToolMetric):
     """
 
     name = "Transient Climate Response"
-    slug = "esmvaltool-transient-climate-response"
+    slug = "transient-climate-response"
     base_recipe = "recipe_tcr.yml"
 
     experiments = (

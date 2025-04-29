@@ -19,7 +19,7 @@ class CloudRadiativeEffects(ESMValToolMetric):
     """
 
     name = "Climatologies and zonal mean profiles of cloud radiative effects"
-    slug = "esmvaltool-cloud-radiative-effects"
+    slug = "cloud-radiative-effects"
     base_recipe = "ref/recipe_ref_cre.yml"
 
     variables = (

@@ -126,7 +126,8 @@ _RECIPES = pooch.create(
     base_url=f"https://raw.githubusercontent.com/ESMValGroup/ESMValTool/{_ESMVALTOOL_COMMIT}/esmvaltool/recipes/",
     env="REF_METRICS_ESMVALTOOL_DATA_DIR",
 )
-_RECIPES.load_registry(importlib.resources.open_binary("cmip_ref_metrics_esmvaltool", "recipes.txt"))
+with importlib.resources.files("cmip_ref_metrics_esmvaltool").joinpath("recipes.txt").open("rb") as _buffer:
+    _RECIPES.load_registry(_buffer)
 
 
 def load_recipe(recipe: str) -> Recipe:

@@ -18,7 +18,6 @@ from cmip_ref.solver import (
 from cmip_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
 from cmip_ref_core.datasets import SourceDatasetType
 from cmip_ref_core.metrics import DataRequirement, FacetFilter
-from cmip_ref_core.providers import MetricsProvider
 
 
 @pytest.fixture
@@ -351,8 +350,50 @@ def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
     # TODO: Check that no new metrics were added to the db
 
 
+def test_solve_metric_executions_missing(mock_metric, provider):
+    mock_metric.data_requirements = ()
+    with pytest.raises(ValueError, match=f"Metric {mock_metric.slug} has no data requirements"):
+        next(solve_metric_executions({}, mock_metric, provider))
+
+
+def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
+    mock_metric.data_requirements = (
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(),
+            group_by=("variable_id", "source_id"),
+        ),
+        (
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(),
+                group_by=("variable_id", "experiment_id"),
+            ),
+        ),
+    )
+    data_catalog = {SourceDatasetType.CMIP6: pd.DataFrame()}
+
+    with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'tuple'>"):
+        next(solve_metric_executions(data_catalog, mock_metric, provider))
+
+    mock_metric.data_requirements = mock_metric.data_requirements[::-1]
+    with pytest.raises(
+        TypeError,
+        match="Expected a sequence of DataRequirement, got <class 'cmip_ref_core.metrics.DataRequirement'>",
+    ):
+        next(solve_metric_executions(data_catalog, mock_metric, provider))
+
+    mock_metric.data_requirements = ("test",)
+    with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'str'>"):
+        next(solve_metric_executions(data_catalog, mock_metric, provider))
+
+    mock_metric.data_requirements = (None,)
+    with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'NoneType'>"):
+        next(solve_metric_executions(data_catalog, mock_metric, provider))
+
+
 @pytest.mark.parametrize("variable,expected", [("tas", 4), ("pr", 1), ("not_a_variable", 0)])
-def test_solve_metric_executions(solver, mock_metric, variable, expected):
+def test_solve_metric_executions(solver, mock_metric, provider, variable, expected):
     metric = mock_metric
     metric.data_requirements = (
         DataRequirement(
@@ -366,8 +407,6 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
             group_by=("variable_id", "experiment_id"),
         ),
     )
-    provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(mock_metric)
 
     data_catalog = {
         SourceDatasetType.obs4MIPs: pd.DataFrame(
@@ -389,7 +428,7 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     assert len(list(executions)) == expected
 
 
-def test_solve_metric_executions_multiple_sets(solver, mock_metric):
+def test_solve_metric_executions_multiple_sets(solver, mock_metric, provider):
     metric = mock_metric
     metric.data_requirements = (
         (
@@ -407,8 +446,6 @@ def test_solve_metric_executions_multiple_sets(solver, mock_metric):
             ),
         ),
     )
-    provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(mock_metric)
 
     data_catalog = {
         SourceDatasetType.CMIP6: pd.DataFrame(

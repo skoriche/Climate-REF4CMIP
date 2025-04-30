@@ -199,12 +199,10 @@ def solve_metric_executions(
         # We have a sequence of collections of data requirements
         for requirement_collection in metric.data_requirements:
             if not isinstance(requirement_collection, Sequence):
-                raise ValueError(
-                    f"Expected a sequence of data requirements, got {type(requirement_collection)}"
-                )
+                raise TypeError(f"Expected a sequence of DataRequirement, got {type(requirement_collection)}")
             yield from _solve_from_data_requirements(data_catalog, metric, requirement_collection, provider)
     else:
-        raise ValueError(f"Expected a sequence of data requirements, got {type(first_item)}")
+        raise TypeError(f"Expected a DataRequirement, got {type(first_item)}")
 
 
 def _solve_from_data_requirements(
@@ -217,6 +215,8 @@ def _solve_from_data_requirements(
     dataset_groups = {}
 
     for requirement in data_requirements:
+        if not isinstance(requirement, DataRequirement):
+            raise TypeError(f"Expected a DataRequirement, got {type(requirement)}")
         if requirement.source_type not in data_catalog:
             raise InvalidMetricException(metric, f"No data catalog for source type {requirement.source_type}")
 

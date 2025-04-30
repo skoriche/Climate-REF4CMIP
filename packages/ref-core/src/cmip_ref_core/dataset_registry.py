@@ -148,6 +148,7 @@ class DatasetRegistryManager:
             path=pooch.os_cache(cache_name),
             base_url=base_url,
             version=version,
+            retry_if_failed=5,
             env="REF_METRICS_DATA_DIR",
         )
         registry.load_registry(str(importlib.resources.files(package) / resource))

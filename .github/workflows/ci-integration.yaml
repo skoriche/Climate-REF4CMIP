@@ -15,7 +15,7 @@ jobs:
   tests-slow:
     env:
       REF_TEST_OUTPUT: "test-outputs"
-      REF_METRICS_ILAMB_DATA_DIR: "data/ilamb"
+      REF_METRICS_DATA_DIR: "data"
       PYTEST_ADDOPTS: "--slow"
     strategy:
       fail-fast: false
@@ -32,17 +32,18 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Cache downloaded ILAMB data
+      - name: Cache downloaded data
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.REF_METRICS_ILAMB_DATA_DIR }}
-          key: ilamb
+            ${{ env.REF_METRICS_DATA_DIR }}
+          key: reference-datasets
       - name: Run tests
         run: |
           make virtual-environment
           make fetch-test-data
           uv run ref datasets fetch-data --registry ilamb
+          uv run ref datasets fetch-data --registry esmvaltool
           make test
       # Upload the scratch and results directories as artifacts
       - name: Upload scratch artifacts

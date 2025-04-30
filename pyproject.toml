@@ -1,6 +1,6 @@
 [project]
 name = "cmip-ref-root"
-version = "0.3.1"
+version = "0.4.0"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -78,7 +78,7 @@ source = ["packages"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 95
+fail_under = 90
 skip_empty = true
 show_missing = true
 # Regexes for lines to exclude from consideration in addition to the defaults

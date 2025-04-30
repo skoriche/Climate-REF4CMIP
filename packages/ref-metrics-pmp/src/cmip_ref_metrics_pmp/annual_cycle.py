@@ -323,4 +323,16 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
                                     data["RESULTS"][model]["default"][realization][region][stat][key_name] = (
                                         value
                                     )
+
+    # Remove the "CalendarMonths" key from the nested structure in "DIMENSIONS"
+    if (
+        "DIMENSIONS" in data
+        and "season" in data["DIMENSIONS"]
+        and "CalendarMonths" in data["DIMENSIONS"]["season"]
+    ):
+        calendar_months = data["DIMENSIONS"]["season"].pop("CalendarMonths")
+        for i in range(1, 13):
+            key_name = f"CalendarMonths-{i:02d}"
+            data["DIMENSIONS"]["season"][key_name] = {}
+
     return data

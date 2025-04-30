@@ -1,6 +1,7 @@
 import importlib.metadata
 import importlib.resources
 import json
+import os
 import pathlib
 from typing import Any
 
@@ -136,16 +137,9 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
     return str(resource_path)
 
 
-def build_pmp_command(  # noqa: PLR0913
+def build_pmp_command(
     driver_file: str,
     parameter_file: str,
-    model_files: list[str] | str,
-    reference_name: str,
-    reference_paths: list[str] | str,
-    source_id: str,
-    experiment_id: str,
-    member_id: str,
-    output_directory_path: str,
     **kwargs: dict[str, str | int | float | list[str]],
 ) -> list[str]:
     """
@@ -160,26 +154,8 @@ def build_pmp_command(  # noqa: PLR0913
     ----------
     driver_file
         Filename of the PMP driver script to run
-
-        Relative to the pcmdi_metrics package.
     parameter_file
         Filename of the parameter file to use
-
-        Relative to the cmip_ref_metrics_pmp.params package.
-    model_files
-        A list of model files to evaluate
-
-        Currently, we only support a single model file.
-    reference_name
-        Name of the reference dataset to use
-    reference_paths
-        Path to the reference dataset
-    source_id
-        Source ID of the model data
-    member_id
-        Member ID of the model data
-    output_directory_path
-        Output data where all the results are stored
     kwargs
         Additional arguments to pass to the driver script
     """
@@ -187,49 +163,96 @@ def build_pmp_command(  # noqa: PLR0913
     _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = _get_resource("cmip_ref_metrics_pmp.params", parameter_file, use_resources=True)
 
-    if isinstance(model_files, list):
-        modpath = " ".join([str(p) for p in model_files])
-    else:
-        modpath = model_files
-
-    if isinstance(reference_paths, list):
-        reference_data_path = " ".join([str(p) for p in reference_paths])
-    else:
-        reference_data_path = reference_paths
-
-    if len(model_files) != 1:
-        # Have some logic to replace the dates in the filename with a wildcard
-        raise NotImplementedError("Only one model file is supported at this time.")
-
     # Run the driver script inside the PMP conda environment
     cmd = [
         "python",
         _driver_script,
         "-p",
         _parameter_file,
-        "--modnames",
-        source_id,
-        "--exp",
-        experiment_id,
-        "--realization",
-        member_id,
-        "--modpath",
-        modpath,
-        "--reference_data_path",
-        reference_data_path,
-        "--reference_data_name",
-        reference_name,
-        "--results_dir",
-        output_directory_path,
-        "--cmec",
-        "--no_provenance",
     ]
 
     # Loop through additional arguments if they exist
     if kwargs:  # pragma: no cover
         for key, value in kwargs.items():
-            cmd.extend([f"--{key}", str(value)])
+            if value:
+                cmd.extend([f"--{key}", str(value)])
+            else:
+                cmd.extend([f"--{key}"])
 
-    logger.info(f"pmp command to run: {cmd}")
+    logger.info("-- PMP command to run --")
+    logger.info("[PMP] Command to run:", " ".join(map(str, cmd)))
+    logger.info("[PMP] Command generation for the driver completed.")
 
     return cmd
+
+
+def build_glob_pattern(paths: list[str]) -> str:
+    """
+    Generate a glob pattern that matches files based on common path, prefix, and suffix.
+
+    Generate a glob pattern that matches all files in the given list of paths,
+    based on their common directory, filename prefix, and suffix.
+
+    Parameters
+    ----------
+    paths : list of str
+        A list of full file paths. The paths should point to actual files,
+        and should have enough similarity in their structure and naming
+        to extract common patterns.
+
+    Returns
+    -------
+    str
+        A glob pattern string that can be used with `glob.glob(pattern, recursive=True)`
+        to match all the provided files and others with the same structural pattern.
+
+    Examples
+    --------
+    >>> paths = [
+    ...     "/home/user/data/folder1/file1.txt",
+    ...     "/home/user/data/folder1/file2.txt",
+    ...     "/home/user/data/folder2/file3.txt",
+    ... ]
+    >>> pattern = build_glob_pattern(paths)
+    >>> print(pattern)
+    /home/user/data/**/file*.txt
+    """
+    if not paths:
+        raise ValueError("The path list is empty.")
+
+    # Find the common directory path
+    common_path = os.path.commonpath(paths)
+
+    # Extract filenames and parent directories
+    filenames = [os.path.basename(path) for path in paths]
+    dirnames = [os.path.dirname(path) for path in paths]
+    same_dir = all(d == dirnames[0] for d in dirnames)
+
+    # Helper to find common prefix
+    def common_prefix(strings: list[str]) -> str:
+        if not strings:
+            return ""
+        prefix = strings[0]
+        for s in strings[1:]:
+            while not s.startswith(prefix):
+                prefix = prefix[:-1]
+                if not prefix:
+                    break
+        return prefix
+
+    # Helper to find common suffix
+    def common_suffix(strings: list[str]) -> str:
+        reversed_strings = [s[::-1] for s in strings]
+        reversed_suffix = common_prefix(reversed_strings)
+        return reversed_suffix[::-1]
+
+    prefix = common_prefix(filenames)
+    suffix = common_suffix(filenames)
+
+    # Use simpler pattern if all files are in the same directory
+    if same_dir:
+        pattern = os.path.join(dirnames[0], f"{prefix}*{suffix}")
+    else:
+        pattern = os.path.join(common_path, "**", f"{prefix}*{suffix}")
+
+    return pattern

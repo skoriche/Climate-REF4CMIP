@@ -100,6 +100,11 @@ class MetricDataset:
     def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
         self._collection = {SourceDatasetType(k): v for k, v in collection.items()}
 
+    def __contains__(self, key: SourceDatasetType | str) -> bool:
+        if isinstance(key, str):
+            key = SourceDatasetType(key)
+        return key in self._collection
+
     def __getitem__(self, key: SourceDatasetType | str) -> DatasetCollection:
         if isinstance(key, str):
             key = SourceDatasetType(key)

@@ -2,11 +2,11 @@ import datetime
 
 import pandas as pd
 import pytest
-from cmip_ref_metrics_pmp import AnnualCycle
+from cmip_ref_metrics_pmp import AnnualCycle, provider
 from cmip_ref_metrics_pmp.pmp_driver import _get_resource
 
-from cmip_ref.solver import extract_covered_datasets
-from cmip_ref_core.datasets import DatasetCollection
+from cmip_ref.solver import extract_covered_datasets, solve_metric_executions
+from cmip_ref_core.datasets import DatasetCollection, SourceDatasetType
 from cmip_ref_core.metrics import Metric
 
 
@@ -17,6 +17,63 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.Da
     first_key = next(iter(datasets.keys()))
 
     return datasets[first_key]
+
+
+def test_expected_executions():
+    metric = AnnualCycle()
+    data_catalog = {
+        SourceDatasetType.CMIP6: pd.DataFrame(
+            [
+                ["ts", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon"],
+                ["ts", "ACCESS-ESM1-5", "ssp119", "r1i1p1f1", "mon"],
+                ["ts", "ACCESS-ESM1-5", "historical", "r2i1p1f1", "mon"],
+                ["pr", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon"],
+            ],
+            columns=("variable_id", "source_id", "experiment_id", "member_id", "frequency"),
+        ),
+        SourceDatasetType.PMPClimatology: pd.DataFrame(
+            [["ERA-5", "ts"], ["ERA-5", "pr"], ["GPCP-Monthly-3-2", "pr"]],
+            columns=["source_id", "variable_id"],
+        ),
+    }
+    executions = list(solve_metric_executions(data_catalog, metric, provider=provider))
+    assert len(executions) == 3
+
+    # ts
+    assert executions[0].metric_dataset[SourceDatasetType.CMIP6].selector == (
+        ("variable_id", "ts"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("experiment_id", "historical"),
+        ("member_id", "r1i1p1f1"),
+    )
+    assert executions[0].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+        ("variable_id", "ts"),
+        ("source_id", "ERA-5"),
+    )
+
+    # ts with different member_id
+    assert executions[1].metric_dataset[SourceDatasetType.CMIP6].selector == (
+        ("variable_id", "ts"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("experiment_id", "historical"),
+        ("member_id", "r2i1p1f1"),
+    )
+    assert executions[0].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+        ("variable_id", "ts"),
+        ("source_id", "ERA-5"),
+    )
+
+    # pr
+    assert executions[2].metric_dataset[SourceDatasetType.CMIP6].selector == (
+        ("variable_id", "pr"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("experiment_id", "historical"),
+        ("member_id", "r1i1p1f1"),
+    )
+    assert executions[2].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+        ("variable_id", "pr"),
+        ("source_id", "GPCP-Monthly-3-2"),
+    )
 
 
 @pytest.mark.parametrize(

@@ -7,6 +7,7 @@ This module provides a solver to determine which metrics need to be calculated.
 import itertools
 import pathlib
 import typing
+from collections.abc import Sequence
 
 import pandas as pd
 from attrs import define, frozen
@@ -51,7 +52,9 @@ class MetricExecution:
     metric_dataset: MetricDataset
 
     def _source_type_order(self) -> list[SourceDatasetType]:
-        source_types = [requirement.source_type for requirement in self.metric.data_requirements]
+        source_types = {
+            requirement.source_type for requirement in itertools.chain(*self.metric.data_requirements)
+        }
         return sorted(source_types, key=lambda x: x.value)
 
     @property
@@ -70,6 +73,9 @@ class MetricExecution:
         for source_type in source_type_order:
             # Ensure the selector is sorted using the dimension names
             # This will ensure a stable key even if the groupby order changes
+            if source_type not in self.metric_dataset._collection:
+                continue
+
             selector = self.metric_dataset[source_type].selector
             selector_sorted = sorted(selector, key=lambda item: item[0])
 
@@ -183,10 +189,41 @@ def solve_metric_executions(
         A generator that yields the metric executions that need to be performed
 
     """
+    if not metric.data_requirements:
+        raise ValueError(f"Metric {metric.slug} has no data requirements")
+
+    first_item = next(iter(metric.data_requirements))
+
+    if isinstance(first_item, DataRequirement):
+        # We have a single collection of data requirements
+        yield from _solve_from_data_requirements(
+            data_catalog,
+            metric,
+            typing.cast(Sequence[DataRequirement], metric.data_requirements),
+            provider,
+        )
+    elif isinstance(first_item, Sequence):
+        # We have a sequence of collections of data requirements
+        for requirement_collection in metric.data_requirements:
+            if not isinstance(requirement_collection, Sequence):
+                raise ValueError(
+                    f"Expected a sequence of data requirements, got {type(requirement_collection)}"
+                )
+            yield from _solve_from_data_requirements(data_catalog, metric, requirement_collection, provider)
+    else:
+        raise ValueError(f"Expected a sequence of data requirements, got {type(first_item)}")
+
+
+def _solve_from_data_requirements(
+    data_catalog: dict[SourceDatasetType, pd.DataFrame],
+    metric: Metric,
+    data_requirements: Sequence[DataRequirement],
+    provider: MetricsProvider,
+) -> typing.Generator["MetricExecution", None, None]:
     # Collect up the different data groups that can be used to calculate the metric
     dataset_groups = {}
 
-    for requirement in metric.data_requirements:
+    for requirement in data_requirements:
         if requirement.source_type not in data_catalog:
             raise InvalidMetricException(metric, f"No data catalog for source type {requirement.source_type}")
 

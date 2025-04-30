@@ -51,12 +51,6 @@ class MetricExecution:
     metric: Metric
     metric_dataset: MetricDataset
 
-    def _source_type_order(self) -> list[SourceDatasetType]:
-        source_types = {
-            requirement.source_type for requirement in itertools.chain(*self.metric.data_requirements)
-        }
-        return sorted(source_types, key=lambda x: x.value)
-
     @property
     def dataset_key(self) -> str:
         """
@@ -69,11 +63,10 @@ class MetricExecution:
         """
         key_values = []
 
-        source_type_order = self._source_type_order()
-        for source_type in source_type_order:
+        for source_type in SourceDatasetType.ordered():
             # Ensure the selector is sorted using the dimension names
             # This will ensure a stable key even if the groupby order changes
-            if source_type not in self.metric_dataset._collection:
+            if source_type not in self.metric_dataset:
                 continue
 
             selector = self.metric_dataset[source_type].selector
@@ -92,13 +85,13 @@ class MetricExecution:
         These are the key, value pairs that were selected during the initial group-by,
         for each data requirement.
         """
-        source_type_order = self._source_type_order()
-
-        # The value of SourceType is used here so that this
-        # result can be stored in the db
-        return {
-            source_type.value: self.metric_dataset[source_type].selector for source_type in source_type_order
-        }
+        # The "value" of SourceType is used here so this can be stored in the db
+        s = {}
+        for source_type in SourceDatasetType.ordered():
+            if source_type not in self.metric_dataset:
+                continue
+            s[source_type.value] = self.metric_dataset[source_type].selector
+        return s
 
     def build_metric_execution_info(self, output_root: pathlib.Path) -> MetricExecutionDefinition:
         """

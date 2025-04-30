@@ -389,6 +389,47 @@ def test_solve_metric_executions(solver, mock_metric, variable, expected):
     assert len(list(executions)) == expected
 
 
+def test_solve_metric_executions_multiple_sets(solver, mock_metric):
+    metric = mock_metric
+    metric.data_requirements = (
+        (
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(FacetFilter(facets={"variable_id": "tas"}),),
+                group_by=("variable_id",),
+            ),
+        ),
+        (
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(FacetFilter(facets={"variable_id": "pr"}),),
+                group_by=("variable_id", "experiment_id"),
+            ),
+        ),
+    )
+    provider = MetricsProvider("mock_provider", "v0.1.0")
+    provider.register(mock_metric)
+
+    data_catalog = {
+        SourceDatasetType.CMIP6: pd.DataFrame(
+            {
+                "variable_id": ["tas", "tas", "pr"],
+                "experiment_id": ["ssp119", "ssp126", "ssp119"],
+                "variant_label": ["r1i1p1f1", "r1i1p1f1", "r1i1p1f1"],
+            }
+        ),
+    }
+    executions = list(solve_metric_executions(data_catalog, metric, provider))
+    assert len(executions) == 2
+
+    assert executions[0].metric_dataset[SourceDatasetType.CMIP6].selector == (("variable_id", "tas"),)
+
+    assert executions[1].metric_dataset[SourceDatasetType.CMIP6].selector == (
+        ("variable_id", "pr"),
+        ("experiment_id", "ssp119"),
+    )
+
+
 def _prep_data_catalog(data_catalog: dict[str, Any]) -> pd.DataFrame:
     data_catalog_df = pd.DataFrame(data_catalog)
     data_catalog_df["instance_id"] = data_catalog_df.apply(

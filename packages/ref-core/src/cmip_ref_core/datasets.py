@@ -3,9 +3,10 @@ Dataset management and filtering
 """
 
 import enum
+import functools
 import hashlib
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Self
 
 import pandas as pd
 from attrs import field, frozen
@@ -20,6 +21,21 @@ class SourceDatasetType(enum.Enum):
     CMIP7 = "cmip7"
     obs4MIPs = "obs4mips"
     PMPClimatology = "pmp-climatology"
+
+    @classmethod
+    @functools.lru_cache(maxsize=1)
+    def ordered(
+        cls,
+    ) -> list[Self]:
+        """
+        Order in alphabetical order according to their value
+
+        Returns
+        -------
+        :
+            Ordered list of dataset types
+        """
+        return sorted(cls, key=lambda x: x.value)
 
 
 def _clean_facets(raw_values: dict[str, str | tuple[str, ...] | list[str]]) -> dict[str, tuple[str, ...]]:

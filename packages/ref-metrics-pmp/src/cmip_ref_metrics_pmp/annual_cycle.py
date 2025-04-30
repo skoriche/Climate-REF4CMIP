@@ -20,8 +20,8 @@ class AnnualCycle(CommandLineMetric):
     """
 
     def __init__(self) -> None:
-        self.name = "PMP Annual Cycle"
-        self.slug = "pmp-annual-cycle"
+        self.name = "Annual Cycle"
+        self.slug = "annual-cycle"
         self.data_requirements = (
             # Surface temperature
             (

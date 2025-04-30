@@ -23,29 +23,49 @@ class AnnualCycle(CommandLineMetric):
         self.name = "PMP Annual Cycle"
         self.slug = "pmp-annual-cycle"
         self.data_requirements = (
-            DataRequirement(
-                source_type=SourceDatasetType.PMPClimatology,
-                # TODO: Add or operators and enable more varaiables
-                filters=(
-                    FacetFilter(
-                        facets={"source_id": ("GPCP-Monthly-3-2", "ERA-5"), "variable_id": ("pr", "ts")}
-                    ),
+            # Surface temperature
+            (
+                DataRequirement(
+                    source_type=SourceDatasetType.PMPClimatology,
+                    filters=(FacetFilter(facets={"source_id": ("ERA-5",), "variable_id": ("ts",)}),),
+                    group_by=("variable_id", "source_id"),
                 ),
-                group_by=("variable_id", "source_id"),
+                DataRequirement(
+                    source_type=SourceDatasetType.CMIP6,
+                    filters=(
+                        FacetFilter(
+                            facets={
+                                "frequency": "mon",
+                                "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
+                                "variable_id": ("ts",),
+                            }
+                        ),
+                    ),
+                    group_by=("variable_id", "source_id", "experiment_id", "member_id"),
+                ),
             ),
-            DataRequirement(
-                source_type=SourceDatasetType.CMIP6,
-                # TODO: Add or operators and enable more varaiables
-                filters=(
-                    FacetFilter(
-                        facets={
-                            "frequency": "mon",
-                            "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                            "variable_id": ("pr", "ts"),
-                        }
+            # Precipitation
+            (
+                DataRequirement(
+                    source_type=SourceDatasetType.PMPClimatology,
+                    filters=(
+                        FacetFilter(facets={"source_id": ("GPCP-Monthly-3-2",), "variable_id": ("pr",)}),
                     ),
+                    group_by=("variable_id", "source_id"),
                 ),
-                group_by=("variable_id", "source_id", "experiment_id", "variant_label", "member_id"),
+                DataRequirement(
+                    source_type=SourceDatasetType.CMIP6,
+                    filters=(
+                        FacetFilter(
+                            facets={
+                                "frequency": "mon",
+                                "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
+                                "variable_id": ("pr",),
+                            }
+                        ),
+                    ),
+                    group_by=("variable_id", "source_id", "experiment_id", "member_id"),
+                ),
             ),
         )
 

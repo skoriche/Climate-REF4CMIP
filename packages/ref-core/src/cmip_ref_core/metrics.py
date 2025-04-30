@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pathlib
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
@@ -390,12 +390,17 @@ class AbstractMetric(Protocol):
     Defaults to the name of the metric in lowercase with spaces replaced by hyphens.
     """
 
-    data_requirements: tuple[DataRequirement, ...]
+    data_requirements: Sequence[DataRequirement] | Sequence[Sequence[DataRequirement]]
     """
     Description of the required datasets for the current metric
 
-    This information is used to filter the a data catalog of both CMIP and/or observation datasets
+    This information is used to filter the a data catalog of both model and/or observation datasets
     that are required by the metric.
+
+    A metric may specify either a single set of requirements (i.e. a list of `DataRequirement`'s),
+    or multiple sets of requirements (i.e. a list of lists of `DataRequirement`'s).
+    Each of these sets of requirements will be processed separately which is effectively an OR operation
+    across the sets of requirements.
 
     Any modifications to the input data will new metric calculation.
     """

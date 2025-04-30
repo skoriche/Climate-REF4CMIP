@@ -1,6 +1,7 @@
 import datetime
 import json
 from collections.abc import Iterable
+from typing import Any
 
 from loguru import logger
 
@@ -220,15 +221,39 @@ class AnnualCycle(CommandLineMetric):
         png_directory = results_directory / variable_id
         data_directory = results_directory / variable_id
 
+        logger.debug(f"results_directory: {results_directory}")
+        logger.debug(f"png_directory: {png_directory}")
+        logger.debug(f"data_directory: {data_directory}")
+
+        # Find the results file
         results_files = list(results_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
             return MetricExecutionResult.build_from_failure(definition)
+        else:
+            results_file = results_files[0]
+            logger.debug(f"results_file: {results_file}")
+
+        # Rewrite results file for compatibility
+        with open(results_file) as f:
+            results = json.load(f)
+            results_transformed = _transform_results(results)
+
+        # Get the stem (filename without extension)
+        stem = results_file.stem
+
+        # Create the new filename
+        results_file_transformed = results_file.with_name(f"{stem}_transformed.json")
+
+        with open(results_file_transformed, "w") as f:
+            # Write the transformed results back to the file
+            json.dump(results_transformed, f, indent=4)
+            logger.debug(f"Transformed results written to {results_file_transformed}")
 
         # Find the other outputs
         png_files = list(png_directory.glob("*.png"))
         data_files = list(data_directory.glob("*.nc"))
 
-        cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
+        cmec_output, cmec_metric = process_json_result(results_file_transformed, png_files, data_files)
 
         return MetricExecutionResult.build_from_output_bundle(
             definition,
@@ -257,3 +282,45 @@ class AnnualCycle(CommandLineMetric):
         logger.debug(f"runs: {runs}")
 
         return self.build_metric_result(definition)
+
+
+def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Transform the results dictionary to match the expected structure.
+
+    Parameters
+    ----------
+    data : dict
+        The original results dictionary.
+
+    Returns
+    -------
+    dict
+        The transformed results dictionary.
+    """
+    # Remove the "CalendarMonths" key from the nested structure
+    if "RESULTS" in data:
+        models = list(data["RESULTS"].keys())
+        for model in models:
+            if "default" in data["RESULTS"][model]:
+                realizations = list(data["RESULTS"][model]["default"].keys())
+                if "attributes" in realizations:
+                    realizations.remove("attributes")
+                for realization in realizations:
+                    regions = list(data["RESULTS"][model]["default"][realization].keys())
+                    for region in regions:
+                        stats = list(data["RESULTS"][model]["default"][realization][region].keys())
+                        for stat in stats:
+                            if (
+                                "CalendarMonths"
+                                in data["RESULTS"][model]["default"][realization][region][stat]
+                            ):
+                                calendar_months = data["RESULTS"][model]["default"][realization][region][
+                                    stat
+                                ].pop("CalendarMonths")
+                                for i, value in enumerate(calendar_months):
+                                    key_name = f"CalendarMonths-{i+1:02d}"
+                                    data["RESULTS"][model]["default"][realization][region][stat][key_name] = (
+                                        value
+                                    )
+    return data

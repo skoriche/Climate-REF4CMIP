@@ -7,14 +7,14 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "cmip-ref",
-    "cmip-ref-celery",
-    "cmip-ref-core",
-    "cmip-ref-metrics-esmvaltool",
-    "cmip-ref-metrics-example",
-    "cmip-ref-metrics-ilamb",
-    "cmip-ref-metrics-pmp",
-    "cmip-ref-root",
+    "climate-ref",
+    "climate-ref-celery",
+    "climate-ref-core",
+    "climate-ref-esmvaltool",
+    "climate-ref-example",
+    "climate-ref-ilamb",
+    "climate-ref-pmp",
+    "climate-ref-root",
 ]
 
 [[package]]
@@ -538,23 +538,14 @@ wheels = [
 ]
 
 [[package]]
-name = "cloudpickle"
-version = "3.1.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/52/39/069100b84d7418bc358d81669d5748efb14b9cceacd2f9c75f550424132f/cloudpickle-3.1.1.tar.gz", hash = "sha256:b216fa8ae4019d5482a8ac3c95d8f6346115d8835911fd4aefd1a445e4242c64", size = 22113 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/e8/64c37fadfc2816a7701fa8a6ed8d87327c7d54eacfbfb6edab14a2f2be75/cloudpickle-3.1.1-py3-none-any.whl", hash = "sha256:c8c5a44295039331ee9dad40ba100a9c7297b6f988e50e87ccdf3765a668350e", size = 20992 },
-]
-
-[[package]]
-name = "cmip-ref"
+name = "climate-ref"
 version = "0.4.0"
 source = { editable = "packages/ref" }
 dependencies = [
     { name = "alembic" },
     { name = "attrs" },
     { name = "cattrs" },
-    { name = "cmip-ref-core" },
+    { name = "climate-ref-core" },
     { name = "ecgtools" },
     { name = "environs" },
     { name = "loguru" },
@@ -567,12 +558,12 @@ dependencies = [
 
 [package.optional-dependencies]
 celery = [
-    { name = "cmip-ref-celery" },
+    { name = "climate-ref-celery" },
 ]
 metrics = [
-    { name = "cmip-ref-metrics-esmvaltool" },
-    { name = "cmip-ref-metrics-ilamb" },
-    { name = "cmip-ref-metrics-pmp" },
+    { name = "climate-ref-esmvaltool" },
+    { name = "climate-ref-ilamb" },
+    { name = "climate-ref-pmp" },
 ]
 postgres = [
     { name = "psycopg2-binary" },
@@ -583,11 +574,11 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.13.3" },
     { name = "attrs", specifier = ">=24.2.0" },
     { name = "cattrs", specifier = ">=24.1.2" },
-    { name = "cmip-ref-celery", marker = "extra == 'celery'", editable = "packages/ref-celery" },
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
-    { name = "cmip-ref-metrics-esmvaltool", marker = "extra == 'metrics'", editable = "packages/ref-metrics-esmvaltool" },
-    { name = "cmip-ref-metrics-ilamb", marker = "extra == 'metrics'", editable = "packages/ref-metrics-ilamb" },
-    { name = "cmip-ref-metrics-pmp", marker = "extra == 'metrics'", editable = "packages/ref-metrics-pmp" },
+    { name = "climate-ref-celery", marker = "extra == 'celery'", editable = "packages/ref-celery" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-esmvaltool", marker = "extra == 'metrics'", editable = "packages/ref-metrics-esmvaltool" },
+    { name = "climate-ref-ilamb", marker = "extra == 'metrics'", editable = "packages/ref-metrics-ilamb" },
+    { name = "climate-ref-pmp", marker = "extra == 'metrics'", editable = "packages/ref-metrics-pmp" },
     { name = "ecgtools", specifier = ">=2024.7.31" },
     { name = "environs", specifier = ">=11.0.0" },
     { name = "loguru", specifier = ">=0.7.2" },
@@ -603,7 +594,7 @@ requires-dist = [
 dev = []
 
 [[package]]
-name = "cmip-ref-celery"
+name = "climate-ref-celery"
 version = "0.4.0"
 source = { editable = "packages/ref-celery" }
 dependencies = [
@@ -624,7 +615,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "celery", extras = ["redis"], specifier = ">=5.4.0" },
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "cmip-ref-core" },
     { name = "environs", specifier = ">=9" },
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
@@ -638,7 +629,7 @@ dev = [
 ]
 
 [[package]]
-name = "cmip-ref-core"
+name = "climate-ref-core"
 version = "0.4.0"
 source = { editable = "packages/ref-core" }
 dependencies = [
@@ -671,11 +662,11 @@ requires-dist = [
 dev = [{ name = "types-requests" }]
 
 [[package]]
-name = "cmip-ref-metrics-esmvaltool"
+name = "climate-ref-esmvaltool"
 version = "0.4.0"
 source = { editable = "packages/ref-metrics-esmvaltool" }
 dependencies = [
-    { name = "cmip-ref-core" },
+    { name = "climate-ref-core" },
     { name = "pooch" },
     { name = "ruamel-yaml" },
     { name = "xarray" },
@@ -683,18 +674,18 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
     { name = "pooch", specifier = ">=1.8" },
     { name = "ruamel-yaml", specifier = ">=0.18" },
     { name = "xarray", specifier = ">=2023.3.0" },
 ]
 
 [[package]]
-name = "cmip-ref-metrics-example"
+name = "climate-ref-example"
 version = "0.4.0"
 source = { editable = "packages/ref-metrics-example" }
 dependencies = [
-    { name = "cmip-ref-core" },
+    { name = "climate-ref-core" },
     { name = "dask" },
     { name = "netcdf4" },
     { name = "xarray" },
@@ -702,7 +693,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
     { name = "dask", specifier = ">=2024.10.0" },
     { name = "netcdf4", specifier = ">=1.5.0" },
     { name = "xarray", specifier = ">=2022" },
@@ -712,18 +703,18 @@ requires-dist = [
 dev = []
 
 [[package]]
-name = "cmip-ref-metrics-ilamb"
+name = "climate-ref-ilamb"
 version = "0.4.0"
 source = { editable = "packages/ref-metrics-ilamb" }
 dependencies = [
-    { name = "cmip-ref-core" },
+    { name = "climate-ref-core" },
     { name = "ilamb3" },
     { name = "types-pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
     { name = "ilamb3", git = "https://github.com/rubisco-sfa/ilamb3?rev=7c64e37ebda04b6902b39ef30db96f4bcabba472" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
 ]
@@ -732,17 +723,17 @@ requires-dist = [
 dev = []
 
 [[package]]
-name = "cmip-ref-metrics-pmp"
+name = "climate-ref-pmp"
 version = "0.4.0"
 source = { editable = "packages/ref-metrics-pmp" }
 dependencies = [
-    { name = "cmip-ref-core" },
+    { name = "climate-ref-core" },
     { name = "pcmdi-metrics" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
     { name = "pcmdi-metrics", git = "https://github.com/PCMDI/pcmdi_metrics?rev=v3.9.1" },
 ]
 
@@ -750,17 +741,17 @@ requires-dist = [
 dev = []
 
 [[package]]
-name = "cmip-ref-root"
+name = "climate-ref-root"
 version = "0.4.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "cmip-ref", extra = ["postgres"] },
-    { name = "cmip-ref-celery" },
-    { name = "cmip-ref-core" },
-    { name = "cmip-ref-metrics-esmvaltool" },
-    { name = "cmip-ref-metrics-example" },
-    { name = "cmip-ref-metrics-ilamb" },
-    { name = "cmip-ref-metrics-pmp" },
+    { name = "climate-ref", extra = ["postgres"] },
+    { name = "climate-ref-celery" },
+    { name = "climate-ref-core" },
+    { name = "climate-ref-esmvaltool" },
+    { name = "climate-ref-example" },
+    { name = "climate-ref-ilamb" },
+    { name = "climate-ref-pmp" },
 ]
 
 [package.dev-dependencies]
@@ -800,13 +791,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cmip-ref", extras = ["postgres"], editable = "packages/ref" },
-    { name = "cmip-ref-celery", editable = "packages/ref-celery" },
-    { name = "cmip-ref-core", editable = "packages/ref-core" },
-    { name = "cmip-ref-metrics-esmvaltool", editable = "packages/ref-metrics-esmvaltool" },
-    { name = "cmip-ref-metrics-example", editable = "packages/ref-metrics-example" },
-    { name = "cmip-ref-metrics-ilamb", editable = "packages/ref-metrics-ilamb" },
-    { name = "cmip-ref-metrics-pmp", editable = "packages/ref-metrics-pmp" },
+    { name = "climate-ref", extras = ["postgres"], editable = "packages/ref" },
+    { name = "climate-ref-celery", editable = "packages/ref-celery" },
+    { name = "climate-ref-core", editable = "packages/ref-core" },
+    { name = "climate-ref-esmvaltool", editable = "packages/ref-metrics-esmvaltool" },
+    { name = "climate-ref-example", editable = "packages/ref-metrics-example" },
+    { name = "climate-ref-ilamb", editable = "packages/ref-metrics-ilamb" },
+    { name = "climate-ref-pmp", editable = "packages/ref-metrics-pmp" },
 ]
 
 [package.metadata.requires-dev]
@@ -842,6 +833,33 @@ dev = [
     { name = "ruff", specifier = ">=0.6.9" },
     { name = "towncrier", specifier = ">=24.8.0" },
     { name = "types-tqdm", specifier = ">=4.67.0.20250301" },
+]
+
+[[package]]
+name = "cloudpickle"
+version = "3.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/39/069100b84d7418bc358d81669d5748efb14b9cceacd2f9c75f550424132f/cloudpickle-3.1.1.tar.gz", hash = "sha256:b216fa8ae4019d5482a8ac3c95d8f6346115d8835911fd4aefd1a445e4242c64", size = 22113 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7e/e8/64c37fadfc2816a7701fa8a6ed8d87327c7d54eacfbfb6edab14a2f2be75/cloudpickle-3.1.1-py3-none-any.whl", hash = "sha256:c8c5a44295039331ee9dad40ba100a9c7297b6f988e50e87ccdf3765a668350e", size = 20992 },
+]
+
+[[package]]
+name = "cmip-ref-core"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "pydantic" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/64/4f/c31b2937834a6ac5c71cc5ec233b43fb846f2a9722505f0effb06b578a8f/cmip_ref_core-0.4.0.tar.gz", hash = "sha256:64f4f1f662fd0d03164eb006bc00aeeb717308832310b51022956f77a1484061", size = 40325 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/82/d2f704ce4be901d79a856d12e5a5505d5b3126b20115b62aac0360acba02/cmip_ref_core-0.4.0-py3-none-any.whl", hash = "sha256:32ad3d3b5de96327052dec6db33a5f9fb4be7b3fea74016d519edc120c094015", size = 34035 },
 ]
 
 [[package]]

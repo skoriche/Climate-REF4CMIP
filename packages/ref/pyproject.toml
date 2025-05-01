@@ -1,5 +1,5 @@
 [project]
-name = "cmip_ref"
+name = "climate-ref"
 version = "0.4.0"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "cmip_ref_core",
+    "climate-ref-core",
     "attrs>=24.2.0",
     "cattrs>=24.1.2",
     "environs>=11.0.0",
@@ -39,12 +39,12 @@ postgres = [
     "psycopg2-binary>=2.9.2",
 ]
 celery = [
-    "cmip_ref_celery>=0.4.0",
+    "climate-ref-celery>=0.4.0",
 ]
 metrics = [
-    "cmip_ref_metrics_esmvaltool>=0.4.0",
-    "cmip_ref_metrics_pmp>=0.4.0",
-    "cmip_ref_metrics_ilamb>=0.4.0",
+    "climate-ref-esmvaltool>=0.4.0",
+    "climate-ref-pmp>=0.4.0",
+    "climate-ref-ilamb>=0.4.0",
 ]
 [project.license]
 text = "Apache-2.0"

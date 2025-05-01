@@ -4,7 +4,7 @@ Rapid evaluating CMIP data
 
 import importlib.metadata
 
-__version__ = importlib.metadata.version("cmip_ref")
+__version__ = importlib.metadata.version("climate-ref")
 
 
 from climate_ref.testing import SAMPLE_DATA_VERSION

@@ -12,7 +12,7 @@ from climate_ref_core.providers import MetricsProvider
 from climate_ref_ilamb.datasets import ILAMB_DATA_VERSION
 from climate_ref_ilamb.standard import ILAMBStandard
 
-__version__ = importlib.metadata.version("cmip_ref_metrics_ilamb")
+__version__ = importlib.metadata.version("climate-ref-ilamb")
 
 provider = MetricsProvider("ILAMB", __version__)
 

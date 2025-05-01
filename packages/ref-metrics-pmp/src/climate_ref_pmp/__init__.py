@@ -9,7 +9,7 @@ from climate_ref_core.providers import CondaMetricsProvider
 from climate_ref_pmp.annual_cycle import AnnualCycle
 from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
 
-__version__ = importlib.metadata.version("cmip_ref_metrics_pmp")
+__version__ = importlib.metadata.version("climate-ref-pmp")
 
 # Initialise the metrics manager and register the example metric
 provider = CondaMetricsProvider("PMP", __version__)

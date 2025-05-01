@@ -1,9 +1,9 @@
 import pandas as pd
 import pytest
 
-from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
-from cmip_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
-from cmip_ref_core.datasets import SourceDatasetType
+from climate_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
+from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
+from climate_ref_core.datasets import SourceDatasetType
 
 
 @pytest.fixture(scope="session")

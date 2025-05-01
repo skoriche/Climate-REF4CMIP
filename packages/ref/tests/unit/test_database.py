@@ -2,19 +2,19 @@ import pytest
 import sqlalchemy
 from sqlalchemy import inspect
 
-from cmip_ref.database import Database, validate_database_url
-from cmip_ref.models import MetricValue
-from cmip_ref.models.dataset import CMIP6Dataset, Dataset, Obs4MIPsDataset
-from cmip_ref_core.datasets import SourceDatasetType
-from cmip_ref_core.pycmec.controlled_vocabulary import CV
+from climate_ref.database import Database, validate_database_url
+from climate_ref.models import MetricValue
+from climate_ref.models.dataset import CMIP6Dataset, Dataset, Obs4MIPsDataset
+from climate_ref_core.datasets import SourceDatasetType
+from climate_ref_core.pycmec.controlled_vocabulary import CV
 
 
 @pytest.mark.parametrize(
     "database_url",
     [
         "sqlite:///:memory:",
-        "sqlite:///{tmp_path}/cmip_ref.db",
-        "postgresql://localhost:5432/cmip_ref",
+        "sqlite:///{tmp_path}/climate_ref.db",
+        "postgresql://localhost:5432/climate_ref",
     ],
 )
 def test_validate_database_url(config, database_url, tmp_path):
@@ -113,7 +113,7 @@ def test_transaction_cleanup(db):
 
 
 def test_database_invalid_url(config, monkeypatch):
-    monkeypatch.setenv("REF_DATABASE_URL", "postgresql:///localhost:12323/cmip_ref")
+    monkeypatch.setenv("REF_DATABASE_URL", "postgresql:///localhost:12323/climate_ref")
     config = config.refresh()
 
     with pytest.raises(sqlalchemy.exc.OperationalError):

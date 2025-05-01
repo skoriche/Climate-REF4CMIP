@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pandas
 import pytest
-from cmip_ref_metrics_esmvaltool.metrics import ClimateAtGlobalWarmingLevels
-from cmip_ref_metrics_esmvaltool.recipe import load_recipe
+from climate_ref_esmvaltool.metrics import ClimateAtGlobalWarmingLevels
+from climate_ref_esmvaltool.recipe import load_recipe
 
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
 @pytest.fixture

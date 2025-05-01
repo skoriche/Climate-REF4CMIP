@@ -25,7 +25,7 @@ from the examples given in that link.
 
 ### Breaking Changes
 
-- Removed `cmip_ref.solver.MetricSolver.solve_metric_executions` in preference for a standalone function `cmip_ref.solver.solve_metric_executions`
+- Removed `climate_ref.solver.MetricSolver.solve_metric_executions` in preference for a standalone function `climate_ref.solver.solve_metric_executions`
   with identical functionality. ([#229](https://github.com/Climate-REF/climate-ref/pulls/229))
 - Updated the algorithm to generate the unique identifier for a Metric Execution Group.
   This will cause duplicate entries in the database if the old identifier was used.
@@ -121,7 +121,7 @@ from the examples given in that link.
   - `ref providers create-env` - Create conda environments for providers
 
   ([#117](https://github.com/Climate-REF/climate-ref/pulls/117))
-- Added [CMECMetric.create_template][cmip_ref_core.pycmec.metric.CMECMetric.create_template] method to create an empty CMEC metric bundle. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
+- Added [CMECMetric.create_template][climate_ref_core.pycmec.metric.CMECMetric.create_template] method to create an empty CMEC metric bundle. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
 - Outputs from a metric execution and their associated metadata are now tracked in the database. This includes HTML, plots and data outputs.
 
   Metric providers can register outputs via the CMEC output bundle.
@@ -189,8 +189,8 @@ from the examples given in that link.
 
 ### Breaking Changes
 
-- Refactor `cmip_ref.env` module to `cmip_ref_core.env` ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
-- Removed `cmip_ref.executor.ExecutorManager` in preference to loading an executor using a fully qualified package name.
+- Refactor `climate_ref.env` module to `climate_ref_core.env` ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
+- Removed `climate_ref.executor.ExecutorManager` in preference to loading an executor using a fully qualified package name.
 
   This allows the user to specify a custom executor as configuration
   without needing any change to the REF codebase. ([#77](https://github.com/Climate-REF/climate-ref/pulls/77))
@@ -201,7 +201,7 @@ from the examples given in that link.
   This removes the need for a `config.paths.data` directory and the `config.paths.allow_out_of_tree_datasets` configuration option.
   This will enable more flexibility about where input datasets are ingested from.
   Using absolute paths everywhere does add a requirement that datasets are available via the same paths for all nodes/container that may run the REF. ([#100](https://github.com/Climate-REF/climate-ref/pulls/100))
-- An [Executor][cmip_ref_core.executor.Executor] now supports only the asynchronous processing of tasks.
+- An [Executor][climate_ref_core.executor.Executor] now supports only the asynchronous processing of tasks.
   A result is now not returned from the `run_metric` method,
   but instead optionally updated in the database.
 
@@ -216,8 +216,8 @@ from the examples given in that link.
   as it can be deployed locally using docker containers. ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
 - Add `metric_providers` and `executor` sections to the configuration which loads the metric provider and executor using a fully qualified package name. ([#77](https://github.com/Climate-REF/climate-ref/pulls/77))
 - Implemented Pydantic data models to validate and serialize CMEC metric and output bundles. ([#84](https://github.com/Climate-REF/climate-ref/pulls/84))
-- Add the `cmip_ref_celery` CLI commands to the `ref` CLI tool.
-  These commands should be available when the `cmip_ref_celery` package is installed.
+- Add the `climate_ref_celery` CLI commands to the `ref` CLI tool.
+  These commands should be available when the `climate_ref_celery` package is installed.
   The commands should be available in the `ref` CLI tool as `ref celery ...`. ([#86](https://github.com/Climate-REF/climate-ref/pulls/86))
 - Add `fetch-sample-data` to the CLI under the `datasets` command.
 

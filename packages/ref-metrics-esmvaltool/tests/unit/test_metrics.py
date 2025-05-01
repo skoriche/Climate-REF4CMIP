@@ -1,7 +1,7 @@
-import cmip_ref_metrics_esmvaltool
+import climate_ref_esmvaltool
 import pytest
 
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
 
 
 def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, definition_factory):
-    provider = cmip_ref_metrics_esmvaltool.provider
+    provider = climate_ref_esmvaltool.provider
 
     metric = next(metric for metric in provider.metrics() if metric.slug == "global-mean-timeseries")
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()

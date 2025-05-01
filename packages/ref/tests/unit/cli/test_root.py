@@ -3,25 +3,25 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref import __version__
-from cmip_ref.cli import build_app
-from cmip_ref_core import __version__ as __core_version__
+from climate_ref import __version__
+from climate_ref.cli import build_app
+from climate_ref_core import __version__ as __core_version__
 
 
 def test_without_subcommand(invoke_cli):
     result = invoke_cli([])
     assert "Usage:" in result.stdout
-    assert "cmip_ref [OPTIONS] COMMAND [ARGS]" in result.stdout
-    assert "cmip_ref: A CLI for the CMIP Rapid Evaluation Framework" in result.stdout
+    assert "climate_ref [OPTIONS] COMMAND [ARGS]" in result.stdout
+    assert "climate_ref: A CLI for the CMIP Rapid Evaluation Framework" in result.stdout
 
 
 def test_version(invoke_cli):
     result = invoke_cli(["--version"])
-    assert f"cmip_ref: {__version__}\ncmip_ref-core: {__core_version__}" in result.stdout
+    assert f"climate_ref: {__version__}\nclimate_ref-core: {__core_version__}" in result.stdout
 
 
 def test_verbose(invoke_cli):
-    exp_log = r"\| DEBUG    \| cmip_ref\.config:default:\d+ - Loading default configuration from"
+    exp_log = r"\| DEBUG    \| climate_ref\.config:default:\d+ - Loading default configuration from"
     result = invoke_cli(
         ["--verbose", "config", "list"],
     )
@@ -81,7 +81,7 @@ def test_build_app(expected_groups):
 
 
 def test_build_app_without_celery(mocker, expected_groups):
-    mocker.patch("cmip_ref.cli.importlib.import_module", side_effect=ModuleNotFoundError)
+    mocker.patch("climate_ref.cli.importlib.import_module", side_effect=ModuleNotFoundError)
     app = build_app()
 
     registered_commands = [command.name for command in app.registered_commands]

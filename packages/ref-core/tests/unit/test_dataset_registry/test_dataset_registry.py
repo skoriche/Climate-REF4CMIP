@@ -3,14 +3,18 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref_core.dataset_registry import DatasetRegistryManager, dataset_registry_manager, fetch_all_files
+from climate_ref_core.dataset_registry import (
+    DatasetRegistryManager,
+    dataset_registry_manager,
+    fetch_all_files,
+)
 
 
 @pytest.fixture
 def fake_registry_file():
-    file_path = Path(importlib.resources.files("cmip_ref_core") / "fake_registry.txt")
+    file_path = Path(importlib.resources.files("climate_ref_core") / "fake_registry.txt")
 
-    yield file_path, "cmip_ref_core", "fake_registry.txt"
+    yield file_path, "climate_ref_core", "fake_registry.txt"
 
     # Clean up the fake registry file after the test
     if file_path.exists():
@@ -67,7 +71,7 @@ class TestDatasetRegistry:
         name = "test_registry"
         base_url = "http://example.com"
 
-        mock_pooch = mocker.patch("cmip_ref_core.dataset_registry.pooch")
+        mock_pooch = mocker.patch("climate_ref_core.dataset_registry.pooch")
         package, resource = self.setup_registry_file(fake_registry_file)
 
         mock_pooch_instance = mock_pooch.create.return_value
@@ -82,7 +86,7 @@ class TestDatasetRegistry:
         name = "test_registry"
         base_url = "http://example.com"
 
-        mock_pooch = mocker.patch("cmip_ref_core.dataset_registry.pooch")
+        mock_pooch = mocker.patch("climate_ref_core.dataset_registry.pooch")
         package, resource = self.setup_registry_file(fake_registry_file)
 
         registry.register(name, base_url, package, resource, cache_name=cache_name)

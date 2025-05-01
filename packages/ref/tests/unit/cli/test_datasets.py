@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.models import Dataset
-from cmip_ref.models.dataset import CMIP6Dataset, CMIP6File
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from climate_ref.models import Dataset
+from climate_ref.models.dataset import CMIP6Dataset, CMIP6File
 
 
 def test_ingest_help(invoke_cli):
@@ -145,7 +145,7 @@ class TestIngest:
 
 class TestFetchSampleData:
     def test_fetch_defaults(self, mocker, invoke_cli):
-        mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_sample_data")
+        mock_fetch = mocker.patch("climate_ref.cli.datasets.fetch_sample_data")
         invoke_cli(
             [
                 "datasets",
@@ -156,7 +156,7 @@ class TestFetchSampleData:
         mock_fetch.assert_called_once_with(force_cleanup=False, symlink=False)
 
     def test_fetch(self, mocker, invoke_cli):
-        mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_sample_data")
+        mock_fetch = mocker.patch("climate_ref.cli.datasets.fetch_sample_data")
         invoke_cli(
             [
                 "datasets",
@@ -171,8 +171,8 @@ class TestFetchSampleData:
 
 @pytest.fixture(scope="function")
 def mock_obs4ref(mocker):
-    mock_data_registry = mocker.patch("cmip_ref.cli.datasets.dataset_registry_manager")
-    mock_fetch = mocker.patch("cmip_ref.cli.datasets.fetch_all_files")
+    mock_data_registry = mocker.patch("climate_ref.cli.datasets.dataset_registry_manager")
+    mock_fetch = mocker.patch("climate_ref.cli.datasets.fetch_all_files")
 
     return mock_data_registry, mock_fetch
 

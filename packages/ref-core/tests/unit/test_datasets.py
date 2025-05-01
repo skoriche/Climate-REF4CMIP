@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
 @pytest.fixture

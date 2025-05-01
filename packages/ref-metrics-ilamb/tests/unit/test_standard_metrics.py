@@ -1,9 +1,9 @@
 import ilamb3
 import pytest
-from cmip_ref_metrics_ilamb.standard import ILAMBStandard, _set_ilamb3_options
+from climate_ref_ilamb.standard import ILAMBStandard, _set_ilamb3_options
 
-from cmip_ref_core.dataset_registry import dataset_registry_manager
-from cmip_ref_core.datasets import DatasetCollection
+from climate_ref_core.dataset_registry import dataset_registry_manager
+from climate_ref_core.datasets import DatasetCollection
 
 
 def test_standard_site(cmip6_data_catalog, definition_factory):

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cmip_ref.datasets.utils import validate_path
+from climate_ref.datasets.utils import validate_path
 
 
 @pytest.mark.parametrize(

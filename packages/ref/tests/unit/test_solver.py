@@ -3,21 +3,21 @@ from unittest import mock
 
 import pandas as pd
 import pytest
-from cmip_ref_metrics_example import provider
+from climate_ref_example import provider
 
-from cmip_ref.config import ExecutorConfig
-from cmip_ref.models import MetricExecutionResult
-from cmip_ref.provider_registry import ProviderRegistry
-from cmip_ref.solver import (
+from climate_ref.config import ExecutorConfig
+from climate_ref.models import MetricExecutionResult
+from climate_ref.provider_registry import ProviderRegistry
+from climate_ref.solver import (
     MetricExecution,
     MetricSolver,
     extract_covered_datasets,
     solve_metric_executions,
     solve_metrics,
 )
-from cmip_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
-from cmip_ref_core.datasets import SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement, FacetFilter
+from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
+from climate_ref_core.datasets import SourceDatasetType
+from climate_ref_core.metrics import DataRequirement, FacetFilter
 
 
 @pytest.fixture
@@ -379,7 +379,8 @@ def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
     mock_metric.data_requirements = mock_metric.data_requirements[::-1]
     with pytest.raises(
         TypeError,
-        match="Expected a sequence of DataRequirement, got <class 'cmip_ref_core.metrics.DataRequirement'>",
+        match="Expected a sequence of DataRequirement,"
+        " got <class 'climate_ref_core.metrics.DataRequirement'>",
     ):
         next(solve_metric_executions(data_catalog, mock_metric, provider))
 

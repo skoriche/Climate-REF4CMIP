@@ -1,13 +1,13 @@
-from cmip_ref_celery.worker_tasks import handle_result
-from cmip_ref_metrics_example import provider
+from climate_ref_celery.worker_tasks import handle_result
+from climate_ref_example import provider
 
-from cmip_ref.database import Database
-from cmip_ref.models import MetricExecutionGroup, MetricExecutionResult
-from cmip_ref.provider_registry import _register_provider
+from climate_ref.database import Database
+from climate_ref.models import MetricExecutionGroup, MetricExecutionResult
+from climate_ref.provider_registry import _register_provider
 
 
 def test_worker_task(mocker, config):
-    mock_handle_result = mocker.patch("cmip_ref_celery.worker_tasks.handle_execution_result")
+    mock_handle_result = mocker.patch("climate_ref_celery.worker_tasks.handle_execution_result")
     db = Database.from_config(config, run_migrations=True)
     with db.session.begin():
         result = mocker.Mock()

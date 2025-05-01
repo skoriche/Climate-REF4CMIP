@@ -3,7 +3,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
 
 
 def test_parse_datetime():

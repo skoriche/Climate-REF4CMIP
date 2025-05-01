@@ -6,14 +6,14 @@ import pytest
 from attr import evolve
 from cattrs import IterableValidationError
 
-from cmip_ref.config import Config, PathConfig, transform_error
-from cmip_ref_core.exceptions import InvalidExecutorException
-from cmip_ref_core.executor import Executor
+from climate_ref.config import Config, PathConfig, transform_error
+from climate_ref_core.exceptions import InvalidExecutorException
+from climate_ref_core.executor import Executor
 
 
 class TestConfig:
     def test_load_missing(self, tmp_path, monkeypatch):
-        ref_configuration_value = str(tmp_path / "cmip_ref")
+        ref_configuration_value = str(tmp_path / "climate_ref")
         monkeypatch.setenv("REF_CONFIGURATION", ref_configuration_value)
 
         # The configuration file doesn't exist
@@ -22,10 +22,10 @@ class TestConfig:
 
         loaded = Config.load(Path("ref.toml"))
 
-        assert loaded.paths.log == tmp_path / "cmip_ref" / "log"
-        assert loaded.paths.scratch == tmp_path / "cmip_ref" / "scratch"
-        assert loaded.paths.results == tmp_path / "cmip_ref" / "results"
-        assert loaded.db.database_url == f"sqlite:///{ref_configuration_value}/db/cmip_ref.db"
+        assert loaded.paths.log == tmp_path / "climate_ref" / "log"
+        assert loaded.paths.scratch == tmp_path / "climate_ref" / "scratch"
+        assert loaded.paths.results == tmp_path / "climate_ref" / "results"
+        assert loaded.db.database_url == f"sqlite:///{ref_configuration_value}/db/climate_ref.db"
 
         # The results aren't serialised back to disk
         assert not (tmp_path / "ref.toml").exists()
@@ -57,7 +57,7 @@ extra_key = "extra"
 another_key = "extra"
 
 [db]
-filename = "sqlite://cmip_ref.db"
+filename = "sqlite://climate_ref.db"
 """
 
         with open(tmp_path / "ref.toml", "w") as fh:
@@ -81,7 +81,7 @@ filename = "sqlite://cmip_ref.db"
     scratch = 1
 
     [db]
-    filename = "sqlite://cmip_ref.db"
+    filename = "sqlite://climate_ref.db"
     """
 
         with open(tmp_path / "ref.toml", "w") as fh:
@@ -118,7 +118,7 @@ filename = "sqlite://cmip_ref.db"
 
     def test_defaults(self, monkeypatch, mocker):
         monkeypatch.setenv("REF_CONFIGURATION", "test")
-        mocker.patch("cmip_ref.config.importlib.resources.files", return_value=Path("pycmec"))
+        mocker.patch("climate_ref.config.importlib.resources.files", return_value=Path("pycmec"))
 
         cfg = Config.load(Path("test.toml"))
         default_path = Path("test").resolve()
@@ -130,28 +130,28 @@ filename = "sqlite://cmip_ref.db"
         assert without_defaults == {
             "log_level": "INFO",
             "metric_providers": [
-                {"provider": "cmip_ref_metrics_esmvaltool.provider"},
-                {"provider": "cmip_ref_metrics_ilamb.provider"},
-                {"provider": "cmip_ref_metrics_pmp.provider"},
+                {"provider": "climate_ref_esmvaltool.provider"},
+                {"provider": "climate_ref_ilamb.provider"},
+                {"provider": "climate_ref_pmp.provider"},
             ],
         }
         assert with_defaults == {
             "log_level": "INFO",
             "metric_providers": [
                 {
-                    "provider": "cmip_ref_metrics_esmvaltool.provider",
+                    "provider": "climate_ref_esmvaltool.provider",
                     "config": {},
                 },
                 {
-                    "provider": "cmip_ref_metrics_ilamb.provider",
+                    "provider": "climate_ref_ilamb.provider",
                     "config": {},
                 },
                 {
-                    "provider": "cmip_ref_metrics_pmp.provider",
+                    "provider": "climate_ref_pmp.provider",
                     "config": {},
                 },
             ],
-            "executor": {"executor": "cmip_ref.executor.local.LocalExecutor", "config": {}},
+            "executor": {"executor": "climate_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "log": f"{default_path}/log",
                 "results": f"{default_path}/results",
@@ -159,7 +159,7 @@ filename = "sqlite://cmip_ref.db"
                 "software": f"{default_path}/software",
                 "dimensions_cv": str(Path("pycmec") / "cv_cmip7_aft.yaml"),
             },
-            "db": {"database_url": "sqlite:///test/db/cmip_ref.db", "run_migrations": True},
+            "db": {"database_url": "sqlite:///test/db/climate_ref.db", "run_migrations": True},
         }
 
     def test_from_env_variables(self, monkeypatch, config):
@@ -188,7 +188,7 @@ filename = "sqlite://cmip_ref.db"
     )
     def test_executor_build_config(self, mocker, config, db):
         mock_executor = mocker.MagicMock(spec=Executor)
-        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
+        mocker.patch("climate_ref.config.import_executor_cls", return_value=mock_executor)
 
         executor = config.executor.build(config, db)
         assert executor == mock_executor.return_value
@@ -200,7 +200,7 @@ filename = "sqlite://cmip_ref.db"
     )
     def test_executor_build_extra_config(self, mocker, config, db):
         mock_executor = mocker.MagicMock(spec=Executor)
-        mocker.patch("cmip_ref.config.import_executor_cls", return_value=mock_executor)
+        mocker.patch("climate_ref.config.import_executor_cls", return_value=mock_executor)
 
         config.executor = evolve(config.executor, config={"extra": 1})
 
@@ -209,12 +209,12 @@ filename = "sqlite://cmip_ref.db"
         mock_executor.assert_called_once_with(config=config, database=db, extra=1)
 
     def test_executor_build_invalid(self, config, db, mocker):
-        config.executor = evolve(config.executor, executor="cmip_ref.config.DbConfig")
+        config.executor = evolve(config.executor, executor="climate_ref.config.DbConfig")
 
         class NotAnExecutor:
             def __init__(self, **kwargs): ...
 
-        mocker.patch("cmip_ref.config.import_executor_cls", return_value=NotAnExecutor)
+        mocker.patch("climate_ref.config.import_executor_cls", return_value=NotAnExecutor)
 
         match = r"Expected an Executor, got <class '.*\.NotAnExecutor'>"
         with pytest.raises(InvalidExecutorException, match=match):

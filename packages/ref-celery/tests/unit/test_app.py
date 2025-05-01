@@ -1,6 +1,6 @@
 import pytest
 from celery import Celery
-from cmip_ref_celery.app import create_celery_app
+from climate_ref_celery.app import create_celery_app
 
 
 def test_create_celery_app(monkeypatch):

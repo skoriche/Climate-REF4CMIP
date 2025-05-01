@@ -1,4 +1,4 @@
-from cmip_ref.models import MetricExecutionGroup, MetricExecutionResult
+from climate_ref.models import MetricExecutionGroup, MetricExecutionResult
 
 
 class TestMetricExecution:

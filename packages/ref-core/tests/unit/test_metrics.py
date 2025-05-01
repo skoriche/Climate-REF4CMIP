@@ -6,17 +6,17 @@ import pandas as pd
 import pytest
 from attr import evolve
 
-from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
-from cmip_ref_core.metrics import (
+from climate_ref_core.datasets import FacetFilter, SourceDatasetType
+from climate_ref_core.metrics import (
     CommandLineMetric,
     DataRequirement,
     MetricExecutionDefinition,
     MetricExecutionResult,
     ensure_relative_path,
 )
-from cmip_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
-from cmip_ref_core.pycmec.metric import CMECMetric
-from cmip_ref_core.pycmec.output import CMECOutput
+from climate_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
+from climate_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.pycmec.output import CMECOutput
 
 
 @pytest.fixture

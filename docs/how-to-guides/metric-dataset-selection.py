@@ -26,10 +26,10 @@ import pandas as pd
 from IPython.display import display
 from loguru import logger
 
-from cmip_ref.config import Config
-from cmip_ref.database import Database
-from cmip_ref_core.datasets import FacetFilter, SourceDatasetType
-from cmip_ref_core.metrics import DataRequirement
+from climate_ref.config import Config
+from climate_ref.database import Database
+from climate_ref_core.datasets import FacetFilter, SourceDatasetType
+from climate_ref_core.metrics import DataRequirement
 
 logger.remove()
 
@@ -45,7 +45,7 @@ db = Database.from_config(config)
 # and querying datasets across different dataset types.
 # It contains information such as the columns that are expected.
 # %%
-from cmip_ref.datasets import get_dataset_adapter
+from climate_ref.datasets import get_dataset_adapter
 
 adapter = get_dataset_adapter("cmip6")
 adapter
@@ -100,7 +100,7 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 #
 # Each group that passes the constraints is a valid group for the metric to be executed.
 #
-# [cmip_ref.solver.extract_covered_datasets](api/cmip_ref/solver/#cmip_ref.solver.extract_covered_datasets)
+# [extract_covered_datasets](api/climate_ref/solver/#climate_ref.solver.extract_covered_datasets)
 # extracts the different groups
 # of datasets within the data catalog that match the requirements.
 # Below are some examples showing different data requests
@@ -110,7 +110,7 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 # are specified.
 
 # %%
-from cmip_ref.solver import extract_covered_datasets
+from climate_ref.solver import extract_covered_datasets
 
 
 # %% tags=["remove_input"]

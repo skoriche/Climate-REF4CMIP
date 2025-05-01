@@ -1,8 +1,8 @@
 import pytest
 
-from cmip_ref_core.exceptions import ResultValidationError
-from cmip_ref_core.pycmec.controlled_vocabulary import CV, Dimension
-from cmip_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.exceptions import ResultValidationError
+from climate_ref_core.pycmec.controlled_vocabulary import CV, Dimension
+from climate_ref_core.pycmec.metric import CMECMetric
 
 
 @pytest.fixture

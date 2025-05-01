@@ -1,10 +1,10 @@
 from unittest.mock import Mock
 
 from celery import Celery
-from cmip_ref_celery.tasks import _metric_task_factory, register_celery_tasks
+from climate_ref_celery.tasks import _metric_task_factory, register_celery_tasks
 
-from cmip_ref_core.metrics import MetricExecutionDefinition
-from cmip_ref_core.providers import MetricsProvider
+from climate_ref_core.metrics import MetricExecutionDefinition
+from climate_ref_core.providers import MetricsProvider
 
 
 def test_metric_task_factory(tmp_path, caplog):
@@ -25,7 +25,7 @@ def test_metric_task_factory(tmp_path, caplog):
 
 
 def test_register_celery_tasks(mocker):
-    mock_task_factory = mocker.patch("cmip_ref_celery.tasks._metric_task_factory")
+    mock_task_factory = mocker.patch("climate_ref_celery.tasks._metric_task_factory")
     # Mock Celery app and MetricsProvider
     mock_app = Mock(spec=Celery)
     mock_provider = Mock(spec=MetricsProvider)

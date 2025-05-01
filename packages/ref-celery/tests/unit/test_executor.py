@@ -1,12 +1,12 @@
 import pytest
-from cmip_ref_celery.executor import CeleryExecutor
-from cmip_ref_celery.worker_tasks import handle_result
+from climate_ref_celery.executor import CeleryExecutor
+from climate_ref_celery.worker_tasks import handle_result
 
 
 @pytest.mark.parametrize("include_execution_result", [True, False])
 def test_run_metric(provider, config, mock_metric, metric_definition, mocker, include_execution_result):
     executor = CeleryExecutor(config=config)
-    mock_app = mocker.patch("cmip_ref_celery.executor.app")
+    mock_app = mocker.patch("climate_ref_celery.executor.app")
     mock_execution_result = mocker.MagicMock()
 
     if include_execution_result:

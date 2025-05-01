@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref_core.exceptions import (
+from climate_ref_core.exceptions import (
     InvalidExecutorException,
     InvalidMetricException,
     InvalidProviderException,

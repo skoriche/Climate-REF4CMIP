@@ -3,7 +3,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from cmip_ref_core.pycmec.metric import (
+from climate_ref_core.pycmec.metric import (
     CMECMetric,
     MetricDimensions,
     MetricResults,
@@ -350,7 +350,7 @@ def test_metric_load_from_jsons(datadir):
 
 
 def test_metric_json_schema(data_regression):
-    from cmip_ref_core.pycmec.metric import CMECGenerateJsonSchema
+    from climate_ref_core.pycmec.metric import CMECGenerateJsonSchema
 
     cmec_model_schema = CMECMetric.model_json_schema(schema_generator=CMECGenerateJsonSchema)
 

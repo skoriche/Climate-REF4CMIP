@@ -4,12 +4,12 @@ import numpy as np
 import pandas
 import pytest
 import xarray as xr
-from cmip_ref_metrics_esmvaltool.metrics import EquilibriumClimateSensitivity
-from cmip_ref_metrics_esmvaltool.recipe import load_recipe
+from climate_ref_esmvaltool.metrics import EquilibriumClimateSensitivity
+from climate_ref_esmvaltool.recipe import load_recipe
 
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.pycmec.metric import CMECMetric
-from cmip_ref_core.pycmec.output import CMECOutput
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.pycmec.output import CMECOutput
 
 
 @pytest.fixture

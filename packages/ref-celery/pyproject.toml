@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ref-celery = "cmip_ref_celery.cli:app"
+ref-celery = "climate_ref_celery.cli:app"
 
 
 [tool.uv]

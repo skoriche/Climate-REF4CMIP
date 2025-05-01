@@ -1,12 +1,12 @@
-from cmip_ref.provider_registry import ProviderRegistry
+from climate_ref.provider_registry import ProviderRegistry
 
 
 class TestProviderRegistry:
     def test_create(self, config, mocker):
         db = mocker.MagicMock()
 
-        mock_import = mocker.patch("cmip_ref.provider_registry.import_provider")
-        mock_register = mocker.patch("cmip_ref.provider_registry._register_provider")
+        mock_import = mocker.patch("climate_ref.provider_registry.import_provider")
+        mock_register = mocker.patch("climate_ref.provider_registry._register_provider")
 
         registry = ProviderRegistry.build_from_config(config, db)
         assert len(registry.providers) == 1

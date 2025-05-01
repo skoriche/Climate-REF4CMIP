@@ -3,13 +3,13 @@ from subprocess import CalledProcessError
 
 import pandas as pd
 import pytest
-from cmip_ref_metrics_pmp.pmp_driver import _get_resource
-from cmip_ref_metrics_pmp.variability_modes import ExtratropicalModesOfVariability
+from climate_ref_pmp.pmp_driver import _get_resource
+from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
 
-import cmip_ref_core.providers
-from cmip_ref.solver import extract_covered_datasets
-from cmip_ref_core.datasets import DatasetCollection
-from cmip_ref_core.metrics import Metric
+import climate_ref_core.providers
+from climate_ref.solver import extract_covered_datasets
+from climate_ref_core.datasets import DatasetCollection
+from climate_ref_core.metrics import Metric
 
 
 def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.DataFrame}:
@@ -69,7 +69,7 @@ def test_pdo_metric(
             "python",
             _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
             "-p",
-            _get_resource("cmip_ref_metrics_pmp.params", "pmp_param_MoV-ts.py", True),
+            _get_resource("climate_ref_pmp.params", "pmp_param_MoV-ts.py", True),
             "--modnames",
             "ACCESS-ESM1-5",
             "--exp",
@@ -134,7 +134,7 @@ def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_e
     # Mock the subprocess.run call to avoid running PMP
     # Instead the mock_run_call function will be called
     mocker.patch.object(
-        cmip_ref_core.providers.subprocess,
+        climate_ref_core.providers.subprocess,
         "run",
         autospec=True,
         spec_set=True,

@@ -1,4 +1,4 @@
-# ref-metrics-example
+# climate-ref-example
 
 An example of a basic REF metrics provider.
 

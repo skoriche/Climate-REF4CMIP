@@ -50,7 +50,7 @@ metrics = [
 text = "Apache-2.0"
 
 [project.scripts]
-ref = "cmip_ref.cli:app"
+ref = "climate_ref.cli:app"
 
 [tool.uv]
 dev-dependencies = [

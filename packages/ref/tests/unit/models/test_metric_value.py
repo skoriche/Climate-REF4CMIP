@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref.models import MetricValue
+from climate_ref.models import MetricValue
 
 
 class TestMetricValue:

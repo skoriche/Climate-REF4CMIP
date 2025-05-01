@@ -3,9 +3,9 @@ import pathlib
 
 from rich.console import Console
 
-from cmip_ref.cli.executions import _results_directory_panel
-from cmip_ref.models import MetricExecutionGroup, MetricExecutionResult
-from cmip_ref.models.metric_execution import metric_datasets
+from climate_ref.cli.executions import _results_directory_panel
+from climate_ref.models import MetricExecutionGroup, MetricExecutionResult
+from climate_ref.models.metric_execution import metric_datasets
 
 
 def test_execution_help(invoke_cli):

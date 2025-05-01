@@ -1,4 +1,4 @@
-from cmip_ref_metrics_pmp import __version__, provider
+from climate_ref_pmp import __version__, provider
 
 
 def test_provider():

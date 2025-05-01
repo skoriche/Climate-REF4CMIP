@@ -1,8 +1,8 @@
 import pytest
-from cmip_ref_celery.cli import app
+from climate_ref_celery.cli import app
 from typer.testing import CliRunner
 
-from cmip_ref_core.providers import MetricsProvider
+from climate_ref_core.providers import MetricsProvider
 
 runner = CliRunner()
 
@@ -14,12 +14,12 @@ def test_cli_help():
 
 @pytest.fixture
 def mock_create_celery_app(mocker):
-    return mocker.patch("cmip_ref_celery.cli.create_celery_app")
+    return mocker.patch("climate_ref_celery.cli.create_celery_app")
 
 
 @pytest.fixture
 def mock_register_celery_tasks(mocker):
-    return mocker.patch("cmip_ref_celery.cli.register_celery_tasks")
+    return mocker.patch("climate_ref_celery.cli.register_celery_tasks")
 
 
 def test_start_worker_success(mocker, mock_create_celery_app, mock_register_celery_tasks):
@@ -84,7 +84,7 @@ def test_start_worker_package_not_found(mocker, mock_create_celery_app):
 
     assert result.exit_code == 1
     assert "Package 'missing_package' not found" in result.output
-    mock_create_celery_app.assert_called_once_with("cmip_ref_celery")
+    mock_create_celery_app.assert_called_once_with("climate_ref_celery")
     mock_import_module.assert_called_once_with("missing_package")
 
 

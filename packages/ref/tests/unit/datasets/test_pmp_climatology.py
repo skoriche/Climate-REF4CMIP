@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 
-from cmip_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
+from climate_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
 
 
 @pytest.fixture

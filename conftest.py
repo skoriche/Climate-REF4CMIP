@@ -17,15 +17,15 @@ from click.testing import Result
 from loguru import logger
 from typer.testing import CliRunner
 
-from cmip_ref import cli
-from cmip_ref.config import Config, MetricsProviderConfig
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
-from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.logging import add_log_handler, remove_log_handler
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
-from cmip_ref_core.providers import MetricsProvider
+from climate_ref import cli
+from climate_ref.config import Config, MetricsProviderConfig
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
+from climate_ref.testing import TEST_DATA_DIR, fetch_sample_data
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.logging import add_log_handler, remove_log_handler
+from climate_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
+from climate_ref_core.providers import MetricsProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
 
@@ -89,9 +89,9 @@ def sample_data_dir(test_data_dir) -> Path:
 @pytest.fixture(autouse=True, scope="session")
 def sample_data() -> None:
     # Downloads the sample data if it doesn't exist
-    logger.disable("cmip_ref_core.dataset_registry")
+    logger.disable("climate_ref_core.dataset_registry")
     fetch_sample_data(force_cleanup=False, symlink=False)
-    logger.enable("cmip_ref_core.dataset_registry")
+    logger.enable("climate_ref_core.dataset_registry")
 
 
 @pytest.fixture(scope="session")
@@ -123,7 +123,7 @@ def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
 def config(tmp_path, monkeypatch, request) -> Config:
     # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory
     # This is useful in the CI to capture any results for later analysis
-    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "cmip_ref"))
+    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "climate_ref"))
     # Each test gets its own directory (based on the test filename and the test name)
     # Sanitize the directory name to remove invalid characters
     dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
@@ -139,7 +139,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
     cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
-    cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
+    cfg.metric_providers = [MetricsProviderConfig(provider="climate_ref_example")]
 
     cfg.save()
 

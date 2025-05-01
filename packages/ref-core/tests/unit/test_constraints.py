@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 import pytest
 
-from cmip_ref_core.constraints import (
+from climate_ref_core.constraints import (
     AddSupplementaryDataset,
     GroupOperation,
     GroupValidator,
@@ -13,8 +13,8 @@ from cmip_ref_core.constraints import (
     SelectParentExperiment,
     apply_constraint,
 )
-from cmip_ref_core.datasets import SourceDatasetType
-from cmip_ref_core.exceptions import ConstraintNotSatisfied
+from climate_ref_core.datasets import SourceDatasetType
+from climate_ref_core.exceptions import ConstraintNotSatisfied
 
 
 class TestRequireFacets:

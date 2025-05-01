@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pandas
-from cmip_ref_metrics_esmvaltool.metrics import SeaIceAreaSeasonalCycle
-from cmip_ref_metrics_esmvaltool.recipe import load_recipe
+from climate_ref_esmvaltool.metrics import SeaIceAreaSeasonalCycle
+from climate_ref_esmvaltool.recipe import load_recipe
 
 
 def test_update_recipe():

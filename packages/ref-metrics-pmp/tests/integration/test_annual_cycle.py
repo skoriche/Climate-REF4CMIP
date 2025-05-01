@@ -1,9 +1,9 @@
 import pytest
-from cmip_ref_metrics_pmp import provider
+from climate_ref_pmp import provider
 
-from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from cmip_ref.solver import solve_metric_executions
-from cmip_ref.testing import validate_result
+from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.solver import solve_metric_executions
+from climate_ref.testing import validate_result
 
 
 @pytest.mark.xfail("#258")

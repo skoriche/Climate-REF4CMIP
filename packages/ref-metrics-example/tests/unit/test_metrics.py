@@ -1,7 +1,7 @@
 import pytest
-from cmip_ref_metrics_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
+from climate_ref_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
 
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_example_metric(metric_dataset, cmip6_data_catalog, mocker, definition_f
     metric = GlobalMeanTimeseries()
     ds = cmip6_data_catalog.groupby("instance_id").first()
 
-    mock_calc = mocker.patch("cmip_ref_metrics_example.example.calculate_annual_mean_timeseries")
+    mock_calc = mocker.patch("climate_ref_example.example.calculate_annual_mean_timeseries")
 
     mock_calc.return_value.attrs.__getitem__.return_value = "ABC"
 

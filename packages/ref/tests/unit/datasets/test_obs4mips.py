@@ -5,8 +5,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter, parse_obs4mips
-from cmip_ref.testing import TEST_DATA_DIR
+from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter, parse_obs4mips
+from climate_ref.testing import TEST_DATA_DIR
 
 
 @pytest.fixture

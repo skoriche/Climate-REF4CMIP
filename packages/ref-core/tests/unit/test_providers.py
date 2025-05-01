@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-import cmip_ref_core.providers
-from cmip_ref_core.exceptions import InvalidMetricException, InvalidProviderException
-from cmip_ref_core.metrics import CommandLineMetric, Metric
-from cmip_ref_core.providers import CondaMetricsProvider, MetricsProvider, import_provider
+import climate_ref_core.providers
+from climate_ref_core.exceptions import InvalidMetricException, InvalidProviderException
+from climate_ref_core.metrics import CommandLineMetric, Metric
+from climate_ref_core.providers import CondaMetricsProvider, MetricsProvider, import_provider
 
 
 class TestMetricsProvider:
@@ -52,7 +52,7 @@ class TestMetricsProvider:
         assert isinstance(result, Metric)
 
 
-@pytest.mark.parametrize("fqn", ["cmip_ref_metrics_esmvaltool.provider", "cmip_ref_metrics_esmvaltool"])
+@pytest.mark.parametrize("fqn", ["climate_ref_esmvaltool.provider", "climate_ref_esmvaltool"])
 def test_import_provider(fqn):
     provider = import_provider(fqn)
 
@@ -62,13 +62,13 @@ def test_import_provider(fqn):
 
 
 def test_import_provider_missing():
-    fqn = "cmip_ref"
-    match = f"Invalid provider: '{fqn}'\n Provider 'provider' not found in cmip_ref"
+    fqn = "climate_ref"
+    match = f"Invalid provider: '{fqn}'\n Provider 'provider' not found in climate_ref"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "cmip_ref.datasets.WrongProvider"
-    match = f"Invalid provider: '{fqn}'\n Provider 'WrongProvider' not found in cmip_ref.datasets"
+    fqn = "climate_ref.datasets.WrongProvider"
+    match = f"Invalid provider: '{fqn}'\n Provider 'WrongProvider' not found in climate_ref.datasets"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
@@ -77,7 +77,7 @@ def test_import_provider_missing():
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "cmip_ref.constants.config_filename"
+    fqn = "climate_ref.constants.config_filename"
     match = f"Invalid provider: '{fqn}'\n Expected MetricsProvider, got <class 'str'>"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
@@ -93,14 +93,14 @@ def test_import_provider_missing():
     ],
 )
 def test_get_micromamba_url(mocker, sysname, machine):
-    uname = mocker.patch.object(cmip_ref_core.providers.os, "uname", create_autospec=True)
+    uname = mocker.patch.object(climate_ref_core.providers.os, "uname", create_autospec=True)
     uname.return_value.sysname = sysname
     uname.return_value.machine = machine
     if sysname == "Unknown":
         with pytest.raises(ValueError):
-            cmip_ref_core.providers._get_micromamba_url()
+            climate_ref_core.providers._get_micromamba_url()
     else:
-        result = cmip_ref_core.providers._get_micromamba_url()
+        result = climate_ref_core.providers._get_micromamba_url()
         assert "{" not in result
 
 
@@ -130,14 +130,14 @@ class TestCondaMetricsProvider:
             provider.prefix.mkdir()
             conda_exe.touch()
             mocker.patch.object(
-                cmip_ref_core.providers,
+                climate_ref_core.providers,
                 "MICROMAMBA_MAX_AGE",
                 datetime.timedelta(microseconds=1),
             )
             time.sleep(0.01)  # wait for the executable to expire.
 
         get = mocker.patch.object(
-            cmip_ref_core.providers.requests,
+            climate_ref_core.providers.requests,
             "get",
             create_autospec=True,
         )
@@ -174,7 +174,7 @@ class TestCondaMetricsProvider:
         provider.register(metric)
 
         resources = mocker.patch.object(
-            cmip_ref_core.providers.importlib,
+            climate_ref_core.providers.importlib,
             "resources",
             create_autospec=True,
         )
@@ -221,7 +221,7 @@ class TestCondaMetricsProvider:
         )
 
         run = mocker.patch.object(
-            cmip_ref_core.providers.subprocess,
+            climate_ref_core.providers.subprocess,
             "run",
             create_autospec=True,
         )
@@ -279,7 +279,7 @@ class TestCondaMetricsProvider:
         )
 
         run = mocker.patch.object(
-            cmip_ref_core.providers.subprocess,
+            climate_ref_core.providers.subprocess,
             "run",
             create_autospec=True,
         )

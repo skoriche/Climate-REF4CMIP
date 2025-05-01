@@ -2,12 +2,12 @@ import datetime
 
 import pandas as pd
 import pytest
-from cmip_ref_metrics_pmp import AnnualCycle, provider
-from cmip_ref_metrics_pmp.pmp_driver import _get_resource
+from climate_ref_pmp import AnnualCycle, provider
+from climate_ref_pmp.pmp_driver import _get_resource
 
-from cmip_ref.solver import extract_covered_datasets, solve_metric_executions
-from cmip_ref_core.datasets import DatasetCollection, SourceDatasetType
-from cmip_ref_core.metrics import Metric
+from climate_ref.solver import extract_covered_datasets, solve_metric_executions
+from climate_ref_core.datasets import DatasetCollection, SourceDatasetType
+from climate_ref_core.metrics import Metric
 
 
 def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.DataFrame}:
@@ -135,7 +135,7 @@ def test_annual_cycle_metric(
         "pcmdi_metrics", "mean_climate/pcmdi_compute_climatologies.py", use_resources=False
     )
     parameter_file = _get_resource(
-        "cmip_ref_metrics_pmp.params", "pmp_param_annualcycle_1-clims.py", use_resources=True
+        "climate_ref_pmp.params", "pmp_param_annualcycle_1-clims.py", use_resources=True
     )
     datecode = datetime.datetime.now().strftime("%Y%m%d")
 
@@ -163,7 +163,7 @@ def test_annual_cycle_metric(
     # Check the second command
     driver_script = _get_resource("pcmdi_metrics", "mean_climate/mean_climate_driver.py", use_resources=False)
     parameter_file = _get_resource(
-        "cmip_ref_metrics_pmp.params", "pmp_param_annualcycle_2-metrics.py", use_resources=True
+        "climate_ref_pmp.params", "pmp_param_annualcycle_2-metrics.py", use_resources=True
     )
     cmd = result[1]
     assert cmd == [

@@ -1,10 +1,10 @@
 import pytest
-from cmip_ref_metrics_esmvaltool import provider
+from climate_ref_esmvaltool import provider
 
-from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from cmip_ref.solver import solve_metric_executions
-from cmip_ref.testing import validate_result
-from cmip_ref_core.metrics import Metric
+from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.solver import solve_metric_executions
+from climate_ref.testing import validate_result
+from climate_ref_core.metrics import Metric
 
 metrics = [pytest.param(metric, id=metric.slug) for metric in provider.metrics()]
 

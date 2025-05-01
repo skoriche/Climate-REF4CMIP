@@ -1,6 +1,6 @@
 import pytest
 
-from cmip_ref_core.pycmec.output import CMECOutput
+from climate_ref_core.pycmec.output import CMECOutput
 
 
 @pytest.fixture
@@ -106,7 +106,7 @@ def test_output_data_extras(cmec_right_output_dict):
 
 
 def test_output_json_schema(data_regression):
-    from cmip_ref_core.pycmec.metric import (
+    from climate_ref_core.pycmec.metric import (
         CMECGenerateJsonSchema,
     )
 

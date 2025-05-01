@@ -96,7 +96,7 @@ plugins:
         python:
           paths: [packages]
           import:
-            # Cross-cmip_ref helpers (lots included here, remove what you don't want)
+            # Cross-climate_ref helpers (lots included here, remove what you don't want)
             - https://www.attrs.org/en/stable/objects.inv
             - https://catt.rs/en/stable/objects.inv
             - https://unidata.github.io/cftime/objects.inv

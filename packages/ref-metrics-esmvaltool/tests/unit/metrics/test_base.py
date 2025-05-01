@@ -1,13 +1,13 @@
 import json
 
-import cmip_ref_metrics_esmvaltool.metrics.base
+import climate_ref_esmvaltool.metrics.base
 import pandas
 import pytest
-from cmip_ref_metrics_esmvaltool.metrics.base import ESMValToolMetric
-from cmip_ref_metrics_esmvaltool.types import Recipe
+from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_esmvaltool.types import Recipe
 from ruamel.yaml import YAML
 
-from cmip_ref_core.pycmec.output import OutputCV
+from climate_ref_core.pycmec.output import OutputCV
 
 yaml = YAML()
 
@@ -26,7 +26,7 @@ def mock_metric():
 @pytest.mark.parametrize("data_dir_exists", [True, False])
 def test_build_cmd(mocker, tmp_path, metric_definition, mock_metric, data_dir_exists):
     dataset_registry_manager = mocker.patch.object(
-        cmip_ref_metrics_esmvaltool.metrics.base,
+        climate_ref_esmvaltool.metrics.base,
         "dataset_registry_manager",
     )
     data_dir = tmp_path / "ESMValTool"

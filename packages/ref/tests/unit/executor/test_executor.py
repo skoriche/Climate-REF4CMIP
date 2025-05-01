@@ -4,27 +4,27 @@ import shutil
 import pytest
 from sqlalchemy.orm import Session
 
-from cmip_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
-from cmip_ref.executor.local import LocalExecutor
-from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from cmip_ref.models.metric_execution import ResultOutput, ResultOutputType
-from cmip_ref_core.exceptions import InvalidExecutorException
-from cmip_ref_core.executor import Executor
-from cmip_ref_core.metrics import MetricExecutionResult
-from cmip_ref_core.pycmec.metric import CMECMetric
-from cmip_ref_core.pycmec.output import CMECOutput
+from climate_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
+from climate_ref.executor.local import LocalExecutor
+from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.models.metric_execution import ResultOutput, ResultOutputType
+from climate_ref_core.exceptions import InvalidExecutorException
+from climate_ref_core.executor import Executor
+from climate_ref_core.metrics import MetricExecutionResult
+from climate_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.pycmec.output import CMECOutput
 
 
 def test_import_executor():
-    executor = import_executor_cls("cmip_ref.executor.local.LocalExecutor")
+    executor = import_executor_cls("climate_ref.executor.local.LocalExecutor")
 
     assert isinstance(executor, Executor)
     assert executor == LocalExecutor
 
 
 def test_import_executor_missing():
-    fqn = "cmip_ref.executor.local.WrongExecutor"
-    match = f"Invalid executor: '{fqn}'\n Executor 'WrongExecutor' not found in cmip_ref.executor.local"
+    fqn = "climate_ref.executor.local.WrongExecutor"
+    match = f"Invalid executor: '{fqn}'\n Executor 'WrongExecutor' not found in climate_ref.executor.local"
     with pytest.raises(InvalidExecutorException, match=match):
         import_executor_cls(fqn)
 
@@ -57,7 +57,7 @@ def test_handle_execution_result_successful(
         definition.to_output_path(metric_bundle_filename),
     )
 
-    mock_copy = mocker.patch("cmip_ref.executor._copy_file_to_results")
+    mock_copy = mocker.patch("climate_ref.executor._copy_file_to_results")
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -123,7 +123,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     definition.to_output_path("folder/fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
 
-    mock_result_output = mocker.patch("cmip_ref.executor.ResultOutput", spec=ResultOutput)
+    mock_result_output = mocker.patch("climate_ref.executor.ResultOutput", spec=ResultOutput)
 
     handle_execution_result(config, db, mock_execution_result, result)
 

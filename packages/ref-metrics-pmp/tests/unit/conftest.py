@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import cmip_ref_metrics_pmp
+import climate_ref_pmp
 import pytest
 
 
@@ -11,7 +11,7 @@ def pdo_example_dir() -> Path:
 
 @pytest.fixture
 def provider(tmp_path):
-    provider = cmip_ref_metrics_pmp.provider
+    provider = climate_ref_pmp.provider
     provider.prefix = tmp_path / "conda"
     provider.prefix.mkdir()
     provider._conda_exe = provider.prefix / "mock_micromamba"

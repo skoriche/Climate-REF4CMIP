@@ -3,7 +3,7 @@ import pathlib
 
 import pytest
 
-from cmip_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.pycmec.metric import CMECMetric
 
 
 # Update the original_datadir to specify where the expected values go

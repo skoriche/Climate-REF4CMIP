@@ -14,8 +14,8 @@ import pytest
 from loguru import logger
 from pytest_docker_tools import container, fetch, wrappers
 
-from cmip_ref.database import Database
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from climate_ref.database import Database
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
 POSTGRES_USER = "postgres"
 POSTGRES_PASSWORD = "example"  # noqa: S105

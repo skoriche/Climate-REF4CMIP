@@ -10,7 +10,7 @@ $ uv run ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...
 
- cmip_ref: A CLI for the CMIP Rapid Evaluation Framework
+ climate_ref: A CLI for the CMIP Rapid Evaluation Framework
 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --configuration-direc…          PATH                  Configuration          │

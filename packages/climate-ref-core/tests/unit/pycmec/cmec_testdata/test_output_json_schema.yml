@@ -38,7 +38,8 @@ $defs:
         - items:
             type: string
           type: array
-        - type: object
+        - additionalProperties: true
+          type: object
         title: Modeldata
       obsdata:
         anyOf:
@@ -46,7 +47,8 @@ $defs:
         - items:
             type: string
           type: array
-        - type: object
+        - additionalProperties: true
+          type: object
         title: Obsdata
     required:
     - environment

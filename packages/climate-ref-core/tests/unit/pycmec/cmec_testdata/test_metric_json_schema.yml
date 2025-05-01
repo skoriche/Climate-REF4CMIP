@@ -1,5 +1,6 @@
 $defs:
   MetricDimensions:
+    additionalProperties: true
     default:
       json_structure:
       - model
@@ -25,23 +26,27 @@ properties:
     $ref: '#/$defs/MetricDimensions'
   DISCLAIMER:
     anyOf:
-    - type: object
+    - additionalProperties: true
+      type: object
     - type: 'null'
     default: null
     title: Disclaimer
   NOTES:
     anyOf:
-    - type: object
+    - additionalProperties: true
+      type: object
     - type: 'null'
     default: null
     title: Notes
   PROVENANCE:
     anyOf:
-    - type: object
+    - additionalProperties: true
+      type: object
     - type: 'null'
     default: null
     title: Provenance
   RESULTS:
+    additionalProperties: true
     title: Results
     type: object
 required:

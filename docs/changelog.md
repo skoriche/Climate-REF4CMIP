@@ -366,7 +366,7 @@ from the examples given in that link.
 
 ### Improved Documentation
 
-- Deployed documentation to https://cmip-ref.readthedocs.io/en/latest/ ([#16](https://github.com/Climate-REF/climate-ref/pulls/16))
+- Deployed documentation to https://climate-ref.readthedocs.io/en/latest/ ([#16](https://github.com/Climate-REF/climate-ref/pulls/16))
 - General documentation cleanup.
 
   Added notebook describing the process of executing a notebook locally ([#19](https://github.com/Climate-REF/climate-ref/pulls/19))

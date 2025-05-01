@@ -195,7 +195,7 @@ a service for which we are very grateful.
 The RtD configuration can be found in the `.readthedocs.yaml` file
 in the root of this repository.
 The docs are automatically deployed at
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+[climate-ref.readthedocs.io](https://climate-ref.readthedocs.io/en/latest/).
 
 ## Workflows
 

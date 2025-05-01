@@ -80,8 +80,8 @@ jobs:
       - name: Check build
         run: |
           make build
-          tar -tvf dist/cmip_ref-*.tar.gz --wildcards '*ref/py.typed' '*/LICENCE' '*/NOTICE'
-          tar -tvf dist/cmip_ref_core-*.tar.gz --wildcards '*ref_core/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate-ref-*.tar.gz --wildcards '*climate_ref/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate-ref-core-*.tar.gz --wildcards '*climate_ref_core/py.typed' '*/LICENCE' '*/NOTICE'
       - name: Check installable
         run: |
           uv pip install dist/*.whl

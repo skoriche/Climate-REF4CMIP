@@ -80,7 +80,7 @@ def build_app() -> typer.Typer:
 
     This registers all the commands and subcommands of the CLI app.
     Some commands may not be available if certain dependencies are not installed,
-    for example the Celery CLI is only available if the `ref_cmip_celery` package is installed.
+    for example the Celery CLI is only available if the `climate-ref-celery` package is installed.
 
     Returns
     -------

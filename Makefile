@@ -48,12 +48,12 @@ build: clean  ## build the packages to be deployed to PyPI
 	cp LICENCE NOTICE packages/ref-metrics-esmvaltool
 	cp LICENCE NOTICE packages/ref-metrics-ilamb
 	cp LICENCE NOTICE packages/ref-metrics-pmp
-	uv build --package cmip_ref --no-sources
-	uv build --package cmip_ref_core --no-sources
-	uv build --package cmip_ref_celery --no-sources
-	uv build --package cmip_ref_metrics_esmvaltool --no-sources
-	uv build --package cmip_ref_metrics_ilamb --no-sources
-	uv build --package cmip_ref_metrics_pmp --no-sources
+	uv build --package climate-ref --no-sources
+	uv build --package climate-ref-core --no-sources
+	uv build --package climate-ref-celery --no-sources
+	uv build --package climate-ref-metrics_esmvaltool --no-sources
+	uv build --package climate-ref-metrics_ilamb --no-sources
+	uv build --package climate-ref-metrics_pmp --no-sources
 
 .PHONY: ruff-fixes
 ruff-fixes:  ## fix the code using ruff
@@ -62,44 +62,44 @@ ruff-fixes:  ## fix the code using ruff
 
 .PHONY: test-ref
 test-ref:  ## run the tests
-	uv run --package cmip_ref \
+	uv run --package climate-ref \
 		pytest packages/ref \
 		-r a -v --doctest-modules --cov=packages/ref/src --cov-report=term --cov-append
 
 .PHONY: test-core
 test-core:  ## run the tests
-	uv run --package cmip_ref_core \
+	uv run --package climate-ref-core \
 		pytest packages/ref-core \
 		-r a -v --doctest-modules --cov=packages/ref-core/src --cov-report=term --cov-append
 
 .PHONY: test-celery
 test-celery:  ## run the tests
-	uv run --package cmip_ref_celery \
+	uv run --package climate-ref-celery \
 		pytest packages/ref-celery \
 		-r a -v --doctest-modules --cov=packages/ref-celery/src
 
 .PHONY: test-metrics-example
 test-metrics-example:  ## run the tests
-	uv run --package cmip_ref_metrics_example \
+	uv run --package climate-ref-example \
 		pytest packages/ref-metrics-example \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-example/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-esmvaltool
 test-metrics-esmvaltool:  ## run the tests
-	uv run --package cmip_ref_metrics_esmvaltool \
+	uv run --package climate-ref-esmvaltool \
 		pytest packages/ref-metrics-esmvaltool \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-esmvaltool/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-ilamb
 test-metrics-ilamb:  ## run the tests
 	uv run ref datasets fetch-data --registry ilamb-test
-	uv run --package cmip_ref_metrics_ilamb \
+	uv run --package climate-ref-ilamb \
 		pytest packages/ref-metrics-ilamb \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-ilamb/src --cov-report=term --cov-append
 
 .PHONY: test-metrics-pmp
 test-metrics-pmp:  ## run the tests
-	uv run --package cmip_ref_metrics_pmp \
+	uv run --package climate-ref-pmp \
 		pytest packages/ref-metrics-pmp \
 		-r a -v --doctest-modules --cov=packages/ref-metrics-pmp/src --cov-report=term --cov-append
 

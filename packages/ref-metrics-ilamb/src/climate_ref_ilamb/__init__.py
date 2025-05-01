@@ -1,5 +1,8 @@
 """
-Rapid evaluating CMIP data
+Metric provider for ILAMB
+
+This module provides a metrics provider for ILAMB, a tool for evaluating
+climate models against observations.
 """
 
 import importlib.metadata

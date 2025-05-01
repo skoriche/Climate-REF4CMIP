@@ -1,5 +1,5 @@
 """
-Rapid evaluating CMIP data
+Rapid evaluating climate data
 """
 
 import importlib.metadata

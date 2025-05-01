@@ -13,12 +13,12 @@
 # ---
 
 # %% [markdown]
-# # Metric Dataset Selection
-# A metric defines the requirements for the data it needs to run.
-# The requirements are defined in the `data_requirements` attribute of the metric class.
+# # Diagnostic Dataset Selection
+# A diagnostic defines the requirements for the data it needs to run.
+# The requirements are defined in the `data_requirements` attribute of the diagnostic class.
 #
 # This notebook provides some examples querying and filtering datasets, which is useful
-# to understand how to configure dataset selection when integrating a metric into the
+# to understand how to configure dataset selection when integrating a diagnostic into the
 # REF.
 
 # %% tags=["remove_input"]
@@ -29,7 +29,7 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import DataRequirement
+from climate_ref_core.diagnostics import DataRequirement
 
 logger.remove()
 
@@ -61,7 +61,7 @@ adapter
 # Each row represents an individual NetCDF file,
 # with the rows containing the metadata associated with that file.
 # There are ~36 different **facets** of metadata for a CMIP6 data file.
-# Each of these facets can be used to refine the datasets that are needed for a given metric execution.
+# Each of these facets can be used to refine the datasets that are needed for a given diagnostic execution.
 
 # %%
 data_catalog = adapter.load_catalog(db)
@@ -91,14 +91,14 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 
 # %% [markdown]
 # ## Data Requirements
-# Each metric may be run multiple times with different groups of datasets.
+# Each diagnostic may be run multiple times with different groups of datasets.
 #
-# Determining which metric executions should be performed is a three-step process:
-# 1. Filter the data catalog based on the metric's requirements
+# Determining which diagnostic executions should be performed is a three-step process:
+# 1. Filter the data catalog based on the diagnostic's requirements
 # 2. Group the filtered data catalog using unique metadata fields
 # 3. Apply constraints to the groups to ensure the correct data is available
 #
-# Each group that passes the constraints is a valid group for the metric to be executed.
+# Each group that passes the constraints is a valid group for the diagnostic to be executed.
 #
 # [extract_covered_datasets](api/climate_ref/solver/#climate_ref.solver.extract_covered_datasets)
 # extracts the different groups
@@ -124,7 +124,7 @@ def display_groups(frames):
 
 # ### Facet filters
 # The simplest data request is a `FacetFilter`.
-# This filters the data catalog to include only the data required for a given metric run.
+# This filters the data catalog to include only the data required for a given diagnostic run.
 
 # %%
 data_requirement = DataRequirement(
@@ -145,7 +145,7 @@ display_groups(groups)
 # ### Group by
 # The `group_by` field can be used to split the filtered data into multiple groups,
 # each of which has a unique set of values in the specified facets.
-# This results in multiple groups of datasets, each of which would correspond to a metric execution.
+# This executions in multiple groups of datasets, each of which would correspond to a diagnostic execution.
 
 # %%
 data_requirement = DataRequirement(

@@ -1,11 +1,11 @@
 import pytest
 from climate_ref_example.example import GlobalMeanTimeseries, calculate_annual_mean_timeseries
 
-from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
 
 
 @pytest.fixture
-def metric_dataset(cmip6_data_catalog) -> MetricDataset:
+def metric_dataset(cmip6_data_catalog) -> ExecutionDatasetCollection:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {
@@ -14,7 +14,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
             }
         )
     ]
-    return MetricDataset(
+    return ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 selected_dataset,
@@ -52,7 +52,7 @@ def test_example_metric(metric_dataset, cmip6_data_catalog, mocker, definition_f
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
 
-    assert str(result.metric_bundle_filename) == "metric.json"
+    assert str(result.metric_bundle_filename) == "diagnostic.json"
 
     output_bundle_path = definition.output_directory / result.metric_bundle_filename
 

@@ -24,7 +24,7 @@ class TestLocalExecutor:
         assert metric_execution_result == mock_execution_result
         assert result.successful
         assert result.output_bundle_filename == metric_definition.output_directory / "output.json"
-        assert result.metric_bundle_filename == metric_definition.output_directory / "metric.json"
+        assert result.metric_bundle_filename == metric_definition.output_directory / "diagnostic.json"
         assert (metric_definition.output_directory / "out.log").exists()
 
     def test_raises_exception(self, mocker, provider, metric_definition, mock_metric):

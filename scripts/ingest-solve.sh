@@ -15,5 +15,5 @@ ref datasets ingest --source-type obs4mips tests/test-data/sample-data/obs4REF
 # Run everything
 ref --verbose solve
 
-# Display the results
+# Display the executions
 ref executions list-groups

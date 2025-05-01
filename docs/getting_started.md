@@ -32,7 +32,7 @@ $ uv run ref
 │ solve        Solve for metrics that require recalculation                    │
 │ config       View and update the REF configuration                           │
 │ datasets     View and ingest input datasets                                  │
-│ executions   View metric executions                                          │
+│ executions   View diagnostic executions                                          │
 │ providers    Manage the REF providers.                                       │
 │ celery       Managing remote execution workers                               │
 ╰──────────────────────────────────────────────────────────────────────────────╯

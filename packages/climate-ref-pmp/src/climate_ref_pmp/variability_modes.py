@@ -3,16 +3,16 @@ from collections.abc import Iterable
 from loguru import logger
 
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import (
-    CommandLineMetric,
+from climate_ref_core.diagnostics import (
+    CommandLineDiagnostic,
     DataRequirement,
-    MetricExecutionDefinition,
-    MetricExecutionResult,
+    ExecutionDefinition,
+    ExecutionResult,
 )
 from climate_ref_pmp.pmp_driver import build_pmp_command, process_json_result
 
 
-class ExtratropicalModesOfVariability(CommandLineMetric):
+class ExtratropicalModesOfVariability(CommandLineDiagnostic):
     """
     Calculate the extratropical modes of variability for a given area
     """
@@ -73,14 +73,14 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                 f"Unknown mode_id '{self.mode_id}'. Must be one of {self.ts_modes + self.psl_modes}"
             )
 
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
-        Build the command to run the metric
+        Build the command to run the diagnostic
 
         Parameters
         ----------
         definition
-            Definition of the metric execution
+            Definition of the diagnostic execution
 
         Returns
         -------
@@ -146,23 +146,23 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
         # Pass the parameters using **kwargs
         return build_pmp_command(**params)
 
-    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Build a metric result from the output of the PMP driver
+        Build a diagnostic result from the output of the PMP driver
 
         Parameters
         ----------
         definition
-            Definition of the metric execution
+            Definition of the diagnostic execution
 
         Returns
         -------
-            Result of the metric execution
+            Result of the diagnostic execution
         """
         results_files = list(definition.output_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
             logger.warning(f"A single cmec output file not found: {results_files}")
-            return MetricExecutionResult.build_from_failure(definition)
+            return ExecutionResult.build_from_failure(definition)
 
         # Find the other outputs
         png_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.png")]
@@ -170,7 +170,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
 
         cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 
-        return MetricExecutionResult.build_from_output_bundle(
+        return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output,
             cmec_metric_bundle=cmec_metric,

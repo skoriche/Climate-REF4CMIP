@@ -1,5 +1,5 @@
 """
-Celery worker tasks for handling metric execution results.
+Celery worker tasks for handling diagnostic execution executions.
 """
 
 from celery import current_app
@@ -8,25 +8,25 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from climate_ref_core.metrics import MetricExecutionResult
+from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref_core.diagnostics import ExecutionResult
 
 
 @current_app.task
-def handle_result(result: MetricExecutionResult, metric_execution_result_id: int) -> None:
+def handle_result(result: ExecutionResult, metric_execution_result_id: int) -> None:
     """
-    Handle the result of a metric execution
+    Handle the result of a diagnostic execution
 
-    This function is called when a metric execution is completed.
+    This function is called when a diagnostic execution is completed.
 
     Parameters
     ----------
     metric_execution_result_id
-        The unique identifier for the metric execution
+        The unique identifier for the diagnostic execution
     result
-        The result of the metric execution
+        The result of the diagnostic execution
     """
-    logger.info(f"Handling result for metric execution {metric_execution_result_id} + {result}")
+    logger.info(f"Handling result for diagnostic execution {metric_execution_result_id} + {result}")
 
     config = Config.default()
     db = Database.from_config(config, run_migrations=False)

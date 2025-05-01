@@ -4,21 +4,21 @@ import pathlib
 from rich.console import Console
 
 from climate_ref.cli.executions import _results_directory_panel
-from climate_ref.models import MetricExecutionGroup, MetricExecutionResult
-from climate_ref.models.metric_execution import metric_datasets
+from climate_ref.models import Execution, ExecutionGroup
+from climate_ref.models.execution import metric_datasets
 
 
 def test_execution_help(invoke_cli):
     result = invoke_cli(["executions", "--help"])
 
-    assert "View metric executions" in result.stdout
+    assert "View diagnostic executions" in result.stdout
 
 
 class TestExecutionList:
     def _setup_db(self, db):
         with db.session.begin():
-            db.session.add(MetricExecutionGroup(dataset_key="key1", metric_id=1))
-            db.session.add(MetricExecutionGroup(dataset_key="key2", metric_id=1))
+            db.session.add(ExecutionGroup(dataset_key="key1", metric_id=1))
+            db.session.add(ExecutionGroup(dataset_key="key2", metric_id=1))
 
     def test_list(self, sample_data_dir, db_seeded, invoke_cli):
         self._setup_db(db_seeded)
@@ -40,10 +40,10 @@ class TestExecutionList:
     def test_list_columns(self, sample_data_dir, db_seeded, invoke_cli):
         self._setup_db(db_seeded)
 
-        result = invoke_cli(["executions", "list-groups", "--column", "key", "--column", "metric"])
+        result = invoke_cli(["executions", "list-groups", "--column", "key", "--column", "diagnostic"])
 
         assert "key1" in result.stdout
-        assert "metric" in result.stdout
+        assert "diagnostic" in result.stdout
         assert "dirty" not in result.stdout
 
     def test_list_columns_missing(self, sample_data_dir, db_seeded, invoke_cli):
@@ -56,12 +56,12 @@ class TestExecutionList:
 
 class TestExecutionInspect:
     def test_inspect(self, sample_data_dir, db_seeded, invoke_cli, file_regression, config):
-        # Ensure the results path is consistent
-        config.paths.results = pathlib.Path("/results")
+        # Ensure the executions path is consistent
+        config.paths.results = pathlib.Path("/executions")
         config.save()
 
-        # Create a metric execution group with a result
-        metric_execution_group = MetricExecutionGroup(
+        # Create a diagnostic execution group with a result
+        metric_execution_group = ExecutionGroup(
             dataset_key="key1",
             metric_id=1,
             # Ensure dates are consistent
@@ -72,7 +72,7 @@ class TestExecutionInspect:
             db_seeded.session.add(metric_execution_group)
             db_seeded.session.flush()
 
-            result = MetricExecutionResult(
+            result = Execution(
                 metric_execution_group_id=metric_execution_group.id,
                 successful=True,
                 output_fragment="output",
@@ -82,7 +82,7 @@ class TestExecutionInspect:
             db_seeded.session.flush()
             db_seeded.session.execute(
                 metric_datasets.insert(),
-                [{"metric_execution_result_id": result.id, "dataset_id": idx} for idx in [1, 2]],
+                [{"execution_id": result.id, "dataset_id": idx} for idx in [1, 2]],
             )
         result = invoke_cli(["executions", "inspect", str(metric_execution_group.id)])
 
@@ -90,8 +90,8 @@ class TestExecutionInspect:
         file_regression.check(result.stdout)
 
     def test_inspect_failed(self, sample_data_dir, db_seeded, invoke_cli):
-        # Create a metric execution group with a result
-        metric_execution_group = MetricExecutionGroup(
+        # Create a diagnostic execution group with a result
+        metric_execution_group = ExecutionGroup(
             dataset_key="key1",
             metric_id=1,
         )
@@ -99,7 +99,7 @@ class TestExecutionInspect:
             db_seeded.session.add(metric_execution_group)
             db_seeded.session.flush()
 
-            result = MetricExecutionResult(
+            result = Execution(
                 metric_execution_group_id=metric_execution_group.id,
                 successful=False,
                 output_fragment="output",
@@ -112,7 +112,7 @@ class TestExecutionInspect:
         assert "Successful: False" in result.stdout
 
     def test_inspect_no_results(self, sample_data_dir, db_seeded, invoke_cli):
-        metric_execution_group = MetricExecutionGroup(dataset_key="key1", metric_id=1)
+        metric_execution_group = ExecutionGroup(dataset_key="key1", metric_id=1)
         with db_seeded.session.begin():
             db_seeded.session.add(metric_execution_group)
 

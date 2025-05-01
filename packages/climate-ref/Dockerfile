@@ -1,5 +1,5 @@
 # Build the container for the the REF compute engine
-# This docker container packages up the REF cli tool with the default set of metric providers
+# This docker container packages up the REF cli tool with the default set of diagnostic providers
 # used as part of the CMIP7 FastTrack process.
 
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS build

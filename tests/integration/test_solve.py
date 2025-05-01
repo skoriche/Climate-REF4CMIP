@@ -1,5 +1,5 @@
 from climate_ref.database import Database
-from climate_ref.models import Dataset, MetricExecutionGroup, MetricExecutionResult
+from climate_ref.models import Dataset, Execution, ExecutionGroup
 
 
 def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):
@@ -12,30 +12,30 @@ def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):
 
     result = invoke_cli(["--verbose", "solve"])
     expected_metric_execution_group_dataset_key = "cmip6_ssp126_ACCESS-ESM1-5_rsut_r1i1p1f1"
-    assert f"Created metric execution {expected_metric_execution_group_dataset_key}" in result.stderr
-    assert "Running metric" in result.stderr
-    assert db.session.query(MetricExecutionGroup).count() == num_expected_metrics
+    assert f"Created diagnostic execution {expected_metric_execution_group_dataset_key}" in result.stderr
+    assert "Running diagnostic" in result.stderr
+    assert db.session.query(ExecutionGroup).count() == num_expected_metrics
 
-    # Running solve again should not trigger any new metric executions
+    # Running solve again should not trigger any new diagnostic executions
     result = invoke_cli(["--verbose", "solve"])
-    assert f"Created metric execution {expected_metric_execution_group_dataset_key}" not in result.stderr
-    assert db.session.query(MetricExecutionGroup).count() == num_expected_metrics
+    assert f"Created diagnostic execution {expected_metric_execution_group_dataset_key}" not in result.stderr
+    assert db.session.query(ExecutionGroup).count() == num_expected_metrics
     execution = (
-        db.session.query(MetricExecutionGroup)
+        db.session.query(ExecutionGroup)
         .filter_by(dataset_key=expected_metric_execution_group_dataset_key)
         .one()
     )
 
-    assert len(execution.results[0].datasets) == 2
+    assert len(execution.executions[0].datasets) == 2
     assert (
-        execution.results[0].datasets[0].instance_id
+        execution.executions[0].datasets[0].instance_id
         == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.Amon.rsut.gn.v20210318"
     )
     assert (
-        execution.results[0].datasets[1].instance_id
+        execution.executions[0].datasets[1].instance_id
         == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318"
     )
 
-    results = db.session.query(MetricExecutionResult).all()
+    results = db.session.query(Execution).all()
     for result in results:
         assert result.successful is True

@@ -2,7 +2,7 @@
 CMEC output bundle class
 
 An output bundle describes the figures and data generated
-during a metric execution.
+during a diagnostic execution.
 
 Following the CMEC output bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
@@ -95,12 +95,12 @@ class CMECOutput(BaseModel):
     """
     CMEC output bundle object
 
-    Describes the assets generated during a metric execution.
+    Describes the assets generated during a diagnostic execution.
     """
 
     index: str | None = None
     """
-    Short name of the plot/html/metric that should be opened
+    Short name of the plot/html/diagnostic that should be opened
     when the user chooses to “open” the output bundle.
     """
 
@@ -128,7 +128,7 @@ class CMECOutput(BaseModel):
 
     metrics: dict[str, OutputDict] | None = None
     """
-    (optional) Dictionary of metric files produced with the output.
+    (optional) Dictionary of diagnostic files produced with the output.
     """
 
     model_config = ConfigDict(strict=True, extra="allow")

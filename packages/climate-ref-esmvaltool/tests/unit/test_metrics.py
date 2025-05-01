@@ -1,15 +1,15 @@
 import climate_ref_esmvaltool
 import pytest
 
-from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
 
 
 @pytest.fixture
-def metric_dataset(cmip6_data_catalog) -> MetricDataset:
+def execution_dataset(cmip6_data_catalog) -> ExecutionDatasetCollection:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"] == cmip6_data_catalog.instance_id.iloc[0]
     ]
-    return MetricDataset(
+    return ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 selected_dataset,
@@ -19,7 +19,7 @@ def metric_dataset(cmip6_data_catalog) -> MetricDataset:
     )
 
 
-def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, definition_factory):
+def test_example_metric(mocker, tmp_path, execution_dataset, cmip6_data_catalog, definition_factory):
     provider = climate_ref_esmvaltool.provider
 
     metric = next(metric for metric in provider.metrics() if metric.slug == "global-mean-timeseries")
@@ -28,7 +28,7 @@ def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, de
     definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
     definition.output_directory.mkdir(parents=True)
 
-    result_dir = definition.output_directory / "results" / "recipe_test_a"
+    result_dir = definition.output_directory / "executions" / "recipe_test_a"
     result = result_dir / "work" / "timeseries" / "script1" / "result.nc"
 
     def mock_run_fn(cmd, *args, **kwargs):
@@ -64,4 +64,4 @@ def test_example_metric(mocker, tmp_path, metric_dataset, cmip6_data_catalog, de
 
     assert metric_bundle_path.exists()
     assert metric_bundle_path.is_file()
-    assert result.metric_bundle_filename.name == "metric.json"
+    assert result.metric_bundle_filename.name == "diagnostic.json"

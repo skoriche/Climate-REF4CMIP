@@ -7,14 +7,14 @@ import pytest
 from attr import evolve
 
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import (
-    CommandLineMetric,
+from climate_ref_core.diagnostics import (
+    CommandLineDiagnostic,
     DataRequirement,
-    MetricExecutionDefinition,
-    MetricExecutionResult,
+    ExecutionDefinition,
+    ExecutionResult,
     ensure_relative_path,
 )
-from climate_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
+from climate_ref_core.providers import CommandLineDiagnosticProvider, DiagnosticProvider
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -60,13 +60,13 @@ def cmec_right_output_dict():
 def cmec_right_metric_dict():
     return {
         "DIMENSIONS": {
-            "json_structure": ["model", "metric", "statistic"],
+            "json_structure": ["model", "diagnostic", "statistic"],
             "model": {
                 "E3SM": {"name": "E3SM"},
                 "CESM2": {"name": "CESM2"},
                 "IPSL-CM5A-LR": {"name": "IPSL-CM5A-LR"},
             },
-            "metric": {
+            "diagnostic": {
                 "Ecosystem and Carbon Cycle": {"name": "Ecosystem and Carbon Cycle"},
                 "Hydrology Cycle": {"name": "Hydrology Cycle"},
             },
@@ -119,41 +119,41 @@ def cmec_right_output_data(request, cmec_right_output_dict):
 class TestMetric:
     def test_provider(self, provider):
         metric = provider.metrics()[0]
-        assert isinstance(metric.provider, MetricsProvider)
+        assert isinstance(metric.provider, DiagnosticProvider)
 
     def test_no_provider(self, mock_metric):
-        with pytest.raises(ValueError, match="register .* with a MetricsProvider before using"):
+        with pytest.raises(ValueError, match="register .* with a DiagnosticProvider before using"):
             mock_metric.provider
 
 
 class TestCommandLineMetric:
     def test_run(self, mocker):
         mocker.patch.object(
-            CommandLineMetricsProvider,
+            CommandLineDiagnosticProvider,
             "run",
             create_autospec=True,
         )
 
-        provider = CommandLineMetricsProvider("provider_name", "v0.23")
+        provider = CommandLineDiagnosticProvider("provider_name", "v0.23")
 
         metric_result = mocker.sentinel.result
         cmd = mocker.sentinel.cmd
         run_definition = mocker.sentinel.definition
 
-        class TestMetric(CommandLineMetric):
-            name = "test-metric"
-            slug = "test-metric"
+        class TestDiagnostic(CommandLineDiagnostic):
+            name = "test-diagnostic"
+            slug = "test-diagnostic"
             data_requirements = mocker.Mock()
 
             def build_cmd(self, definition):
                 assert definition == run_definition
                 return cmd
 
-            def build_metric_result(self, definition):
+            def build_execution_result(self, definition):
                 assert definition == run_definition
                 return metric_result
 
-        metric = TestMetric()
+        metric = TestDiagnostic()
         provider.register(metric)
 
         result = metric.run(run_definition)
@@ -170,14 +170,14 @@ class TestMetricResult:
         cmec_right_metric_dict,
         tmp_path,
     ):
-        definition = MetricExecutionDefinition(
+        definition = ExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
-            dataset_key="mocked-metric-slug",
+            dataset_key="mocked-diagnostic-slug",
             metric_dataset=None,
         )
 
-        result = MetricExecutionResult.build_from_output_bundle(
+        result = ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_data,
             cmec_metric_bundle=cmec_right_metric_dict,
@@ -208,7 +208,7 @@ class TestMetricResult:
         # Setting the output directory generally happens as a side effect of the executor
         definition = evolve(definition, output_directory=tmp_path)
 
-        result = MetricExecutionResult.build_from_output_bundle(
+        result = ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_right_output_dict,
             cmec_metric_bundle=cmec_right_metric_data,
@@ -229,13 +229,13 @@ class TestMetricResult:
         assert output_filename.is_relative_to(tmp_path)
 
     def test_build_from_failure(self, tmp_path):
-        definition = MetricExecutionDefinition(
+        definition = ExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
-            dataset_key="mocked-metric-slug",
+            dataset_key="mocked-diagnostic-slug",
             metric_dataset=None,
         )
-        result = MetricExecutionResult.build_from_failure(definition)
+        result = ExecutionResult.build_from_failure(definition)
 
         assert not result.successful
         assert result.output_bundle_filename is None

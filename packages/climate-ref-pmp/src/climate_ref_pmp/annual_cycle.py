@@ -6,16 +6,16 @@ from typing import Any
 from loguru import logger
 
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import (
-    CommandLineMetric,
+from climate_ref_core.diagnostics import (
+    CommandLineDiagnostic,
     DataRequirement,
-    MetricExecutionDefinition,
-    MetricExecutionResult,
+    ExecutionDefinition,
+    ExecutionResult,
 )
 from climate_ref_pmp.pmp_driver import build_glob_pattern, build_pmp_command, process_json_result
 
 
-class AnnualCycle(CommandLineMetric):
+class AnnualCycle(CommandLineDiagnostic):
     """
     Calculate the annual cycle for a dataset
     """
@@ -73,14 +73,14 @@ class AnnualCycle(CommandLineMetric):
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
         self.parameter_file_2 = "pmp_param_annualcycle_2-metrics.py"
 
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
-        Build the command to run the metric
+        Build the command to run the diagnostic
 
         Parameters
         ----------
         definition
-            Definition of the metric execution
+            Definition of the diagnostic execution
 
         Returns
         -------
@@ -88,14 +88,14 @@ class AnnualCycle(CommandLineMetric):
         """
         raise NotImplementedError("Function not required")
 
-    def build_cmds(self, definition: MetricExecutionDefinition) -> list[list[str]]:
+    def build_cmds(self, definition: ExecutionDefinition) -> list[list[str]]:
         """
-        Build the command to run the metric
+        Build the command to run the diagnostic
 
         Parameters
         ----------
         definition
-            Definition of the metric execution
+            Definition of the diagnostic execution
 
         Returns
         -------
@@ -201,18 +201,18 @@ class AnnualCycle(CommandLineMetric):
 
         return cmds
 
-    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Build a metric result from the output of the PMP driver
+        Build a diagnostic result from the output of the PMP driver
 
         Parameters
         ----------
         definition
-            Definition of the metric execution
+            Definition of the diagnostic execution
 
         Returns
         -------
-            Result of the metric execution
+            Result of the diagnostic execution
         """
         input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
         variable_id = input_datasets["variable_id"].unique()[0]
@@ -225,15 +225,15 @@ class AnnualCycle(CommandLineMetric):
         logger.debug(f"png_directory: {png_directory}")
         logger.debug(f"data_directory: {data_directory}")
 
-        # Find the results file
+        # Find the executions file
         results_files = list(results_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
-            return MetricExecutionResult.build_from_failure(definition)
+            return ExecutionResult.build_from_failure(definition)
         else:
             results_file = results_files[0]
             logger.debug(f"results_file: {results_file}")
 
-        # Rewrite results file for compatibility
+        # Rewrite executions file for compatibility
         with open(results_file) as f:
             results = json.load(f)
             results_transformed = _transform_results(results)
@@ -245,9 +245,9 @@ class AnnualCycle(CommandLineMetric):
         results_file_transformed = results_file.with_name(f"{stem}_transformed.json")
 
         with open(results_file_transformed, "w") as f:
-            # Write the transformed results back to the file
+            # Write the transformed executions back to the file
             json.dump(results_transformed, f, indent=4)
-            logger.debug(f"Transformed results written to {results_file_transformed}")
+            logger.debug(f"Transformed executions written to {results_file_transformed}")
 
         # Find the other outputs
         png_files = list(png_directory.glob("*.png"))
@@ -255,25 +255,25 @@ class AnnualCycle(CommandLineMetric):
 
         cmec_output, cmec_metric = process_json_result(results_file_transformed, png_files, data_files)
 
-        return MetricExecutionResult.build_from_output_bundle(
+        return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output,
             cmec_metric_bundle=cmec_metric,
         )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Run the metric on the given configuration.
+        Run the diagnostic on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
-            The configuration to run the metric on.
+        definition : ExecutionDefinition
+            The configuration to run the diagnostic on.
 
         Returns
         -------
         :
-            The result of running the metric.
+            The result of running the diagnostic.
         """
         logger.debug("PMP annual cycle run start")
         cmds = self.build_cmds(definition)
@@ -281,22 +281,22 @@ class AnnualCycle(CommandLineMetric):
         runs = [self.provider.run(cmd) for cmd in cmds]
         logger.debug(f"runs: {runs}")
 
-        return self.build_metric_result(definition)
+        return self.build_execution_result(definition)
 
 
 def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
     """
-    Transform the results dictionary to match the expected structure.
+    Transform the executions dictionary to match the expected structure.
 
     Parameters
     ----------
     data : dict
-        The original results dictionary.
+        The original executions dictionary.
 
     Returns
     -------
     dict
-        The transformed results dictionary.
+        The transformed executions dictionary.
     """
     # Remove the "CalendarMonths" key from the nested structure
     if "RESULTS" in data:

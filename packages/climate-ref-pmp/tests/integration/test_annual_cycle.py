@@ -1,8 +1,8 @@
 import pytest
 from climate_ref_pmp import provider
 
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from climate_ref.solver import solve_metric_executions
+from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.solver import solve_executions
 from climate_ref.testing import validate_result
 
 
@@ -17,15 +17,15 @@ def test_annual_cycle(data_catalog, tmp_path, config, mocker):
 
     # Get the first match from the data catalog
     execution = next(
-        solve_metric_executions(
+        solve_executions(
             data_catalog=data_catalog,
             metric=metric,
             provider=provider,
         )
     )
 
-    # Run the metric
-    definition = execution.build_metric_execution_info(output_root=config.paths.scratch)
+    # Run the diagnostic
+    definition = execution.build_execution_definition(output_root=config.paths.scratch)
     definition.output_directory.mkdir(parents=True)
     result = metric.run(definition)
 

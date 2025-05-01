@@ -13,7 +13,7 @@ class Dataset(Base):
     Represents a dataset
 
     A dataset is a collection of data files, that is used as an input to the benchmarking process.
-    Adding/removing or updating a dataset will trigger a new metrics calculation.
+    Adding/removing or updating a dataset will trigger a new diagnostic calculation.
 
     A polymorphic association is used to capture the different types of datasets as each
     dataset type may have different metadata fields.
@@ -42,7 +42,7 @@ class Dataset(Base):
     """
     When the dataset was updated.
 
-    Updating a dataset will trigger a new metrics calculation.
+    Updating a dataset will trigger a new diagnostic calculation.
     """
 
     def __repr__(self) -> str:

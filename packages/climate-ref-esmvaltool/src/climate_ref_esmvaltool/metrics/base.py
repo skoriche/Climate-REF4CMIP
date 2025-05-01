@@ -8,8 +8,12 @@ from loguru import logger
 from ruamel.yaml import YAML
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
-from climate_ref_core.datasets import MetricDataset, SourceDatasetType
-from climate_ref_core.metrics import CommandLineMetric, MetricExecutionDefinition, MetricExecutionResult
+from climate_ref_core.datasets import ExecutionDatasetCollection, SourceDatasetType
+from climate_ref_core.diagnostics import (
+    CommandLineDiagnostic,
+    ExecutionDefinition,
+    ExecutionResult,
+)
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_esmvaltool.recipe import load_recipe, prepare_climate_data
@@ -18,8 +22,8 @@ from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Rec
 yaml = YAML()
 
 
-class ESMValToolMetric(CommandLineMetric):
-    """ESMValTool Metric base class."""
+class ESMValToolDiagnostic(CommandLineDiagnostic):
+    """ESMValTool Diagnostic base class."""
 
     base_recipe: ClassVar[str]
 
@@ -41,43 +45,43 @@ class ESMValToolMetric(CommandLineMetric):
     @staticmethod
     def format_result(
         result_dir: Path,
-        metric_dataset: MetricDataset,
+        metric_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
     ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
         """
-        Update the arguments needed to create a CMEC metric and output bundle.
+        Update the arguments needed to create a CMEC diagnostic and output bundle.
 
         Parameters
         ----------
         result_dir
-            Directory containing results from an ESMValTool run.
+            Directory containing executions from an ESMValTool run.
         metric_dataset
-            The metric dataset used for the metric execution.
+            The diagnostic dataset used for the diagnostic execution.
         metric_args
-            Generic metric bundle arguments.
+            Generic diagnostic bundle arguments.
         output_args
             Generic output bundle arguments.
 
         Returns
         -------
-            The arguments needed to create a CMEC metric and output bundle.
+            The arguments needed to create a CMEC diagnostic and output bundle.
         """
         return metric_args, output_args
 
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run an ESMValTool recipe.
 
         Parameters
         ----------
         definition
-            A description of the information needed for this execution of the metric
+            A description of the information needed for this execution of the diagnostic
 
         Returns
         -------
         :
-            The result of running the metric.
+            The result of running the diagnostic.
         """
         input_files = definition.metric_dataset[SourceDatasetType.CMIP6].datasets
         recipe = load_recipe(self.base_recipe)
@@ -98,7 +102,7 @@ class ESMValToolMetric(CommandLineMetric):
             "drs": {
                 "CMIP6": "ESGF",
             },
-            "output_dir": str(definition.to_output_path("results")),
+            "output_dir": str(definition.to_output_path("executions")),
             "rootpath": {
                 "default": str(climate_data),
             },
@@ -142,24 +146,24 @@ class ESMValToolMetric(CommandLineMetric):
             f"{recipe_path}",
         ]
 
-    def build_metric_result(
+    def build_execution_result(
         self,
-        definition: MetricExecutionDefinition,
-    ) -> MetricExecutionResult:
+        definition: ExecutionDefinition,
+    ) -> ExecutionResult:
         """
-        Build the metric result after running an ESMValTool recipe.
+        Build the diagnostic result after running an ESMValTool recipe.
 
         Parameters
         ----------
         definition
-            A description of the information needed for this execution of the metric
+            A description of the information needed for this execution of the diagnostic
 
         Returns
         -------
         :
-            The resulting metric.
+            The resulting diagnostic.
         """
-        result_dir = next(definition.to_output_path("results").glob("*"))
+        result_dir = next(definition.to_output_path("executions").glob("*"))
 
         metric_args = CMECMetric.create_template()
         output_args = CMECOutput.create_template()
@@ -186,14 +190,14 @@ class ESMValToolMetric(CommandLineMetric):
         output_args[OutputCV.HTML.value][index_html] = {
             OutputCV.FILENAME.value: index_html,
             OutputCV.LONG_NAME.value: "Results page",
-            OutputCV.DESCRIPTION.value: "Page showing the results of the ESMValTool run.",
+            OutputCV.DESCRIPTION.value: "Page showing the executions of the ESMValTool run.",
         }
         output_args[OutputCV.INDEX.value] = index_html
 
         # Add the (debug) log file
         output_args[OutputCV.PROVENANCE.value][OutputCV.LOG.value] = f"{result_dir}/run/main_log_debug.txt"
 
-        # Update the metric and output bundle with metric specific results.
+        # Update the diagnostic and output bundle with diagnostic specific executions.
         metric_args, output_args = self.format_result(
             result_dir=result_dir,
             metric_dataset=definition.metric_dataset,
@@ -201,7 +205,7 @@ class ESMValToolMetric(CommandLineMetric):
             output_args=output_args,
         )
 
-        return MetricExecutionResult.build_from_output_bundle(
+        return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=output_args,
             cmec_metric_bundle=metric_args,

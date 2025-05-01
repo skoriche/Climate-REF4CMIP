@@ -25,7 +25,7 @@ from climate_ref_core.exceptions import ConstraintNotSatisfied
 @runtime_checkable
 class GroupValidator(Protocol):
     """
-    A constraint that must be satisfied when executing a given metric run.
+    A constraint that must be satisfied when executing a given diagnostic run.
 
     All constraints must be satisfied for a given group to be run.
     """
@@ -92,9 +92,9 @@ class GroupOperation(Protocol):
 
 GroupConstraint = GroupOperation | GroupValidator
 """
-A constraint that must be satisfied when executing a given metric run.
+A constraint that must be satisfied for a group of datasets to be executed.
 
-This is applied to a group of datasets representing the inputs to a potential metric execution.
+This is applied to a group of datasets representing the inputs to a potential diagnostic execution.
 The group must satisfy all constraints to be processed.
 
 This can include operations that are applied to a group of datasets which may modify the group,

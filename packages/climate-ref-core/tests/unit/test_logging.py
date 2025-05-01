@@ -3,13 +3,13 @@ import logging as std_logging
 import pytest
 from loguru import logger
 
+from climate_ref_core.diagnostics import ExecutionDefinition
 from climate_ref_core.logging import capture_logging, redirect_logs
-from climate_ref_core.metrics import MetricExecutionDefinition
 
 
 @pytest.fixture
 def definition(mocker, tmp_path):
-    d = mocker.MagicMock(spec=MetricExecutionDefinition)
+    d = mocker.MagicMock(spec=ExecutionDefinition)
     d.output_directory = tmp_path / "output"
     from climate_ref_core.executor import EXECUTION_LOG_FILENAME
 

@@ -14,14 +14,14 @@
 
 # %% [markdown]
 #
-# # Testing metric providers locally
-# Metric providers can be run locally without requiring the rest of the REF infrastructure.
+# # Testing diagnostic providers locally
+# Diagnostic providers can be run locally without requiring the rest of the REF infrastructure.
 # This is useful for testing and debugging metrics.
 #
-# Running a metric locally requires that the target REF metrics package, e.g. `climate_ref_example`,
+# Running a diagnostic locally requires that the target REF metrics package, e.g. `climate_ref_example`,
 # and its dependencies are installed in the current Python environment.
 #
-# This guide will walk you through how to run a metric provider locally.
+# This guide will walk you through how to run a diagnostic provider locally.
 
 
 # %% tags=["remove_input"]
@@ -35,7 +35,7 @@ import prettyprinter
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.datasets import get_dataset_adapter
-from climate_ref.solver import solve_metric_executions
+from climate_ref.solver import solve_executions
 from climate_ref_core.datasets import SourceDatasetType
 
 prettyprinter.install_extras(["attrs"])
@@ -45,9 +45,9 @@ provider = climate_ref_example.provider
 provider
 
 # %% [markdown]
-# We select a metric which simply calculates the annual mean, global mean timeseries of a dataset.
+# We select a diagnostic which simply calculates the annual mean, global mean timeseries of a dataset.
 #
-# The data requirements of this metric filter out all variables except `tas` and `rsut`.
+# The data requirements of this diagnostic filter out all variables except `tas` and `rsut`.
 # The `group_by` specification ensures that each execution has a unique combination of
 # `source_id`, `variant_id`, `variable_id` and `experiment_id` values.
 
@@ -81,16 +81,16 @@ data_catalog[["source_id", "variant_label", "variable_id", "experiment_id"]].dro
 
 # %% [markdown]
 #
-# ## Metric Executions
+# ## Executions
 #
-# A metric execution is a combination of a metric, a provider, and the data needed to run the metric.
+# An execution is a combination of a diagnostic, a provider, and a group of datasets.
 #
-# The `MetricSolver` is used to determine which metric executions are required given a set of requirements
-# and the currently available dataset.
+# The `DiagnosticSolver` is used to determine which executions are required given a set of requirements
+# and the currently available datasets.
 # This doesn't require the use of the REF database.
 
 # %%
-metric_executions = solve_metric_executions(
+executions_generator = solve_executions(
     data_catalog={
         SourceDatasetType.CMIP6: data_catalog,
     },
@@ -98,50 +98,50 @@ metric_executions = solve_metric_executions(
     provider=provider,
 )
 
-# Convert from a generator to a list to inspect the complete set of results
-metric_executions = list(metric_executions)
-prettyprinter.pprint(metric_executions)
+# Convert from a generator to a list to inspect the complete set of executions
+executions = list(executions_generator)
+prettyprinter.pprint(executions)
 
 # %% [markdown]
 # We get multiple proposed executions.
 
 # %%
-pd.concat(execution.metric_dataset["cmip6"] for execution in metric_executions)[
+pd.concat(execution.datasets["cmip6"] for execution in executions)[
     ["experiment_id", "variable_id"]
 ].drop_duplicates()
 
 # %% [markdown]
 # Each execution contains a single unique dataset because of the groupby definition.
-# The data catalog for the metric execution may contain more than one row
+# The data catalog for the diagnostic execution may contain more than one row
 # as a dataset may contain multiple files.
 
 # %%
-metric_executions[0].metric_dataset["cmip6"].instance_id.unique().tolist()
+executions[0].datasets["cmip6"].instance_id.unique().tolist()
 
 # %%
-metric_executions[0].metric_dataset["cmip6"]
+executions[0].datasets["cmip6"]
 
 # %% [markdown]
 #
-# ## Metric Definitions
+# ## Diagnostic Definitions
 #
-# Each metric execution requires a `MetricExecutionDefinition` object.
+# Each diagnostic execution requires a `ExecutionDefinition` object.
 # This object contains the information about where data should be stored
-# and which datasets should be used for the metric calculation.
+# and which datasets should be used for the diagnostic calculation.
 
 # %%
 output_directory = Path("./out")
-definition = metric_executions[0].build_metric_execution_info(output_directory)
+definition = executions[0].build_execution_definition(output_directory)
 prettyprinter.pprint(definition)
 
 
 # %% [markdown]
 # ### Running directly locally
 #
-# A metric can be run directly if you want to run a calculation synchronously
+# A diagnostic can be run directly if you want to run a calculation synchronously
 # without any additional infrastructure.
 #
-# This will not perform and validation/verification of the output results.
+# This will not perform and validation/verification of the output executions.
 
 # %%
 definition.output_directory.mkdir(parents=True, exist_ok=True)
@@ -151,16 +151,16 @@ assert direct_result.successful
 prettyprinter.pprint(direct_result)
 
 # %% [markdown]
-# ## Metric calculations
+# ## Diagnostic calculations
 #
-# Metric calculations are typically run using an
+# Diagnostic calculations are typically run using an
 # [Executor](../../api/climate_ref_core/executor/#climate_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 # These executors can run metrics locally, on a cluster, or on a remote service
 #
 # The simplest executor is the
 # [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor).
-# This executor runs a given metric synchronously in the current process.
+# This executor runs a given diagnostic synchronously in the current process.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
@@ -172,7 +172,7 @@ prettyprinter.pprint(direct_result)
 executor = config.executor.build(config=config, database=db)
 metric = provider.get("global-mean-timeseries")
 
-executor.run_metric(provider, metric, definition=definition)
+executor.run(provider, metric, definition=definition)
 
 # %%
 output_file = definition.to_output_path("output.json")

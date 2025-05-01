@@ -3,7 +3,7 @@ import json
 import climate_ref_esmvaltool.metrics.base
 import pandas
 import pytest
-from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.types import Recipe
 from ruamel.yaml import YAML
 
@@ -14,7 +14,7 @@ yaml = YAML()
 
 @pytest.fixture
 def mock_metric():
-    class MockMetric(ESMValToolMetric):
+    class MockMetric(ESMValToolDiagnostic):
         base_recipe = "examples/recipe_python.yml"
 
         def update_recipe(self, recipe: Recipe, input_files: pandas.DataFrame) -> None:
@@ -45,7 +45,7 @@ def test_build_cmd(mocker, tmp_path, metric_definition, mock_metric, data_dir_ex
 
 
 def test_build_metric_result(metric_definition, mock_metric):
-    results_dir = metric_definition.to_output_path("results") / "recipe_test"
+    results_dir = metric_definition.to_output_path("executions") / "recipe_test"
 
     for subdir in "timeseries", "map":
         metadata = {}
@@ -61,7 +61,7 @@ def test_build_metric_result(metric_definition, mock_metric):
         with metadata_file.open("w", encoding="utf-8") as file:
             yaml.dump(metadata, file)
 
-    execution_result = mock_metric.build_metric_result(definition=metric_definition)
+    execution_result = mock_metric.build_execution_result(definition=metric_definition)
     metric_bundle = json.loads(
         execution_result.to_output_path(execution_result.metric_bundle_filename).read_text(encoding="utf-8")
     )

@@ -1,6 +1,6 @@
 # climate-ref-celery
 
-This package provides celery task generation from Provider and Metric definitions.
+This package provides celery task generation from Provider and Diagnostic definitions.
 
 ## CLI tool
 

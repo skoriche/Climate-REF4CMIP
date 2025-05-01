@@ -5,11 +5,11 @@ import xarray as xr
 
 from climate_ref_core.constraints import AddSupplementaryDataset, RequireContiguousTimerange
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import (
+from climate_ref_core.diagnostics import (
     DataRequirement,
-    Metric,
-    MetricExecutionDefinition,
-    MetricExecutionResult,
+    Diagnostic,
+    ExecutionDefinition,
+    ExecutionResult,
 )
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
@@ -20,8 +20,8 @@ def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
     Calculate the annual mean timeseries for a dataset.
 
     While this function is implemented here,
-    in most cases the metric calculation will be in the underlying benchmarking package.
-    How the metric is calculated is up to the provider.
+    in most cases the diagnostic calculation will be in the underlying benchmarking package.
+    How the diagnostic is calculated is up to the provider.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     # TODO: Check how timeseries data are generally serialised
     # All keys listed in the sample are the CMEC keywords.
     # The value of metrics is the json file following the
-    # CMEC metric bundle standard. Only provenance is required,
+    # CMEC diagnostic bundle standard. Only provenance is required,
     # others are optional
 
     # cmec_output = {
@@ -84,7 +84,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
 
 def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     """
-    Create a simple CMEC metric bundle for the dataset.
+    Create a simple CMEC diagnostic bundle for the dataset.
 
     Parameters
     ----------
@@ -93,7 +93,7 @@ def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
 
     Returns
     -------
-        A CMEC metric bundle ready to be written to disk
+        A CMEC diagnostic bundle ready to be written to disk
     """
     # TODO: Check how timeseries data are generally serialised
     #
@@ -108,12 +108,12 @@ def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
             "json_structure": [
                 "model",
                 "region",
-                "metric",
+                "diagnostic",
                 "statistic",
             ],
             "model": {dataset.attrs["source_id"]: {}},
             "region": {"global": {}},
-            "metric": {"tas": {}, "pr": {}},
+            "diagnostic": {"tas": {}, "pr": {}},
             "statistic": {"rmse": {}, "mb": {}},
         },
         "RESULTS": {
@@ -126,7 +126,7 @@ def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     return cmec_metric
 
 
-class GlobalMeanTimeseries(Metric):
+class GlobalMeanTimeseries(Diagnostic):
     """
     Calculate the annual mean global mean timeseries for a dataset
     """
@@ -144,7 +144,7 @@ class GlobalMeanTimeseries(Metric):
                     facets={"experiment_id": ("esm-1pct-brch-1000PgC", "1pctCO2", "hist-*")}, keep=False
                 ),
             ),
-            # Run the metric on each unique combination of model, variable, experiment, and variant
+            # Run the diagnostic on each unique combination of model, variable, experiment, and variant
             group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
             constraints=(
                 # Add cell areas to the groups
@@ -154,19 +154,19 @@ class GlobalMeanTimeseries(Metric):
         ),
     )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Run a metric
+        Run a diagnostic
 
         Parameters
         ----------
         definition
-            A description of the information needed for this execution of the metric
+            A description of the information needed for this execution of the diagnostic
 
         Returns
         -------
         :
-            The result of running the metric.
+            The result of running the diagnostic.
         """
         # This is where one would hook into however they want to run
         # their benchmarking packages.
@@ -178,7 +178,7 @@ class GlobalMeanTimeseries(Metric):
             input_files=input_datasets.path.to_list()
         )
 
-        return MetricExecutionResult.build_from_output_bundle(
+        return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=format_cmec_output_bundle(annual_mean_global_mean_timeseries),
             cmec_metric_bundle=format_cmec_metric_bundle(annual_mean_global_mean_timeseries),

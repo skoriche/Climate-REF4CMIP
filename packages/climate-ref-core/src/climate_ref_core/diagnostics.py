@@ -1,5 +1,5 @@
 """
-Metric interface
+Diagnostic interface
 """
 
 from __future__ import annotations
@@ -13,12 +13,12 @@ import pandas as pd
 from attrs import field, frozen
 
 from climate_ref_core.constraints import GroupConstraint
-from climate_ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
 if TYPE_CHECKING:
-    from climate_ref_core.providers import CommandLineMetricsProvider, MetricsProvider
+    from climate_ref_core.providers import CommandLineDiagnosticProvider, DiagnosticProvider
 
 
 def ensure_relative_path(path: pathlib.Path | str, root_directory: pathlib.Path) -> pathlib.Path:
@@ -53,36 +53,36 @@ def ensure_relative_path(path: pathlib.Path | str, root_directory: pathlib.Path)
 
 
 @frozen
-class MetricExecutionDefinition:
+class ExecutionDefinition:
     """
-    Definition of a metric execution.
+    Definition of an execution of a diagnostic
 
-    This represents the information needed by a metric to perform an execution of the metric
+    This represents the information needed by a diagnostic to perform an execution
     for a specific set of datasets fulfilling the requirements.
     """
 
     dataset_key: str
     """
-    The unique identifier for the datasets in the metric execution group.
+    The unique identifier for the datasets in the diagnostic execution group.
 
     The key is derived from the datasets in the group using facet values.
     New datasets which match the same group by facet values will result in the same
     dataset_key.
     """
 
-    metric_dataset: MetricDataset
+    metric_dataset: ExecutionDatasetCollection
     """
-    Collection of datasets required for the metric execution
+    Collection of datasets required for the diagnostic execution
     """
 
     output_directory: pathlib.Path
     """
-    Output directory to store the output of the metric execution
+    Output directory to store the output of the diagnostic execution
     """
 
     _root_directory: pathlib.Path
     """
-    Root directory for storing the output of the metric execution
+    Root directory for storing the output of the diagnostic execution
     """
 
     def to_output_path(self, filename: pathlib.Path | str | None) -> pathlib.Path:
@@ -135,19 +135,19 @@ class MetricExecutionDefinition:
 
 
 @frozen
-class MetricExecutionResult:
+class ExecutionResult:
     """
-    The result of running a metric.
+    The result of executing a diagnostic.
+
+    This execution may or may not be successful.
 
     The content of the result follows the Earth System Metrics and Diagnostics Standards
     ([EMDS](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md)).
     """
 
-    # Do we want to load a serialised version of the output bundle here or just a file path?
-
-    definition: MetricExecutionDefinition
+    definition: ExecutionDefinition
     """
-    The definition of the metric execution that produced this result.
+    The definition of the diagnostic execution that produced this result.
     """
 
     output_bundle_filename: pathlib.Path | None = None
@@ -160,7 +160,7 @@ class MetricExecutionResult:
 
     metric_bundle_filename: pathlib.Path | None = None
     """
-    Filename of the metric bundle file relative to the execution directory.
+    Filename of the diagnostic bundle file relative to the execution directory.
 
     The contents of this file are defined by
     [EMDS standard](https://github.com/Earth-System-Diagnostics-Standards/EMDS/blob/main/standards.md#common-metric-output-format-)
@@ -168,19 +168,19 @@ class MetricExecutionResult:
 
     successful: bool = False
     """
-    Whether the metric execution ran successfully.
+    Whether the diagnostic execution ran successfully.
     """
     # Log info is in the output bundle file already, but is definitely useful
 
     @staticmethod
     def build_from_output_bundle(
-        definition: MetricExecutionDefinition,
+        definition: ExecutionDefinition,
         *,
         cmec_output_bundle: CMECOutput | dict[str, Any],
         cmec_metric_bundle: CMECMetric | dict[str, Any],
-    ) -> MetricExecutionResult:
+    ) -> ExecutionResult:
         """
-        Build a MetricResult from a CMEC output bundle.
+        Build a ExecutionResult from a CMEC output bundle.
 
         Parameters
         ----------
@@ -189,12 +189,12 @@ class MetricExecutionResult:
         cmec_output_bundle
             An output bundle in the CMEC format.
         cmec_metric_bundle
-            An metric bundle in the CMEC format.
+            An diagnostic bundle in the CMEC format.
 
         Returns
         -------
         :
-            A prepared MetricResult object.
+            A prepared ExecutionResult object.
             The output bundle will be written to the output directory.
         """
         if isinstance(cmec_output_bundle, dict):
@@ -212,25 +212,25 @@ class MetricExecutionResult:
         cmec_output.dump_to_json(bundle_path)
 
         definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
-        bundle_path = definition.to_output_path("metric.json")
+        bundle_path = definition.to_output_path("diagnostic.json")
         cmec_metric.dump_to_json(bundle_path)
 
-        return MetricExecutionResult(
+        return ExecutionResult(
             definition=definition,
             output_bundle_filename=pathlib.Path("output.json"),
-            metric_bundle_filename=pathlib.Path("metric.json"),
+            metric_bundle_filename=pathlib.Path("diagnostic.json"),
             successful=True,
         )
 
     @staticmethod
-    def build_from_failure(definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def build_from_failure(definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Build a failed metric result.
+        Build a failed diagnostic result.
 
         This is a placeholder.
         Additional log information should still be captured in the output bundle.
         """
-        return MetricExecutionResult(
+        return ExecutionResult(
             output_bundle_filename=None, metric_bundle_filename=None, successful=False, definition=definition
         )
 
@@ -274,16 +274,16 @@ class MetricExecutionResult:
 @frozen(hash=True)
 class DataRequirement:
     """
-    Definition of the input datasets that a metric requires to run.
+    Definition of the input datasets that a diagnostic requires to run.
 
     This is used to create groups of datasets.
-    Each group will result in an execution of the metric
+    Each group will result in an execution of the diagnostic
     and defines the input data for that execution.
 
     The data catalog is filtered according to the `filters` field,
     then grouped according to the `group_by` field,
     and then each group is checked that it satisfies the `constraints`.
-    Each such group will be processed as a separate execution of the metric.
+    Each such group will be processed as a separate execution of the diagnostic.
     """
 
     source_type: SourceDatasetType
@@ -295,7 +295,7 @@ class DataRequirement:
     """
     Filters to apply to the data catalog of datasets.
 
-    This is used to reduce the set of datasets to only those that are required by the metric.
+    This is used to reduce the set of datasets to only those that are required by the diagnostic.
     The filters are applied iteratively to reduce the set of datasets.
     """
 
@@ -305,16 +305,16 @@ class DataRequirement:
 
     This group by operation is performed after the data catalog is filtered according to `filters`.
     Each group will contain a unique combination of values from the metadata fields,
-    and will result in a separate execution of the metric.
+    and will result in a separate execution of the diagnostic.
     If `group_by=None`, all datasets will be processed together as a single execution.
 
-    The unique values of the group by fields are used to create a unique key for the metric execution.
-    Changing the value of `group_by` may invalidate all previous metric executions.
+    The unique values of the group by fields are used to create a unique key for the diagnostic execution.
+    Changing the value of `group_by` may invalidate all previous diagnostic executions.
     """
 
     constraints: tuple[GroupConstraint, ...] = field(factory=tuple)
     """
-    Constraints that must be satisfied when executing a given metric run
+    Constraints that must be satisfied when executing a given diagnostic run
 
     All of the constraints must be satisfied for a given group to be run.
     Each filter is applied iterative to a set of datasets to reduce the set of datasets.
@@ -355,139 +355,138 @@ class DataRequirement:
 
 
 @runtime_checkable
-class AbstractMetric(Protocol):
+class AbstractDiagnostic(Protocol):
     """
-    Interface for the calculation of a metric.
+    Interface for the calculation of a diagnostic.
 
-    This is a very high-level interface to provide maximum scope for the metrics packages
-    to have differing assumptions.
-    The configuration and output of the metric should follow the
+    This is a very high-level interface to provide maximum scope for the diagnostic packages
+    to have differing assumptions about how they work.
+    The configuration and output of the diagnostic should follow the
     Earth System Metrics and Diagnostics Standards formats as much as possible.
 
-    A metric can be executed multiple times,
+    A diagnostic can be executed multiple times,
     each time targeting a different group of input data.
     The groups are determined using the grouping the data catalog according to the `group_by` field
     in the `DataRequirement` object using one or more metadata fields.
     Each group must conform with a set of constraints,
-    to ensure that the correct data is available to run the metric.
-    Each group will then be processed as a separate execution of the metric.
+    to ensure that the correct data is available to run the diagnostic.
+    Each group will then be processed as a separate execution of the diagnostic.
 
-    See (ref_example.example.ExampleMetric)[] for an example implementation.
+    See (cmip_ref_example.example.ExampleDiagnostic)[] for an example implementation.
     """
 
     name: str
     """
-    Name of the metric being run
+    Name of the diagnostic being run
 
     This should be unique for a given provider,
-    but multiple providers can implement the same metric.
+    but multiple providers can implement the same diagnostic.
     """
 
     slug: str
     """
-    Unique identifier for the metric
+    Unique identifier for the diagnostic.
 
-    Defaults to the name of the metric in lowercase with spaces replaced by hyphens.
+    Defaults to the name of the diagnostic in lowercase with spaces replaced by hyphens.
     """
 
     data_requirements: Sequence[DataRequirement] | Sequence[Sequence[DataRequirement]]
     """
-    Description of the required datasets for the current metric
+    Description of the required datasets for the current diagnostic
 
     This information is used to filter the a data catalog of both model and/or observation datasets
-    that are required by the metric.
+    that are required by the diagnostic.
 
-    A metric may specify either a single set of requirements (i.e. a list of `DataRequirement`'s),
+    A diagnostic may specify either a single set of requirements (i.e. a list of `DataRequirement`'s),
     or multiple sets of requirements (i.e. a list of lists of `DataRequirement`'s).
     Each of these sets of requirements will be processed separately which is effectively an OR operation
     across the sets of requirements.
 
-    Any modifications to the input data will new metric calculation.
+    Any modifications to the input data will new diagnostic calculation.
     """
 
-    provider: MetricsProvider
+    provider: DiagnosticProvider
     """
-    The provider that provides the metric.
+    The provider that provides the diagnostic.
     """
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Run the metric on the given configuration.
+        Run the diagnostic on the given configuration.
 
-        The implementation of this method method is left to the metrics providers.
+        The implementation of this method method is left to the diagnostic providers.
 
-        A CMEC-compatible package can use: TODO: Add link to CMEC metric wrapper
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
-            The configuration to run the metric on.
+        definition
+            The configuration to run the diagnostic on.
 
         Returns
         -------
-        MetricExecutionResult
-            The result of running the metric.
+        :
+            The result of running the diagnostic.
         """
 
 
-class Metric(AbstractMetric):
+class Diagnostic(AbstractDiagnostic):
     """
-    Interface for the calculation of a metric.
+    Interface for the calculation of a diagnostic.
 
-    This is a very high-level interface to provide maximum scope for the metrics packages
+    This is a very high-level interface to provide maximum scope for the diagnostic packages
     to have differing assumptions.
-    The configuration and output of the metric should follow the
+    The configuration and output of the diagnostic should follow the
     Earth System Metrics and Diagnostics Standards formats as much as possible.
 
-    A metric can be executed multiple times,
+    A diagnostic can be executed multiple times,
     each time targeting a different group of input data.
     The groups are determined using the grouping the data catalog according to the `group_by` field
     in the `DataRequirement` object using one or more metadata fields.
     Each group must conform with a set of constraints,
-    to ensure that the correct data is available to run the metric.
-    Each group will then be processed as a separate execution of the metric.
+    to ensure that the correct data is available to run the diagnostic.
+    Each group will then be processed as a separate execution of the diagnostic.
 
-    See (ref_example.example.ExampleMetric)[] for an example implementation.
+    See (ref_example.example.ExampleDiagnostic)[] for an example implementation.
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self._provider: MetricsProvider | None = None
+        self._provider: DiagnosticProvider | None = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name!r})"
 
     @property
-    def provider(self) -> MetricsProvider:
+    def provider(self) -> DiagnosticProvider:
         """
-        The provider that provides the metric.
+        The provider that provides the diagnostic.
         """
         if self._provider is None:
-            msg = f"Please register {self} with a MetricsProvider before using it."
+            msg = f"Please register {self} with a DiagnosticProvider before using it."
             raise ValueError(msg)
         return self._provider
 
     @provider.setter
-    def provider(self, value: MetricsProvider) -> None:
+    def provider(self, value: DiagnosticProvider) -> None:
         self._provider = value
 
 
-class CommandLineMetric(Metric):
+class CommandLineDiagnostic(Diagnostic):
     """
-    Metric that can be run from the command line.
+    Diagnostic that can be run from the command line.
     """
 
-    provider: CommandLineMetricsProvider
+    provider: CommandLineDiagnosticProvider
 
     @abstractmethod
-    def build_cmd(self, definition: MetricExecutionDefinition) -> Iterable[str]:
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
-        Build the command to run the metric on the given configuration.
+        Build the command to run the diagnostic on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
-            The configuration to run the metric on.
+        definition
+            The configuration to run the diagnostic on.
 
         Returns
         -------
@@ -496,35 +495,35 @@ class CommandLineMetric(Metric):
         """
 
     @abstractmethod
-    def build_metric_result(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Build the result from running the metric on the given configuration.
+        Build the result from running the diagnostic on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
-            The configuration to run the metric on.
+        definition
+            The configuration to run the diagnostic on.
 
         Returns
         -------
         :
-            The result of running the metric.
+            The result of running the diagnostic.
         """
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
-        Run the metric on the given configuration.
+        Run the diagnostic on the given configuration.
 
         Parameters
         ----------
-        definition : MetricExecutionDefinition
-            The configuration to run the metric on.
+        definition
+            The configuration to run the diagnostic on.
 
         Returns
         -------
         :
-            The result of running the metric.
+            The result of running the diagnostic.
         """
         cmd = self.build_cmd(definition)
         self.provider.run(cmd)
-        return self.build_metric_result(definition)
+        return self.build_execution_result(definition)

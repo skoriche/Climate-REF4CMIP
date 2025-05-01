@@ -3,15 +3,15 @@ from unittest.mock import Mock
 from celery import Celery
 from climate_ref_celery.tasks import _metric_task_factory, register_celery_tasks
 
-from climate_ref_core.metrics import MetricExecutionDefinition
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.diagnostics import ExecutionDefinition
+from climate_ref_core.providers import DiagnosticProvider
 
 
 def test_metric_task_factory(tmp_path, caplog):
-    # Mock Metric and MetricExecutionDefinition
+    # Mock Diagnostic and ExecutionDefinition
     mock_metric = Mock()
 
-    definition = MetricExecutionDefinition(
+    definition = ExecutionDefinition(
         dataset_key="test", metric_dataset=None, output_directory=tmp_path / "output", root_directory=tmp_path
     )
 
@@ -26,9 +26,9 @@ def test_metric_task_factory(tmp_path, caplog):
 
 def test_register_celery_tasks(mocker):
     mock_task_factory = mocker.patch("climate_ref_celery.tasks._metric_task_factory")
-    # Mock Celery app and MetricsProvider
+    # Mock Celery app and DiagnosticProvider
     mock_app = Mock(spec=Celery)
-    mock_provider = Mock(spec=MetricsProvider)
+    mock_provider = Mock(spec=DiagnosticProvider)
     mock_provider.slug = "test_provider"
     mock_provider.metrics.return_value = [Mock(), Mock()]
     mock_provider.metrics.return_value[0].slug = "metric1"

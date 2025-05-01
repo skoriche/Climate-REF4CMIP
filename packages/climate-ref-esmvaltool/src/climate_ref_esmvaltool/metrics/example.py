@@ -2,13 +2,13 @@ import pandas
 
 from climate_ref_core.constraints import AddSupplementaryDataset, RequireContiguousTimerange
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import DataRequirement
-from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import Recipe
 
 
-class GlobalMeanTimeseries(ESMValToolMetric):
+class GlobalMeanTimeseries(ESMValToolDiagnostic):
     """
     Calculate the annual mean global mean timeseries for a dataset.
     """

@@ -1,8 +1,8 @@
 import pytest
 
 from climate_ref_core.exceptions import (
+    InvalidDiagnosticException,
     InvalidExecutorException,
-    InvalidMetricException,
     InvalidProviderException,
 )
 
@@ -11,7 +11,7 @@ from climate_ref_core.exceptions import (
     "exception_cls, message",
     [
         (InvalidProviderException, "provider"),
-        (InvalidMetricException, "metric"),
+        (InvalidDiagnosticException, "diagnostic"),
         (InvalidExecutorException, "executor"),
     ],
 )

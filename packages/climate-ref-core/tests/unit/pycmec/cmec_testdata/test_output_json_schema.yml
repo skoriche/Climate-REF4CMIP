@@ -62,7 +62,7 @@ additionalProperties: true
 description: 'CMEC output bundle object
 
 
-  Describes the assets generated during a metric execution.'
+  Describes the assets generated during a diagnostic execution.'
 properties:
   data:
     anyOf:

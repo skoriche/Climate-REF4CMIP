@@ -6,18 +6,18 @@ import pytest
 from climate_ref_example import provider
 
 from climate_ref.config import ExecutorConfig
-from climate_ref.models import MetricExecutionResult
+from climate_ref.models import Execution
 from climate_ref.provider_registry import ProviderRegistry
 from climate_ref.solver import (
-    MetricExecution,
+    DiagnosticExecution,
     MetricSolver,
     extract_covered_datasets,
-    solve_metric_executions,
+    solve_executions,
     solve_metrics,
 )
 from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
 from climate_ref_core.datasets import SourceDatasetType
-from climate_ref_core.metrics import DataRequirement, FacetFilter
+from climate_ref_core.diagnostics import DataRequirement, FacetFilter
 
 
 @pytest.fixture
@@ -32,8 +32,8 @@ def solver(db_seeded, config) -> MetricSolver:
 
 
 @pytest.fixture
-def mock_metric_execution(tmp_path, definition_factory) -> MetricExecution:
-    mock_execution = mock.MagicMock(spec=MetricExecution)
+def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
+    mock_execution = mock.MagicMock(spec=DiagnosticExecution)
     mock_execution.provider = provider
     mock_execution.metric = provider.metrics()[0]
     mock_execution.selectors = {"cmip6": (("source_id", "Test"),)}
@@ -293,8 +293,8 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
         solve_metrics(db_seeded)
 
     # Check that a result is created
-    assert db_seeded.session.query(MetricExecutionResult).count() == 1
-    execution_result = db_seeded.session.query(MetricExecutionResult).first()
+    assert db_seeded.session.query(Execution).count() == 1
+    execution_result = db_seeded.session.query(Execution).first()
     assert execution_result.output_fragment == "output_fragment"
     assert execution_result.dataset_hash == "123456"
     assert execution_result.metric_execution_group.dataset_key == "key"
@@ -308,12 +308,12 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     # Solver should be created
     assert mock_build_solver.call_count == 1
     # A single run would have been run
-    assert mock_executor.return_value.run_metric.call_count == 1
-    mock_executor.return_value.run_metric.assert_called_with(
+    assert mock_executor.return_value.run.call_count == 1
+    mock_executor.return_value.run.assert_called_with(
         provider=mock_metric_execution.provider,
-        metric=mock_metric_execution.metric,
-        definition=mock_metric_execution.build_metric_execution_info(),
-        metric_execution_result=execution_result,
+        diagnostic=mock_metric_execution.metric,
+        definition=mock_metric_execution.build_execution_definition(),
+        execution=execution_result,
     )
 
 
@@ -326,14 +326,14 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
 
     assert mock_build_solver.call_count == 0
 
-    definitions = [call.kwargs["definition"] for call in mock_executor.return_value.run_metric.mock_calls]
+    definitions = [call.kwargs["definition"] for call in mock_executor.return_value.run.mock_calls]
 
-    # Create a dictionary of the metric key and the source datasets that were used
+    # Create a dictionary of the diagnostic key and the source datasets that were used
     output = {}
     for definition in definitions:
         output[definition.dataset_key] = {
             str(source_type): ds_collection.instance_id.unique().tolist()
-            for source_type, ds_collection in definition.metric_dataset.items()
+            for source_type, ds_collection in definition.execution_dataset.items()
         }
 
     # Write to a file for regression testing
@@ -345,7 +345,7 @@ def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
 
     solve_metrics(config=config, db=db_seeded, dry_run=True, solver=solver)
 
-    assert mock_executor.return_value.run_metric.call_count == 0
+    assert mock_executor.return_value.run.call_count == 0
 
     # TODO: Check that no new metrics were added to the db
 
@@ -353,7 +353,7 @@ def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
 def test_solve_metric_executions_missing(mock_metric, provider):
     mock_metric.data_requirements = ()
     with pytest.raises(ValueError, match=f"Metric {mock_metric.slug} has no data requirements"):
-        next(solve_metric_executions({}, mock_metric, provider))
+        next(solve_executions({}, mock_metric, provider))
 
 
 def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
@@ -374,7 +374,7 @@ def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
     data_catalog = {SourceDatasetType.CMIP6: pd.DataFrame()}
 
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'tuple'>"):
-        next(solve_metric_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_metric, provider))
 
     mock_metric.data_requirements = mock_metric.data_requirements[::-1]
     with pytest.raises(
@@ -382,15 +382,15 @@ def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
         match="Expected a sequence of DataRequirement,"
         " got <class 'climate_ref_core.metrics.DataRequirement'>",
     ):
-        next(solve_metric_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_metric, provider))
 
     mock_metric.data_requirements = ("test",)
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'str'>"):
-        next(solve_metric_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_metric, provider))
 
     mock_metric.data_requirements = (None,)
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'NoneType'>"):
-        next(solve_metric_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_metric, provider))
 
 
 @pytest.mark.parametrize("variable,expected", [("tas", 4), ("pr", 1), ("not_a_variable", 0)])
@@ -425,7 +425,7 @@ def test_solve_metric_executions(solver, mock_metric, provider, variable, expect
             }
         ),
     }
-    executions = solve_metric_executions(data_catalog, metric, provider)
+    executions = solve_executions(data_catalog, metric, provider)
     assert len(list(executions)) == expected
 
 
@@ -457,12 +457,12 @@ def test_solve_metric_executions_multiple_sets(solver, mock_metric, provider):
             }
         ),
     }
-    executions = list(solve_metric_executions(data_catalog, metric, provider))
+    executions = list(solve_executions(data_catalog, metric, provider))
     assert len(executions) == 2
 
-    assert executions[0].metric_dataset[SourceDatasetType.CMIP6].selector == (("variable_id", "tas"),)
+    assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (("variable_id", "tas"),)
 
-    assert executions[1].metric_dataset[SourceDatasetType.CMIP6].selector == (
+    assert executions[1].datasets[SourceDatasetType.CMIP6].selector == (
         ("variable_id", "pr"),
         ("experiment_id", "ssp119"),
     )
@@ -500,7 +500,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
     )
 
     result_1 = next(
-        solve_metric_executions(
+        solve_executions(
             {SourceDatasetType.CMIP6: data_catalog},
             mock_metric,
             provider,
@@ -521,14 +521,14 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
     )
 
     result_2 = next(
-        solve_metric_executions(
+        solve_executions(
             {SourceDatasetType.CMIP6: data_catalog},
             mock_metric,
             provider,
         )
     )
     assert result_2.dataset_key == expected_dataset_key
-    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash
+    assert result_2.datasets.hash != result_1.datasets.hash
 
 
 def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
@@ -560,7 +560,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
     )
 
     result_1 = next(
-        solve_metric_executions(
+        solve_executions(
             {
                 SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
                 SourceDatasetType.CMIP6: cmip_data_catalog,
@@ -585,7 +585,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
         }
     )
     result_2 = next(
-        solve_metric_executions(
+        solve_executions(
             {
                 SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
                 SourceDatasetType.CMIP6: cmip_data_catalog,
@@ -595,4 +595,4 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
         )
     )
     assert result_2.dataset_key == expected_dataset_key
-    assert result_2.metric_dataset.hash != result_1.metric_dataset.hash
+    assert result_2.datasets.hash != result_1.datasets.hash

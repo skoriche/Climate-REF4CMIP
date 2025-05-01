@@ -59,9 +59,9 @@ conda install -c conda-forge climate-ref
 ## Getting started
 <!--- --8<-- [start:getting-started] -->
 
-### As a metrics provider
+### As a diagnostics provider
 
-Metrics providers are the core of the REF.
+Diagnostic providers are the core of the REF.
 They define the metrics that will be calculated and the data that will be used to calculate them,
 by providing a consistent interface for the REF to interact with.
 

@@ -35,7 +35,7 @@ The REF is responsible for tracking the state of the system and ensuring that th
 The REF will also provide a set of CLI commands to allow users to interact with the system and to retrieve the results of the operations.
 
 
-![Metric execution](images/metric_execution.png)
+![Diagnostic execution](images/metric_execution.png)
 /// caption
 Figure 1: A metric in the REF context takes a set of input datasets and produces a set of outputs.
 The output could include scalar values, timeseries, or gridded diagnostics as well as static figures or HTML.
@@ -150,12 +150,12 @@ These abstractions include:
 -	[Database][climate_ref.database.Database] - Enables switching between different databases, and keeps the database layer separate from the rest of the code
 -	DatastoreManager - The underlying datastores may be POSIX file systems or S3-compatible object stores
 
-### Metrics service
+### Diagnostic service
 
 
 /// admonition | Packaging
 
-The metrics provider packages are named `climate_ref_*` and are available on PyPI.
+The diagnostic provider packages for the AFT are included in the Climate-REF GitHub repository and are available on PyPi.
 These REF-related packages are generally pretty lightweight and may not include the actual benchmarking code.
 The benchmarking code is expected to be in a separate package that is installed as a dependency,
 depending on how the REF will be deployed.
@@ -170,7 +170,7 @@ Most of the business logic for the calculation of a metric will use the existing
 
 ![Compute Engine](images/container_metric_service.png)
 /// caption
-Figure 5:  Metric Service for remotely executing metrics
+Figure 5:  Diagnostic Service for remotely executing metrics
 ///
 
 The worker component is the entrypoint of the service and is responsible for routing the metric request to the appropriate function.

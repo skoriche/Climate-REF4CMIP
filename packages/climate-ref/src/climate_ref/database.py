@@ -142,7 +142,7 @@ class Database:
 
         if run_migrations:
             # Run any outstanding migrations
-            # This also adds any metric value columns to the DB if they don't exist
+            # This also adds any diagnostic value columns to the DB if they don't exist
             db.migrate(config)
         # Register the CV dimensions with the MetricValue model
         # This will add new columns to the db if the CVs have changed

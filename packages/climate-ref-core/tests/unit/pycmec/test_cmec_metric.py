@@ -37,7 +37,7 @@ def cmec_wrongkw_metric_dict(cmec_right_metric_dict):
         "DIMENSIONS": {
             "xJSON": cmec_right_metric_dict["DIMENSIONS"]["json_structure"],
             "xmodel": cmec_right_metric_dict["DIMENSIONS"]["model"],
-            "xmetric": cmec_right_metric_dict["DIMENSIONS"]["metric"],
+            "xmetric": cmec_right_metric_dict["DIMENSIONS"]["diagnostic"],
         },
         "RESULTS": cmec_right_metric_dict["RESULTS"],
     }
@@ -120,7 +120,7 @@ def test_dimen_wrongdim(cmec_wrongdim_metric_dict):
     [
         ("model", {"BCC-CSM2-MR": {"name": "BCC-CSM2-MR"}}),
         (
-            "metric",
+            "diagnostic",
             {
                 "Hydrology Cycle::Sensible Heat!!FLUXNET2015": {
                     "Name": "Hydrology Cycle::Latent Heat!!FLUXNET2015",
@@ -145,8 +145,8 @@ def test_add_dimensions_exist_dimen(cmec_right_dimen_data, dim_name, dim_dict):
 
     if dim_name == "model":
         assert cmec_dims.root["model"]["BCC-CSM2-MR"] == {"name": "BCC-CSM2-MR"}
-    if dim_name == "metric":
-        assert cmec_dims.root["metric"]["Hydrology Cycle::Sensible Heat!!FLUXNET2015"] == {
+    if dim_name == "diagnostic":
+        assert cmec_dims.root["diagnostic"]["Hydrology Cycle::Sensible Heat!!FLUXNET2015"] == {
             "Name": "Hydrology Cycle::Latent Heat!!FLUXNET2015",
             "Abstract": "benchmark score",
             "URI": ["https://www.osti.gov/biblio/1330803"],
@@ -183,7 +183,7 @@ def test_metric_attributes_each_level(cmec_right_metric_dict):
 
 
 def test_metric_attributes_in_results(cmec_right_metric_dict):
-    cmec_right_metric_dict["RESULTS"]["attributes"] = "some information for results level"
+    cmec_right_metric_dict["RESULTS"]["attributes"] = "some information for executions level"
 
     with pytest.raises(ValidationError):
         CMECMetric(**cmec_right_metric_dict)
@@ -223,9 +223,9 @@ def test_metric_nested_dict(cmec_right_metric_dict):
 def test_metric_merge():
     dict_pmp = {
         "DIMENSIONS": {
-            "json_structure": ["model", "metric"],
+            "json_structure": ["model", "diagnostic"],
             "model": {"GFDL-ESM2M": {"Source": "CMIP5 ESGF"}},
-            "metric": {
+            "diagnostic": {
                 "NinoSstDiversity_2": {"Name": "NinoSstDiversity_2"},
                 "BiasTauxLonRmse": {"name": "BiasTauxLonRmse"},
             },
@@ -247,13 +247,13 @@ def test_metric_merge():
     }
     dict_ilamb = {
         "DIMENSIONS": {
-            "json_structure": ["model", "metric"],
+            "json_structure": ["model", "diagnostic"],
             "model": {
                 "E3SM": {"name": "E3SM"},
                 "CESM": {"name": "CESM"},
                 "GFDL-ESM2M": {"name": "GFDL-ESM2M"},
             },
-            "metric": {"carbon": {"name": "carbon"}},
+            "diagnostic": {"carbon": {"name": "carbon"}},
         },
         "RESULTS": {
             "E3SM": {
@@ -280,13 +280,13 @@ def test_metric_merge():
 
     dict_merged = {
         "DIMENSIONS": {
-            "json_structure": ["model", "metric"],
+            "json_structure": ["model", "diagnostic"],
             "model": {
                 "GFDL-ESM2M": {"Source": "CMIP5 ESGF"},
                 "E3SM": {"name": "E3SM"},
                 "CESM": {"name": "CESM"},
             },
-            "metric": {
+            "diagnostic": {
                 "NinoSstDiversity_2": {"Name": "NinoSstDiversity_2"},
                 "BiasTauxLonRmse": {"name": "BiasTauxLonRmse"},
                 "carbon": {"name": "carbon"},
@@ -329,7 +329,7 @@ def test_metric_merge():
     mdim_ilamb = dict_ilamb["DIMENSIONS"]
 
     mdim_ilamb["json_structure"] = ["model"]
-    mdim_ilamb.pop("metric")
+    mdim_ilamb.pop("diagnostic")
 
     with pytest.raises(ValueError):
         MetricDimensions.merge_dimension(mdim_pmp, mdim_ilamb)
@@ -337,7 +337,7 @@ def test_metric_merge():
 
 def test_metric_create_template():
     assert CMECMetric.create_template() == {
-        "DIMENSIONS": {"json_structure": ["model", "metric"], "metric": {}, "model": {}},
+        "DIMENSIONS": {"json_structure": ["model", "diagnostic"], "diagnostic": {}, "model": {}},
         "RESULTS": {},
         "DISCLAIMER": None,
         "NOTES": None,

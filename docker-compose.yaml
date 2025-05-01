@@ -1,4 +1,4 @@
-# Services to run the Rapid Evaluation Framework (REF) metric workers
+# Services to run the Rapid Evaluation Framework (REF) diagnostic workers
 # These can be started by running `docker-compose up` in the root directory of the codebase.
 
 name: climate-ref
@@ -25,7 +25,7 @@ services:
       - "5555:5555"
     depends_on:
       - redis
-  # Worker to track the results of async tasks
+  # Worker to track the executions of async tasks
   ref:
     image: ref
     restart: always

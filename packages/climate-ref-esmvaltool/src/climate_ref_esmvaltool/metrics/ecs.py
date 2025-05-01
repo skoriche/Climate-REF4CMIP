@@ -9,15 +9,15 @@ from climate_ref_core.constraints import (
     RequireFacets,
     RequireOverlappingTimerange,
 )
-from climate_ref_core.datasets import FacetFilter, MetricDataset, SourceDatasetType
-from climate_ref_core.metrics import DataRequirement
+from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
+from climate_ref_core.diagnostics import DataRequirement
 from climate_ref_core.pycmec.metric import MetricCV
-from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
 
 
-class EquilibriumClimateSensitivity(ESMValToolMetric):
+class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
     """
     Calculate the global mean equilibrium climate sensitivity for a dataset.
     """
@@ -107,7 +107,7 @@ class EquilibriumClimateSensitivity(ESMValToolMetric):
     @staticmethod
     def format_result(
         result_dir: Path,
-        metric_dataset: MetricDataset,
+        metric_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
     ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
@@ -120,16 +120,16 @@ class EquilibriumClimateSensitivity(ESMValToolMetric):
         lambda_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "lambda.nc")
         lambda_ = float(lambda_ds["lambda"].values[0])
 
-        # Update the metric bundle arguments with the computed metrics.
+        # Update the diagnostic bundle arguments with the computed metrics.
         metric_args[MetricCV.DIMENSIONS.value] = {
             MetricCV.JSON_STRUCTURE.value: [
                 "source_id",
                 "region",
-                "metric",
+                "diagnostic",
             ],
             "source_id": {source_id: {}},
             "region": {"global": {}},
-            "metric": {"ecs": {}, "lambda": {}},
+            "diagnostic": {"ecs": {}, "lambda": {}},
         }
         metric_args[MetricCV.RESULTS.value] = {
             source_id: {

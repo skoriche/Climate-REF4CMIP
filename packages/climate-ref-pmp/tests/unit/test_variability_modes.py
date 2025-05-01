@@ -9,10 +9,10 @@ from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
 import climate_ref_core.providers
 from climate_ref.solver import extract_covered_datasets
 from climate_ref_core.datasets import DatasetCollection
-from climate_ref_core.metrics import Metric
+from climate_ref_core.diagnostics import Diagnostic
 
 
-def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.DataFrame}:
+def get_first_metric_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {pd.DataFrame}:
     # obs4mips requirement is first
     datasets = extract_covered_datasets(data_catalog, metric.data_requirements[1])
     assert len(datasets) > 0
@@ -100,7 +100,7 @@ def test_pdo_metric(
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
 
-    assert str(result.metric_bundle_filename) == "metric.json"
+    assert str(result.metric_bundle_filename) == "diagnostic.json"
 
     metric_bundle_path = definition.output_directory / result.metric_bundle_filename
 

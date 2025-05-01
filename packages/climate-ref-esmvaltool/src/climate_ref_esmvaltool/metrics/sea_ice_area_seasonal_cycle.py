@@ -5,13 +5,13 @@ from climate_ref_core.constraints import (
     RequireContiguousTimerange,
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import DataRequirement
-from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import Recipe
 
 
-class SeaIceAreaSeasonalCycle(ESMValToolMetric):
+class SeaIceAreaSeasonalCycle(ESMValToolDiagnostic):
     """
     Calculate seasonal cycle and time series of NH and SH sea ice area.
     """

@@ -11,7 +11,7 @@ from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
 
 __version__ = importlib.metadata.version("climate-ref-pmp")
 
-# Initialise the metrics manager and register the example metric
+# Initialise the metrics manager and register the example diagnostic
 provider = CondaMetricsProvider("PMP", __version__)
 
 # Extratropical modes of variability

@@ -14,11 +14,11 @@ from loguru import logger
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref_core.metrics import Metric
-from climate_ref_core.providers import MetricsProvider, import_provider
+from climate_ref_core.diagnostics import Diagnostic
+from climate_ref_core.providers import DiagnosticProvider, import_provider
 
 
-def _register_provider(db: Database, provider: MetricsProvider) -> None:
+def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
     """
     Register a provider with the database
 
@@ -27,9 +27,9 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
     Parameters
     ----------
     provider
-        MetricsProvider instance
+        DiagnosticProvider instance
     """
-    from climate_ref.models import Metric, Provider
+    from climate_ref.models import Diagnostic, Provider
 
     provider_model, created = db.get_or_create(
         Provider,
@@ -45,7 +45,7 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
 
     for metric in provider.metrics():
         metric_model, created = db.get_or_create(
-            Metric,
+            Diagnostic,
             slug=metric.slug,
             provider_id=provider_model.id,
             defaults={
@@ -53,7 +53,7 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
             },
         )
         if created:
-            logger.info(f"Created metric {metric_model.slug}")
+            logger.info(f"Created diagnostic {metric_model.slug}")
 
 
 @frozen
@@ -65,9 +65,9 @@ class ProviderRegistry:
     in this case we need to proxy the metrics.
     """
 
-    providers: list[MetricsProvider] = field(factory=list)
+    providers: list[DiagnosticProvider] = field(factory=list)
 
-    def get(self, slug: str) -> MetricsProvider:
+    def get(self, slug: str) -> DiagnosticProvider:
         """
         Retrieve a provider by name
 
@@ -91,27 +91,27 @@ class ProviderRegistry:
 
         raise KeyError(f"No provider with slug matching: {slug}")
 
-    def get_metric(self, provider_slug: str, metric_slug: str) -> "Metric":
+    def get_metric(self, provider_slug: str, metric_slug: str) -> "Diagnostic":
         """
-        Retrieve a metric by name
+        Retrieve a diagnostic by name
 
-        This is a convenience method to retrieve a metric from a provider
+        This is a convenience method to retrieve a diagnostic from a provider
 
         Parameters
         ----------
         provider_slug :
             Slug of the provider of interest
         metric_slug
-            Slug of the metric of interest
+            Slug of the diagnostic of interest
 
         Raises
         ------
         KeyError
-            If the provider/metric with the given slugs is not found.
+            If the provider/diagnostic with the given slugs is not found.
 
         Returns
         -------
-            The requested metric.
+            The requested diagnostic.
         """
         return self.get(provider_slug).get(metric_slug)
 

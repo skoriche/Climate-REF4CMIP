@@ -1,14 +1,14 @@
 """
-Executor interface for running metrics
+Executor interface for running diagnostics
 """
 
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from climate_ref_core.metrics import Metric, MetricExecutionDefinition
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition
+from climate_ref_core.providers import DiagnosticProvider
 
 if TYPE_CHECKING:
-    from climate_ref.models import MetricExecutionResult
+    from climate_ref.models import Execution
 
 EXECUTION_LOG_FILENAME = "out.log"
 """
@@ -21,9 +21,9 @@ This file is written via [climate_ref_core.logging.redirect_logs][].
 @runtime_checkable
 class Executor(Protocol):
     """
-    An executor is responsible for running a metric asynchronously
+    An executor is responsible for running a diagnostic asynchronously
 
-    The metric may be run locally in the same process or in a separate process or container.
+    The diagnostic may be run locally in the same process or in a separate process or container.
 
     Notes
     -----
@@ -35,18 +35,18 @@ class Executor(Protocol):
 
     def __init__(self, **kwargs: Any) -> None: ...
 
-    def run_metric(
+    def run(
         self,
-        provider: MetricsProvider,
-        metric: Metric,
-        definition: MetricExecutionDefinition,
-        metric_execution_result: "MetricExecutionResult | None" = None,
+        provider: DiagnosticProvider,
+        diagnostic: Diagnostic,
+        definition: ExecutionDefinition,
+        execution: "Execution | None" = None,
     ) -> None:
         """
-        Execute a metric
+        Execute a diagnostic with a given definition
 
-        No results are returned from this method,
-        as the execution may be performed asynchrounusly so results may not be immediately available.
+        No executions are returned from this method,
+        as the execution may be performed asynchronously so executions may not be immediately available.
 
         /// admonition | Note
         In future, we may return a `Future` object that can be used to retrieve the result,
@@ -56,38 +56,38 @@ class Executor(Protocol):
         Parameters
         ----------
         provider
-            Provider of the metric
-        metric
-            Metric to run
+            Provider of the diagnostic
+        diagnostic
+            Diagnostic to run
         definition
-            Definition of the information needed to execute a metric
+            Definition of the information needed to execute a diagnostic
 
-            This definition describes which datasets are required to run the metric and where
+            This definition describes which datasets are required to run the diagnostic and where
             the output should be stored.
-        metric_execution_result
-            Result of the metric execution
+        execution
+            The execution object to update with the results of the execution.
 
-            This is a database object that contains the results of the execution.
-            If provided, it will be updated with the results of the execution.
-            This may happen asynchronously, so the results may not be immediately available.
+            This is a database object that contains the executions of the execution.
+            If provided, it will be updated with the executions of the execution.
+            This may happen asynchronously, so the executions may not be immediately available.
 
         Returns
         -------
         :
-            Results from running the metric
+            Results from running the diagnostic
         """
         ...
 
     def join(self, timeout: float) -> None:
         """
-        Wait for all metrics to finish executing
+        Wait for all executions to finish
 
         If the timeout is reached, the method will return and raise an exception.
 
         Parameters
         ----------
         timeout
-            Maximum time to wait for all metrics to finish executing in seconds
+            Maximum time to wait for all executions to finish in seconds
 
         Raises
         ------

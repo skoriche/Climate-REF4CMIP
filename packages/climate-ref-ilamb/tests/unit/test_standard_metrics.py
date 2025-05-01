@@ -32,7 +32,7 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
 
-    assert str(result.metric_bundle_filename) == "metric.json"
+    assert str(result.metric_bundle_filename) == "diagnostic.json"
 
     metric_bundle_path = definition.output_directory / result.metric_bundle_filename
 
@@ -67,7 +67,7 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
     assert output_bundle_path.exists()
     assert output_bundle_path.is_file()
 
-    assert str(result.metric_bundle_filename) == "metric.json"
+    assert str(result.metric_bundle_filename) == "diagnostic.json"
 
     metric_bundle_path = definition.output_directory / result.metric_bundle_filename
 

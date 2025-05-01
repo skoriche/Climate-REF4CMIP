@@ -35,7 +35,7 @@ class DimensionValue:
 @frozen
 class Dimension:
     """
-    Description of a dimension in a metric bundle
+    Description of a dimension in a diagnostic bundle
 
     This information is also used by the frontend for presentation purposes.
     """
@@ -44,7 +44,7 @@ class Dimension:
     """
     A short identifier of the dimension.
 
-    This is used as a key in the metric bundle and must be unique.
+    This is used as a key in the diagnostic bundle and must be unique.
     """
     long_name: str
     """
@@ -64,7 +64,7 @@ class Dimension:
     """
     required: bool
     """
-    If True, this dimension is required to be specified in the results.
+    If True, this dimension is required to be specified in the executions.
     """
     values: list[DimensionValue] = field(factory=list)
     """
@@ -78,9 +78,9 @@ class Dimension:
 @frozen
 class CV:
     """
-    A collection of controlled dimensions and values used to validate results.
+    A collection of controlled dimensions and values used to validate executions.
 
-    A metric bundle does not have to specify all dimensions,
+    A diagnostic bundle does not have to specify all dimensions,
     but any dimensions not in the CV are not permitted.
     """
 
@@ -127,7 +127,7 @@ class CV:
 
     def validate_metrics(self, metric_bundle: CMECMetric) -> None:
         """
-        Validate a metric bundle against a CV
+        Validate a diagnostic bundle against a CV
 
         The CV describes the accepted dimensions and values within a bundle
 

@@ -18,14 +18,19 @@ from loguru import logger
 from typer.testing import CliRunner
 
 from climate_ref import cli
-from climate_ref.config import Config, MetricsProviderConfig
+from climate_ref.config import Config, DiagnosticProviderConfig
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from climate_ref.testing import TEST_DATA_DIR, fetch_sample_data
-from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
+from climate_ref_core.diagnostics import (
+    DataRequirement,
+    Diagnostic,
+    ExecutionDefinition,
+    ExecutionResult,
+)
 from climate_ref_core.logging import add_log_handler, remove_log_handler
-from climate_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.providers import DiagnosticProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
 
@@ -122,7 +127,7 @@ def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
 @pytest.fixture(autouse=True)
 def config(tmp_path, monkeypatch, request) -> Config:
     # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory
-    # This is useful in the CI to capture any results for later analysis
+    # This is useful in the CI to capture any executions for later analysis
     root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "climate_ref"))
     # Each test gets its own directory (based on the test filename and the test name)
     # Sanitize the directory name to remove invalid characters
@@ -139,7 +144,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
     cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
-    cfg.metric_providers = [MetricsProviderConfig(provider="climate_ref_example")]
+    cfg.metric_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]
 
     cfg.save()
 
@@ -185,56 +190,56 @@ def invoke_cli():
     return _invoke_cli
 
 
-class MockMetric(Metric):
+class MockDiagnostic(Diagnostic):
     name = "mock"
     slug = "mock"
 
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         # TODO: This doesn't write output.json, use build function?
-        return MetricExecutionResult(
+        return ExecutionResult(
             output_bundle_filename=definition.output_directory / "output.json",
-            metric_bundle_filename=definition.output_directory / "metric.json",
+            metric_bundle_filename=definition.output_directory / "diagnostic.json",
             successful=True,
             definition=definition,
         )
 
 
-class FailedMetric(Metric):
+class FailedDiagnostic(Diagnostic):
     name = "failed"
     slug = "failed"
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
-        return MetricExecutionResult.build_from_failure(definition)
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+        return ExecutionResult.build_from_failure(definition)
 
 
 @pytest.fixture
-def provider(tmp_path, mock_metric) -> MetricsProvider:
-    provider = MetricsProvider("mock_provider", "v0.1.0")
+def provider(tmp_path, mock_metric) -> DiagnosticProvider:
+    provider = DiagnosticProvider("mock_provider", "v0.1.0")
     provider.register(mock_metric)
-    provider.register(FailedMetric())
+    provider.register(FailedDiagnostic())
 
     return provider
 
 
 @pytest.fixture
-def mock_metric() -> MockMetric:
-    return MockMetric()
+def mock_metric() -> MockDiagnostic:
+    return MockDiagnostic()
 
 
 @pytest.fixture
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *,
-        metric_dataset: MetricDataset | None = None,
+        metric_dataset: ExecutionDatasetCollection | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
         pmp_climatology: DatasetCollection | None = None,
-    ) -> MetricExecutionDefinition:
+    ) -> ExecutionDefinition:
         if metric_dataset is None:
             datasets = {}
             if cmip6:
@@ -243,9 +248,9 @@ def definition_factory(tmp_path: Path, config):
                 datasets[SourceDatasetType.obs4MIPs] = obs4mips
             if pmp_climatology:
                 datasets[SourceDatasetType.PMPClimatology] = pmp_climatology
-            metric_dataset = MetricDataset(datasets)
+            metric_dataset = ExecutionDatasetCollection(datasets)
 
-        return MetricExecutionDefinition(
+        return ExecutionDefinition(
             dataset_key="key",
             metric_dataset=metric_dataset,
             root_directory=config.paths.scratch,
@@ -256,7 +261,7 @@ def definition_factory(tmp_path: Path, config):
 
 
 @pytest.fixture
-def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
+def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefinition:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {
@@ -265,7 +270,7 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecution
             }
         )
     ]
-    metric_dataset = MetricDataset(
+    metric_dataset = ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 selected_dataset,

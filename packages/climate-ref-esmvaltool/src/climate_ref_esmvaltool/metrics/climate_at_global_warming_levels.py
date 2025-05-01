@@ -6,13 +6,13 @@ from climate_ref_core.constraints import (
     RequireFacets,
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import DataRequirement
-from climate_ref_esmvaltool.metrics.base import ESMValToolMetric
+from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import Recipe
 
 
-class ClimateAtGlobalWarmingLevels(ESMValToolMetric):
+class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
     """
     Calculate climate variables at global warming levels.
     """

@@ -45,7 +45,7 @@ jobs:
           uv run ref datasets fetch-data --registry ilamb
           uv run ref datasets fetch-data --registry esmvaltool
           make test
-      # Upload the scratch and results directories as artifacts
+      # Upload the scratch and executions directories as artifacts
       - name: Upload scratch artifacts
         uses: actions/upload-artifact@v4
         if: always()

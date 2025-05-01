@@ -9,7 +9,7 @@ dimensions:
   description: ""
   allow_extra_values: true
   required: false
-- name: metric
+- name: diagnostic
   long_name: ""
   description: ""
   required: true

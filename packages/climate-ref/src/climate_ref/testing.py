@@ -10,9 +10,9 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.models import Execution as MetricExecutionResultModel
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
-from climate_ref_core.metrics import MetricExecutionResult
+from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -75,12 +75,12 @@ def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> Non
         fh.write(SAMPLE_DATA_VERSION)
 
 
-def validate_result(config: Config, result: MetricExecutionResult) -> None:
+def validate_result(config: Config, result: ExecutionResult) -> None:
     """
-    Asserts the correctness of the result of a metric execution
+    Asserts the correctness of the result of a diagnostic execution
 
     This should only be used by the test suite as it will create a fake
-    database entry for the metric execution result.
+    database entry for the diagnostic execution result.
     """
     # Add a fake item in the Database
     database = Database.from_config(config)
@@ -103,6 +103,4 @@ def validate_result(config: Config, result: MetricExecutionResult) -> None:
         result.to_output_path("out.log").touch()
 
     # This checks if the bundles are valid
-    handle_execution_result(
-        config, database=database, metric_execution_result=metric_execution_result, result=result
-    )
+    handle_execution_result(config, database=database, execution=metric_execution_result, result=result)

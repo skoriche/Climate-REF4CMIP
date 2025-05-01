@@ -5,12 +5,12 @@ import pytest
 from climate_ref_esmvaltool.metrics import ClimateAtGlobalWarmingLevels
 from climate_ref_esmvaltool.recipe import load_recipe
 
-from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
 
 
 @pytest.fixture
 def metric_dataset():
-    return MetricDataset(
+    return ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 datasets=pandas.read_json(

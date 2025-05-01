@@ -6,11 +6,11 @@ from sqlalchemy.orm import Session
 
 from climate_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
 from climate_ref.executor.local import LocalExecutor
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
-from climate_ref.models.metric_execution import ResultOutput, ResultOutputType
+from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models.execution import ExecutionOutput, ResultOutputType
+from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor
-from climate_ref_core.metrics import MetricExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -46,11 +46,11 @@ def test_handle_execution_result_successful(
 ):
     metric_bundle_filename = pathlib.Path("bundle.json")
     definition = definition_factory()
-    result = MetricExecutionResult(
+    result = ExecutionResult(
         definition=definition, successful=True, metric_bundle_filename=metric_bundle_filename
     )
 
-    # Copy a sample metric bundle to the output directory
+    # Copy a sample diagnostic bundle to the output directory
     definition.output_directory.mkdir(parents=True, exist_ok=True)
     shutil.copy(
         test_data_dir / "cmec-output" / "pr_v3-LR_0101_1x1_esmf_metrics_default_v20241023_cmec.json",
@@ -112,7 +112,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     )
 
     definition = definition_factory()
-    result = MetricExecutionResult.build_from_output_bundle(
+    result = ExecutionResult.build_from_output_bundle(
         definition=definition, cmec_output_bundle=cmec_output, cmec_metric_bundle=cmec_metric
     )
 
@@ -123,7 +123,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     definition.to_output_path("folder/fig_2.jpg").touch()
     definition.to_output_path("index.html").touch()
 
-    mock_result_output = mocker.patch("climate_ref.executor.ResultOutput", spec=ResultOutput)
+    mock_result_output = mocker.patch("climate_ref.executor.ExecutionOutput", spec=ExecutionOutput)
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -144,7 +144,7 @@ def test_handle_execution_result_failed(config, db, mock_execution_result, defin
     definition.output_directory.mkdir(parents=True, exist_ok=True)
     definition.to_output_path("out.log").touch()
 
-    result = MetricExecutionResult(definition=definition, successful=False, metric_bundle_filename=None)
+    result = ExecutionResult(definition=definition, successful=False, metric_bundle_filename=None)
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -156,11 +156,13 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
     definition.output_directory.mkdir(parents=True, exist_ok=True)
     definition.to_output_path("out.log").touch()
 
-    result = MetricExecutionResult(
-        definition=definition, successful=True, metric_bundle_filename=pathlib.Path("metric.json")
+    result = ExecutionResult(
+        definition=definition, successful=True, metric_bundle_filename=pathlib.Path("diagnostic.json")
     )
 
-    with pytest.raises(FileNotFoundError, match="Could not find metric.json in .*/scratch/output_fragment"):
+    with pytest.raises(
+        FileNotFoundError, match="Could not find diagnostic.json in .*/scratch/output_fragment"
+    ):
         handle_execution_result(config, db, mock_execution_result, result)
 
 
@@ -168,7 +170,7 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
 @pytest.mark.parametrize("filename", ("bundle.zip", "nested/bundle.zip"))
 def test_copy_file_to_results_success(filename, is_relative, tmp_path):
     scratch_directory = (tmp_path / "scratch").resolve()
-    results_directory = (tmp_path / "results").resolve()
+    results_directory = (tmp_path / "executions").resolve()
     fragment = "output_fragment"
 
     scratch_filename = scratch_directory / fragment / filename
@@ -187,7 +189,7 @@ def test_copy_file_to_results_success(filename, is_relative, tmp_path):
 
 def test_copy_file_to_results_file_not_found(mocker):
     scratch_directory = pathlib.Path("/scratch")
-    results_directory = pathlib.Path("/results")
+    results_directory = pathlib.Path("/executions")
     fragment = "output_fragment"
     filename = "bundle.zip"
 

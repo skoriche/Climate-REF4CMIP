@@ -1,6 +1,6 @@
 import pytest
 
-from climate_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
 
 
 @pytest.fixture
@@ -21,8 +21,8 @@ def dataset_collection_obs4mips(obs4mips_data_catalog) -> DatasetCollection:
 
 
 @pytest.fixture
-def metric_dataset(dataset_collection) -> MetricDataset:
-    return MetricDataset({SourceDatasetType.CMIP6: dataset_collection})
+def metric_dataset(dataset_collection) -> ExecutionDatasetCollection:
+    return ExecutionDatasetCollection({SourceDatasetType.CMIP6: dataset_collection})
 
 
 class TestMetricDataset:
@@ -43,7 +43,7 @@ class TestMetricDataset:
 
         # Check that the hash changes if the dataset changes
         assert dataset_hash != hash(
-            MetricDataset(
+            ExecutionDatasetCollection(
                 {
                     SourceDatasetType.CMIP6: DatasetCollection(
                         cmip6_data_catalog[cmip6_data_catalog.variable_id != "tas"], "instance_id"

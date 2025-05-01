@@ -1,5 +1,5 @@
 """
-View metric executions
+View diagnostic executions
 """
 
 import pathlib
@@ -17,8 +17,8 @@ from rich.text import Text
 from rich.tree import Tree
 
 from climate_ref.cli._utils import df_to_table, pretty_print_df
-from climate_ref.models import MetricExecutionGroup, MetricExecutionResult
-from climate_ref.models.metric_execution import get_execution_group_and_latest_result
+from climate_ref.models import Execution, ExecutionGroup
+from climate_ref.models.execution import get_execution_group_and_latest
 from climate_ref_core.executor import EXECUTION_LOG_FILENAME
 
 app = typer.Typer(help=__doc__)
@@ -32,12 +32,12 @@ def list_groups(
     limit: int = typer.Option(100, help="Limit the number of rows to display"),
 ) -> None:
     """
-    List the metric execution groups that have been identified
+    List the diagnostic execution groups that have been identified
     """
     session = ctx.obj.database.session
 
-    execution_groups_results = get_execution_group_and_latest_result(session).limit(limit).all()
-    execution_count = session.query(MetricExecutionGroup).count()
+    execution_groups_results = get_execution_group_and_latest(session).limit(limit).all()
+    execution_count = session.query(ExecutionGroup).count()
 
     results_df = pd.DataFrame(
         [
@@ -45,7 +45,7 @@ def list_groups(
                 "id": execution_groups.id,
                 "key": execution_groups.dataset_key,
                 "provider": execution_groups.metric.provider.slug,
-                "metric": execution_groups.metric.slug,
+                "diagnostic": execution_groups.metric.slug,
                 "dirty": execution_groups.dirty,
                 "successful": result.successful if result else None,
                 "created_at": execution_groups.created_at,
@@ -96,27 +96,27 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
             tree.add(text_filename)
 
 
-def _execution_panel(execution: MetricExecutionGroup) -> Panel:
-    if len(execution.results) == 0:
+def _execution_panel(execution: ExecutionGroup) -> Panel:
+    if len(execution.executions) == 0:
         result = None
     else:
-        result = execution.results[-1]
+        result = execution.executions[-1]
 
     panel = Panel(
         f"Key: [bold]{execution.dataset_key}[/]\n"
-        f"Metric: [bold]{execution.metric.slug}[/]\n"
-        f"Provider: [bold]{execution.metric.provider.slug}[/]\n"
+        f"Diagnostic: [bold]{execution.diagnostic.slug}[/]\n"
+        f"Provider: [bold]{execution.diagnostic.provider.slug}[/]\n"
         f"Dirty: [bold]{execution.dirty}[/]\n"
         f"Successful: [bold]{result.successful if result else 'not-started'}[/]\n"
         f"Created At: [bold]{execution.created_at}[/]\n"
         f"Updated At: [bold]{execution.updated_at}[/]\n"
-        f"Number of attempted executions: [bold]{len(execution.results)}[/]",
+        f"Number of attempted executions: [bold]{len(execution.executions)}[/]",
         title=f"Execution Details: [bold]{execution.id}[/]",
     )
     return panel
 
 
-def _datasets_panel(result: MetricExecutionResult) -> Panel:
+def _datasets_panel(result: Execution) -> Panel:
     datasets = result.datasets
 
     datasets_df = pd.DataFrame(
@@ -180,7 +180,7 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
     config = ctx.obj.config
     session = ctx.obj.database.session
-    execution = session.get(MetricExecutionGroup, execution_id)
+    execution = session.get(ExecutionGroup, execution_id)
 
     if not execution:
         logger.error(f"Execution not found: {execution_id}")
@@ -188,12 +188,12 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
 
     console.print(_execution_panel(execution))
 
-    if not execution.results:
+    if not execution.executions:
         logger.error(f"No results found for execution: {execution_id}")
         return
 
-    result: MetricExecutionResult = execution.results[-1]
-    result_directory = config.paths.results / result.output_fragment
+    result: Execution = execution.executions[-1]
+    result_directory = config.paths.executions / result.output_fragment
 
     console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))

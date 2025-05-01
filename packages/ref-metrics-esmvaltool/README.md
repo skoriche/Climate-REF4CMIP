@@ -26,7 +26,7 @@ The rename was necessary to better reflect the purpose and scope of the package.
     ```
 
 3.  **Update your code/requirements:**
-    *   Change any import statements from `import cmip_ref_metrics_esmvaltool` to `import ref_esmvaltool`.
+    *   Change any import statements from `import cmip_ref_metrics_esmvaltool` to `import climate_ref_esmvaltool`.
     *   Update your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref-esmvaltool` instead of `cmip_ref_metrics_esmvaltool`.
 
 ---

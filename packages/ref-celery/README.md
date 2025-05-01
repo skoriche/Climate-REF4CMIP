@@ -26,7 +26,7 @@ The rename was necessary to better reflect the purpose and scope of the package.
     ```
 
 3.  **Update your code/requirements:**
-    *   Change any import statements from `import cmip_ref_celery` to `import ref_celery`.
+    *   Change any import statements from `import cmip_ref_celery` to `import climate_ref_celery`.
     *   Update your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref-celery` instead of `cmip_ref_celery`.
 
 ---

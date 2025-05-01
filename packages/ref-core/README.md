@@ -26,7 +26,7 @@ The rename was necessary to better reflect the purpose and scope of the package.
     ```
 
 3.  **Update your code/requirements:**
-    *   Change any import statements from `import cmip_ref_core` to `import ref_core`.
+    *   Change any import statements from `import cmip_ref_core` to `import climate_ref_core`.
     *   Update your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref-core` instead of `cmip_ref_core`.
 
 ---

@@ -26,7 +26,7 @@ The rename was necessary to better reflect the purpose and scope of the package.
     ```
 
 3.  **Update your code/requirements:**
-    *   Change any import statements from `import cmip_ref_metrics_pmp` to `import ref_pmp`.
+    *   Change any import statements from `import cmip_ref_metrics_pmp` to `import climate_ref_pmp`.
     *   Update your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref-pmp` instead of `cmip_ref_metrics_pmp`.
 
 ---

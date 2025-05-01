@@ -5,7 +5,7 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition, ExecutionResult
 from climate_ref_core.logging import redirect_logs
 from climate_ref_core.providers import DiagnosticProvider
@@ -38,7 +38,7 @@ class LocalExecutor:
         provider: DiagnosticProvider,
         metric: Diagnostic,
         definition: ExecutionDefinition,
-        metric_execution_result: MetricExecutionResultModel | None = None,
+        execution: Execution | None = None,
     ) -> None:
         """
         Run a diagnostic in process
@@ -51,7 +51,7 @@ class LocalExecutor:
             Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
-        metric_execution_result
+        execution
             A database model representing the execution of the diagnostic.
             If provided, the result will be updated in the database when completed.
         """
@@ -61,10 +61,10 @@ class LocalExecutor:
             with redirect_logs(definition, self.config.log_level):
                 result = metric.run(definition=definition)
         except Exception:
-            if metric_execution_result is not None:  # pragma: no branch
+            if execution is not None:  # pragma: no branch
                 info_msg = (
                     f"\nAdditional information about this execution can be viewed using: "
-                    f"ref executions inspect {metric_execution_result.execution_group_id}"
+                    f"ref executions inspect {execution.execution_group_id}"
                 )
             else:
                 info_msg = ""
@@ -72,14 +72,14 @@ class LocalExecutor:
             logger.exception(f"Error running diagnostic {metric.slug}. {info_msg}")
             result = ExecutionResult.build_from_failure(definition)
 
-        if metric_execution_result:
-            handle_execution_result(self.config, self.database, metric_execution_result, result)
+        if execution:
+            handle_execution_result(self.config, self.database, execution, result)
 
     def join(self, timeout: float) -> None:
         """
-        Wait for all metrics to finish
+        Wait for all diagnostics to finish
 
-        This returns immediately because the local executor runs metrics synchronously.
+        This returns immediately because the local executor runs diagnostics synchronously.
 
         Parameters
         ----------

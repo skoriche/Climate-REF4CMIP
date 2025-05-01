@@ -29,7 +29,7 @@ $ uv run ref
 │                                                       exit.                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ solve        Solve for metrics that require recalculation                    │
+│ solve        Solve for diagnostics that require recalculation                    │
 │ config       View and update the REF configuration                           │
 │ datasets     View and ingest input datasets                                  │
 │ executions   View diagnostic executions                                          │

@@ -2,17 +2,18 @@ $defs:
   MetricDimensions:
     additionalProperties: true
     default:
+      diagnostic: {}
       json_structure:
       - model
       - diagnostic
-      metric: {}
       model: {}
     description: 'CMEC diagnostic bundle DIMENSIONS object
 
 
       This describes the order of the dimensions and their possible values.
 
-      The order of the dimensions matter as that determines how the executions are nested.'
+      The order of the dimensions matter as that determines how the executions are
+      nested.'
     title: MetricDimensions
     type: object
 $schema: https://json-schema.org/draft/2020-12/schema
@@ -20,7 +21,8 @@ additionalProperties: true
 description: 'CMEC diagnostic bundle object
 
 
-  Contains the metrics calculated during a diagnostic execution, in a standardised format.'
+  Contains the diagnostics calculated during a diagnostic execution, in a standardised
+  format.'
 properties:
   DIMENSIONS:
     $ref: '#/$defs/MetricDimensions'

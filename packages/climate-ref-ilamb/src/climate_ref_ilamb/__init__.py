@@ -1,7 +1,7 @@
 """
 Diagnostic provider for ILAMB
 
-This module provides a metrics provider for ILAMB, a tool for evaluating
+This module provides a diagnostics provider for ILAMB, a tool for evaluating
 climate models against observations.
 """
 
@@ -45,7 +45,7 @@ dataset_registry_manager.register(
     version=ILAMB_DATA_VERSION,
 )
 
-# Dynamically register ILAMB metrics
+# Dynamically register ILAMB diagnostics
 for yaml_file in importlib.resources.files("climate_ref_ilamb.configure").iterdir():
     with open(str(yaml_file)) as fin:
         metrics = yaml.safe_load(fin)

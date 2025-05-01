@@ -1,7 +1,7 @@
 """
-Solver to determine which metrics need to be calculated
+Solver to determine which diagnostics need to be calculated
 
-This module provides a solver to determine which metrics need to be calculated.
+This module provides a solver to determine which diagnostics need to be calculated.
 """
 
 import itertools
@@ -19,8 +19,8 @@ from climate_ref.datasets import get_dataset_adapter
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 from climate_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
-from climate_ref.models import Diagnostic as MetricModel
-from climate_ref.models import ExecutionGroup as MetricExecutionGroupModel
+from climate_ref.models import Diagnostic as DiagnosticModel
+from climate_ref.models import ExecutionGroup
 from climate_ref.models import Provider as ProviderModel
 from climate_ref.models.execution import Execution
 from climate_ref.provider_registry import ProviderRegistry
@@ -45,10 +45,13 @@ This SelectorKey type must be hashable, as it is used as a key in a dictionary.
 class DiagnosticExecution:
     """
     Class to hold information about the execution of a diagnostic
+
+    This is a temporary class used by the solver to hold information about an execution that might
+    be required.
     """
 
     provider: DiagnosticProvider
-    metric: Diagnostic
+    diagnostic: Diagnostic
     datasets: ExecutionDatasetCollection
 
     @property
@@ -95,19 +98,19 @@ class DiagnosticExecution:
 
     def build_execution_definition(self, output_root: pathlib.Path) -> ExecutionDefinition:
         """
-        Build the diagnostic execution definition for the current diagnostic execution
+        Build the execution definition for the current diagnostic execution
         """
         # Ensure that the output root is always an absolute path
         output_root = output_root.resolve()
 
         # This is the desired path relative to the output directory
-        fragment = pathlib.Path() / self.provider.slug / self.metric.slug / self.datasets.hash
+        fragment = pathlib.Path() / self.provider.slug / self.diagnostic.slug / self.datasets.hash
 
         return ExecutionDefinition(
             root_directory=output_root,
             output_directory=output_root / fragment,
-            dataset_key=self.dataset_key,
-            metric_dataset=self.datasets,
+            key=self.dataset_key,
+            datasets=self.datasets,
         )
 
 
@@ -162,7 +165,7 @@ def _process_group_constraints(
 
 
 def solve_executions(
-    data_catalog: dict[SourceDatasetType, pd.DataFrame], metric: Diagnostic, provider: DiagnosticProvider
+    data_catalog: dict[SourceDatasetType, pd.DataFrame], diagnostic: Diagnostic, provider: DiagnosticProvider
 ) -> typing.Generator["DiagnosticExecution", None, None]:
     """
     Calculate the diagnostic executions that need to be performed for a given diagnostic
@@ -171,7 +174,7 @@ def solve_executions(
     ----------
     data_catalog
         Data catalogs for each source dataset type
-    metric
+    diagnostic
         Diagnostic of interest
     provider
         Provider of the diagnostic
@@ -182,25 +185,27 @@ def solve_executions(
         A generator that yields the diagnostic executions that need to be performed
 
     """
-    if not metric.data_requirements:
-        raise ValueError(f"Diagnostic {metric.slug} has no data requirements")
+    if not diagnostic.data_requirements:
+        raise ValueError(f"Diagnostic {diagnostic.slug} has no data requirements")
 
-    first_item = next(iter(metric.data_requirements))
+    first_item = next(iter(diagnostic.data_requirements))
 
     if isinstance(first_item, DataRequirement):
         # We have a single collection of data requirements
         yield from _solve_from_data_requirements(
             data_catalog,
-            metric,
-            typing.cast(Sequence[DataRequirement], metric.data_requirements),
+            diagnostic,
+            typing.cast(Sequence[DataRequirement], diagnostic.data_requirements),
             provider,
         )
     elif isinstance(first_item, Sequence):
         # We have a sequence of collections of data requirements
-        for requirement_collection in metric.data_requirements:
+        for requirement_collection in diagnostic.data_requirements:
             if not isinstance(requirement_collection, Sequence):
                 raise TypeError(f"Expected a sequence of DataRequirement, got {type(requirement_collection)}")
-            yield from _solve_from_data_requirements(data_catalog, metric, requirement_collection, provider)
+            yield from _solve_from_data_requirements(
+                data_catalog, diagnostic, requirement_collection, provider
+            )
     else:
         raise TypeError(f"Expected a DataRequirement, got {type(first_item)}")
 
@@ -230,7 +235,7 @@ def _solve_from_data_requirements(
     for items in itertools.product(*dataset_groups.values()):
         yield DiagnosticExecution(
             provider=provider,
-            metric=metric,
+            diagnostic=metric,
             datasets=ExecutionDatasetCollection(
                 {
                     key: DatasetCollection(
@@ -245,16 +250,16 @@ def _solve_from_data_requirements(
 
 
 @define
-class MetricSolver:
+class ExecutionSolver:
     """
-    A solver to determine which metrics need to be calculated
+    A solver to determine which executions need to be calculated.
     """
 
     provider_registry: ProviderRegistry
     data_catalog: dict[SourceDatasetType, pd.DataFrame]
 
     @staticmethod
-    def build_from_db(config: Config, db: Database) -> "MetricSolver":
+    def build_from_db(config: Config, db: Database) -> "ExecutionSolver":
         """
         Initialise the solver using information from the database
 
@@ -266,9 +271,9 @@ class MetricSolver:
         Returns
         -------
         :
-            A new MetricSolver instance
+            A new ExecutionSolver instance
         """
-        return MetricSolver(
+        return ExecutionSolver(
             provider_registry=ProviderRegistry.build_from_config(config, db),
             data_catalog={
                 SourceDatasetType.CMIP6: CMIP6DatasetAdapter().load_catalog(db),
@@ -279,12 +284,11 @@ class MetricSolver:
 
     def solve(self) -> typing.Generator[DiagnosticExecution, None, None]:
         """
-        Solve which metrics need to be calculated for a dataset
+        Solve which executions need to be calculated for a dataset
 
         The solving scheme is iterative,
-        for each iteration we find all metrics that can be solved and calculate them.
-        After each iteration we check if there are any more metrics to solve.
-        This may not be the most efficient way to solve the metrics, but it's a start.
+        for each iteration we find all diagnostics that can be solved and calculate them.
+        After each iteration we check if there are any more diagnostics to solve.
 
         Yields
         ------
@@ -292,19 +296,19 @@ class MetricSolver:
             A class containing the information related to the execution of a diagnostic
         """
         for provider in self.provider_registry.providers:
-            for metric in provider.metrics():
-                yield from solve_executions(self.data_catalog, metric, provider)
+            for diagnostic in provider.diagnostics():
+                yield from solve_executions(self.data_catalog, diagnostic, provider)
 
 
-def solve_metrics(
+def solve_required_executions(
     db: Database,
     dry_run: bool = False,
-    solver: MetricSolver | None = None,
+    solver: ExecutionSolver | None = None,
     config: Config | None = None,
     timeout: int = 60,
 ) -> None:
     """
-    Solve for metrics that require recalculation
+    Solve for executions that require recalculation
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
@@ -317,17 +321,17 @@ def solve_metrics(
     if config is None:
         config = Config.default()
     if solver is None:
-        solver = MetricSolver.build_from_db(config, db)
+        solver = ExecutionSolver.build_from_db(config, db)
 
-    logger.info("Solving for metrics that require recalculation...")
+    logger.info("Solving for diagnostics that require recalculation...")
 
     executor = config.executor.build(config, db)
 
-    for metric_execution in solver.solve():
+    for potential_execution in solver.solve():
         # The diagnostic output is first written to the scratch directory
-        definition = metric_execution.build_execution_definition(output_root=config.paths.scratch)
+        definition = potential_execution.build_execution_definition(output_root=config.paths.scratch)
 
-        logger.debug(f"Identified candidate diagnostic execution {definition.dataset_key}")
+        logger.debug(f"Identified candidate diagnostic execution {definition.key}")
 
         if dry_run:
             continue
@@ -336,48 +340,45 @@ def solve_metrics(
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
             metric = (
-                db.session.query(MetricModel)
-                .join(MetricModel.provider)
+                db.session.query(DiagnosticModel)
+                .join(DiagnosticModel.provider)
                 .filter(
-                    ProviderModel.slug == metric_execution.provider.slug,
-                    ProviderModel.version == metric_execution.provider.version,
-                    MetricModel.slug == metric_execution.metric.slug,
+                    ProviderModel.slug == potential_execution.provider.slug,
+                    ProviderModel.version == potential_execution.provider.version,
+                    DiagnosticModel.slug == potential_execution.diagnostic.slug,
                 )
                 .one()
             )
-            metric_execution_group_model, created = db.get_or_create(
-                MetricExecutionGroupModel,
-                dataset_key=definition.dataset_key,
-                metric_id=metric.id,
+            execution_group, created = db.get_or_create(
+                ExecutionGroup,
+                key=definition.key,
+                diagnostic_id=metric.id,
                 defaults={
-                    "selectors": metric_execution.selectors,
+                    "selectors": potential_execution.selectors,
                     "dirty": True,
                 },
             )
 
             if created:
-                logger.info(f"Created diagnostic execution {definition.dataset_key}")
+                logger.info(f"Created execution {definition.key}")
                 db.session.flush()
 
-            if metric_execution_group_model.should_run(definition.metric_dataset.hash):
-                logger.info(
-                    f"Running diagnostic "
-                    f"{metric_execution.metric.slug}-{metric_execution_group_model.dataset_key}"
-                )
+            if execution_group.should_run(definition.datasets.hash):
+                logger.info(f"Running diagnostic {potential_execution.diagnostic.slug}-{execution_group.key}")
                 metric_execution_result = Execution(
-                    metric_execution_group=metric_execution_group_model,
-                    dataset_hash=definition.metric_dataset.hash,
+                    execution_group=execution_group,
+                    dataset_hash=definition.datasets.hash,
                     output_fragment=str(definition.output_fragment()),
                 )
                 db.session.add(metric_execution_result)
                 db.session.flush()
 
                 # Add links to the datasets used in the execution
-                metric_execution_result.register_datasets(db, definition.metric_dataset)
+                metric_execution_result.register_datasets(db, definition.datasets)
 
                 executor.run(
-                    provider=metric_execution.provider,
-                    diagnostic=metric_execution.metric,
+                    provider=potential_execution.provider,
+                    diagnostic=potential_execution.diagnostic,
                     definition=definition,
                     execution=metric_execution_result,
                 )

@@ -74,7 +74,7 @@ def start_worker(
         # Attempt to import the provider
         provider = import_provider(package)
 
-        # Wrap each metrics in the provider with a celery tasks
+        # Wrap each diagnostics in the provider with a celery tasks
         register_celery_tasks(celery_app, provider)
         queue = provider.slug
     else:

@@ -1,6 +1,6 @@
 import typer
 
-from climate_ref.solver import solve_metrics
+from climate_ref.solver import solve_required_executions
 
 app = typer.Typer()
 
@@ -8,11 +8,11 @@ app = typer.Typer()
 @app.command()
 def solve(
     ctx: typer.Context,
-    dry_run: bool = typer.Option(False, help="Do not execute any metrics"),
+    dry_run: bool = typer.Option(False, help="Do not execute any diagnostics"),
     timeout: int = typer.Option(60, help="Timeout in seconds for the solve operation"),
 ) -> None:
     """
-    Solve for metrics that require recalculation
+    Solve for executions that require recalculation
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
@@ -20,4 +20,4 @@ def solve(
     config = ctx.obj.config
     db = ctx.obj.database
     with ctx.obj.database.session.begin():
-        solve_metrics(config=config, db=db, dry_run=dry_run, timeout=timeout)
+        solve_required_executions(config=config, db=db, dry_run=dry_run, timeout=timeout)

@@ -57,7 +57,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     """
     # TODO: Check how timeseries data are generally serialised
     # All keys listed in the sample are the CMEC keywords.
-    # The value of metrics is the json file following the
+    # The value of diagnostics is the json file following the
     # CMEC diagnostic bundle standard. Only provenance is required,
     # others are optional
 
@@ -71,7 +71,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     #    },
     #    "data": {},
     #    "html": {},
-    #    "metrics": {},
+    #    "diagnostics": {},
     #    "plots": {},
     # }
     # create_template will generate the same above dictionary
@@ -172,7 +172,7 @@ class GlobalMeanTimeseries(Diagnostic):
         # their benchmarking packages.
         # cmec-driver, python calls, subprocess calls all would work
 
-        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+        input_datasets = definition.datasets[SourceDatasetType.CMIP6]
 
         annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(
             input_files=input_datasets.path.to_list()

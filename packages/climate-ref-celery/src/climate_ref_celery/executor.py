@@ -1,5 +1,5 @@
 """
-Executor for running metrics asynchronously using Celery
+Executor for running diagnostics asynchronously using Celery
 """
 
 import time
@@ -84,9 +84,7 @@ class CeleryExecutor(Executor):
             name,
             args=[definition, self.config.log_level],
             queue=provider.slug,
-            link=handle_result.s(metric_execution_result_id=execution.id).set(queue="celery")
-            if execution
-            else None,
+            link=handle_result.s(execution_id=execution.id).set(queue="celery") if execution else None,
         )
         logger.debug(f"Celery task {async_result.id} submitted")
         self._results.append(async_result)

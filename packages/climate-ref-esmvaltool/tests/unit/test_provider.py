@@ -8,7 +8,7 @@ def test_provider():
     assert provider.slug == "esmvaltool"
     assert provider.version == __version__
 
-    metric_modules = importlib.resources.files("climate_ref_esmvaltool").glob("metrics/*.py")
+    metric_modules = importlib.resources.files("climate_ref_esmvaltool").glob("diagnostics/*.py")
     ignore = {
         "__init__.py",
         "base.py",

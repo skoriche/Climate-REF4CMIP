@@ -1,7 +1,7 @@
 """
-Execute metrics in different environments
+Execute diagnostics in different environments
 
-We support running metrics in different environments, such as locally,
+We support running diagnostics in different environments, such as locally,
 in a separate process, or in a container.
 These environments are represented by `climate_ref.executor.Executor` classes.
 

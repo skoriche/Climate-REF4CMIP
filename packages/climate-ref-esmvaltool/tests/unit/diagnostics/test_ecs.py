@@ -4,7 +4,7 @@ import numpy as np
 import pandas
 import pytest
 import xarray as xr
-from climate_ref_esmvaltool.metrics import TransientClimateResponse
+from climate_ref_esmvaltool.diagnostics import EquilibriumClimateSensitivity
 from climate_ref_esmvaltool.recipe import load_recipe
 
 from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
@@ -26,25 +26,31 @@ def metric_dataset():
 
 def test_update_recipe(metric_dataset):
     input_files = metric_dataset[SourceDatasetType.CMIP6].datasets
-    recipe = load_recipe("recipe_tcr.yml")
-    TransientClimateResponse().update_recipe(recipe, input_files)
+    recipe = load_recipe("recipe_ecs.yml")
+    EquilibriumClimateSensitivity().update_recipe(recipe, input_files)
     assert len(recipe["datasets"]) == 2
     assert len(recipe["diagnostics"]) == 1
-    assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas"}
+    assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas", "rtnt"}
 
 
 def test_format_output(tmp_path, metric_dataset):
     result_dir = tmp_path
-    subdir = result_dir / "work" / "cmip6" / "tcr"
+    subdir = result_dir / "work" / "cmip6" / "ecs"
     subdir.mkdir(parents=True)
-    tcr = xr.Dataset(
+    ecs = xr.Dataset(
         data_vars={
-            "tcr": (["dim0"], np.array([1.0], dtype=np.float32)),
+            "ecs": (["dim0"], np.array([1.0])),
         },
     )
-    tcr.to_netcdf(subdir / "tcr.nc")
+    ecs.to_netcdf(subdir / "ecs.nc")
+    lambda_ = xr.Dataset(
+        data_vars={
+            "lambda": (["dim0"], np.array([2.0])),
+        },
+    )
+    lambda_.to_netcdf(subdir / "lambda.nc")
 
-    metric_args, output_args = TransientClimateResponse().format_result(
+    metric_args, output_args = EquilibriumClimateSensitivity().format_result(
         result_dir,
         metric_dataset=metric_dataset,
         metric_args=CMECMetric.create_template(),
@@ -52,5 +58,6 @@ def test_format_output(tmp_path, metric_dataset):
     )
 
     CMECMetric.model_validate(metric_args)
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["tcr"] == 1.0
+    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["ecs"] == 1.0
+    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["lambda"] == 2.0
     CMECOutput.model_validate(output_args)

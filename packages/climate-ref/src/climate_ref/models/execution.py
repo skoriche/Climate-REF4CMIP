@@ -22,7 +22,7 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
     Represents a group of executions with a shared set of input datasets.
 
     When solving, the `ExecutionGroup`s are derived from the available datasets,
-    the defined metrics and their data requirements. From the information in the
+    the defined diagnostics and their data requirements. From the information in the
     group an execution can be triggered, which is an actual run of a diagnostic calculation
     with a specific set of input datasets.
 
@@ -32,11 +32,11 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
     solving again and if new versions of the input datasets are available, the
     ExecutionGroup will be marked dirty again.
 
-    The diagnostic_id and dataset_key form a unique identifier for `ExecutionGroup`s.
+    The diagnostic_id and key form a unique identifier for `ExecutionGroup`s.
     """
 
     __tablename__ = "execution_group"
-    __table_args__ = (UniqueConstraint("diagnostic_id", "dataset_key", name="execution_group_ident"),)
+    __table_args__ = (UniqueConstraint("diagnostic_id", "key", name="execution_ident"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -45,7 +45,7 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
     The diagnostic that this execution group belongs to
     """
 
-    dataset_key: Mapped[str] = mapped_column(index=True)
+    key: Mapped[str] = mapped_column(index=True)
     """
     Key for the datasets in this Execution group.
     """
@@ -67,9 +67,9 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
     These are also used to define the dataset key.
     """
 
-    diagnostic: Mapped["Diagnostic"] = relationship(back_populates="execution_groups")
+    diagnostic: Mapped["Diagnostic"] = relationship(back_populates="executions")
     executions: Mapped[list["Execution"]] = relationship(
-        back_populates="execution_group", order_by="Execution.created_at"
+        back_populates="execution", order_by="Execution.created_at"
     )
 
     def should_run(self, dataset_hash: str) -> bool:
@@ -83,27 +83,27 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
         * the dataset hash is different from the last run
         """
         if not self.executions:
-            logger.debug(f"Execution group {self.diagnostic.slug}/{self.dataset_key} was never executed")
+            logger.debug(f"Execution group {self.diagnostic.slug}/{self.key} was never executed")
             return True
 
         if self.executions[-1].dataset_hash != dataset_hash:
             logger.debug(
-                f"Execution group {self.diagnostic.slug}/{self.dataset_key} hash mismatch:"
+                f"Execution group {self.diagnostic.slug}/{self.key} hash mismatch:"
                 f" {self.executions[-1].dataset_hash} != {dataset_hash}"
             )
             return True
 
         if self.dirty:
-            logger.debug(f"Execution group {self.diagnostic.slug}/{self.dataset_key} is dirty")
+            logger.debug(f"Execution group {self.diagnostic.slug}/{self.key} is dirty")
             return True
 
         return False
 
 
-execution_result_datasets = Table(
-    "execution_result_dataset",
+execution_datasets = Table(
+    "execution_dataset",
     Base.metadata,
-    Column("execution_result_id", ForeignKey("execution.id")),
+    Column("execution", ForeignKey("execution.id")),
     Column("dataset_id", ForeignKey("dataset.id")),
 )
 
@@ -134,8 +134,8 @@ class Execution(CreatedUpdatedMixin, Base):
 
     execution_group_id: Mapped[int] = mapped_column(
         ForeignKey(
-            "execution_group.id",
-            name="fk_execution_group_id",
+            "execution.id",
+            name="fk_execution_id",
         )
     )
     """
@@ -174,7 +174,7 @@ class Execution(CreatedUpdatedMixin, Base):
     outputs: Mapped[list["ExecutionOutput"]] = relationship(back_populates="execution")
     values: Mapped[list["MetricValue"]] = relationship(back_populates="execution")
 
-    datasets: Mapped[list[Dataset]] = relationship(secondary=execution_result_datasets)
+    datasets: Mapped[list[Dataset]] = relationship(secondary=execution_datasets)
     """
     The datasets used in this execution
     """
@@ -185,7 +185,7 @@ class Execution(CreatedUpdatedMixin, Base):
         """
         for _, dataset in metric_dataset.items():
             db.session.execute(
-                execution_result_datasets.insert(),
+                execution_datasets.insert(),
                 [{"execution_id": self.id, "dataset_id": idx} for idx in dataset.index],
             )
 
@@ -218,8 +218,9 @@ class ResultOutputType(enum.Enum):
 
 class ExecutionOutput(CreatedUpdatedMixin, Base):
     """
-    An output generated as part of a diagnostic execution
+    An output generated as part of an execution.
 
+    This output may be a plot, data file or HTML file.
     These outputs are defined in the CMEC output bundle
     """
 

@@ -35,7 +35,7 @@ def cmec_right_output_dict():
             }
         },
         "html": None,
-        "metrics": None,
+        "diagnostics": None,
         "plots": None,
     }
 
@@ -88,7 +88,7 @@ def test_output_create_template():
         },
         "data": {},
         "html": {},
-        "metrics": {},
+        "diagnostics": {},
         "plots": {},
     }
 

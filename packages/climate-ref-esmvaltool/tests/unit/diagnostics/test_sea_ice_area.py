@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pandas
-from climate_ref_esmvaltool.metrics import SeaIceAreaSeasonalCycle
+from climate_ref_esmvaltool.diagnostics import SeaIceAreaSeasonalCycle
 from climate_ref_esmvaltool.recipe import load_recipe
 
 

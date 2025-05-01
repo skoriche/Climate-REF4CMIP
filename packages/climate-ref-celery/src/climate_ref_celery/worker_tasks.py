@@ -13,7 +13,7 @@ from climate_ref_core.diagnostics import ExecutionResult
 
 
 @current_app.task
-def handle_result(result: ExecutionResult, metric_execution_result_id: int) -> None:
+def handle_result(result: ExecutionResult, execution_id: int) -> None:
     """
     Handle the result of a diagnostic execution
 
@@ -21,21 +21,21 @@ def handle_result(result: ExecutionResult, metric_execution_result_id: int) -> N
 
     Parameters
     ----------
-    metric_execution_result_id
+    execution_id
         The unique identifier for the diagnostic execution
     result
         The result of the diagnostic execution
     """
-    logger.info(f"Handling result for diagnostic execution {metric_execution_result_id} + {result}")
+    logger.info(f"Handling result for diagnostic execution {execution_id} + {result}")
 
     config = Config.default()
     db = Database.from_config(config, run_migrations=False)
 
     with db.session.begin():
-        metric_execution_result = db.session.get(MetricExecutionResultModel, metric_execution_result_id)
+        metric_execution_result = db.session.get(MetricExecutionResultModel, execution_id)
 
         if metric_execution_result is None:
-            logger.error(f"Metric execution result {metric_execution_result_id} not found")
+            logger.error(f"Metric execution result {execution_id} not found")
             return
 
         handle_execution_result(config, db, metric_execution_result, result)

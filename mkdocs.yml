@@ -16,7 +16,7 @@ nav:
     - how-to-guides/index.md
     - how-to-guides/ingest-datasets.md
     - how-to-guides/diagnostic-dataset-selection.py
-    - how-to-guides/running-metrics-locally.py
+    - how-to-guides/running-diagnostics-locally.py
   - Tutorials: tutorials.md
   - Further background:
     - Architecture: background/architecture.md

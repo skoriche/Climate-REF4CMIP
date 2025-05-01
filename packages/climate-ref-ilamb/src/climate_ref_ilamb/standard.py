@@ -130,7 +130,7 @@ class ILAMBStandard(Diagnostic):
     ):
         # Setup the diagnostic
         if len(sources) != 1:
-            raise ValueError("Only single source ILAMB metrics have been implemented.")
+            raise ValueError("Only single source ILAMB diagnostics have been implemented.")
         self.variable_id = next(iter(sources.keys()))
         if "sources" not in ilamb_kwargs:  # pragma: no cover
             ilamb_kwargs["sources"] = sources
@@ -178,12 +178,12 @@ class ILAMBStandard(Diagnostic):
         run.run_simple(
             ref_datasets,
             self.slug,
-            definition.metric_dataset[SourceDatasetType.CMIP6].datasets,
+            definition.datasets[SourceDatasetType.CMIP6].datasets,
             definition.output_directory,
             **self.ilamb_kwargs,
         )
         df = _load_csv_and_merge(definition.output_directory)
-        metric_bundle, output_bundle = _form_bundles(definition.dataset_key, df)
+        metric_bundle, output_bundle = _form_bundles(definition.key, df)
         return ExecutionResult.build_from_output_bundle(
             definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
         )

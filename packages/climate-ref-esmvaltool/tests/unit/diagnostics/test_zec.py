@@ -4,7 +4,7 @@ import numpy as np
 import pandas
 import pytest
 import xarray as xr
-from climate_ref_esmvaltool.metrics import ZeroEmissionCommitment
+from climate_ref_esmvaltool.diagnostics import ZeroEmissionCommitment
 from climate_ref_esmvaltool.recipe import load_recipe
 
 from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType

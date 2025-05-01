@@ -51,7 +51,7 @@ def cmec_right_output_dict():
             },
         },
         "html": None,
-        "metrics": None,
+        "diagnostics": None,
         "plots": None,
     }
 
@@ -118,12 +118,12 @@ def cmec_right_output_data(request, cmec_right_output_dict):
 
 class TestMetric:
     def test_provider(self, provider):
-        metric = provider.metrics()[0]
+        metric = provider.diagnostics()[0]
         assert isinstance(metric.provider, DiagnosticProvider)
 
-    def test_no_provider(self, mock_metric):
+    def test_no_provider(self, mock_diagnostic):
         with pytest.raises(ValueError, match="register .* with a DiagnosticProvider before using"):
-            mock_metric.provider
+            mock_diagnostic.provider
 
 
 class TestCommandLineMetric:
@@ -173,8 +173,8 @@ class TestMetricResult:
         definition = ExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
-            dataset_key="mocked-diagnostic-slug",
-            metric_dataset=None,
+            key="mocked-diagnostic-slug",
+            datasets=None,
         )
 
         result = ExecutionResult.build_from_output_bundle(
@@ -232,8 +232,8 @@ class TestMetricResult:
         definition = ExecutionDefinition(
             root_directory=tmp_path,
             output_directory=tmp_path,
-            dataset_key="mocked-diagnostic-slug",
-            metric_dataset=None,
+            key="mocked-diagnostic-slug",
+            datasets=None,
         )
         result = ExecutionResult.build_from_failure(definition)
 

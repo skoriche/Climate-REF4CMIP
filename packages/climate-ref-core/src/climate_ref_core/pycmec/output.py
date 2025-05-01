@@ -35,7 +35,7 @@ class OutputCV(Enum):
     DATA = "data"
     PLOTS = "plots"
     HTML = "html"
-    METRICS = "metrics"
+    METRICS = "diagnostics"
     FILENAME = "filename"
     LONG_NAME = "long_name"
     DESCRIPTION = "description"
@@ -159,7 +159,7 @@ class CMECOutput(BaseModel):
     @validate_call
     def update(
         self,
-        output_kw: Literal["data", "plots", "html", "metrics"],
+        output_kw: Literal["data", "plots", "html", "diagnostics"],
         *,
         short_name: str,
         dict_content: dict[str, Any],
@@ -170,7 +170,7 @@ class CMECOutput(BaseModel):
         Parameters
         ----------
         output_kw
-            CMEC output bundle keywords, one of [data, plots, html, metrics]
+            CMEC output bundle keywords, one of [data, plots, html, diagnostics]
         short_name
             Key name of the dictionary nested in the output_kw dictionary
         dict_content

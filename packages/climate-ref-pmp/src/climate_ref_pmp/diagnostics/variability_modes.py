@@ -86,7 +86,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         -------
             Command arguments to execute in the PMP environment
         """
-        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+        input_datasets = definition.datasets[SourceDatasetType.CMIP6]
         source_id = input_datasets["source_id"].unique()[0]
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
@@ -96,7 +96,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         logger.debug(f"experiment_id: {experiment_id}")
         logger.debug(f"member_id: {member_id}")
 
-        reference_dataset = definition.metric_dataset[SourceDatasetType.obs4MIPs]
+        reference_dataset = definition.datasets[SourceDatasetType.obs4MIPs]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         # reference_dataset_path = reference_dataset.datasets[0]["path"]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]

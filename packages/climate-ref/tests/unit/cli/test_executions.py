@@ -5,7 +5,7 @@ from rich.console import Console
 
 from climate_ref.cli.executions import _results_directory_panel
 from climate_ref.models import Execution, ExecutionGroup
-from climate_ref.models.execution import metric_datasets
+from climate_ref.models.execution import execution_datasets
 
 
 def test_execution_help(invoke_cli):
@@ -17,8 +17,8 @@ def test_execution_help(invoke_cli):
 class TestExecutionList:
     def _setup_db(self, db):
         with db.session.begin():
-            db.session.add(ExecutionGroup(dataset_key="key1", metric_id=1))
-            db.session.add(ExecutionGroup(dataset_key="key2", metric_id=1))
+            db.session.add(ExecutionGroup(key="key1", diagnostic_id=1))
+            db.session.add(ExecutionGroup(key="key2", diagnostic_id=1))
 
     def test_list(self, sample_data_dir, db_seeded, invoke_cli):
         self._setup_db(db_seeded)
@@ -61,19 +61,19 @@ class TestExecutionInspect:
         config.save()
 
         # Create a diagnostic execution group with a result
-        metric_execution_group = ExecutionGroup(
-            dataset_key="key1",
-            metric_id=1,
+        execution_group = ExecutionGroup(
+            key="key1",
+            diagnostic_id=1,
             # Ensure dates are consistent
             created_at=datetime.datetime(2021, 1, 1),
             updated_at=datetime.datetime(2021, 2, 1),
         )
         with db_seeded.session.begin():
-            db_seeded.session.add(metric_execution_group)
+            db_seeded.session.add(execution_group)
             db_seeded.session.flush()
 
             result = Execution(
-                metric_execution_group_id=metric_execution_group.id,
+                execution_group_id=execution_group.id,
                 successful=True,
                 output_fragment="output",
                 dataset_hash="hash",
@@ -81,38 +81,38 @@ class TestExecutionInspect:
             db_seeded.session.add(result)
             db_seeded.session.flush()
             db_seeded.session.execute(
-                metric_datasets.insert(),
+                execution_datasets.insert(),
                 [{"execution_id": result.id, "dataset_id": idx} for idx in [1, 2]],
             )
-        result = invoke_cli(["executions", "inspect", str(metric_execution_group.id)])
+        result = invoke_cli(["executions", "inspect", str(execution_group.id)])
 
         assert "Successful: True" in result.stdout
         file_regression.check(result.stdout)
 
     def test_inspect_failed(self, sample_data_dir, db_seeded, invoke_cli):
         # Create a diagnostic execution group with a result
-        metric_execution_group = ExecutionGroup(
-            dataset_key="key1",
-            metric_id=1,
+        execution_group = ExecutionGroup(
+            key="key1",
+            diagnostic_id=1,
         )
         with db_seeded.session.begin():
-            db_seeded.session.add(metric_execution_group)
+            db_seeded.session.add(execution_group)
             db_seeded.session.flush()
 
             result = Execution(
-                metric_execution_group_id=metric_execution_group.id,
+                execution_group_id=execution_group.id,
                 successful=False,
                 output_fragment="output",
                 dataset_hash="hash",
             )
             db_seeded.session.add(result)
 
-        result = invoke_cli(["executions", "inspect", str(metric_execution_group.id)])
+        result = invoke_cli(["executions", "inspect", str(execution_group.id)])
 
         assert "Successful: False" in result.stdout
 
     def test_inspect_no_results(self, sample_data_dir, db_seeded, invoke_cli):
-        metric_execution_group = ExecutionGroup(dataset_key="key1", metric_id=1)
+        metric_execution_group = ExecutionGroup(key="key1", diagnostic_id=1)
         with db_seeded.session.begin():
             db_seeded.session.add(metric_execution_group)
 

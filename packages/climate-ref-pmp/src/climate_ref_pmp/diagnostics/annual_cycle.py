@@ -101,7 +101,7 @@ class AnnualCycle(CommandLineDiagnostic):
         -------
             Command arguments to execute in the PMP environment
         """
-        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+        input_datasets = definition.datasets[SourceDatasetType.CMIP6]
         source_id = input_datasets["source_id"].unique()[0]
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
@@ -131,7 +131,7 @@ class AnnualCycle(CommandLineDiagnostic):
         logger.debug(f"member_id: {member_id}")
         logger.debug(f"variable_id: {variable_id}")
 
-        reference_dataset = definition.metric_dataset[SourceDatasetType.PMPClimatology]
+        reference_dataset = definition.datasets[SourceDatasetType.PMPClimatology]
         reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
@@ -165,7 +165,7 @@ class AnnualCycle(CommandLineDiagnostic):
         cmds.append(build_pmp_command(**params))
 
         # ----------------------------------------------
-        # PART 2: Build the command to calculate metrics
+        # PART 2: Build the command to calculate diagnostics
         # ----------------------------------------------
 
         # Reference
@@ -214,7 +214,7 @@ class AnnualCycle(CommandLineDiagnostic):
         -------
             Result of the diagnostic execution
         """
-        input_datasets = definition.metric_dataset[SourceDatasetType.CMIP6]
+        input_datasets = definition.datasets[SourceDatasetType.CMIP6]
         variable_id = input_datasets["variable_id"].unique()[0]
 
         results_directory = definition.output_directory

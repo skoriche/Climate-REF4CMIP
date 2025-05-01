@@ -1,15 +1,17 @@
 """
-Interfaces for metrics providers.
+Interface for declaring a diagnostic provider.
 
-This defines how metrics packages interoperate with the REF framework.
-Each metrics package may contain multiple metrics.
+This defines how diagnostic packages interoperate with the REF framework.
+Each diagnostic package may contain multiple diagnostics.
+
+Each diagnostic package must implement the `DiagnosticProvider` interface.
 """
 
 from __future__ import annotations
 
 import datetime
 import hashlib
-import importlib
+import importlib.resources
 import os
 import stat
 import subprocess
@@ -48,9 +50,9 @@ def _slugify(value: str) -> str:
 
 class DiagnosticProvider:
     """
-    Interface for that a metrics provider must implement.
+    The interface for registering and running diagnostics.
 
-    This provides a consistent interface to multiple different metrics packages.
+    Each package that provides diagnostics must implement this interface.
     """
 
     def __init__(self, name: str, version: str, slug: str | None = None) -> None:
@@ -58,7 +60,7 @@ class DiagnosticProvider:
         self.slug = slug or _slugify(name)
         self.version = version
 
-        self._metrics: dict[str, Diagnostic] = {}
+        self._diagnostics: dict[str, Diagnostic] = {}
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name!r}, version={self.version!r})"
@@ -73,33 +75,35 @@ class DiagnosticProvider:
             A configuration.
         """
 
-    def metrics(self) -> list[Diagnostic]:
+    def diagnostics(self) -> list[Diagnostic]:
         """
-        Iterate over the available metrics for the provider.
+        Iterate over the available diagnostics for the provider.
 
         Returns
         -------
         :
-            Iterator over the currently registered metrics.
+            Iterator over the currently registered diagnostics.
         """
-        return list(self._metrics.values())
+        return list(self._diagnostics.values())
 
     def __len__(self) -> int:
-        return len(self._metrics)
+        return len(self._diagnostics)
 
-    def register(self, metric: Diagnostic) -> None:
+    def register(self, diagnostic: Diagnostic) -> None:
         """
         Register a diagnostic with the manager.
 
         Parameters
         ----------
-        metric :
+        diagnostic :
             The diagnostic to register.
         """
-        if not isinstance(metric, Diagnostic):
-            raise InvalidDiagnosticException(metric, "Metrics must be an instance of the 'Diagnostic' class")
-        metric.provider = self
-        self._metrics[metric.slug.lower()] = metric
+        if not isinstance(diagnostic, Diagnostic):
+            raise InvalidDiagnosticException(
+                diagnostic, "Diagnostics must be an instance of the 'Diagnostic' class"
+            )
+        diagnostic.provider = self
+        self._diagnostics[diagnostic.slug.lower()] = diagnostic
 
     def get(self, slug: str) -> Diagnostic:
         """
@@ -120,7 +124,7 @@ class DiagnosticProvider:
         Diagnostic
             The requested diagnostic.
         """
-        return self._metrics[slug.lower()]
+        return self._diagnostics[slug.lower()]
 
 
 def import_provider(fqn: str) -> DiagnosticProvider:
@@ -171,13 +175,13 @@ def import_provider(fqn: str) -> DiagnosticProvider:
 
 class CommandLineDiagnosticProvider(DiagnosticProvider):
     """
-    A metrics provider for metrics that can be run from the command line.
+    A provider for diagnostics that can be run from the command line.
     """
 
     @abstractmethod
     def run(self, cmd: Iterable[str]) -> None:
         """
-        Return the command to run.
+        Return the arguments for the command to run.
         """
 
 
@@ -227,9 +231,9 @@ def _get_micromamba_url() -> str:
     return MICROMAMBA_EXE_URL.format(platform=platform, arch=arch)
 
 
-class CondaMetricsProvider(CommandLineDiagnosticProvider):
+class CondaDiagnosticProvider(CommandLineDiagnosticProvider):
     """
-    A provider for metrics that can be run from the command line in a conda environment.
+    A provider for diagnostics that can be run from the command line in a conda environment.
     """
 
     def __init__(
@@ -314,11 +318,11 @@ class CondaMetricsProvider(CommandLineDiagnosticProvider):
         # Because providers are instances, we have no way of retrieving the
         # module in which they are created, so get the information from the
         # first registered diagnostic instead.
-        metrics = self.metrics()
-        if len(metrics) == 0:
+        diagnostics = self.diagnostics()
+        if len(diagnostics) == 0:
             msg = "Unable to determine the provider module, please register a diagnostic first."
             raise ValueError(msg)
-        module = metrics[0].__module__.split(".")[0]
+        module = diagnostics[0].__module__.split(".")[0]
         lockfile = importlib.resources.files(module).joinpath("requirements").joinpath("conda-lock.yml")
         return importlib.resources.as_file(lockfile)
 

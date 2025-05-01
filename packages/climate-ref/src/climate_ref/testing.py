@@ -10,7 +10,7 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
@@ -84,12 +84,12 @@ def validate_result(config: Config, result: ExecutionResult) -> None:
     """
     # Add a fake item in the Database
     database = Database.from_config(config)
-    metric_execution_result = MetricExecutionResultModel(
-        metric_execution_group_id=1,
-        dataset_hash=result.definition.metric_dataset.hash,
+    execution = Execution(
+        execution_group_id=1,
+        dataset_hash=result.definition.datasets.hash,
         output_fragment=str(result.definition.output_fragment()),
     )
-    database.session.add(metric_execution_result)
+    database.session.add(execution)
     database.session.flush()
 
     assert result.successful
@@ -103,4 +103,4 @@ def validate_result(config: Config, result: ExecutionResult) -> None:
         result.to_output_path("out.log").touch()
 
     # This checks if the bundles are valid
-    handle_execution_result(config, database=database, execution=metric_execution_result, result=result)
+    handle_execution_result(config, database=database, execution=execution, result=result)

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas
 import pytest
-from climate_ref_esmvaltool.metrics import ClimateAtGlobalWarmingLevels
+from climate_ref_esmvaltool.diagnostics import ClimateAtGlobalWarmingLevels
 from climate_ref_esmvaltool.recipe import load_recipe
 
 from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType

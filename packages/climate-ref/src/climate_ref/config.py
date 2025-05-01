@@ -96,7 +96,7 @@ class PathConfig:
     This directory is used to write the intermediate executions of a diagnostic execution.
     After the diagnostic has been run, the executions will be copied to the executions directory.
 
-    This directory must be accessible by all the diagnostic services that are used to run the metrics,
+    This directory must be accessible by all the diagnostic services that are used to run the diagnostics,
     but does not need to be mounted in the same location on all the diagnostic services.
     """
 
@@ -106,25 +106,25 @@ class PathConfig:
 
     This directory is used to store software environments.
 
-    This directory must be accessible by all the diagnostic services that are used to run the metrics,
+    This directory must be accessible by all the diagnostic services that are used to run the diagnostics,
     and should be mounted in the same location on all the diagnostic services.
     """
 
     # TODO: This could be another data source option
     results: Path = env_field(name="RESULTS_ROOT", converter=ensure_absolute_path)
     """
-    Path to store the executions of the metrics
+    Path to store the executions
     """
 
     dimensions_cv: Path = env_field(name="DIMENSIONS_CV_PATH", converter=Path)
     """
-    Path to a file containing the controlled vocabulary for the dimensions in a CMEC metrics bundle
+    Path to a file containing the controlled vocabulary for the dimensions in a CMEC diagnostics bundle
 
-    This defaults to the controlled vocabulary for the CMIP7 Assessment Fast Track metrics,
+    This defaults to the controlled vocabulary for the CMIP7 Assessment Fast Track diagnostics,
     which is included in the `climate_ref_core` package.
 
-    This controlled vocabulary is used to validate the dimensions in the metrics bundle.
-    If custom metrics are implemented,
+    This controlled vocabulary is used to validate the dimensions in the diagnostics bundle.
+    If custom diagnostics are implemented,
     this file may need to be extended to include any new dimensions.
     """
 
@@ -153,19 +153,19 @@ class PathConfig:
 @config(prefix=env_prefix)
 class ExecutorConfig:
     """
-    Configuration to define the executor to use for running metrics
+    Configuration to define the executor to use for running diagnostics
     """
 
     executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.local.LocalExecutor")
     """
-    Executor to use for running metrics
+    Executor to use for running diagnostics
 
     This should be the fully qualified name of the executor class
     (e.g. `climate_ref.executor.local.LocalExecutor`).
     The default is to use the local executor.
     The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
 
-    This class will be used for all executions of metrics.
+    This class will be used for all executions of diagnostics.
     """
 
     config: dict[str, Any] = field(factory=dict)
@@ -182,7 +182,7 @@ class ExecutorConfig:
         Returns
         -------
         :
-            An executor that can be used to run metrics
+            An executor that can be used to run diagnostics
         """
         ExecutorCls = import_executor_cls(self.executor)
         kwargs = {
@@ -200,24 +200,24 @@ class ExecutorConfig:
 @define
 class DiagnosticProviderConfig:
     """
-    Configuration for the metrics provider
+    Configuration for the diagnostic providers
     """
 
     provider: str
     """
-    Package to use for metrics
+    Package that contains the diagnostic provider
 
     This should be the fully qualified name of the diagnostic provider.
     """
 
     config: dict[str, Any] = field(factory=dict)
     """
-    Additional configuration for the metrics package.
+    Additional configuration for the diagnostic provider.
 
-    See the documentation for the metrics package for the available configuration options.
+    See the documentation for the diagnostic package for the available configuration options.
     """
 
-    # TODO: Additional configuration for narrowing down the metrics to run
+    # TODO: Additional configuration for narrowing down the diagnostics to run
 
 
 @config(prefix=env_prefix)
@@ -250,9 +250,9 @@ class DbConfig:
         return sqlite_url
 
 
-def default_metric_providers() -> list[DiagnosticProviderConfig]:
+def default_providers() -> list[DiagnosticProviderConfig]:
     """
-    Default diagnostic provider values
+    Default diagnostic provider
 
     Used if no diagnostic providers are specified in the configuration
 
@@ -261,9 +261,9 @@ def default_metric_providers() -> list[DiagnosticProviderConfig]:
     :
         List of default diagnostic providers
     """  # noqa: D401
-    env_metric_providers = env.list("REF_METRIC_PROVIDERS", default=None)
-    if env_metric_providers:
-        return [DiagnosticProviderConfig(provider=provider) for provider in env_metric_providers]
+    env_providers = env.list("REF_METRIC_PROVIDERS", default=None)
+    if env_providers:
+        return [DiagnosticProviderConfig(provider=provider) for provider in env_providers]
 
     return [
         DiagnosticProviderConfig(provider="climate_ref_esmvaltool.provider", config={}),
@@ -303,7 +303,7 @@ class Config:
     paths: PathConfig = Factory(PathConfig)  # noqa
     db: DbConfig = Factory(DbConfig)  # noqa
     executor: ExecutorConfig = Factory(ExecutorConfig)  # noqa
-    metric_providers: list[DiagnosticProviderConfig] = Factory(default_metric_providers)  # noqa
+    diagnostic_providers: list[DiagnosticProviderConfig] = Factory(default_providers)  # noqa
     _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
     _config_file: Path | None = field(init=False, default=None, repr=False)
 

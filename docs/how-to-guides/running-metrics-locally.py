@@ -16,9 +16,9 @@
 #
 # # Testing diagnostic providers locally
 # Diagnostic providers can be run locally without requiring the rest of the REF infrastructure.
-# This is useful for testing and debugging metrics.
+# This is useful for testing and debugging diagnostics.
 #
-# Running a diagnostic locally requires that the target REF metrics package, e.g. `climate_ref_example`,
+# Running a diagnostic locally requires that the target REF diagnostics package, e.g. `climate_ref_example`,
 # and its dependencies are installed in the current Python environment.
 #
 # This guide will walk you through how to run a diagnostic provider locally.
@@ -94,7 +94,7 @@ executions_generator = solve_executions(
     data_catalog={
         SourceDatasetType.CMIP6: data_catalog,
     },
-    metric=metric,
+    diagnostic=metric,
     provider=provider,
 )
 
@@ -155,8 +155,8 @@ prettyprinter.pprint(direct_result)
 #
 # Diagnostic calculations are typically run using an
 # [Executor](../../api/climate_ref_core/executor/#climate_ref_core.executor.Executor)
-# which provides an abstraction to enable metrics to be run in multiple different ways.
-# These executors can run metrics locally, on a cluster, or on a remote service
+# which provides an abstraction to enable diagnostics to be run in multiple different ways.
+# These executors can run diagnostics locally, on a cluster, or on a remote service
 #
 # The simplest executor is the
 # [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor).

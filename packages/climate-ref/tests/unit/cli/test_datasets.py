@@ -71,7 +71,7 @@ class TestIngest:
                 "--dry-run",
             ],
         )
-        assert "Solving for metrics that require recalculation." in result.stderr
+        assert "Solving for diagnostics that require recalculation." in result.stderr
 
     def test_ingest_multiple_times(self, sample_data_dir, db, invoke_cli):
         invoke_cli(

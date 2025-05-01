@@ -146,9 +146,9 @@ def build_pmp_command(
     Run a PMP driver script via a conda environment
 
     This function runs a PMP driver script using a specific conda environment.
-    The driver script is responsible for running the PMP metrics and producing output.
-    The output consists of a JSON file that contains the executions of the PMP metrics,
-    and a set of PNG and data files that are produced by the metrics.
+    The driver script is responsible for running the PMP diagnostics and producing output.
+    The output consists of a JSON file that contains the executions of the PMP diagnostics,
+    and a set of PNG and data files that are produced by the diagnostics.
 
     Parameters
     ----------

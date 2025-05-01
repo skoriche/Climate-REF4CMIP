@@ -43,9 +43,9 @@ def list_groups(
         [
             {
                 "id": execution_groups.id,
-                "key": execution_groups.dataset_key,
-                "provider": execution_groups.metric.provider.slug,
-                "diagnostic": execution_groups.metric.slug,
+                "key": execution_groups.key,
+                "provider": execution_groups.diagnostic.provider.slug,
+                "diagnostic": execution_groups.diagnostic.slug,
                 "dirty": execution_groups.dirty,
                 "successful": result.successful if result else None,
                 "created_at": execution_groups.created_at,
@@ -96,22 +96,22 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
             tree.add(text_filename)
 
 
-def _execution_panel(execution: ExecutionGroup) -> Panel:
-    if len(execution.executions) == 0:
+def _execution_panel(execution_group: ExecutionGroup) -> Panel:
+    if len(execution_group.executions) == 0:
         result = None
     else:
-        result = execution.executions[-1]
+        result = execution_group.executions[-1]
 
     panel = Panel(
-        f"Key: [bold]{execution.dataset_key}[/]\n"
-        f"Diagnostic: [bold]{execution.diagnostic.slug}[/]\n"
-        f"Provider: [bold]{execution.diagnostic.provider.slug}[/]\n"
-        f"Dirty: [bold]{execution.dirty}[/]\n"
+        f"Key: [bold]{execution_group.key}[/]\n"
+        f"Diagnostic: [bold]{execution_group.diagnostic.slug}[/]\n"
+        f"Provider: [bold]{execution_group.diagnostic.provider.slug}[/]\n"
+        f"Dirty: [bold]{execution_group.dirty}[/]\n"
         f"Successful: [bold]{result.successful if result else 'not-started'}[/]\n"
-        f"Created At: [bold]{execution.created_at}[/]\n"
-        f"Updated At: [bold]{execution.updated_at}[/]\n"
-        f"Number of attempted executions: [bold]{len(execution.executions)}[/]",
-        title=f"Execution Details: [bold]{execution.id}[/]",
+        f"Created At: [bold]{execution_group.created_at}[/]\n"
+        f"Updated At: [bold]{execution_group.updated_at}[/]\n"
+        f"Number of attempted executions: [bold]{len(execution_group.executions)}[/]",
+        title=f"Execution Details: [bold]{execution_group.id}[/]",
     )
     return panel
 
@@ -176,23 +176,23 @@ def _log_panel(result_directory: pathlib.Path) -> Panel | None:
 @app.command()
 def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
-    Inspect a specific execution by its ID
+    Inspect a specific execution group by its ID
     """
     config = ctx.obj.config
     session = ctx.obj.database.session
-    execution = session.get(ExecutionGroup, execution_id)
+    execution_group = session.get(ExecutionGroup, execution_id)
 
-    if not execution:
+    if not execution_group:
         logger.error(f"Execution not found: {execution_id}")
         raise typer.Exit(code=1)
 
-    console.print(_execution_panel(execution))
+    console.print(_execution_panel(execution_group))
 
-    if not execution.executions:
+    if not execution_group.executions:
         logger.error(f"No results found for execution: {execution_id}")
         return
 
-    result: Execution = execution.executions[-1]
+    result: Execution = execution_group.executions[-1]
     result_directory = config.paths.executions / result.output_fragment
 
     console.print(_datasets_panel(result))

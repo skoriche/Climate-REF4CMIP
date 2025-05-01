@@ -12,7 +12,7 @@ from climate_ref_core.constraints import (
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
 from climate_ref_core.pycmec.metric import MetricCV
-from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
+from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
 
@@ -114,7 +114,7 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
         tcre_ds = xarray.open_dataset(result_dir / "work" / "tcre" / "calculate_tcre" / "tcre.nc")
         tcre = float(tcre_ds["tcre"].values[0])
 
-        # Update the diagnostic bundle arguments with the computed metrics.
+        # Update the diagnostic bundle arguments with the computed diagnostics.
         metric_args[MetricCV.DIMENSIONS.value] = {
             "json_structure": [
                 "source_id",

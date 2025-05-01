@@ -2,11 +2,11 @@
 Registry of the currently active providers in the REF
 
 This module provides a registry for the currently active providers.
-Often, we can't directly import a provider and it's metrics
+Often, we can't directly import a provider and it's diagnostics
 as each provider maintains its own virtual environment to avoid dependency conflicts.
 
-For remote providers, a proxy is used to access the metadata associated with the metrics.
-These metrics cannot be run locally, but can be executed using other executors.
+For remote providers, a proxy is used to access the metadata associated with the diagnostics.
+These diagnostics cannot be run locally, but can be executed using other executors.
 """
 
 from attrs import field, frozen
@@ -43,7 +43,7 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
         logger.info(f"Created provider {provider.slug}")
         db.session.flush()
 
-    for metric in provider.metrics():
+    for metric in provider.diagnostics():
         metric_model, created = db.get_or_create(
             Diagnostic,
             slug=metric.slug,
@@ -61,8 +61,8 @@ class ProviderRegistry:
     """
     Registry for the currently active providers
 
-    In some cases we can't directly import a provider and it's metrics,
-    in this case we need to proxy the metrics.
+    In some cases we can't directly import a provider and it's diagnostics,
+    in this case we need to proxy the diagnostics.
     """
 
     providers: list[DiagnosticProvider] = field(factory=list)
@@ -133,7 +133,7 @@ class ProviderRegistry:
             A new ProviderRegistry instance
         """
         providers = []
-        for provider_info in config.metric_providers:
+        for provider_info in config.diagnostic_providers:
             provider = import_provider(provider_info.provider)
             provider.configure(config)
             providers.append(provider)

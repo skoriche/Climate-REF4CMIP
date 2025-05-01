@@ -129,7 +129,7 @@ filename = "sqlite://climate_ref.db"
 
         assert without_defaults == {
             "log_level": "INFO",
-            "metric_providers": [
+            "diagnostic_providers": [
                 {"provider": "climate_ref_esmvaltool.provider"},
                 {"provider": "climate_ref_ilamb.provider"},
                 {"provider": "climate_ref_pmp.provider"},
@@ -137,7 +137,7 @@ filename = "sqlite://climate_ref.db"
         }
         assert with_defaults == {
             "log_level": "INFO",
-            "metric_providers": [
+            "diagnostic_providers": [
                 {
                     "provider": "climate_ref_esmvaltool.provider",
                     "config": {},

@@ -5,16 +5,15 @@ Rapid evaluating CMIP data
 import importlib.metadata
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
-from climate_ref_core.providers import CondaMetricsProvider
-from climate_ref_pmp.annual_cycle import AnnualCycle
-from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
+from climate_ref_core.providers import CondaDiagnosticProvider
+from climate_ref_pmp.diagnostics import AnnualCycle, ExtratropicalModesOfVariability
 
 __version__ = importlib.metadata.version("climate-ref-pmp")
 
-# Initialise the metrics manager and register the example diagnostic
-provider = CondaMetricsProvider("PMP", __version__)
+# Create the PMP diagnostics provider
+# PMP uses a conda environment to run the diagnostics
+provider = CondaDiagnosticProvider("PMP", __version__)
 
-# Extratropical modes of variability
 provider.register(ExtratropicalModesOfVariability("PDO"))
 provider.register(ExtratropicalModesOfVariability("NPGO"))
 provider.register(ExtratropicalModesOfVariability("NAO"))

@@ -230,14 +230,14 @@ class CMECMetric(BaseModel):
     """
     CMEC diagnostic bundle object
 
-    Contains the metrics calculated during a diagnostic execution, in a standardised format.
+    Contains the diagnostics calculated during a diagnostic execution, in a standardised format.
     """
 
     model_config = ConfigDict(strict=True, extra="allow")
 
     DIMENSIONS: MetricDimensions
     """
-    Describes the dimensionality of the metrics produced.
+    Describes the dimensionality of the diagnostics produced.
 
     This includes the order of dimensions in `RESULTS`
     """

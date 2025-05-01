@@ -4,7 +4,7 @@ This package provides celery task generation from Provider and Diagnostic defini
 
 ## CLI tool
 
-The `climate_ref_celery` package provides a CLI tool(`ref-celery`) to start a worker instance from a REF metrics provider.
+The `climate_ref_celery` package provides a CLI tool(`ref-celery`) to start a worker instance for a diagnostics provider.
 This worker instance will listen for tasks related to a provider and execute them.
 The compute engine worker will then collect the results of these tasks and store them in the database.
 This allows for the REF to be run in a distributed manner,

@@ -45,4 +45,4 @@ class ConstraintNotSatisfied(RefException):
 
 
 class ResultValidationError(RefException):
-    """Exception raised when the executions from a diagnostic execution are invalid"""
+    """Exception raised when the executions from a diagnostic are invalid"""

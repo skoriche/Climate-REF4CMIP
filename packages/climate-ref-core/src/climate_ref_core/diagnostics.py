@@ -61,16 +61,16 @@ class ExecutionDefinition:
     for a specific set of datasets fulfilling the requirements.
     """
 
-    dataset_key: str
+    key: str
     """
     The unique identifier for the datasets in the diagnostic execution group.
 
     The key is derived from the datasets in the group using facet values.
     New datasets which match the same group by facet values will result in the same
-    dataset_key.
+    key.
     """
 
-    metric_dataset: ExecutionDatasetCollection
+    datasets: ExecutionDatasetCollection
     """
     Collection of datasets required for the diagnostic execution
     """
@@ -446,7 +446,7 @@ class Diagnostic(AbstractDiagnostic):
     to ensure that the correct data is available to run the diagnostic.
     Each group will then be processed as a separate execution of the diagnostic.
 
-    See (ref_example.example.ExampleDiagnostic)[] for an example implementation.
+    See (climate_ref_example.example.ExampleDiagnostic)[] for an example implementation.
     """
 
     def __init__(self) -> None:

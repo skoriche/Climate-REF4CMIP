@@ -54,7 +54,7 @@ adapter
 # ## Data Catalog
 # Below is an example of a data catalog of the CMIP6 datasets that have already been ingested.
 #
-# This data catalog contains information about the datasets that are available for use in the metrics.
+# This data catalog contains information about the datasets that are available for use in the diagnostics.
 # The data catalog is a pandas DataFrame that contains information about the datasets,
 # such as the `variable`, `source_id`, and other metadata.
 #

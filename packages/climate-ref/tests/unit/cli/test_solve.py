@@ -1,7 +1,7 @@
 def test_solve_help(invoke_cli):
     result = invoke_cli(["solve", "--help"])
 
-    assert "Solve for metrics that require recalculation" in result.stdout
+    assert "Solve for diagnostics that require recalculation" in result.stdout
 
 
 class TestSolve:

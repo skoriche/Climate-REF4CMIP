@@ -4,7 +4,7 @@ from collections.abc import Iterable
 import pandas as pd
 import pytest
 
-from climate_ref.config import default_metric_providers
+from climate_ref.config import default_providers
 from climate_ref.database import Database
 from climate_ref.models import ExecutionGroup
 
@@ -22,7 +22,7 @@ def create_execution_dataframe(executions: Iterable[ExecutionGroup]) -> pd.DataF
                 "provider": execution.metric.provider.slug,
                 "execution_id": execution.id,
                 "result_id": result.id,
-                "execution_key": execution.dataset_key,
+                "execution_key": execution.key,
                 "successful": result.successful,
             }
         )
@@ -36,7 +36,7 @@ def config_cmip7_aft(config):
     Overwrite the default test config to use the diagnostic providers for CMIP7 Assessment Fast Track
     """
     # Force the default diagnostic providers
-    config.metric_providers = default_metric_providers()
+    config.diagnostic_providers = default_providers()
 
     # Write the config to disk so it is used by the CLI
     # This overwrites the default config
@@ -56,7 +56,7 @@ def test_solve_cmip7_aft(
     if platform.system() == "Darwin" and platform.machine() == "arm64":
         monkeypatch.setenv("MAMBA_PLATFORM", "osx-64")
 
-    assert len(config_cmip7_aft.metric_providers) == 3
+    assert len(config_cmip7_aft.diagnostic_providers) == 3
 
     db = Database.from_config(config_cmip7_aft)
 
@@ -75,11 +75,11 @@ def test_solve_cmip7_aft(
     print(df)
 
     # Check that all 3 diagnostic providers have been used
-    # TODO: Update once the PMP metrics are solving
+    # TODO: Update once the PMP diagnostics are solving
     assert set(df["provider"].unique()) == {"esmvaltool", "ilamb", "pmp"}
 
-    # TODO: Ignore the PMP metrics for now
+    # TODO: Ignore the PMP diagnostics for now
     df = df[df["provider"] != "pmp"]
 
-    # Check that all metrics have been successful
+    # Check that all diagnostics have been successful
     assert df["successful"].all(), df[["diagnostic", "successful"]]

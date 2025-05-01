@@ -3,8 +3,8 @@ from subprocess import CalledProcessError
 
 import pandas as pd
 import pytest
+from climate_ref_pmp.diagnostics import ExtratropicalModesOfVariability
 from climate_ref_pmp.pmp_driver import _get_resource
-from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
 
 import climate_ref_core.providers
 from climate_ref.solver import extract_covered_datasets

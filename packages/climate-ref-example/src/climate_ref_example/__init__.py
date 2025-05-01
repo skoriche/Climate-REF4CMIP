@@ -9,6 +9,6 @@ from climate_ref_example.example import GlobalMeanTimeseries
 
 __version__ = importlib.metadata.version("climate-ref-example")
 
-# Initialise the metrics manager and register the example diagnostic
+# Initialise the diagnostics manager and register the example diagnostic
 provider = DiagnosticProvider("Example", __version__)
 provider.register(GlobalMeanTimeseries())

@@ -83,7 +83,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        input_files = definition.metric_dataset[SourceDatasetType.CMIP6].datasets
+        input_files = definition.datasets[SourceDatasetType.CMIP6].datasets
         recipe = load_recipe(self.base_recipe)
         self.update_recipe(recipe, input_files)
 
@@ -94,7 +94,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         climate_data = definition.to_output_path("climate_data")
 
         prepare_climate_data(
-            definition.metric_dataset[SourceDatasetType.CMIP6].datasets,
+            definition.datasets[SourceDatasetType.CMIP6].datasets,
             climate_data_dir=climate_data,
         )
 
@@ -200,7 +200,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         # Update the diagnostic and output bundle with diagnostic specific executions.
         metric_args, output_args = self.format_result(
             result_dir=result_dir,
-            metric_dataset=definition.metric_dataset,
+            metric_dataset=definition.datasets,
             metric_args=metric_args,
             output_args=output_args,
         )

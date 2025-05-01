@@ -42,7 +42,7 @@ services:
     volumes:
       - ./tests/test-data/sample-data:/ref/data
       - ref:/ref
-  # Worker to run the example metrics
+  # Worker to run the example diagnostics
   metrics-example:
     image: ref
     restart: always

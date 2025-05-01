@@ -10,10 +10,10 @@ from climate_ref.models import Execution
 from climate_ref.provider_registry import ProviderRegistry
 from climate_ref.solver import (
     DiagnosticExecution,
-    MetricSolver,
+    ExecutionSolver,
     extract_covered_datasets,
     solve_executions,
-    solve_metrics,
+    solve_required_executions,
 )
 from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets, SelectParentExperiment
 from climate_ref_core.datasets import SourceDatasetType
@@ -21,11 +21,11 @@ from climate_ref_core.diagnostics import DataRequirement, FacetFilter
 
 
 @pytest.fixture
-def solver(db_seeded, config) -> MetricSolver:
+def solver(db_seeded, config) -> ExecutionSolver:
     registry = ProviderRegistry(providers=[provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
     with db_seeded.session.begin():
-        metric_solver = MetricSolver.build_from_db(config, db_seeded)
+        metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
 
     return metric_solver
@@ -35,7 +35,7 @@ def solver(db_seeded, config) -> MetricSolver:
 def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
     mock_execution = mock.MagicMock(spec=DiagnosticExecution)
     mock_execution.provider = provider
-    mock_execution.metric = provider.metrics()[0]
+    mock_execution.metric = provider.diagnostics()[0]
     mock_execution.selectors = {"cmip6": (("source_id", "Test"),)}
 
     mock_metric_dataset = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
@@ -48,7 +48,7 @@ def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
 
 class TestMetricSolver:
     def test_solver_build_from_db(self, solver):
-        assert isinstance(solver, MetricSolver)
+        assert isinstance(solver, ExecutionSolver)
         assert isinstance(solver.provider_registry, ProviderRegistry)
         assert SourceDatasetType.CMIP6 in solver.data_catalog
         assert isinstance(solver.data_catalog[SourceDatasetType.CMIP6], pd.DataFrame)
@@ -281,25 +281,25 @@ def test_extract_no_groups():
 
 def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):
     mock_executor = mocker.patch.object(ExecutorConfig, "build")
-    mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
+    mock_build_solver = mocker.patch.object(ExecutionSolver, "build_from_db")
 
     # Create a mock solver that "solves" to create a single execution
-    solver = mock.MagicMock(spec=MetricSolver)
+    solver = mock.MagicMock(spec=ExecutionSolver)
     solver.solve.return_value = [mock_metric_execution]
     mock_build_solver.return_value = solver
 
     # Run with no solver specified
     with db_seeded.session.begin():
-        solve_metrics(db_seeded)
+        solve_required_executions(db_seeded)
 
     # Check that a result is created
     assert db_seeded.session.query(Execution).count() == 1
     execution_result = db_seeded.session.query(Execution).first()
     assert execution_result.output_fragment == "output_fragment"
     assert execution_result.dataset_hash == "123456"
-    assert execution_result.metric_execution_group.dataset_key == "key"
+    assert execution_result.execution_group.key == "key"
     # Nested tuples are converted into nested lists after going through the DB
-    assert execution_result.metric_execution_group.selectors == {
+    assert execution_result.execution_group.selectors == {
         "cmip6": [
             ["source_id", "Test"],
         ]
@@ -311,7 +311,7 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     assert mock_executor.return_value.run.call_count == 1
     mock_executor.return_value.run.assert_called_with(
         provider=mock_metric_execution.provider,
-        diagnostic=mock_metric_execution.metric,
+        diagnostic=mock_metric_execution.diagnostic,
         definition=mock_metric_execution.build_execution_definition(),
         execution=execution_result,
     )
@@ -319,10 +319,10 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
 
 def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     mock_executor = mocker.patch.object(ExecutorConfig, "build")
-    mock_build_solver = mocker.patch.object(MetricSolver, "build_from_db")
+    mock_build_solver = mocker.patch.object(ExecutionSolver, "build_from_db")
 
     with db_seeded.session.begin():
-        solve_metrics(db_seeded, dry_run=False, solver=solver)
+        solve_required_executions(db_seeded, dry_run=False, solver=solver)
 
     assert mock_build_solver.call_count == 0
 
@@ -331,7 +331,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     # Create a dictionary of the diagnostic key and the source datasets that were used
     output = {}
     for definition in definitions:
-        output[definition.dataset_key] = {
+        output[definition.key] = {
             str(source_type): ds_collection.instance_id.unique().tolist()
             for source_type, ds_collection in definition.execution_dataset.items()
         }
@@ -343,21 +343,19 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
 def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
     mock_executor = mocker.patch.object(ExecutorConfig, "build")
 
-    solve_metrics(config=config, db=db_seeded, dry_run=True, solver=solver)
+    solve_required_executions(config=config, db=db_seeded, dry_run=True, solver=solver)
 
     assert mock_executor.return_value.run.call_count == 0
 
-    # TODO: Check that no new metrics were added to the db
+
+def test_solve_metric_executions_missing(mock_diagnostic, provider):
+    mock_diagnostic.data_requirements = ()
+    with pytest.raises(ValueError, match=f"Diagnostic {mock_diagnostic.slug!r} has no data requirements"):
+        next(solve_executions({}, mock_diagnostic, provider))
 
 
-def test_solve_metric_executions_missing(mock_metric, provider):
-    mock_metric.data_requirements = ()
-    with pytest.raises(ValueError, match=f"Metric {mock_metric.slug} has no data requirements"):
-        next(solve_executions({}, mock_metric, provider))
-
-
-def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
-    mock_metric.data_requirements = (
+def test_solve_metric_executions_mixed_data_requirements(mock_diagnostic, provider):
+    mock_diagnostic.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(),
@@ -374,28 +372,28 @@ def test_solve_metric_executions_mixed_data_requirements(mock_metric, provider):
     data_catalog = {SourceDatasetType.CMIP6: pd.DataFrame()}
 
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'tuple'>"):
-        next(solve_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_diagnostic, provider))
 
-    mock_metric.data_requirements = mock_metric.data_requirements[::-1]
+    mock_diagnostic.data_requirements = mock_diagnostic.data_requirements[::-1]
     with pytest.raises(
         TypeError,
         match="Expected a sequence of DataRequirement,"
-        " got <class 'climate_ref_core.metrics.DataRequirement'>",
+        " got <class 'climate_ref_core.diagnostics.DataRequirement'>",
     ):
-        next(solve_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_diagnostic, provider))
 
-    mock_metric.data_requirements = ("test",)
+    mock_diagnostic.data_requirements = ("test",)
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'str'>"):
-        next(solve_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_diagnostic, provider))
 
-    mock_metric.data_requirements = (None,)
+    mock_diagnostic.data_requirements = (None,)
     with pytest.raises(TypeError, match="Expected a DataRequirement, got <class 'NoneType'>"):
-        next(solve_executions(data_catalog, mock_metric, provider))
+        next(solve_executions(data_catalog, mock_diagnostic, provider))
 
 
 @pytest.mark.parametrize("variable,expected", [("tas", 4), ("pr", 1), ("not_a_variable", 0)])
-def test_solve_metric_executions(solver, mock_metric, provider, variable, expected):
-    metric = mock_metric
+def test_solve_metric_executions(solver, mock_diagnostic, provider, variable, expected):
+    metric = mock_diagnostic
     metric.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.obs4MIPs,
@@ -429,8 +427,8 @@ def test_solve_metric_executions(solver, mock_metric, provider, variable, expect
     assert len(list(executions)) == expected
 
 
-def test_solve_metric_executions_multiple_sets(solver, mock_metric, provider):
-    metric = mock_metric
+def test_solve_metric_executions_multiple_sets(solver, mock_diagnostic, provider):
+    metric = mock_diagnostic
     metric.data_requirements = (
         (
             DataRequirement(
@@ -477,9 +475,9 @@ def _prep_data_catalog(data_catalog: dict[str, Any]) -> pd.DataFrame:
     return data_catalog_df
 
 
-def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
+def test_solve_with_new_datasets(obs4mips_data_catalog, mock_diagnostic, provider):
     expected_dataset_key = "cmip6_ACCESS-ESM1-5_tas"
-    mock_metric.data_requirements = (
+    mock_diagnostic.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(FacetFilter(facets={"variable_id": "tas"}),),
@@ -502,7 +500,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
     result_1 = next(
         solve_executions(
             {SourceDatasetType.CMIP6: data_catalog},
-            mock_metric,
+            mock_diagnostic,
             provider,
         )
     )
@@ -523,7 +521,7 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
     result_2 = next(
         solve_executions(
             {SourceDatasetType.CMIP6: data_catalog},
-            mock_metric,
+            mock_diagnostic,
             provider,
         )
     )
@@ -531,9 +529,9 @@ def test_solve_with_new_datasets(obs4mips_data_catalog, mock_metric, provider):
     assert result_2.datasets.hash != result_1.datasets.hash
 
 
-def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
+def test_solve_with_new_areacella(obs4mips_data_catalog, mock_diagnostic, provider):
     expected_dataset_key = "cmip6_ssp126_ACCESS-ESM1-5_tas__obs4mips_HadISST-1-1_ts"
-    mock_metric.data_requirements = (
+    mock_diagnostic.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.obs4MIPs,
             filters=(FacetFilter(facets={"variable_id": "ts"}),),
@@ -565,7 +563,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
                 SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
                 SourceDatasetType.CMIP6: cmip_data_catalog,
             },
-            mock_metric,
+            mock_diagnostic,
             provider,
         )
     )
@@ -590,7 +588,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_metric, provider):
                 SourceDatasetType.obs4MIPs: obs4mips_data_catalog,
                 SourceDatasetType.CMIP6: cmip_data_catalog,
             },
-            mock_metric,
+            mock_diagnostic,
             provider,
         )
     )

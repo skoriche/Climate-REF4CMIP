@@ -17,7 +17,7 @@ from climate_ref.cli._utils import pretty_print_df
 from climate_ref.datasets import get_dataset_adapter
 from climate_ref.models import Dataset
 from climate_ref.provider_registry import ProviderRegistry
-from climate_ref.solver import solve_metrics
+from climate_ref.solver import solve_required_executions
 from climate_ref.testing import fetch_sample_data
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 from climate_ref_core.datasets import SourceDatasetType
@@ -102,7 +102,7 @@ def ingest(  # noqa: PLR0913
     """
     Ingest a dataset
 
-    This will register a dataset in the database to be used for metrics calculations.
+    This will register a dataset in the database to be used for diagnostics calculations.
     """
     config = ctx.obj.config
     db = ctx.obj.database
@@ -143,7 +143,7 @@ def ingest(  # noqa: PLR0913
                 adapter.register_dataset(config, db, data_catalog_dataset)
 
     if solve:
-        solve_metrics(
+        solve_required_executions(
             config=config,
             db=db,
             dry_run=dry_run,

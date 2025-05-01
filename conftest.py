@@ -144,7 +144,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
     cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
-    cfg.metric_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]
+    cfg.diagnostic_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]
 
     cfg.save()
 
@@ -218,16 +218,16 @@ class FailedDiagnostic(Diagnostic):
 
 
 @pytest.fixture
-def provider(tmp_path, mock_metric) -> DiagnosticProvider:
+def provider(tmp_path, mock_diagnostic) -> DiagnosticProvider:
     provider = DiagnosticProvider("mock_provider", "v0.1.0")
-    provider.register(mock_metric)
+    provider.register(mock_diagnostic)
     provider.register(FailedDiagnostic())
 
     return provider
 
 
 @pytest.fixture
-def mock_metric() -> MockDiagnostic:
+def mock_diagnostic() -> MockDiagnostic:
     return MockDiagnostic()
 
 
@@ -235,12 +235,12 @@ def mock_metric() -> MockDiagnostic:
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *,
-        metric_dataset: ExecutionDatasetCollection | None = None,
+        execution_datase_collection: ExecutionDatasetCollection | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
         pmp_climatology: DatasetCollection | None = None,
     ) -> ExecutionDefinition:
-        if metric_dataset is None:
+        if execution_datase_collection is None:
             datasets = {}
             if cmip6:
                 datasets[SourceDatasetType.CMIP6] = cmip6
@@ -248,11 +248,11 @@ def definition_factory(tmp_path: Path, config):
                 datasets[SourceDatasetType.obs4MIPs] = obs4mips
             if pmp_climatology:
                 datasets[SourceDatasetType.PMPClimatology] = pmp_climatology
-            metric_dataset = ExecutionDatasetCollection(datasets)
+            execution_datase_collection = ExecutionDatasetCollection(datasets)
 
         return ExecutionDefinition(
-            dataset_key="key",
-            metric_dataset=metric_dataset,
+            key="key",
+            datasets=execution_datase_collection,
             root_directory=config.paths.scratch,
             output_directory=config.paths.scratch / "output_fragment",
         )

@@ -6,13 +6,13 @@ from climate_ref.solver import solve_executions
 from climate_ref.testing import validate_result
 from climate_ref_core.diagnostics import Diagnostic
 
-metrics = [pytest.param(metric, id=metric.slug) for metric in provider.metrics()]
+diagnostics = [pytest.param(metric, id=metric.slug) for metric in provider.diagnostics()]
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("diagnostic", metrics)
-def test_metrics(metric: Diagnostic, data_catalog, tmp_path, config, mocker):
-    mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
+@pytest.mark.parametrize("diagnostic", diagnostics)
+def test_metrics(diagnostic: Diagnostic, data_catalog, tmp_path, config, mocker):
+    mocker.patch.object(MetricExecutionResultModel, "execution")
     # Ensure the conda prefix is set
     provider.configure(config)
 
@@ -20,7 +20,7 @@ def test_metrics(metric: Diagnostic, data_catalog, tmp_path, config, mocker):
     execution = next(
         solve_executions(
             data_catalog=data_catalog,
-            metric=metric,
+            diagnostic=diagnostic,
             provider=provider,
         )
     )
@@ -28,7 +28,7 @@ def test_metrics(metric: Diagnostic, data_catalog, tmp_path, config, mocker):
     # Run the diagnostic
     definition = execution.build_execution_definition(output_root=config.paths.scratch)
     definition.output_directory.mkdir(parents=True, exist_ok=True)
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     # Check the result
     validate_result(config, result)

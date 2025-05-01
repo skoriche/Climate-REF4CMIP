@@ -1,9 +1,9 @@
 import json
 
-import climate_ref_esmvaltool.metrics.base
+import climate_ref_esmvaltool.diagnostics.base
 import pandas
 import pytest
-from climate_ref_esmvaltool.metrics.base import ESMValToolDiagnostic
+from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.types import Recipe
 from ruamel.yaml import YAML
 
@@ -13,20 +13,20 @@ yaml = YAML()
 
 
 @pytest.fixture
-def mock_metric():
-    class MockMetric(ESMValToolDiagnostic):
+def mock_diagnostic():
+    class MockDiagnostic(ESMValToolDiagnostic):
         base_recipe = "examples/recipe_python.yml"
 
         def update_recipe(self, recipe: Recipe, input_files: pandas.DataFrame) -> None:
             pass
 
-    return MockMetric()
+    return MockDiagnostic()
 
 
 @pytest.mark.parametrize("data_dir_exists", [True, False])
-def test_build_cmd(mocker, tmp_path, metric_definition, mock_metric, data_dir_exists):
+def test_build_cmd(mocker, tmp_path, metric_definition, mock_diagnostic, data_dir_exists):
     dataset_registry_manager = mocker.patch.object(
-        climate_ref_esmvaltool.metrics.base,
+        climate_ref_esmvaltool.diagnostics.base,
         "dataset_registry_manager",
     )
     data_dir = tmp_path / "ESMValTool"
@@ -35,7 +35,7 @@ def test_build_cmd(mocker, tmp_path, metric_definition, mock_metric, data_dir_ex
     dataset_registry_manager.__getitem__.return_value.abspath = tmp_path
     output_dir = metric_definition.output_directory
     output_dir.mkdir(parents=True)
-    cmd = mock_metric.build_cmd(metric_definition)
+    cmd = mock_diagnostic.build_cmd(metric_definition)
     config_dir = output_dir / "config"
     recipe = output_dir / "recipe.yml"
     assert cmd == ["esmvaltool", "run", f"--config-dir={config_dir}", f"{recipe}"]
@@ -44,7 +44,7 @@ def test_build_cmd(mocker, tmp_path, metric_definition, mock_metric, data_dir_ex
     assert len(config["rootpath"]) == 4 if data_dir_exists else 1
 
 
-def test_build_metric_result(metric_definition, mock_metric):
+def test_build_metric_result(metric_definition, mock_diagnostic):
     results_dir = metric_definition.to_output_path("executions") / "recipe_test"
 
     for subdir in "timeseries", "map":
@@ -61,7 +61,7 @@ def test_build_metric_result(metric_definition, mock_metric):
         with metadata_file.open("w", encoding="utf-8") as file:
             yaml.dump(metadata, file)
 
-    execution_result = mock_metric.build_execution_result(definition=metric_definition)
+    execution_result = mock_diagnostic.build_execution_result(definition=metric_definition)
     metric_bundle = json.loads(
         execution_result.to_output_path(execution_result.metric_bundle_filename).read_text(encoding="utf-8")
     )

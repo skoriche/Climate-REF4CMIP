@@ -11,7 +11,7 @@ from rich.console import Console
 
 from climate_ref.cli._utils import pretty_print_df
 from climate_ref.provider_registry import ProviderRegistry
-from climate_ref_core.providers import CondaMetricsProvider, DiagnosticProvider
+from climate_ref_core.providers import CondaDiagnosticProvider, DiagnosticProvider
 
 app = typer.Typer(help=__doc__)
 console = Console()
@@ -29,7 +29,7 @@ def list_(ctx: typer.Context) -> None:
 
     def get_env(provider: DiagnosticProvider) -> str:
         env = ""
-        if isinstance(provider, CondaMetricsProvider):
+        if isinstance(provider, CondaDiagnosticProvider):
             env = f"{provider.env_path}"
             if not provider.env_path.exists():
                 env += " (not installed)"
@@ -74,7 +74,7 @@ def create_env(
 
     for provider_ in providers:
         txt = f"virtual environment for provider {provider_.slug}"
-        if isinstance(provider_, CondaMetricsProvider):
+        if isinstance(provider_, CondaDiagnosticProvider):
             logger.info(f"Creating {txt} in {provider_.env_path}")
             provider_.create_env()
             logger.info(f"Finished creating {txt}")

@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 
 from climate_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
 from climate_ref.executor.local import LocalExecutor
-from climate_ref.models import Execution as MetricExecutionResultModel
-from climate_ref.models.execution import ExecutionOutput, ResultOutputType
+from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
 from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor
@@ -36,7 +35,7 @@ def test_import_executor_missing():
 
 @pytest.fixture
 def mock_execution_result(mocker):
-    mock_result = mocker.Mock(spec=MetricExecutionResultModel)
+    mock_result = mocker.Mock(spec=Execution)
     mock_result.output_fragment = "output_fragment"
     return mock_result
 
@@ -74,7 +73,7 @@ def test_handle_execution_result_successful(
         metric_bundle_filename,
     )
     mock_execution_result.mark_successful.assert_called_once_with(metric_bundle_filename)
-    assert not mock_execution_result.metric_execution_group.dirty
+    assert not mock_execution_result.execution_group.dirty
 
 
 def test_handle_execution_result_with_files(config, mock_execution_result, mocker, definition_factory):

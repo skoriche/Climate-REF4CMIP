@@ -233,6 +233,7 @@ def definition_factory(tmp_path: Path, config):
         metric_dataset: MetricDataset | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
+        pmp_climatology: DatasetCollection | None = None,
     ) -> MetricExecutionDefinition:
         if metric_dataset is None:
             datasets = {}
@@ -240,6 +241,8 @@ def definition_factory(tmp_path: Path, config):
                 datasets[SourceDatasetType.CMIP6] = cmip6
             if obs4mips:
                 datasets[SourceDatasetType.obs4MIPs] = obs4mips
+            if pmp_climatology:
+                datasets[SourceDatasetType.PMPClimatology] = pmp_climatology
             metric_dataset = MetricDataset(datasets)
 
         return MetricExecutionDefinition(

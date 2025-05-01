@@ -42,7 +42,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
-          file: packages/ref/Dockerfile
+          file: packages/climate-ref/Dockerfile
           push: ${{ ! github.event.pull_request.head.repo.fork }}
           sbom: true
           tags: ${{ steps.metadata.outputs.tags }}

@@ -319,7 +319,7 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
                                     stat
                                 ].pop("CalendarMonths")
                                 for i, value in enumerate(calendar_months):
-                                    key_name = f"CalendarMonth-{i+1:02d}"
+                                    key_name = f"CalendarMonth-{i + 1:02d}"
                                     data["RESULTS"][model]["default"][realization][region][stat][key_name] = (
                                         value
                                     )

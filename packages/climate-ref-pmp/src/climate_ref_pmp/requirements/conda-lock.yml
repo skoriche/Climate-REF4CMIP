@@ -22,7 +22,7 @@ metadata:
   - linux-64
   - osx-64
   sources:
-  - packages/ref-metrics-pmp/src/climate_ref_pmp/requirements/environment.yml
+  - packages/climate-ref-pmp/src/climate_ref_pmp/requirements/environment.yml
 package:
 - name: _libgcc_mutex
   version: '0.1'

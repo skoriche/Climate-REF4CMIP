@@ -837,7 +837,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=4.0.0" },
     { name = "pytest-mock", specifier = ">=3.12" },
     { name = "pytest-regressions", specifier = ">=2.5.0" },
-    { name = "ruff", specifier = ">=0.6.9" },
+    { name = "ruff", specifier = ">=0.11.7" },
     { name = "towncrier", specifier = ">=24.8.0" },
     { name = "types-tqdm", specifier = ">=4.67.0.20250301" },
 ]

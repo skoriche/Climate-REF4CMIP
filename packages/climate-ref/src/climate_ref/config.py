@@ -300,10 +300,10 @@ class Config:
 
     This value is overridden if a value is specified via the CLI.
     """
-    paths: PathConfig = Factory(PathConfig)
-    db: DbConfig = Factory(DbConfig)
-    executor: ExecutorConfig = Factory(ExecutorConfig)
-    metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)
+    paths: PathConfig = Factory(PathConfig)  # noqa
+    db: DbConfig = Factory(DbConfig)  # noqa
+    executor: ExecutorConfig = Factory(ExecutorConfig)  # noqa
+    metric_providers: list[MetricsProviderConfig] = Factory(default_metric_providers)  # noqa
     _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
     _config_file: Path | None = field(init=False, default=None, repr=False)
 

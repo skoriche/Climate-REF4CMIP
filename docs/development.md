@@ -83,7 +83,7 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/ref*; do
+for package in packages/climate-ref*; do
      pip install -e $package;
 done
 ```
@@ -171,7 +171,7 @@ Updating the sample data can be done by running the following command:
 # Fetch the latest registry from the sample data repository
 make update-sample-data-registry
 
-# Manually edit the `SAMPLE_VERSION` in `packages/ref/src/climate_ref/testing.py`
+# Manually edit the `SAMPLE_VERSION` in `packages/climate-ref/src/climate_ref/testing.py`
 
 # Regenerate any failing regression tests that depend on the sample data catalog
 export PYTEST_ADDOPTS="--force-regen"
@@ -262,7 +262,7 @@ When making changes to the database models (`climate_ref.models`),
 a migration must also be added (see below).
 
 The migration definitions (and the alembic configuration file)
-are included in the `climate_ref` package (`packages/ref/src/climate_ref/migrations`)
+are included in the `climate_ref` package (`packages/climate-ref/src/climate_ref/migrations`)
 to enable users to apply these migrations transparently.
 Any new migrations are performed automatically when using the `ref` command line tool.
 
@@ -294,7 +294,7 @@ Alembic can autogenerate these migrations for you,
 but they will need to be reviewed to ensure they are correct.
 
 ```
-uv run alembic -c packages/ref/src/climate_ref/alembic.ini \
+uv run alembic -c packages/climate-ref/src/climate_ref/alembic.ini \
    revision --autogenerate --message "your_migration_message"
 ```
 

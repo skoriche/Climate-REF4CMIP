@@ -9,7 +9,7 @@
 # To update a single package to the latest version compatible with the version constraints in the source:
 #     conda-lock lock  --lockfile conda-lock.yml --update PACKAGE
 # To re-solve the entire environment, e.g. after changing a version constraint in the source file:
-#     conda-lock -f packages/ref-metrics-pmp/src/climate_ref_pmp/requirements/environment.yml --lockfile conda-lock.yml
+#     conda-lock -f packages/climate-ref-pmp/src/climate_ref_pmp/requirements/environment.yml --lockfile conda-lock.yml
 version: 1
 metadata:
   content_hash:

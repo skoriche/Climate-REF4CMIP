@@ -130,8 +130,8 @@ MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
 To update a conda-lock file, run for example:
 
 ```bash
-uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/ref-metrics-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
-mv conda-lock.yml packages/ref-metrics-esmvaltool/src/climate_ref_esmvaltool/requirements/conda-lock.yml
+uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
+mv conda-lock.yml packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/conda-lock.yml
 ```
 
 ## Tests and code quality

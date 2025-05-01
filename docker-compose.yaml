@@ -35,7 +35,7 @@ services:
       - REF_METRIC_PROVIDERS=climate_ref_example
     build:
       context: .
-      dockerfile: packages/ref/Dockerfile
+      dockerfile: packages/climate-ref/Dockerfile
       platforms:
         - linux/amd64
     command: ref celery start-worker

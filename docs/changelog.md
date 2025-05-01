@@ -308,7 +308,7 @@ from the examples given in that link.
 ### Features
 
 - Migrate to use UV workspaces to support multiple packages in the same repository.
-  Adds a `ref-metrics-example` package that will be used to demonstrate the integration of a metric
+  Adds a `climate-ref-example` package that will be used to demonstrate the integration of a metric
   package into the REF. ([#2](https://github.com/Climate-REF/climate-ref/pulls/2))
 - Adds the placeholder concept of `Executor`'s which are responsible for running metrics
   in different environments. ([#4](https://github.com/Climate-REF/climate-ref/pulls/4))

@@ -55,7 +55,7 @@ These diagnostic often evaluate specific aspects of the Earth system and are com
 observations of the same quantities.
 
 A diagnostic depends upon a set of input model data and observation datasets.
-Each diagnostic declares the datasets that it requires via [data requirements](../how-to-guites/dataset-selection.py).
+Each diagnostic declares the datasets that it requires via [data requirements](../how-to-guides/dataset-selection.py).
 The solver uses these requirements to determine if the diagnostic requires execution.
 
 

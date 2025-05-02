@@ -4,7 +4,13 @@ version = "0.4.1"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
-    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" },
+    { name = "Mika Pflueger", email = "mika.pflueger@climate-resource.com" },
+    { name = "Bouwe Andela", email = "b.andela@esciencecenter.nl" },
+    { name = "Jiwoo Lee", email = "lee1043@llnl.gov" },
+    { name = "Min Xu", email = "xum1@ornl.gov" },
+    { name = "Nathan Collier", email = "collierno@ornl.gov" },
+    { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
 ]
 requires-python = ">=3.11"
 classifiers = [

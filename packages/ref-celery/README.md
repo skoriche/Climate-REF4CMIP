@@ -1,3 +1,36 @@
+# ⚠️ Package Has Been Renamed! ⚠️
+
+**This package, `cmip_ref_celery`, is deprecated and no longer maintained.**
+
+It has been renamed to **`climate-ref-celery`**.
+
+---
+
+## Please Update Your Dependencies
+
+To continue receiving updates and ensure compatibility, please switch to the new package.
+
+**Reason for rename:**
+The rename was necessary to better reflect the purpose and scope of the package.
+
+### How to Switch
+
+1.  **Uninstall the old package:**
+    ```bash
+    pip uninstall cmip_ref_celery
+    ```
+
+2.  **Install the new package:**
+    ```bash
+    pip install climate-ref-celery
+    ```
+
+3.  **Update your code/requirements:**
+    *   Change any import statements from `import cmip_ref_celery` to `import climate_ref_celery`.
+    *   Update your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref-celery` instead of `cmip_ref_celery`.
+
+---
+
 # ref-celery
 
 This package provides celery task generation from Provider and Metric definitions.

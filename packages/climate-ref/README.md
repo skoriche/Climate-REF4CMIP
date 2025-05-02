@@ -18,6 +18,12 @@ This is somewhat analogous to a CI/CD pipeline for climate data.
 pip install climate-ref
 ```
 
+If you want to use the diagnostic providers for the Assessment Fast Track, you can install them with:
+
+```bash
+pip install climate-ref[metrics]
+```
+
 ## Quick Start
 
 ```bash

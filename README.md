@@ -49,7 +49,7 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
 
 
 ```bash
-pip install climate-ref
+pip install climate-ref[metrics]
 mamba install -c conda-forge climate-ref
 conda install -c conda-forge climate-ref
 ```

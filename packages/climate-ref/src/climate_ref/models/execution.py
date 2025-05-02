@@ -179,11 +179,11 @@ class Execution(CreatedUpdatedMixin, Base):
     The datasets used in this execution
     """
 
-    def register_datasets(self, db: "Database", metric_dataset: ExecutionDatasetCollection) -> None:
+    def register_datasets(self, db: "Database", execution_dataset: ExecutionDatasetCollection) -> None:
         """
         Register the datasets used in the diagnostic calculation with the execution
         """
-        for _, dataset in metric_dataset.items():
+        for _, dataset in execution_dataset.items():
             db.session.execute(
                 execution_datasets.insert(),
                 [{"execution_id": self.id, "dataset_id": idx} for idx in dataset.index],

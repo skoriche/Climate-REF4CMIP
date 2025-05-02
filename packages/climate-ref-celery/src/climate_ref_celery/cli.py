@@ -63,7 +63,8 @@ def start_worker(
 
     A celery worker enables the execution of tasks in the background on multiple different nodes.
     This worker will register a celery task for each diagnostic in the provider.
-    The worker tasks can be executed by sending a celery task with the name '{package_name}_{metric_name}'.
+    The worker tasks can be executed by sending a celery task with the name
+    '{package_slug}_{diagnostic_slug}'.
 
     The package must define a 'provider' variable that is an instance of 'ref_core.DiagnosticProvider'.
     """

@@ -91,7 +91,7 @@ class ProviderRegistry:
 
         raise KeyError(f"No provider with slug matching: {slug}")
 
-    def get_metric(self, provider_slug: str, metric_slug: str) -> "Diagnostic":
+    def get_metric(self, provider_slug: str, diagnostic_slug: str) -> "Diagnostic":
         """
         Retrieve a diagnostic by name
 
@@ -101,7 +101,7 @@ class ProviderRegistry:
         ----------
         provider_slug :
             Slug of the provider of interest
-        metric_slug
+        diagnostic_slug
             Slug of the diagnostic of interest
 
         Raises
@@ -113,7 +113,7 @@ class ProviderRegistry:
         -------
             The requested diagnostic.
         """
-        return self.get(provider_slug).get(metric_slug)
+        return self.get(provider_slug).get(diagnostic_slug)
 
     @staticmethod
     def build_from_config(config: Config, db: Database) -> "ProviderRegistry":

@@ -82,7 +82,7 @@ def test_format_output(tmp_path, metric_dataset):
 
     metric_args, output_args = ZeroEmissionCommitment().format_result(
         result_dir,
-        metric_dataset=metric_dataset,
+        execution_dataset=metric_dataset,
         metric_args=CMECMetric.create_template(),
         output_args=CMECOutput.create_template(),
     )

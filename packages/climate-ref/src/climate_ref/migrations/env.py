@@ -39,19 +39,19 @@ def _add_metric_value_columns(connection: Connection) -> None:
     connection
         Open connection to the database
     """
-    metric_table = "metric_value"
+    metric_value_table = "metric_value"
 
     inspector = inspect(connection)
 
     # Check if table already exists
     # Skip if it doesn't
     tables = inspector.get_table_names()
-    if metric_table not in tables:
-        logger.warning(f"No table named {metric_table!r} found")
+    if metric_value_table not in tables:
+        logger.warning(f"No table named {metric_value_table!r} found")
         return
 
     # Extract the current columns in the DB
-    existing_columns = [c["name"] for c in inspector.get_columns(metric_table)]
+    existing_columns = [c["name"] for c in inspector.get_columns(metric_value_table)]
 
     cv_file = ref_config.paths.dimensions_cv
     cv = CV.load_from_file(cv_file)
@@ -59,7 +59,7 @@ def _add_metric_value_columns(connection: Connection) -> None:
     for dimension in cv.dimensions:
         if dimension.name not in existing_columns:
             logger.info(f"Adding missing metric value dimension: {dimension.name!r}")
-            op.add_column(metric_table, MetricValue.build_dimension_column(dimension))
+            op.add_column(metric_value_table, MetricValue.build_dimension_column(dimension))
 
 
 def include_object(object_, name: str, type_, reflected, compare_to) -> bool:

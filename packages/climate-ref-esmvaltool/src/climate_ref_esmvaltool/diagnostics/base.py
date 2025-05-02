@@ -45,7 +45,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
     @staticmethod
     def format_result(
         result_dir: Path,
-        metric_dataset: ExecutionDatasetCollection,
+        execution_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
     ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
@@ -56,7 +56,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         ----------
         result_dir
             Directory containing executions from an ESMValTool run.
-        metric_dataset
+        execution_dataset
             The diagnostic dataset used for the diagnostic execution.
         metric_args
             Generic diagnostic bundle arguments.
@@ -200,7 +200,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         # Update the diagnostic and output bundle with diagnostic specific executions.
         metric_args, output_args = self.format_result(
             result_dir=result_dir,
-            metric_dataset=definition.datasets,
+            execution_dataset=definition.datasets,
             metric_args=metric_args,
             output_args=output_args,
         )

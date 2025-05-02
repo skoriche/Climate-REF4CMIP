@@ -107,12 +107,12 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
     @staticmethod
     def format_result(
         result_dir: Path,
-        metric_dataset: ExecutionDatasetCollection,
+        execution_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
     ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
         """Format the result."""
-        input_files = next(c.datasets for _, c in metric_dataset.items())
+        input_files = next(c.datasets for _, c in execution_dataset.items())
         source_id = input_files.iloc[0].source_id
 
         ecs_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "ecs.nc")

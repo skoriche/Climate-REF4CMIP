@@ -174,15 +174,17 @@ class DatasetAdapter(Protocol):
             Data catalog containing the metadata for the currently ingested datasets
         """
         DatasetModel = self.dataset_cls
+        dataset_type = DatasetModel.__mapper_args__["polymorphic_identity"]
         # TODO: Paginate this query to avoid loading all the data at once
         if include_files:
             result = (
                 db.session.query(DatasetFile)
                 # The join is necessary to be able to order by the dataset columns
                 .join(DatasetFile.dataset)
+                .where(Dataset.dataset_type == dataset_type)
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(DatasetFile.dataset))
+                .options(joinedload(DatasetFile.dataset.of_type(DatasetModel)))
                 .order_by(Dataset.updated_at.desc())
                 .limit(limit)
                 .all()

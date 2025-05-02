@@ -53,6 +53,7 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
             },
         )
         if created:
+            db.session.flush()
             logger.info(f"Created diagnostic {diagnostic_model.full_slug()}")
 
 

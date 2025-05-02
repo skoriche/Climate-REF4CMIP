@@ -1,11 +1,11 @@
 """
-Execute metrics in different environments
+Execute diagnostics in different environments
 
-We support running metrics in different environments, such as locally,
+We support running diagnostics in different environments, such as locally,
 in a separate process, or in a container.
 These environments are represented by `climate_ref.executor.Executor` classes.
 
-The simplest executor is the `LocalExecutor`, which runs the metric in the same process.
+The simplest executor is the `LocalExecutor`, which runs the diagnostic in the same process.
 This is useful for local testing and debugging.
 """
 
@@ -18,12 +18,11 @@ from loguru import logger
 from sqlalchemy import insert
 
 from climate_ref.database import Database
-from climate_ref.models.metric_execution import MetricExecutionResult as MetricExecutionResultModel
-from climate_ref.models.metric_execution import ResultOutput, ResultOutputType
+from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
 from climate_ref.models.metric_value import MetricValue
+from climate_ref_core.diagnostics import ExecutionResult, ensure_relative_path
 from climate_ref_core.exceptions import InvalidExecutorException, ResultValidationError
 from climate_ref_core.executor import EXECUTION_LOG_FILENAME, Executor
-from climate_ref_core.metrics import MetricExecutionResult, ensure_relative_path
 from climate_ref_core.pycmec.controlled_vocabulary import CV
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput, OutputDict
@@ -49,7 +48,7 @@ def import_executor_cls(fqn: str) -> type[Executor]:
     climate_ref_core.exceptions.InvalidExecutorException
         If the executor cannot be imported
 
-        If the executor isn't a valid `MetricsProvider`.
+        If the executor isn't a valid `DiagnosticProvider`.
 
     Returns
     -------
@@ -82,7 +81,7 @@ def _copy_file_to_results(
     filename: pathlib.Path | str,
 ) -> None:
     """
-    Copy a file from the scratch directory to the results directory
+    Copy a file from the scratch directory to the executions directory
 
     Parameters
     ----------
@@ -91,7 +90,7 @@ def _copy_file_to_results(
     results_directory
         The directory where the file should be copied to
     fragment
-        The fragment of the results directory where the file should be copied
+        The fragment of the executions directory where the file should be copied
     filename
         The name of the file to be copied
     """
@@ -113,14 +112,14 @@ def _copy_file_to_results(
 def handle_execution_result(
     config: "Config",
     database: Database,
-    metric_execution_result: MetricExecutionResultModel,
-    result: "MetricExecutionResult",
+    execution: Execution,
+    result: "ExecutionResult",
 ) -> None:
     """
-    Handle the result of a metric execution
+    Handle the result of a diagnostic execution
 
-    This will update the metric execution result with the output of the metric execution.
-    The output will be copied from the scratch directory to the results directory.
+    This will update the diagnostic execution result with the output of the diagnostic execution.
+    The output will be copied from the scratch directory to the executions directory.
 
     Parameters
     ----------
@@ -128,56 +127,56 @@ def handle_execution_result(
         The configuration to use
     database
         The active database session to use
-    metric_execution_result
-        The metric execution result DB object to update
+    execution
+        The diagnostic execution result DB object to update
     result
-        The result of the metric execution, either successful or failed
+        The result of the diagnostic execution, either successful or failed
     """
     # Always copy log data
     _copy_file_to_results(
         config.paths.scratch,
         config.paths.results,
-        metric_execution_result.output_fragment,
+        execution.output_fragment,
         EXECUTION_LOG_FILENAME,
     )
 
     if result.successful and result.metric_bundle_filename is not None:
-        logger.info(f"{metric_execution_result} successful")
+        logger.info(f"{execution} successful")
 
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
-            metric_execution_result.output_fragment,
+            execution.output_fragment,
             result.metric_bundle_filename,
         )
-        metric_execution_result.mark_successful(result.as_relative_path(result.metric_bundle_filename))
+        execution.mark_successful(result.as_relative_path(result.metric_bundle_filename))
 
         if result.output_bundle_filename:
             _copy_file_to_results(
                 config.paths.scratch,
                 config.paths.results,
-                metric_execution_result.output_fragment,
+                execution.output_fragment,
                 result.output_bundle_filename,
             )
             _handle_output_bundle(
                 config,
                 database,
-                metric_execution_result,
+                execution,
                 result.to_output_path(result.output_bundle_filename),
             )
 
         cmec_metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
 
-        # Check that the metric values conform with the controlled vocabulary
+        # Check that the diagnostic values conform with the controlled vocabulary
         try:
             cv = CV.load_from_file(config.paths.dimensions_cv)
             cv.validate_metrics(cmec_metric_bundle)
         except (ResultValidationError, AssertionError):
-            logger.exception("Metric values do not conform with the controlled vocabulary")
-            # TODO: Mark the metric execution result as failed once the CV has stabilised
-            # metric_execution_result.mark_failed()
+            logger.exception("Diagnostic values do not conform with the controlled vocabulary")
+            # TODO: Mark the diagnostic execution result as failed once the CV has stabilised
+            # execution.mark_failed()
 
-        # Perform a bulk insert of a metric bundle
+        # Perform a bulk insert of a diagnostic bundle
         # TODO: The section below will likely fail until we have agreed on a controlled vocabulary
         # The current implementation will swallow the exception, but display a log message
         try:
@@ -188,7 +187,7 @@ def handle_execution_result(
                     insert(MetricValue),
                     [
                         {
-                            "metric_execution_result_id": metric_execution_result.id,
+                            "execution_id": execution.id,
                             "value": result.value,
                             "attributes": result.attributes,
                             **result.dimensions,
@@ -198,21 +197,21 @@ def handle_execution_result(
                 )
         except Exception:
             # TODO: Remove once we have settled on a controlled vocabulary
-            logger.exception("Something went wrong when ingesting metric values")
+            logger.exception("Something went wrong when ingesting diagnostic values")
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields
-        # i.e. if there are outstanding results don't make as clean
-        metric_execution_result.metric_execution_group.dirty = False
+        # i.e. if there are outstanding executions don't make as clean
+        execution.execution_group.dirty = False
     else:
-        logger.error(f"{metric_execution_result} failed")
-        metric_execution_result.mark_failed()
+        logger.error(f"{execution} failed")
+        execution.mark_failed()
 
 
 def _handle_output_bundle(
     config: "Config",
     database: Database,
-    metric_execution_result: MetricExecutionResultModel,
+    execution: Execution,
     cmec_output_bundle_filename: pathlib.Path,
 ) -> None:
     # Extract the registered outputs
@@ -224,21 +223,21 @@ def _handle_output_bundle(
         output_type=ResultOutputType.Plot,
         config=config,
         database=database,
-        metric_execution_result=metric_execution_result,
+        execution=execution,
     )
     _handle_outputs(
         cmec_output_bundle.data,
         output_type=ResultOutputType.Data,
         config=config,
         database=database,
-        metric_execution_result=metric_execution_result,
+        execution=execution,
     )
     _handle_outputs(
         cmec_output_bundle.html,
         output_type=ResultOutputType.HTML,
         config=config,
         database=database,
-        metric_execution_result=metric_execution_result,
+        execution=execution,
     )
 
 
@@ -247,25 +246,25 @@ def _handle_outputs(
     output_type: ResultOutputType,
     config: "Config",
     database: Database,
-    metric_execution_result: MetricExecutionResultModel,
+    execution: Execution,
 ) -> None:
     if outputs is None:
         return
 
     for key, output_info in outputs.items():
         filename = ensure_relative_path(
-            output_info.filename, config.paths.scratch / metric_execution_result.output_fragment
+            output_info.filename, config.paths.scratch / execution.output_fragment
         )
 
         _copy_file_to_results(
             config.paths.scratch,
             config.paths.results,
-            metric_execution_result.output_fragment,
+            execution.output_fragment,
             filename,
         )
         database.session.add(
-            ResultOutput(
-                metric_execution_result_id=metric_execution_result.id,
+            ExecutionOutput(
+                execution_id=execution.id,
                 output_type=output_type,
                 filename=str(filename),
                 description=output_info.description,

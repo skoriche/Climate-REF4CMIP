@@ -1,5 +1,5 @@
 # Build the container for the the REF compute engine
-# This docker container packages up the REF cli tool with the default set of metric providers
+# This docker container packages up the REF cli tool with the default set of diagnostic providers
 # used as part of the CMIP7 FastTrack process.
 
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS build
@@ -47,7 +47,6 @@ COPY --from=build --chown=app:app /app/scripts /app/scripts
 
 # Location of the REF configuration files
 ENV REF_CONFIGURATION=/ref
-ENV REF_METRICS_ILAMB_DATA_DIR=/app/cache/ilamb
 ENV REF_METRICS_ESMVALTOOL_DATA_DIR=/app/cache/esmvaltool
 
 #RUN ref datasets fetch-data --registry ilamb

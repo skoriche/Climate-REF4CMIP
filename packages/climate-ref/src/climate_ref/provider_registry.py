@@ -2,11 +2,11 @@
 Registry of the currently active providers in the REF
 
 This module provides a registry for the currently active providers.
-Often, we can't directly import a provider and it's metrics
+Often, we can't directly import a provider and it's diagnostics
 as each provider maintains its own virtual environment to avoid dependency conflicts.
 
-For remote providers, a proxy is used to access the metadata associated with the metrics.
-These metrics cannot be run locally, but can be executed using other executors.
+For remote providers, a proxy is used to access the metadata associated with the diagnostics.
+These diagnostics cannot be run locally, but can be executed using other executors.
 """
 
 from attrs import field, frozen
@@ -14,11 +14,11 @@ from loguru import logger
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref_core.metrics import Metric
-from climate_ref_core.providers import MetricsProvider, import_provider
+from climate_ref_core.diagnostics import Diagnostic
+from climate_ref_core.providers import DiagnosticProvider, import_provider
 
 
-def _register_provider(db: Database, provider: MetricsProvider) -> None:
+def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
     """
     Register a provider with the database
 
@@ -27,9 +27,9 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
     Parameters
     ----------
     provider
-        MetricsProvider instance
+        DiagnosticProvider instance
     """
-    from climate_ref.models import Metric, Provider
+    from climate_ref.models import Diagnostic, Provider
 
     provider_model, created = db.get_or_create(
         Provider,
@@ -43,17 +43,18 @@ def _register_provider(db: Database, provider: MetricsProvider) -> None:
         logger.info(f"Created provider {provider.slug}")
         db.session.flush()
 
-    for metric in provider.metrics():
-        metric_model, created = db.get_or_create(
-            Metric,
-            slug=metric.slug,
+    for diagnostic in provider.diagnostics():
+        diagnostic_model, created = db.get_or_create(
+            Diagnostic,
+            slug=diagnostic.slug,
             provider_id=provider_model.id,
             defaults={
-                "name": metric.name,
+                "name": diagnostic.name,
             },
         )
         if created:
-            logger.info(f"Created metric {metric_model.slug}")
+            db.session.flush()
+            logger.info(f"Created diagnostic {diagnostic_model.full_slug()}")
 
 
 @frozen
@@ -61,13 +62,13 @@ class ProviderRegistry:
     """
     Registry for the currently active providers
 
-    In some cases we can't directly import a provider and it's metrics,
-    in this case we need to proxy the metrics.
+    In some cases we can't directly import a provider and it's diagnostics,
+    in this case we need to proxy the diagnostics.
     """
 
-    providers: list[MetricsProvider] = field(factory=list)
+    providers: list[DiagnosticProvider] = field(factory=list)
 
-    def get(self, slug: str) -> MetricsProvider:
+    def get(self, slug: str) -> DiagnosticProvider:
         """
         Retrieve a provider by name
 
@@ -91,29 +92,29 @@ class ProviderRegistry:
 
         raise KeyError(f"No provider with slug matching: {slug}")
 
-    def get_metric(self, provider_slug: str, metric_slug: str) -> "Metric":
+    def get_metric(self, provider_slug: str, diagnostic_slug: str) -> "Diagnostic":
         """
-        Retrieve a metric by name
+        Retrieve a diagnostic by name
 
-        This is a convenience method to retrieve a metric from a provider
+        This is a convenience method to retrieve a diagnostic from a provider
 
         Parameters
         ----------
         provider_slug :
             Slug of the provider of interest
-        metric_slug
-            Slug of the metric of interest
+        diagnostic_slug
+            Slug of the diagnostic of interest
 
         Raises
         ------
         KeyError
-            If the provider/metric with the given slugs is not found.
+            If the provider/diagnostic with the given slugs is not found.
 
         Returns
         -------
-            The requested metric.
+            The requested diagnostic.
         """
-        return self.get(provider_slug).get(metric_slug)
+        return self.get(provider_slug).get(diagnostic_slug)
 
     @staticmethod
     def build_from_config(config: Config, db: Database) -> "ProviderRegistry":
@@ -133,7 +134,7 @@ class ProviderRegistry:
             A new ProviderRegistry instance
         """
         providers = []
-        for provider_info in config.metric_providers:
+        for provider_info in config.diagnostic_providers:
             provider = import_provider(provider_info.provider)
             provider.configure(config)
             providers.append(provider)

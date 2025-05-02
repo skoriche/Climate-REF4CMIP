@@ -4,7 +4,7 @@ import pytest
 
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.models import Dataset
-from climate_ref.models.dataset import CMIP6Dataset, CMIP6File
+from climate_ref.models.dataset import CMIP6Dataset, DatasetFile
 
 
 def test_ingest_help(invoke_cli):
@@ -55,7 +55,7 @@ class TestIngest:
         expected_dataset_count = 6
         assert db.session.query(Dataset).count() == expected_dataset_count
         assert db.session.query(CMIP6Dataset).count() == expected_dataset_count
-        assert db.session.query(CMIP6File).count() == expected_dataset_count
+        assert db.session.query(DatasetFile).count() == expected_dataset_count
 
     def test_ingest_and_solve(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(
@@ -71,7 +71,7 @@ class TestIngest:
                 "--dry-run",
             ],
         )
-        assert "Solving for metrics that require recalculation." in result.stderr
+        assert "Solving for diagnostics that require recalculation." in result.stderr
 
     def test_ingest_multiple_times(self, sample_data_dir, db, invoke_cli):
         invoke_cli(
@@ -85,7 +85,7 @@ class TestIngest:
         )
 
         assert db.session.query(Dataset).count() == 1
-        assert db.session.query(CMIP6File).count() == 1
+        assert db.session.query(DatasetFile).count() == 1
 
         invoke_cli(
             [

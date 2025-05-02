@@ -149,7 +149,7 @@ class DatasetRegistryManager:
             base_url=base_url,
             version=version,
             retry_if_failed=5,
-            env="REF_METRICS_DATA_DIR",
+            env="REF_DATASET_CACHE_DIR",
         )
         registry.load_registry(str(importlib.resources.files(package) / resource))
         self._registries[name] = registry

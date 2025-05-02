@@ -15,8 +15,8 @@ import pooch
 from loguru import logger
 from rich.pretty import pretty_repr
 
+from climate_ref_core.diagnostics import ExecutionDefinition
 from climate_ref_core.executor import EXECUTION_LOG_FILENAME
-from climate_ref_core.metrics import MetricExecutionDefinition
 
 
 class _InterceptHandler(logging.Handler):
@@ -95,7 +95,7 @@ def remove_log_handler() -> None:
 
 
 @contextlib.contextmanager
-def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Generator[None, None, None]:
+def redirect_logs(definition: ExecutionDefinition, log_level: str) -> Generator[None, None, None]:
     """
     Temporarily redirect log output to a file.
 
@@ -104,7 +104,7 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
     Parameters
     ----------
     definition
-        Metric definition to capture logging for
+        Diagnostic definition to capture logging for
 
     log_level
         Log level as a string e.g. INFO, WARNING, DEBUG.
@@ -133,7 +133,7 @@ def redirect_logs(definition: MetricExecutionDefinition, log_level: str) -> Gene
         logger.exception("Execution failed")
         raise
     finally:
-        logger.info(f"Metric execution complete. Results available in {definition.output_fragment()}")
+        logger.info(f"Diagnostic execution complete. Results available in {definition.output_fragment()}")
 
         # Reset the logger to the default
         logger.remove(file_handler_id)

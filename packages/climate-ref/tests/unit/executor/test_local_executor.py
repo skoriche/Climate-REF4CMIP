@@ -9,12 +9,12 @@ class TestLocalExecutor:
         assert executor.name == "local"
         assert isinstance(executor, Executor)
 
-    def test_run_metric(self, metric_definition, provider, mock_metric, mocker, caplog):
+    def test_run_metric(self, metric_definition, provider, mock_diagnostic, mocker, caplog):
         mock_handle_result = mocker.patch("climate_ref.executor.local.handle_execution_result")
         mock_execution_result = mocker.MagicMock()
         executor = LocalExecutor()
 
-        executor.run_metric(provider, mock_metric, metric_definition, mock_execution_result)
+        executor.run(provider, mock_diagnostic, metric_definition, mock_execution_result)
         # This directory is created by the executor
         assert metric_definition.output_directory.exists()
 
@@ -24,18 +24,18 @@ class TestLocalExecutor:
         assert metric_execution_result == mock_execution_result
         assert result.successful
         assert result.output_bundle_filename == metric_definition.output_directory / "output.json"
-        assert result.metric_bundle_filename == metric_definition.output_directory / "metric.json"
+        assert result.metric_bundle_filename == metric_definition.output_directory / "diagnostic.json"
         assert (metric_definition.output_directory / "out.log").exists()
 
-    def test_raises_exception(self, mocker, provider, metric_definition, mock_metric):
+    def test_raises_exception(self, mocker, provider, metric_definition, mock_diagnostic):
         mock_handle_result = mocker.patch("climate_ref.executor.local.handle_execution_result")
         mock_execution_result = mocker.MagicMock()
 
         executor = LocalExecutor()
 
-        mock_metric.run = lambda definition: 1 / 0
+        mock_diagnostic.run = lambda definition: 1 / 0
 
-        executor.run_metric(provider, mock_metric, metric_definition, mock_execution_result)
+        executor.run(provider, mock_diagnostic, metric_definition, mock_execution_result)
 
         config, db, metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False

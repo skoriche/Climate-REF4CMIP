@@ -1,11 +1,11 @@
 """
-CMEC metric bundle class
+CMEC diagnostic bundle class
 
-Following the CMEC metric bundle standards at
+Following the CMEC diagnostic bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
 
 To validate that a dictionary is compatible with the CMEC
-metric bundle standards, please use:
+diagnostic bundle standards, please use:
  - class instantiation: cmec = CMECMetric(**result_dict)
  - class model_validate method: cmec = CMECMetric.model_validate(result_dict)
 Both ways will create the CMECMetric instance (cmec)
@@ -36,7 +36,7 @@ from typing_extensions import Self
 
 class MetricCV(Enum):
     """
-    CMEC metric bundle controlled vocabulary
+    CMEC diagnostic bundle controlled vocabulary
     """
 
     DIMENSIONS = "DIMENSIONS"
@@ -50,10 +50,10 @@ class MetricCV(Enum):
 
 class MetricDimensions(RootModel[Any]):
     """
-    CMEC metric bundle DIMENSIONS object
+    CMEC diagnostic bundle DIMENSIONS object
 
     This describes the order of the dimensions and their possible values.
-    The order of the dimensions matter as that determines how the results are nested.
+    The order of the dimensions matter as that determines how the executions are nested.
     """
 
     root: dict[str, Any] = Field(
@@ -144,7 +144,7 @@ class MetricDimensions(RootModel[Any]):
 
 class MetricResults(RootModel[Any]):
     """
-    CMEC metric bundle RESULTS object
+    CMEC diagnostic bundle RESULTS object
     """
 
     model_config = ConfigDict(strict=True)
@@ -199,7 +199,7 @@ class MetricResults(RootModel[Any]):
             s += "please use model_validate(Results, context=MetricDimensions) to instantiate\n"
             raise ValueError(s)
         else:
-            # results = rlt.root
+            # executions = rlt.root
             results = rlt
             metdims = info.context.root
             cls._check_nested_dict_keys(results, metdims, level=0)
@@ -216,9 +216,9 @@ class StrNumDict(RootModel[Any]):
 
 class MetricValue(BaseModel):
     """
-    A flattened representation of a metric value
+    A flattened representation of a diagnostic value
 
-    This includes the dimensions and the value of the metric
+    This includes the dimensions and the value of the diagnostic
     """
 
     dimensions: dict[str, str]
@@ -228,22 +228,22 @@ class MetricValue(BaseModel):
 
 class CMECMetric(BaseModel):
     """
-    CMEC metric bundle object
+    CMEC diagnostic bundle object
 
-    Contains the metrics calculated during a metric execution, in a standardised format.
+    Contains the diagnostics calculated during a diagnostic execution, in a standardised format.
     """
 
     model_config = ConfigDict(strict=True, extra="allow")
 
     DIMENSIONS: MetricDimensions
     """
-    Describes the dimensionality of the metrics produced.
+    Describes the dimensionality of the diagnostics produced.
 
     This includes the order of dimensions in `RESULTS`
     """
     RESULTS: dict[str, Any]
     """
-    The metric values.
+    The diagnostic values.
 
     Results is a nested dictionary of values.
     The order of the nested dictionaries corresponds to the order of the dimensions.
@@ -271,7 +271,7 @@ class CMECMetric(BaseModel):
     @model_validator(mode="after")
     def _validate_metrics(self) -> Self:
         """Validate a CMECMetric object"""
-        # validate results data
+        # validate executions data
         results = self.RESULTS
         MetricResults.model_validate(results, context=self.DIMENSIONS)
         return self
@@ -307,7 +307,7 @@ class CMECMetric(BaseModel):
         Returns
         -------
         :
-            CMEC Metric object if the file is CMEC-compatible
+            CMEC Diagnostic object if the file is CMEC-compatible
         """
         json_str = pathlib.Path(json_file).read_text()
         metric_obj = cls.model_validate_json(json_str)
@@ -359,7 +359,7 @@ class CMECMetric(BaseModel):
         Returns
         -------
         :
-            Merged CMEC Metric object
+            Merged CMEC Diagnostic object
         """
         mobj1 = cls.model_validate(metric_obj1)
         mobj2 = cls.model_validate(metric_obj2)
@@ -379,7 +379,7 @@ class CMECMetric(BaseModel):
     @staticmethod
     def create_template() -> dict[str, Any]:
         """
-        Return an empty dictionary in CMEC metric bundle format
+        Return an empty dictionary in CMEC diagnostic bundle format
         """
         default_dimensions = MetricDimensions()
 
@@ -393,13 +393,13 @@ class CMECMetric(BaseModel):
 
     def iter_results(self) -> Generator[MetricValue]:
         """
-        Iterate over the results in the metric bundle
+        Iterate over the executions in the diagnostic bundle
 
         This will yield a dictionary for each result, with the dimensions and the value
 
         Returns
         -------
-            A generator of metric values
+            A generator of diagnostic values
 
         """
         dimensions = cast(list[str], self.DIMENSIONS[MetricCV.JSON_STRUCTURE.value])
@@ -416,7 +416,7 @@ def _walk_results(
         if key == MetricCV.ATTRIBUTES.value:
             continue
         metadata[dimension] = key
-        if isinstance(value, str | float):
+        if isinstance(value, str | float | int):
             yield MetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )

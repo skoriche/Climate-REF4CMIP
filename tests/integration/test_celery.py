@@ -17,8 +17,8 @@ from pytest_docker_tools import container, fetch, wrappers
 
 from climate_ref.database import Database
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from climate_ref.models import MetricExecutionResult
-from climate_ref.solver import solve_metrics
+from climate_ref.models import Execution
+from climate_ref.solver import solve_required_executions
 
 ROOT_DIR = Path(__file__).parents[2]
 
@@ -97,10 +97,10 @@ def test_celery_solving(db_seeded, config, celery_worker, redis_container, monke
     monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
     monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
 
-    # Run the solver which executes the metrics
-    solve_metrics(db_seeded, timeout=10, config=config)
+    # Run the solver which executes the diagnostics
+    solve_required_executions(db_seeded, timeout=10, config=config)
 
-    results = db_seeded.session.query(MetricExecutionResult).all()
+    results = db_seeded.session.query(Execution).all()
     assert len(results)
     for result in results:
         assert result.successful, result.output_fragment

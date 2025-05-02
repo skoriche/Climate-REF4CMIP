@@ -15,7 +15,10 @@ class TestMetricValue:
     )
     def test_build(self, db_seeded, attributes):
         item_orig = MetricValue.build(
-            metric_execution_result_id=1, value=1.0, attributes=attributes, dimensions={"model": "test"}
+            execution_id=1,
+            value=1.0,
+            attributes=attributes,
+            dimensions={"model": "test"},
         )
         db_seeded.session.add(item_orig)
         db_seeded.session.commit()
@@ -30,16 +33,14 @@ class TestMetricValue:
         exp_msg = "Unknown dimension column 'not_a_dimension'"
         with pytest.raises(KeyError, match=exp_msg):
             MetricValue.build(
-                metric_execution_result_id=1,
+                execution_id=1,
                 value=1.0,
                 attributes=None,
                 dimensions={"not_a_dimension": "test"},
             )
 
     def test_register_dimensions(self, cmip7_aft_cv):
-        metric_value_kwargs = dict(
-            metric_execution_result_id=1, value=1.0, attributes=None, dimensions={"model": "test"}
-        )
+        metric_value_kwargs = dict(execution_id=1, value=1.0, attributes=None, dimensions={"model": "test"})
         MetricValue._reset_cv_dimensions()
         assert MetricValue._cv_dimensions == []
 

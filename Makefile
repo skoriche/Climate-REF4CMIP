@@ -78,27 +78,27 @@ test-celery:  ## run the tests
 		pytest packages/climate-ref-celery \
 		-r a -v --doctest-modules --cov=packages/climate-ref-celery/src
 
-.PHONY: test-metrics-example
-test-metrics-example:  ## run the tests
+.PHONY: test-diagnostic-example
+test-diagnostic-example:  ## run the tests
 	uv run --package climate-ref-example \
 		pytest packages/climate-ref-example \
 		-r a -v --doctest-modules --cov=packages/climate-ref-example/src --cov-report=term --cov-append
 
-.PHONY: test-metrics-esmvaltool
-test-metrics-esmvaltool:  ## run the tests
+.PHONY: test-diagnostic-esmvaltool
+test-diagnostic-esmvaltool:  ## run the tests
 	uv run --package climate-ref-esmvaltool \
 		pytest packages/climate-ref-esmvaltool \
 		-r a -v --doctest-modules --cov=packages/climate-ref-esmvaltool/src --cov-report=term --cov-append
 
-.PHONY: test-metrics-ilamb
-test-metrics-ilamb:  ## run the tests
+.PHONY: test-diagnostic-ilamb
+test-diagnostic-ilamb:  ## run the tests
 	uv run ref datasets fetch-data --registry ilamb-test
 	uv run --package climate-ref-ilamb \
 		pytest packages/climate-ref-ilamb \
 		-r a -v --doctest-modules --cov=packages/climate-ref-ilamb/src --cov-report=term --cov-append
 
-.PHONY: test-metrics-pmp
-test-metrics-pmp:  ## run the tests
+.PHONY: test-diagnostic-pmp
+test-diagnostic-pmp:  ## run the tests
 	uv run --package climate-ref-pmp \
 		pytest packages/climate-ref-pmp \
 		-r a -v --doctest-modules --cov=packages/climate-ref-pmp/src --cov-report=term --cov-append
@@ -115,14 +115,14 @@ test-integration-slow:  ## run the integration tests, including the slow tests w
 		pytest tests --slow \
 		-r a -v
 
-.PHONY: test-metrics-packages
-test-metrics-packages: test-metrics-example test-metrics-esmvaltool test-metrics-ilamb test-metrics-pmp
+.PHONY: test-diagnostics
+test-diagnostics: test-diagnostic-example test-diagnostic-esmvaltool test-diagnostic-ilamb test-diagnostic-pmp
 
 .PHONY: test-executors
 test-executors: test-celery
 
 .PHONY: test
-test: clean test-core test-ref test-executors test-metrics-packages test-integration ## run the tests
+test: clean test-core test-ref test-executors test-diagnostics test-integration ## run the tests
 
 .PHONY: test-quick
 test-quick: clean  ## run all the tests at once

@@ -5,12 +5,12 @@ import pytest
 from climate_ref_pmp import AnnualCycle, provider
 from climate_ref_pmp.pmp_driver import _get_resource
 
-from climate_ref.solver import extract_covered_datasets, solve_metric_executions
+from climate_ref.solver import extract_covered_datasets, solve_executions
 from climate_ref_core.datasets import DatasetCollection, SourceDatasetType
-from climate_ref_core.metrics import Metric
+from climate_ref_core.diagnostics import Diagnostic
 
 
-def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.DataFrame}:
+def get_first_metric_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {pd.DataFrame}:
     # obs4mips requirement is first
     datasets = extract_covered_datasets(data_catalog, metric.data_requirements[1])
     assert len(datasets) > 0
@@ -36,41 +36,41 @@ def test_expected_executions():
             columns=["source_id", "variable_id"],
         ),
     }
-    executions = list(solve_metric_executions(data_catalog, metric, provider=provider))
+    executions = list(solve_executions(data_catalog, metric, provider=provider))
     assert len(executions) == 3
 
     # ts
-    assert executions[0].metric_dataset[SourceDatasetType.CMIP6].selector == (
+    assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (
         ("variable_id", "ts"),
         ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r1i1p1f1"),
     )
-    assert executions[0].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+    assert executions[0].datasets[SourceDatasetType.PMPClimatology].selector == (
         ("variable_id", "ts"),
         ("source_id", "ERA-5"),
     )
 
     # ts with different member_id
-    assert executions[1].metric_dataset[SourceDatasetType.CMIP6].selector == (
+    assert executions[1].datasets[SourceDatasetType.CMIP6].selector == (
         ("variable_id", "ts"),
         ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r2i1p1f1"),
     )
-    assert executions[0].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+    assert executions[0].datasets[SourceDatasetType.PMPClimatology].selector == (
         ("variable_id", "ts"),
         ("source_id", "ERA-5"),
     )
 
     # pr
-    assert executions[2].metric_dataset[SourceDatasetType.CMIP6].selector == (
+    assert executions[2].datasets[SourceDatasetType.CMIP6].selector == (
         ("variable_id", "pr"),
         ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r1i1p1f1"),
     )
-    assert executions[2].metric_dataset[SourceDatasetType.PMPClimatology].selector == (
+    assert executions[2].datasets[SourceDatasetType.PMPClimatology].selector == (
         ("variable_id", "pr"),
         ("source_id", "GPCP-Monthly-3-2"),
     )
@@ -193,13 +193,13 @@ def test_metric_run(mocker, provider):
     metric = AnnualCycle()
     metric.provider = mocker.MagicMock()
     metric.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
-    metric.build_metric_result = mocker.MagicMock()
+    metric.build_execution_result = mocker.MagicMock()
 
     metric.run("definition")
 
     metric.build_cmds.assert_called_once_with("definition")
     assert metric.provider.run.call_count == 2
-    metric.build_metric_result.assert_called_once_with("definition")
+    metric.build_execution_result.assert_called_once_with("definition")
 
 
 def test_build_cmd_raises(provider):

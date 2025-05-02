@@ -6,7 +6,7 @@ This roadmap outlines the key milestones and tasks that need to be completed to 
 We have broken down the roadmap into several sections to provide a clear overview of the project's progress.
 Namely,
 
-- Metrics
+- Diagnostics
 - Infrastructure
 - Visualisation
 - Testing
@@ -26,16 +26,16 @@ gantt
     title       REF for CMIP7 Assessment Fast Track
     excludes    weekends
 
-    section Metrics
+    section Diagnostics
 
-    Develop list of metrics                       :done, metrics, 2024-10-06, 30d
+    Develop list of diagnostics                       :done, metrics, 2024-10-06, 30d
     Prototype metric package                      :done, metricsPrototype, 2024-10-06, 30d
 
     Create ESMValTool integration                 :done, esmvaltool, after metricsPrototype, 2025-01-06
     Create ILAMB integration                      :done, ilamb, after metricsPrototype, 2025-01-20
     Create PMP integration                        :done, pmp, after metricsPrototype, 2025-03-04
 
-    Implement missing metrics                     :active, missing, after esmvaltool, 2025-05-14
+    Implement missing diagnostics                     :active, missing, after esmvaltool, 2025-05-14
     Incorporate missing reference datasets        :after beta, 4w
     Fixes                                         :after missing, 6w
 
@@ -104,10 +104,10 @@ gantt
 ```
 
 
-## Metrics
+## Diagnostics
 
-An overview of the current state of the selected metrics can be found in the
-[Metrics Github board](https://github.com/orgs/Climate-REF/projects/2/views/2) document.
+An overview of the current state of the selected diagnostics can be found in the
+[Diagnostics Github board](https://github.com/orgs/Climate-REF/projects/2/views/2) document.
 This is being updated as the new metrics are integrated into the CMIP7 AFT REF.
 
 

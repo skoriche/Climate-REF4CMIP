@@ -79,7 +79,7 @@ class FacetFilter:
 @frozen
 class DatasetCollection:
     """
-    Group of datasets required for a given metric execution for a specific source dataset type.
+    Group of datasets required for a given diagnostic execution for a specific source dataset type.
     """
 
     datasets: pd.DataFrame
@@ -106,9 +106,9 @@ class DatasetCollection:
         return self.__hash__() == other.__hash__()
 
 
-class MetricDataset:
+class ExecutionDatasetCollection:
     """
-    The complete set of datasets required for a metric execution.
+    The complete set of datasets required for an execution of a diagnostic.
 
     This may cover multiple source dataset types.
     """
@@ -150,7 +150,7 @@ class MetricDataset:
             SHA1 hash of the collections
         """
         # The dataset collection hashes are reproducible,
-        # so we can use them to hash the metric dataset.
+        # so we can use them to hash the diagnostic dataset.
         # This isn't explicitly true for all Python hashes
         hash_sum = sum(hash(item) for item in self._collection.values())
         hash_bytes = hash_sum.to_bytes(16, "little", signed=True)

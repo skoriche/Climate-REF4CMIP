@@ -10,9 +10,9 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
-from climate_ref_core.metrics import Metric, MetricExecutionResult
+from climate_ref_core.diagnostics import Diagnostic, ExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -75,28 +75,28 @@ def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> Non
         fh.write(SAMPLE_DATA_VERSION)
 
 
-def validate_result(metric: Metric, config: Config, result: MetricExecutionResult) -> None:
+def validate_result(diagnostic: Diagnostic, config: Config, result: ExecutionResult) -> None:
     """
-    Asserts the correctness of the result of a metric execution
+    Asserts the correctness of the result of a diagnostic execution
 
     This should only be used by the test suite as it will create a fake
-    database entry for the metric execution result.
+    database entry for the diagnostic execution result.
     """
     # Add a fake item in the Database
     database = Database.from_config(config)
-    metric_execution_result = MetricExecutionResultModel(
-        metric_execution_group_id=1,
-        dataset_hash=result.definition.metric_dataset.hash,
+    execution = Execution(
+        execution_group_id=1,
+        dataset_hash=result.definition.datasets.hash,
         output_fragment=str(result.definition.output_fragment()),
     )
-    database.session.add(metric_execution_result)
+    database.session.add(execution)
     database.session.flush()
 
     assert result.successful
 
     # Validate bundles
     metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
-    assert metric.facets == tuple(metric_bundle.DIMENSIONS.root["json_structure"])
+    assert diagnostic.facets == tuple(metric_bundle.DIMENSIONS.root["json_structure"])
     CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
 
     # Create a fake log file if one doesn't exist
@@ -104,6 +104,4 @@ def validate_result(metric: Metric, config: Config, result: MetricExecutionResul
         result.to_output_path("out.log").touch()
 
     # This checks if the bundles are valid
-    handle_execution_result(
-        config, database=database, metric_execution_result=metric_execution_result, result=result
-    )
+    handle_execution_result(config, database=database, execution=execution, result=result)

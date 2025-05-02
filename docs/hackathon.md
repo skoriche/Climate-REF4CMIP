@@ -66,27 +66,28 @@ flowchart LR
 * **Execute** The metrics are executed and the results collated. We support multiple different ways of running metrics that may be useful for different use cases.
 * **Visualise** The results of the metrics are visualised. This can be in the form of plots, tables, or other outputs.
 
-### Metrics
-At the core of the REF is the [Metric][climate_ref_core.metrics.Metric] protocol.
+### Diagnostics
+At the core of the REF is the [Diagnostic][climate_ref_core.diagnostics.Diagnostic] protocol.
 This protocol defines the common interface that all metrics must implement.
-A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/metric-dataset-selection.py)), and how to calculate a value from them.
+A diagnostic defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/dataset-selection.py)), and how to calculate a number of metric value from them.
+These metric values can be either scalar or timeseries data.
 How a metric is actually calculated depends on which metrics provider the metric comes from.
 
-The rest of the complexity that comes from figuring out which datasets to use, how to run the metric, and how to visualise the results is handled by the REF.
+The rest of the complexity that comes from figuring out which datasets to use, how to run the diagnostic, and how to visualise the results is handled by the REF.
 
-### Metric Providers
-Metrics are grouped into packages, one for each of the metric providers selected for the CMIP7 AFT.
-These metric packages (ESMValTool, ILAMB and PMP) each have different ways of calculating metrics.
+### Diagnostic Providers
+Diagnostics are grouped into packages, one for each of the diagnostic providers selected for the CMIP7 AFT.
+These diagnostic packages (ESMValTool, ILAMB and PMP) each have different ways of calculating diagnostics.
 
-For some metric providers (ILAMB and ESMValTool),
+For some diagnostic providers (ILAMB and ESMValTool),
 an additional conda environment will be required
 to run the metrics locally.
 This is still a work in progress ([#117](https://github.com/Climate-REF/climate-ref/pull/117))
 and is expected to be available to use by the time of the hackathon.
 
-### Output
+### Ouput
 
-The output of a metric calculation can be a range of different outcomes:
+The output of a diagnostic execution can be a range of different outcomes:
 
 * Scalar values
 * Timeseries
@@ -117,7 +118,7 @@ $ ref --help
 
 ### Executors
 
-An [executor][climate_ref_core.executor.Executor] is responsible for running a metric calculation in an aync manner.
+An [executor][climate_ref_core.executor.Executor] is responsible for executing a diagnostic calculation in an aync manner.
 The REF supports multiple executors,
 each of which is responsible for running a metric calculation in a different way.
 

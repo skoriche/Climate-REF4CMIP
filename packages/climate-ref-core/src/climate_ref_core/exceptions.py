@@ -21,7 +21,7 @@ class InvalidExecutorException(RefException):
 
 
 class InvalidProviderException(RefException):
-    """Exception raised when an invalid metric is registered"""
+    """Exception raised when an invalid diagnostic is registered"""
 
     def __init__(self, provider: Any, message: str) -> None:
         message = f"Invalid provider: '{provider}'\n {message}"
@@ -29,11 +29,11 @@ class InvalidProviderException(RefException):
         super().__init__(message)
 
 
-class InvalidMetricException(RefException):
-    """Exception raised when an invalid metric is registered"""
+class InvalidDiagnosticException(RefException):
+    """Exception raised when an invalid diagnostic is registered"""
 
     def __init__(self, metric: Any, message: str) -> None:
-        message = f"Invalid metric: '{metric}'\n {message}"
+        message = f"Invalid diagnostic: '{metric}'\n {message}"
 
         super().__init__(message)
 
@@ -45,4 +45,4 @@ class ConstraintNotSatisfied(RefException):
 
 
 class ResultValidationError(RefException):
-    """Exception raised when the results from a metric execution are invalid"""
+    """Exception raised when the executions from a diagnostic are invalid"""

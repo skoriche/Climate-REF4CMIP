@@ -2,7 +2,7 @@
 CMEC output bundle class
 
 An output bundle describes the figures and data generated
-during a metric execution.
+during a diagnostic execution.
 
 Following the CMEC output bundle standards at
 https://github.com/Earth-System-Diagnostics-Standards/EMDS
@@ -35,7 +35,7 @@ class OutputCV(Enum):
     DATA = "data"
     PLOTS = "plots"
     HTML = "html"
-    METRICS = "metrics"
+    METRICS = "diagnostics"
     FILENAME = "filename"
     LONG_NAME = "long_name"
     DESCRIPTION = "description"
@@ -95,12 +95,12 @@ class CMECOutput(BaseModel):
     """
     CMEC output bundle object
 
-    Describes the assets generated during a metric execution.
+    Describes the assets generated during a diagnostic execution.
     """
 
     index: str | None = None
     """
-    Short name of the plot/html/metric that should be opened
+    Short name of the plot/html/diagnostic that should be opened
     when the user chooses to “open” the output bundle.
     """
 
@@ -128,7 +128,7 @@ class CMECOutput(BaseModel):
 
     metrics: dict[str, OutputDict] | None = None
     """
-    (optional) Dictionary of metric files produced with the output.
+    (optional) Dictionary of diagnostic files produced with the output.
     """
 
     model_config = ConfigDict(strict=True, extra="allow")
@@ -159,7 +159,7 @@ class CMECOutput(BaseModel):
     @validate_call
     def update(
         self,
-        output_kw: Literal["data", "plots", "html", "metrics"],
+        output_kw: Literal["data", "plots", "html", "diagnostics"],
         *,
         short_name: str,
         dict_content: dict[str, Any],
@@ -170,7 +170,7 @@ class CMECOutput(BaseModel):
         Parameters
         ----------
         output_kw
-            CMEC output bundle keywords, one of [data, plots, html, metrics]
+            CMEC output bundle keywords, one of [data, plots, html, diagnostics]
         short_name
             Key name of the dictionary nested in the output_kw dictionary
         dict_content

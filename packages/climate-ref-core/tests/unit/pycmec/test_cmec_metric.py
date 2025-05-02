@@ -183,7 +183,7 @@ def test_metric_attributes_each_level(cmec_right_metric_dict):
 
 
 def test_metric_attributes_in_results(cmec_right_metric_dict):
-    cmec_right_metric_dict["RESULTS"]["attributes"] = "some information for results level"
+    cmec_right_metric_dict["RESULTS"]["attributes"] = "some information for executions level"
 
     with pytest.raises(ValidationError):
         CMECMetric(**cmec_right_metric_dict)

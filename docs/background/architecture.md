@@ -5,7 +5,7 @@ against observational datasets as they are submitted.
 This near-real-time model evaluation will produce a set of scalar,
 timeseries or gridded diagnostics in combination with static web pages and figures that will be made publicly available.
 
-The CMIP7 Model Benchmarking Task Team (MBTT) has identified an initial set of metrics
+The CMIP7 Model Benchmarking Task Team (MBTT) has identified an initial set of diagnostics
 that will be implemented using existing benchmarking packages.
 The REF will improve the availability of,
 and global access to,
@@ -35,7 +35,7 @@ The REF is responsible for tracking the state of the system and ensuring that th
 The REF will also provide a set of CLI commands to allow users to interact with the system and to retrieve the results of the operations.
 
 
-![Metric execution](images/metric_execution.png)
+![Diagnostic execution](images/metric_execution.png)
 /// caption
 Figure 1: A metric in the REF context takes a set of input datasets and produces a set of outputs.
 The output could include scalar values, timeseries, or gridded diagnostics as well as static figures or HTML.
@@ -150,12 +150,12 @@ These abstractions include:
 -	[Database][climate_ref.database.Database] - Enables switching between different databases, and keeps the database layer separate from the rest of the code
 -	DatastoreManager - The underlying datastores may be POSIX file systems or S3-compatible object stores
 
-### Metrics service
+### Diagnostic service
 
 
 /// admonition | Packaging
 
-The metrics provider packages are named `climate_ref_*` and are available on PyPI.
+The diagnostic provider packages for the AFT are included in the Climate-REF GitHub repository and are available on PyPi.
 These REF-related packages are generally pretty lightweight and may not include the actual benchmarking code.
 The benchmarking code is expected to be in a separate package that is installed as a dependency,
 depending on how the REF will be deployed.
@@ -164,16 +164,16 @@ The section below describes how a non-local deployment of the REF looks like.
 For in-process execution, the metric can be called directly.
 ///
 
-The metric provider service will be responsible for performing metric calculations out-of-process
+The diagnostic provider service will be responsible for performing metric calculations out-of-process
 and returning the results to the compute engine.
 Most of the business logic for the calculation of a metric will use the existing benchmarking packages.
 
 ![Compute Engine](images/container_metric_service.png)
 /// caption
-Figure 5:  Metric Service for remotely executing metrics
+Figure 5:  Diagnostic Service for remotely executing diagnostics
 ///
 
-The worker component is the entrypoint of the service and is responsible for routing the metric request to the appropriate function.
+The worker component is the entrypoint of the service and is responsible for routing the request to the appropriate function.
 The form of the worker component will depend on which execution pattern is used.
 Possible patterns include a long-lived worker which pulls jobs from a queue if Celery is selected
 or a simple wrapper in the case where each execution is a Slurm job on an HPC.

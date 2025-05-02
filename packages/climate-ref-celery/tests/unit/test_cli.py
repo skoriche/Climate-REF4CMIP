@@ -2,7 +2,7 @@ import pytest
 from climate_ref_celery.cli import app
 from typer.testing import CliRunner
 
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.providers import DiagnosticProvider
 
 runner = CliRunner()
 
@@ -24,7 +24,7 @@ def mock_register_celery_tasks(mocker):
 
 def test_start_worker_success(mocker, mock_create_celery_app, mock_register_celery_tasks):
     mock_celery_app = mock_create_celery_app.return_value
-    mock_provider = mocker.MagicMock(spec=MetricsProvider)
+    mock_provider = mocker.MagicMock(spec=DiagnosticProvider)
     mock_provider.slug = "example"
 
     mock_import_module = mocker.patch(
@@ -52,7 +52,7 @@ def test_start_core_worker_success(mock_create_celery_app, mock_register_celery_
 
 def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_register_celery_tasks):
     mock_worker_main = mock_create_celery_app.return_value
-    mock_provider = mocker.MagicMock(spec=MetricsProvider)
+    mock_provider = mocker.MagicMock(spec=DiagnosticProvider)
     mock_provider.slug = "example"
 
     mocker.patch("importlib.import_module", return_value=mocker.Mock(provider=mock_provider))
@@ -101,7 +101,7 @@ def test_start_worker_missing_provider(mocker, mock_create_celery_app):
 
 
 def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
-    # Not a MetricsProvider
+    # Not a DiagnosticProvider
     mock_provider = mocker.Mock()
 
     mock_import_module = mocker.patch(
@@ -111,7 +111,7 @@ def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
     result = runner.invoke(app, ["start-worker", "--package", "test_package"])
 
     assert result.exit_code == 1, result.output
-    assert "Expected MetricsProvider, got <class 'unittest.mock.Mock'>" in result.output
+    assert "Expected DiagnosticProvider, got <class 'unittest.mock.Mock'>" in result.output
     mock_import_module.assert_called_once_with("test_package")
 
 

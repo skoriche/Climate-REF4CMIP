@@ -1,7 +1,7 @@
 [project]
 name = "climate-ref-example"
 version = "0.4.1"
-description = "Example metrics provider for the CMIP Rapid Evaluation Framework"
+description = "Example diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
     { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }

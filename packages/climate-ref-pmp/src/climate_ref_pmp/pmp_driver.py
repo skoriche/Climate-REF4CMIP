@@ -52,7 +52,7 @@ def process_json_result(
 
     Returns
     -------
-        tuple of CMEC output and metric bundles
+        tuple of CMEC output and diagnostic bundles
     """
     with open(json_filename) as fh:
         json_result = json.load(fh)
@@ -65,13 +65,13 @@ def process_json_result(
         cmec_output["plots"][fname.name] = {
             "filename": str(fname),
             "long_name": "Plot",
-            "description": "Plot produced by the metric",
+            "description": "Plot produced by the diagnostic",
         }
     for fname in data_files:
         cmec_output["data"][fname.name] = {
             "filename": str(fname),
             "long_name": "Output data",
-            "description": "Data produced by the metric",
+            "description": "Data produced by the diagnostic",
         }
 
     cmec_metric = CMECMetric.create_template()
@@ -146,9 +146,9 @@ def build_pmp_command(
     Run a PMP driver script via a conda environment
 
     This function runs a PMP driver script using a specific conda environment.
-    The driver script is responsible for running the PMP metrics and producing output.
-    The output consists of a JSON file that contains the results of the PMP metrics,
-    and a set of PNG and data files that are produced by the metrics.
+    The driver script is responsible for running the PMP diagnostics and producing output.
+    The output consists of a JSON file that contains the executions of the PMP diagnostics,
+    and a set of PNG and data files that are produced by the diagnostics.
 
     Parameters
     ----------

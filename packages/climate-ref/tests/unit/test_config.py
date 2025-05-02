@@ -27,7 +27,7 @@ class TestConfig:
         assert loaded.paths.results == tmp_path / "climate_ref" / "results"
         assert loaded.db.database_url == f"sqlite:///{ref_configuration_value}/db/climate_ref.db"
 
-        # The results aren't serialised back to disk
+        # The executions aren't serialised back to disk
         assert not (tmp_path / "ref.toml").exists()
         assert loaded._raw is None
         assert loaded._config_file == Path("ref.toml")
@@ -129,7 +129,7 @@ filename = "sqlite://climate_ref.db"
 
         assert without_defaults == {
             "log_level": "INFO",
-            "metric_providers": [
+            "diagnostic_providers": [
                 {"provider": "climate_ref_esmvaltool.provider"},
                 {"provider": "climate_ref_ilamb.provider"},
                 {"provider": "climate_ref_pmp.provider"},
@@ -137,7 +137,7 @@ filename = "sqlite://climate_ref.db"
         }
         assert with_defaults == {
             "log_level": "INFO",
-            "metric_providers": [
+            "diagnostic_providers": [
                 {
                     "provider": "climate_ref_esmvaltool.provider",
                     "config": {},
@@ -167,7 +167,7 @@ filename = "sqlite://climate_ref.db"
         monkeypatch.setenv("REF_EXECUTOR", "new-executor")
         monkeypatch.setenv("REF_SCRATCH_ROOT", "/my/test/scratch")
         monkeypatch.setenv("REF_LOG_ROOT", "/my/test/logs")
-        monkeypatch.setenv("REF_RESULTS_ROOT", "/my/test/results")
+        monkeypatch.setenv("REF_RESULTS_ROOT", "/my/test/executions")
 
         config_new = config.refresh()
 
@@ -175,7 +175,7 @@ filename = "sqlite://climate_ref.db"
         assert config_new.executor.executor == "new-executor"
         assert config_new.paths.scratch == Path("/my/test/scratch")
         assert config_new.paths.log == Path("/my/test/logs")
-        assert config_new.paths.results == Path("/my/test/results")
+        assert config_new.paths.results == Path("/my/test/executions")
 
     def test_executor_build(self, config, db):
         executor = config.executor.build(config, db)

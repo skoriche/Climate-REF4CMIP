@@ -1,5 +1,5 @@
 """
-Executor for running metrics asynchronously using Celery
+Executor for running diagnostics asynchronously using Celery
 """
 
 import time
@@ -11,17 +11,17 @@ from loguru import logger
 from tqdm import tqdm
 
 from climate_ref.config import Config
-from climate_ref.models import MetricExecutionResult as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_celery.app import app
 from climate_ref_celery.tasks import generate_task_name
+from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition, ExecutionResult
 from climate_ref_core.executor import Executor
-from climate_ref_core.metrics import Metric, MetricExecutionDefinition, MetricExecutionResult
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.providers import DiagnosticProvider
 
 
 class CeleryExecutor(Executor):
     """
-    Run a metric asynchronously
+    Run a diagnostic asynchronously
 
     Celery is an asynchronous task queue/job queue based on distributed message passing.
     Celery uses a message broker to distribute tasks across a cluster of worker nodes.
@@ -39,20 +39,20 @@ class CeleryExecutor(Executor):
     def __init__(self, *, config: Config, **kwargs: Any) -> None:
         self.config = config
         super().__init__(**kwargs)  # type: ignore
-        self._results: list[celery.result.AsyncResult[MetricExecutionResult]] = []
+        self._results: list[celery.result.AsyncResult[ExecutionResult]] = []
 
-    def run_metric(
+    def run(
         self,
-        provider: MetricsProvider,
-        metric: Metric,
-        definition: MetricExecutionDefinition,
-        metric_execution_result: MetricExecutionResultModel | None = None,
+        provider: DiagnosticProvider,
+        diagnostic: Diagnostic,
+        definition: ExecutionDefinition,
+        execution: Execution | None = None,
     ) -> None:
         """
-        Run a metric calculation asynchronously
+        Run a diagnostic calculation
 
-        This will queue the metric to be run by a Celery worker.
-        The results will be stored in the database when the task completes if `metric_execution_result`
+        This will queue the diagnostic to be run by a Celery worker.
+        The executions will be stored in the database when the task completes if `execution`
         is specified.
         No result will be returned from this function.
         Instead, you can periodically check the status of the task in the database.
@@ -63,30 +63,28 @@ class CeleryExecutor(Executor):
         Parameters
         ----------
         provider
-            Provider for the metric
-        metric
-            Metric to run
+            Provider for the diagnostic
+        diagnostic
+            Diagnostic to run
         definition
-            A description of the information needed for this execution of the metric
+            A description of the information needed for this execution of the diagnostic
             This includes relative paths to the data files,
             which will be converted to absolute paths when being executed
-        metric_execution_result
-            Result of the metric execution
-            This is a database object that contains the results of the execution.
-            If provided, it will be updated with the results of the execution.
-            This may happen asynchronously, so the results may not be immediately available.
+        execution
+            Result of the diagnostic execution
+            This is a database object that contains the executions of the execution.
+            If provided, it will be updated with the executions of the execution.
+            This may happen asynchronously, so the executions may not be immediately available.
         """
         from climate_ref_celery.worker_tasks import handle_result
 
-        name = generate_task_name(provider, metric)
+        name = generate_task_name(provider, diagnostic)
 
         async_result = app.send_task(
             name,
             args=[definition, self.config.log_level],
             queue=provider.slug,
-            link=handle_result.s(metric_execution_result_id=metric_execution_result.id).set(queue="celery")
-            if metric_execution_result
-            else None,
+            link=handle_result.s(execution_id=execution.id).set(queue="celery") if execution else None,
         )
         logger.debug(f"Celery task {async_result.id} submitted")
         self._results.append(async_result)

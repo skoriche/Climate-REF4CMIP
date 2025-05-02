@@ -8,14 +8,14 @@ from climate_ref.models.base import Base, CreatedUpdatedMixin
 from climate_ref_core.pycmec.controlled_vocabulary import CV, Dimension
 
 if TYPE_CHECKING:
-    from climate_ref.models.metric_execution import MetricExecutionResult
+    from climate_ref.models.execution import Execution
 
 
 class MetricValue(CreatedUpdatedMixin, Base):
     """
-    Represents a single metric value
+    Represents a single diagnostic value
 
-    This value has a number of dimensions which are used to query the metric value.
+    This value has a number of dimensions which are used to query the diagnostic value.
     These dimensions describe aspects such as the type of statistic being measured,
     the region of interest or the model from which the statistic is being measured.
 
@@ -27,12 +27,12 @@ class MetricValue(CreatedUpdatedMixin, Base):
     __tablename__ = "metric_value"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    metric_execution_result_id: Mapped[int] = mapped_column(ForeignKey("metric_execution_result.id"))
+    execution_id: Mapped[int] = mapped_column(ForeignKey("execution.id"))
 
     value: Mapped[float] = mapped_column()
     attributes: Mapped[dict[str, Any]] = mapped_column()
 
-    metric_execution_result: Mapped["MetricExecutionResult"] = relationship(back_populates="values")
+    execution: Mapped["Execution"] = relationship(back_populates="values")
 
     _cv_dimensions: ClassVar[list[str]] = []
 
@@ -58,7 +58,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
         return (
             f"<MetricValue "
             f"id={self.id} "
-            f"metric_execution={self.metric_execution_result} "
+            f"execution={self.execution} "
             f"value={self.value} "
             f"dimensions={self.dimensions}>"
         )
@@ -135,7 +135,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
         This doesn't remove any previous column definitions due to a limitation that columns in
         declarative classes cannot be removed.
         This means that `hasattr(MetricValue, "old_attribute")`
-        will still return True after resetting, but the values will not be included in any results.
+        will still return True after resetting, but the values will not be included in any executions.
         """
         logger.warning(f"Removing MetricValue dimensions: {cls._cv_dimensions}")
 
@@ -149,7 +149,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
     def build(
         cls,
         *,
-        metric_execution_result_id: int,
+        execution_id: int,
         value: float,
         dimensions: dict[str, str],
         attributes: dict[str, Any] | None,
@@ -162,12 +162,12 @@ class MetricValue(CreatedUpdatedMixin, Base):
 
         Parameters
         ----------
-        metric_execution_result_id
-            Execution result that created the metric value
+        execution_id
+            Execution that created the diagnostic value
         value
-            The value of the metric
+            The value of the diagnostic
         dimensions
-            Dimensions that describe the metric execution result
+            Dimensions that describe the diagnostic execution result
         attributes
             Optional additional attributes to describe the value,
             but are not in the controlled vocabulary.
@@ -188,7 +188,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
                 raise KeyError(f"Unknown dimension column '{k}'")
 
         return MetricValue(
-            metric_execution_result_id=metric_execution_result_id,
+            execution_id=execution_id,
             value=value,
             attributes=attributes,
             **dimensions,

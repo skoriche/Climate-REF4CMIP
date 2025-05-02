@@ -7,7 +7,8 @@
 
 This package provides Celery task generation and worker management for the Climate REF (Rapid Evaluation Framework).
 
-Diagnostic worker instances will listen for tasks related to a selected provider and execute them.
+The `climate_ref_celery` package provides a CLI tool(`ref-celery`) to start a worker instance for a diagnostics provider.
+This worker instance will listen for tasks related to a provider and execute them.
 The compute engine worker will then collect the results of these tasks and store them in the database.
 This allows for the REF to be run in a distributed manner,
 with multiple workers running on different machines with a centrally managed database.

@@ -1,7 +1,7 @@
 [project]
 name = "climate-ref-esmvaltool"
 version = "0.4.1"
-description = "ESMValTool metrics provider for the CMIP Rapid Evaluation Framework"
+description = "ESMValTool diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
     { name = "ESMValTool development team", email = "esmvaltool-dev@listserv.dfn.de " }

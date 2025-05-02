@@ -28,7 +28,7 @@ dimensions:
   long_name: ""
   description: ""
   required: true
-  allow_extra_values: false
+  allow_extra_values: true
   values:
     - name: rmse
       long_name: Root Mean Square Error

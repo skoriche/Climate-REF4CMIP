@@ -10,11 +10,11 @@ from ilamb3 import run
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
-from climate_ref_core.metrics import (
+from climate_ref_core.diagnostics import (
     DataRequirement,
-    Metric,
-    MetricExecutionDefinition,
-    MetricExecutionResult,
+    Diagnostic,
+    ExecutionDefinition,
+    ExecutionResult,
 )
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
@@ -116,7 +116,7 @@ def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
     return df
 
 
-class ILAMBStandard(Metric):
+class ILAMBStandard(Diagnostic):
     """
     Apply the standard ILAMB analysis with respect to a given reference dataset.
     """
@@ -128,9 +128,9 @@ class ILAMBStandard(Metric):
         sources: dict[str, str],
         **ilamb_kwargs: Any,
     ):
-        # Setup the metric
+        # Setup the diagnostic
         if len(sources) != 1:
-            raise ValueError("Only single source ILAMB metrics have been implemented.")
+            raise ValueError("Only single source ILAMB diagnostics have been implemented.")
         self.variable_id = next(iter(sources.keys()))
         if "sources" not in ilamb_kwargs:  # pragma: no cover
             ilamb_kwargs["sources"] = sources
@@ -169,7 +169,7 @@ class ILAMBStandard(Metric):
             dataset_registry_manager[self.registry_file],
         )
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
         Run the ILAMB standard analysis.
         """
@@ -179,12 +179,12 @@ class ILAMBStandard(Metric):
         run.run_simple(
             ref_datasets,
             self.slug,
-            definition.metric_dataset[SourceDatasetType.CMIP6].datasets,
+            definition.datasets[SourceDatasetType.CMIP6].datasets,
             definition.output_directory,
             **self.ilamb_kwargs,
         )
         df = _load_csv_and_merge(definition.output_directory)
-        metric_bundle, output_bundle = _form_bundles(definition.dataset_key, df)
-        return MetricExecutionResult.build_from_output_bundle(
+        metric_bundle, output_bundle = _form_bundles(definition.key, df)
+        return ExecutionResult.build_from_output_bundle(
             definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
         )

@@ -5,12 +5,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from climate_ref.models.base import Base, CreatedUpdatedMixin
 
 if TYPE_CHECKING:
-    from climate_ref.models.metric import Metric
+    from climate_ref.models.diagnostic import Diagnostic
 
 
 class Provider(CreatedUpdatedMixin, Base):
     """
-    Represents a provider that can provide metric calculations
+    Represents a provider that can provide diagnostic calculations
     """
 
     __tablename__ = "provider"
@@ -33,7 +33,7 @@ class Provider(CreatedUpdatedMixin, Base):
     This should map to the package version.
     """
 
-    metrics: Mapped[list["Metric"]] = relationship(back_populates="provider")
+    diagnostics: Mapped[list["Diagnostic"]] = relationship(back_populates="provider")
 
     def __repr__(self) -> str:
         return f"<Provider slug={self.slug} version={self.version}>"

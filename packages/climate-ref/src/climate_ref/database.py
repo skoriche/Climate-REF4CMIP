@@ -16,6 +16,7 @@ from urllib import parse as urlparse
 import alembic.command
 import sqlalchemy
 from alembic.config import Config as AlembicConfig
+from alembic.runtime.migration import MigrationContext
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -24,6 +25,32 @@ from climate_ref_core.pycmec.controlled_vocabulary import CV
 
 if TYPE_CHECKING:
     from climate_ref.config import Config
+
+_REMOVED_REVISIONS = [
+    "ea2aa1134cb3",
+    "4b95a617184e",
+    "4a447fbf6d65",
+    "c1818a18d87f",
+    "6634396f139a",
+    "1f5969a92b85",
+    "c5de99c14533",
+    "e1cdda7dcf1d",
+    "904f2f2db24a",
+    "6bc6ad5fc5e1",
+    "4fc26a7d2d28",
+    "4ac252ba38ed",
+]
+"""
+List of revisions that have been deleted
+
+If a user's database contains these revisions then they need to delete their database and start again.
+"""
+
+
+def _get_database_revision(connection: sqlalchemy.engine.Connection) -> str | None:
+    context = MigrationContext.configure(connection)
+    current_rev = context.get_current_revision()
+    return current_rev
 
 
 def validate_database_url(database_url: str) -> str:
@@ -113,6 +140,18 @@ class Database:
 
             This is passed to alembic
         """
+        # Check if the database revision is one of the removed revisions
+        # If it is, then we need to delete the database and start again
+        with self._engine.connect() as connection:
+            current_rev = _get_database_revision(connection)
+            logger.debug(f"Current database revision: {current_rev}")
+            if current_rev in _REMOVED_REVISIONS:
+                raise ValueError(
+                    f"Database revision {current_rev!r} has been removed in "
+                    f"https://github.com/Climate-REF/climate-ref/pull/271. "
+                    "Please delete your database and start again."
+                )
+
         alembic.command.upgrade(self.alembic_config(config), "heads")
 
     @staticmethod
@@ -142,7 +181,7 @@ class Database:
 
         if run_migrations:
             # Run any outstanding migrations
-            # This also adds any metric value columns to the DB if they don't exist
+            # This also adds any diagnostic value columns to the DB if they don't exist
             db.migrate(config)
         # Register the CV dimensions with the MetricValue model
         # This will add new columns to the db if the CVs have changed

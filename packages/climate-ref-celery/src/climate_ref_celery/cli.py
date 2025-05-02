@@ -8,12 +8,12 @@ import typer
 
 from climate_ref_celery.app import create_celery_app
 from climate_ref_celery.tasks import register_celery_tasks
-from climate_ref_core.providers import MetricsProvider
+from climate_ref_core.providers import DiagnosticProvider
 
 app = typer.Typer(help=__doc__)
 
 
-def import_provider(provider_package: str) -> MetricsProvider:
+def import_provider(provider_package: str) -> DiagnosticProvider:
     """
     Import the provider from a given package.
 
@@ -46,8 +46,8 @@ def import_provider(provider_package: str) -> MetricsProvider:
     except AttributeError:
         typer.echo("The package must define a 'provider' attribute")
         raise typer.Abort()
-    if not isinstance(provider, MetricsProvider):
-        typer.echo(f"Expected MetricsProvider, got {type(provider)}")
+    if not isinstance(provider, DiagnosticProvider):
+        typer.echo(f"Expected DiagnosticProvider, got {type(provider)}")
         raise typer.Abort()
     return provider
 
@@ -62,10 +62,11 @@ def start_worker(
     Start a Celery worker for the given package.
 
     A celery worker enables the execution of tasks in the background on multiple different nodes.
-    This worker will register a celery task for each metric in the provider.
-    The worker tasks can be executed by sending a celery task with the name '{package_name}_{metric_name}'.
+    This worker will register a celery task for each diagnostic in the provider.
+    The worker tasks can be executed by sending a celery task with the name
+    '{package_slug}_{diagnostic_slug}'.
 
-    The package must define a 'provider' variable that is an instance of 'ref_core.MetricsProvider'.
+    The package must define a 'provider' variable that is an instance of 'ref_core.DiagnosticProvider'.
     """
     # Create a new celery app
     celery_app = create_celery_app("climate_ref_celery")
@@ -74,7 +75,7 @@ def start_worker(
         # Attempt to import the provider
         provider = import_provider(package)
 
-        # Wrap each metrics in the provider with a celery tasks
+        # Wrap each diagnostics in the provider with a celery tasks
         register_celery_tasks(celery_app, provider)
         queue = provider.slug
     else:

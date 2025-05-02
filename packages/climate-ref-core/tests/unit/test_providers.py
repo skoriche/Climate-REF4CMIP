@@ -8,48 +8,48 @@ from pathlib import Path
 import pytest
 
 import climate_ref_core.providers
-from climate_ref_core.exceptions import InvalidMetricException, InvalidProviderException
-from climate_ref_core.metrics import CommandLineMetric, Metric
-from climate_ref_core.providers import CondaMetricsProvider, MetricsProvider, import_provider
+from climate_ref_core.diagnostics import CommandLineDiagnostic, Diagnostic
+from climate_ref_core.exceptions import InvalidDiagnosticException, InvalidProviderException
+from climate_ref_core.providers import CondaDiagnosticProvider, DiagnosticProvider, import_provider
 
 
 class TestMetricsProvider:
     def test_provider(self):
-        provider = MetricsProvider("provider_name", "v0.23")
+        provider = DiagnosticProvider("provider_name", "v0.23")
 
         assert provider.name == "provider_name"
         assert provider.version == "v0.23"
         assert len(provider) == 0
-        assert repr(provider) == "MetricsProvider(name='provider_name', version='v0.23')"
+        assert repr(provider) == "DiagnosticProvider(name='provider_name', version='v0.23')"
 
-    def test_provider_register(self, mock_metric):
-        provider = MetricsProvider("provider_name", "v0.23")
-        provider.register(mock_metric)
+    def test_provider_register(self, mock_diagnostic):
+        provider = DiagnosticProvider("provider_name", "v0.23")
+        provider.register(mock_diagnostic)
 
         assert len(provider) == 1
-        assert "mock" in provider._metrics
-        assert isinstance(provider.get("mock"), Metric)
+        assert "mock" in provider._diagnostics
+        assert isinstance(provider.get("mock"), Diagnostic)
 
-        assert len(provider.metrics()) == 1
-        assert provider.metrics()[0].name == "mock"
+        assert len(provider.diagnostics()) == 1
+        assert provider.diagnostics()[0].name == "mock"
 
     def test_provider_register_invalid(self):
         class InvalidMetric:
             pass
 
-        provider = MetricsProvider("provider_name", "v0.23")
-        with pytest.raises(InvalidMetricException):
+        provider = DiagnosticProvider("provider_name", "v0.23")
+        with pytest.raises(InvalidDiagnosticException):
             provider.register(InvalidMetric())
 
     def test_provider_fixture(self, provider):
         assert provider.name == "mock_provider"
         assert provider.version == "v0.1.0"
         assert len(provider) == 2
-        assert "mock" in provider._metrics
-        assert "failed" in provider._metrics
+        assert "mock" in provider._diagnostics
+        assert "failed" in provider._diagnostics
 
         result = provider.get("mock")
-        assert isinstance(result, Metric)
+        assert isinstance(result, Diagnostic)
 
 
 @pytest.mark.parametrize("fqn", ["climate_ref_esmvaltool.provider", "climate_ref_esmvaltool"])
@@ -58,7 +58,7 @@ def test_import_provider(fqn):
 
     assert provider.name == "ESMValTool"
     assert provider.slug == "esmvaltool"
-    assert isinstance(provider, MetricsProvider)
+    assert isinstance(provider, DiagnosticProvider)
 
 
 def test_import_provider_missing():
@@ -78,7 +78,7 @@ def test_import_provider_missing():
         import_provider(fqn)
 
     fqn = "climate_ref.constants.config_filename"
-    match = f"Invalid provider: '{fqn}'\n Expected MetricsProvider, got <class 'str'>"
+    match = f"Invalid provider: '{fqn}'\n Expected DiagnosticProvider, got <class 'str'>"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
@@ -107,18 +107,18 @@ def test_get_micromamba_url(mocker, sysname, machine):
 class TestCondaMetricsProvider:
     @pytest.fixture
     def provider(self, tmp_path):
-        provider = CondaMetricsProvider("provider_name", "v0.23")
+        provider = CondaDiagnosticProvider("provider_name", "v0.23")
         provider.prefix = tmp_path / "conda"
         return provider
 
     def test_no_prefix(self):
-        provider = CondaMetricsProvider("provider_name", "v0.23")
+        provider = CondaDiagnosticProvider("provider_name", "v0.23")
 
         with pytest.raises(ValueError, match="No prefix for conda environments configured.*"):
             provider.prefix
 
     def test_configure(self, config):
-        provider = CondaMetricsProvider("provider_name", "v0.23")
+        provider = CondaDiagnosticProvider("provider_name", "v0.23")
         provider.configure(config)
 
         assert isinstance(provider.prefix, Path)
@@ -153,7 +153,7 @@ class TestCondaMetricsProvider:
         conda_exe = tmp_path / "micromamba"
         provider._conda_exe = conda_exe
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "_install_conda",
             create_autospec=True,
         )
@@ -168,9 +168,9 @@ class TestCondaMetricsProvider:
             provider.get_environment_file()
 
     def test_env_path(self, mocker, tmp_path, provider):
-        metric = mocker.create_autospec(CommandLineMetric)
-        metric.slug = "mock-metric"
-        metric.__module__ = "mock_metric_provider.metrics.mock_metric"
+        metric = mocker.create_autospec(CommandLineDiagnostic)
+        metric.slug = "mock-diagnostic"
+        metric.__module__ = "mock_metric_provider.diagnostics.mock_metric"
         provider.register(metric)
 
         resources = mocker.patch.object(
@@ -202,19 +202,19 @@ class TestCondaMetricsProvider:
             yield lockfile
 
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "get_environment_file",
             create_autospec=True,
             return_value=lockfile_context(),
         )
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "get_conda_exe",
             create_autospec=True,
             return_value=conda_exe,
         )
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "env_path",
             new_callable=mocker.PropertyMock,
             return_value=env_path,
@@ -245,7 +245,7 @@ class TestCondaMetricsProvider:
         env_path = provider.prefix / "mock-env"
         env_path.mkdir(parents=True)
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "env_path",
             new_callable=mocker.PropertyMock,
             return_value=env_path,
@@ -261,18 +261,18 @@ class TestCondaMetricsProvider:
         env_path = provider.prefix / "mock-env"
 
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "create_env",
             create_autospec=True,
         )
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "get_conda_exe",
             create_autospec=True,
             return_value=conda_exe,
         )
         mocker.patch.object(
-            CondaMetricsProvider,
+            CondaDiagnosticProvider,
             "env_path",
             new_callable=mocker.PropertyMock,
             return_value=env_path,

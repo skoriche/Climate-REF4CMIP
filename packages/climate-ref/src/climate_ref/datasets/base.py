@@ -43,7 +43,6 @@ class DatasetAdapter(Protocol):
     """
 
     dataset_cls: type[Dataset]
-    file_cls: type[DatasetFile]
     slug_column: str
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...] = ()
@@ -131,7 +130,6 @@ class DatasetAdapter(Protocol):
             Registered dataset if successful, else None
         """
         DatasetModel = self.dataset_cls
-        FileModel = self.file_cls
 
         self.validate_data_catalog(data_catalog_dataset)
         unique_slugs = data_catalog_dataset[self.slug_column].unique()
@@ -149,9 +147,7 @@ class DatasetAdapter(Protocol):
             path = validate_path(dataset_file.pop("path"))
 
             db.session.add(
-                # TODO: The kwargs here should likely be sourced from a function
-                # This only works at the moment because all source types look the same
-                FileModel(
+                DatasetFile(
                     path=str(path),
                     dataset_id=dataset.id,
                     start_time=dataset_file.pop("start_time"),
@@ -178,16 +174,17 @@ class DatasetAdapter(Protocol):
             Data catalog containing the metadata for the currently ingested datasets
         """
         DatasetModel = self.dataset_cls
-        FileModel = self.file_cls
+        dataset_type = DatasetModel.__mapper_args__["polymorphic_identity"]
         # TODO: Paginate this query to avoid loading all the data at once
         if include_files:
             result = (
-                db.session.query(FileModel)
+                db.session.query(DatasetFile)
                 # The join is necessary to be able to order by the dataset columns
-                .join(FileModel.dataset)
+                .join(DatasetFile.dataset)
+                .where(Dataset.dataset_type == dataset_type)
                 # The joinedload is necessary to avoid N+1 queries (one for each dataset)
                 # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(FileModel.dataset))
+                .options(joinedload(DatasetFile.dataset.of_type(DatasetModel)))
                 .order_by(Dataset.updated_at.desc())
                 .limit(limit)
                 .all()
@@ -197,11 +194,11 @@ class DatasetAdapter(Protocol):
                 [
                     {
                         **{k: getattr(file, k) for k in self.file_specific_metadata},
-                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},  # type: ignore
+                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
                     }
                     for file in result
                 ],
-                index=[file.dataset.id for file in result],  # type: ignore
+                index=[file.dataset.id for file in result],
             )
         else:
             result_datasets = (

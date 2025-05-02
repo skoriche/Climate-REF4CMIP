@@ -12,7 +12,7 @@ from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
 from climate_ref.models import Execution
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
-from climate_ref_core.diagnostics import ExecutionResult
+from climate_ref_core.diagnostics import Diagnostic, ExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -75,7 +75,7 @@ def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> Non
         fh.write(SAMPLE_DATA_VERSION)
 
 
-def validate_result(config: Config, result: ExecutionResult) -> None:
+def validate_result(diagnostic: Diagnostic, config: Config, result: ExecutionResult) -> None:
     """
     Asserts the correctness of the result of a diagnostic execution
 
@@ -95,7 +95,8 @@ def validate_result(config: Config, result: ExecutionResult) -> None:
     assert result.successful
 
     # Validate bundles
-    CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
+    metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
+    assert diagnostic.facets == tuple(metric_bundle.DIMENSIONS.root["json_structure"])
     CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
 
     # Create a fake log file if one doesn't exist

@@ -31,4 +31,4 @@ def test_metrics(diagnostic: Diagnostic, data_catalog, tmp_path, config, mocker)
     result = diagnostic.run(definition)
 
     # Check the result
-    validate_result(config, result)
+    validate_result(diagnostic, config, result)

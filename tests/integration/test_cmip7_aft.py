@@ -75,7 +75,6 @@ def test_solve_cmip7_aft(
     print(df)
 
     # Check that all 3 diagnostic providers have been used
-    # TODO: Update once the PMP diagnostics are solving
     assert set(df["provider"].unique()) == {"esmvaltool", "ilamb", "pmp"}
 
     # TODO: Ignore the PMP diagnostics for now

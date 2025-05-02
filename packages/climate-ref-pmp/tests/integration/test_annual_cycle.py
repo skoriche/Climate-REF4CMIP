@@ -6,11 +6,11 @@ from climate_ref.solver import solve_executions
 from climate_ref.testing import validate_result
 
 
-@pytest.mark.xfail("#258")
+@pytest.mark.xfail(reason="#258")
 @pytest.mark.slow
 def test_annual_cycle(data_catalog, tmp_path, config, mocker):
-    metric = provider.get("pmp-annual-cycle")
-    mocker.patch.object(MetricExecutionResultModel, "execution")
+    diagnostic = provider.get("annual-cycle")
+    mocker.patch.object(MetricExecutionResultModel, "execution_group")
 
     # Ensure the conda prefix is set
     provider.configure(config)
@@ -19,7 +19,7 @@ def test_annual_cycle(data_catalog, tmp_path, config, mocker):
     execution = next(
         solve_executions(
             data_catalog=data_catalog,
-            diagnostic=metric,
+            diagnostic=diagnostic,
             provider=provider,
         )
     )
@@ -27,7 +27,7 @@ def test_annual_cycle(data_catalog, tmp_path, config, mocker):
     # Run the diagnostic
     definition = execution.build_execution_definition(output_root=config.paths.scratch)
     definition.output_directory.mkdir(parents=True)
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     # Check the result
-    validate_result(config, result)
+    validate_result(diagnostic, config, result)

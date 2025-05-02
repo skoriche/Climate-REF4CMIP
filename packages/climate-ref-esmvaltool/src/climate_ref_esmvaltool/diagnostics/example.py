@@ -28,6 +28,7 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
             ),
         ),
     )
+    facets = ()
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:

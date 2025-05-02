@@ -160,6 +160,7 @@ class ILAMBStandard(Diagnostic):
                 group_by=("experiment_id",),
             ),
         )
+        self.facets = ("region", "model", "metric")
 
         # Setup ILAMB data and options
         self.registry_file = registry_file

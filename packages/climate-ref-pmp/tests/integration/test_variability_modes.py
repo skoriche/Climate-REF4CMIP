@@ -30,7 +30,7 @@ variability_metrics = [
 def test_variability_modes(
     diagnostic: ExtratropicalModesOfVariability, data_catalog, tmp_path, config, mocker
 ):
-    mocker.patch.object(Execution, "execution")
+    mocker.patch.object(Execution, "execution_group")
 
     # Ensure the conda prefix is set
     provider.configure(config)

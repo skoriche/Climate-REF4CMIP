@@ -12,7 +12,7 @@ diagnostics = [pytest.param(metric, id=metric.slug) for metric in provider.diagn
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_metrics(diagnostic: Diagnostic, data_catalog, tmp_path, config, mocker):
-    mocker.patch.object(Execution, "execution")
+    mocker.patch.object(Execution, "execution_group")
     # Ensure the conda prefix is set
     provider.configure(config)
 

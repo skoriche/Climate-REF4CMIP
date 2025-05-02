@@ -14,8 +14,8 @@ variability_metrics = [
             pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
             if metric.slug
             in {
-                "pmp-extratropical-modes-of-variability-pdo",
-                "pmp-extratropical-modes-of-variability-npgo",
+                "extratropical-modes-of-variability-pdo",
+                "extratropical-modes-of-variability-npgo",
             }
             else ()
         ),

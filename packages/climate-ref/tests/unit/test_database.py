@@ -32,6 +32,16 @@ def test_database(db):
     assert db.session.is_active
 
 
+def test_database_migrate_with_old_revision(db, mocker, config):
+    # New migrations are fine
+    db.migrate(config)
+
+    # Old migrations should raise a useful error message
+    mocker.patch("climate_ref.database._get_database_revision", return_value="ea2aa1134cb3")
+    with pytest.raises(ValueError, match="Please delete your database and start again"):
+        db.migrate(config)
+
+
 def test_dataset_polymorphic(db):
     db.session.add(
         CMIP6Dataset(

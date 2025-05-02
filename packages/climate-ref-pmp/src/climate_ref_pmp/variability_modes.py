@@ -20,6 +20,8 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
     ts_modes = ("PDO", "NPGO", "AMO")
     psl_modes = ("NAO", "NAM", "PNA", "NPO", "SAM")
 
+    facets = ("model", "realization", "reference", "mode", "season", "method", "statistic")
+
     def __init__(self, mode_id: str):
         self.mode_id = mode_id.upper()
         self.name = f"Extratropical modes of variability: {mode_id}"
@@ -42,9 +44,6 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
                 )
             ]
 
-            if remove_experiments:
-                filters.append(FacetFilter(facets={"experiment_id": remove_experiments}, keep=False))
-
             return (
                 DataRequirement(
                     source_type=SourceDatasetType.obs4MIPs,
@@ -62,9 +61,7 @@ class ExtratropicalModesOfVariability(CommandLineMetric):
 
         if self.mode_id in self.ts_modes:
             self.parameter_file = "pmp_param_MoV-ts.py"
-            self.data_requirements = get_data_requirements(
-                "HadISST-1-1", "ts", "ts", remove_experiments=("amip",)
-            )
+            self.data_requirements = get_data_requirements("HadISST-1-1", "ts", "ts")
         elif self.mode_id in self.psl_modes:
             self.parameter_file = "pmp_param_MoV-psl.py"
             self.data_requirements = get_data_requirements("20CR", "psl", "psl", extra_experiments=("amip",))

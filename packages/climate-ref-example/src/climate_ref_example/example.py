@@ -153,6 +153,7 @@ class GlobalMeanTimeseries(Metric):
             ),
         ),
     )
+    facets = ("model", "region", "metric")
 
     def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
         """

@@ -1,7 +1,7 @@
 [project]
 name = "climate-ref-pmp"
 version = "0.4.0"
-description = "PMP metrics provider for the CMIP Rapid Evaluation Framework"
+description = "PMP diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
     { name = "Jiwoo Lee", email = "jwlee@llnl.gov" }

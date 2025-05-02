@@ -16,7 +16,7 @@ you may have a local archive of CMIP6 data already available.
 
 ## What is Ingestion?
 
-When processing metrics, the REF needs to know the location of the datasets and various metadata.
+When processing diagnostics, the REF needs to know the location of the datasets and various metadata.
 Ingestion is the process of extracting metadata from datasets and storing it in a local database.
 This makes it easier to query and filter datasets for further processing.
 

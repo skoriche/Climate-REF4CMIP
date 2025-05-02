@@ -69,7 +69,7 @@ flowchart LR
 ### Diagnostics
 At the core of the REF is the [Diagnostic][climate_ref_core.diagnostics.Diagnostic] protocol.
 This protocol defines the common interface that all metrics must implement.
-A diagnostic defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/metric-dataset-selection.py)), and how to calculate a number of metric value from them.
+A diagnostic defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/dataset-selection.py)), and how to calculate a number of metric value from them.
 These metric values can be either scalar or timeseries data.
 How a metric is actually calculated depends on which metrics provider the metric comes from.
 

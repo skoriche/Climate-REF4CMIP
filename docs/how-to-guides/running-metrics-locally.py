@@ -52,10 +52,10 @@ provider
 # `source_id`, `variant_id`, `variable_id` and `experiment_id` values.
 
 # %%
-metric = provider.get("global-mean-timeseries")
+diagnostic = provider.get("global-mean-timeseries")
 
 # %%
-prettyprinter.pprint(metric.data_requirements[0])
+prettyprinter.pprint(diagnostic.data_requirements[0])
 
 # %% tags=["hide_code"]
 config = Config.default()
@@ -94,7 +94,7 @@ executions_generator = solve_executions(
     data_catalog={
         SourceDatasetType.CMIP6: data_catalog,
     },
-    diagnostic=metric,
+    diagnostic=diagnostic,
     provider=provider,
 )
 
@@ -145,7 +145,7 @@ prettyprinter.pprint(definition)
 
 # %%
 definition.output_directory.mkdir(parents=True, exist_ok=True)
-direct_result = metric.run(definition=definition)
+direct_result = diagnostic.run(definition=definition)
 assert direct_result.successful
 
 prettyprinter.pprint(direct_result)
@@ -170,9 +170,9 @@ prettyprinter.pprint(direct_result)
 
 # %%
 executor = config.executor.build(config=config, database=db)
-metric = provider.get("global-mean-timeseries")
+diagnostic = provider.get("global-mean-timeseries")
 
-executor.run(provider, metric, definition=definition)
+executor.run(provider, diagnostic, definition=definition)
 
 # %%
 output_file = definition.to_output_path("output.json")

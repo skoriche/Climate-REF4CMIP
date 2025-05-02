@@ -15,7 +15,7 @@ REF is a community project, and we welcome contributions from anyone.
 
 The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
 to enable the near-realtime evaluation of CMIP7 Assessment Fast Track (AFT) datasets.
-This particular deployment will feature a set of metrics selected by
+This particular deployment will feature a set of diagnostics selected by
 the MBTT in consultation with the community (URL with the CMIP7 AFT configuration to come).
 
 The individual components of the REF have been designed to be useful for
@@ -62,10 +62,11 @@ conda install -c conda-forge climate-ref
 ### As a diagnostics provider
 
 Diagnostic providers are the core of the REF.
-They define the metrics that will be calculated and the data that will be used to calculate them,
+They define the diagnostics that will be calculated and the data that will be used to calculate them,
 by providing a consistent interface for the REF to interact with.
 
-These metrics providers can be run as standalone applications or as part of the REF.
+These diagnostic providers can be run as standalone applications or as part of the REF.
+This allows them to be used in other packages or applications that may not be using the REF compute engine.
 
 ### As a modelling center
 
@@ -73,7 +74,9 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-The REF requires some reference data to be available to run the metrics. Some of the reference datasets needed by the REF are available on ESGF yet. The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
+The REF requires some reference data to be available to run the diagnostics.
+Some of the reference datasets needed by the REF are available on ESGF yet.
+The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
 
 ```bash
 ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref

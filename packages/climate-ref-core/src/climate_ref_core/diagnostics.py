@@ -456,14 +456,13 @@ class Diagnostic(AbstractDiagnostic):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name!r})"
 
-    @property
     def full_slug(self) -> str:
         """
-        The full slug of the diagnostic.
+        Full slug that describes the diagnostic
 
         This is a combination of the provider slug and the diagnostic slug.
         """
-        return f"{self.provider.slug}.{self.slug}"
+        return f"{self.provider.slug}/{self.slug}"
 
     @property
     def provider(self) -> DiagnosticProvider:

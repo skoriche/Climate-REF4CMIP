@@ -47,7 +47,6 @@ COPY --from=build --chown=app:app /app/scripts /app/scripts
 
 # Location of the REF configuration files
 ENV REF_CONFIGURATION=/ref
-ENV REF_METRICS_ILAMB_DATA_DIR=/app/cache/ilamb
 ENV REF_METRICS_ESMVALTOOL_DATA_DIR=/app/cache/esmvaltool
 
 #RUN ref datasets fetch-data --registry ilamb

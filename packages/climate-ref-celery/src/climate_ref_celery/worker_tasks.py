@@ -8,7 +8,7 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionResult
 
 
@@ -26,16 +26,16 @@ def handle_result(result: ExecutionResult, execution_id: int) -> None:
     result
         The result of the diagnostic execution
     """
-    logger.info(f"Handling result for diagnostic execution {execution_id} + {result}")
+    logger.info(f"Handling result for execution {execution_id} + {result}")
 
     config = Config.default()
     db = Database.from_config(config, run_migrations=False)
 
     with db.session.begin():
-        metric_execution_result = db.session.get(MetricExecutionResultModel, execution_id)
+        execution = db.session.get(Execution, execution_id)
 
-        if metric_execution_result is None:
-            logger.error(f"Metric execution result {execution_id} not found")
+        if execution is None:
+            logger.error(f"Execution {execution_id} not found")
             return
 
-        handle_execution_result(config, db, metric_execution_result, result)
+        handle_execution_result(config, db, execution, result)

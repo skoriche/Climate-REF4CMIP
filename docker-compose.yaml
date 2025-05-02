@@ -32,7 +32,7 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
-      - REF_METRIC_PROVIDERS=climate_ref_example
+      - REF_DIAGNOSTIC_PROVIDERS=climate_ref_example
     build:
       context: .
       dockerfile: packages/climate-ref/Dockerfile

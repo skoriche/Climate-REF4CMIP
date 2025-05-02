@@ -43,17 +43,17 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
         logger.info(f"Created provider {provider.slug}")
         db.session.flush()
 
-    for metric in provider.diagnostics():
-        metric_model, created = db.get_or_create(
+    for diagnostic in provider.diagnostics():
+        diagnostic_model, created = db.get_or_create(
             Diagnostic,
-            slug=metric.slug,
+            slug=diagnostic.slug,
             provider_id=provider_model.id,
             defaults={
-                "name": metric.name,
+                "name": diagnostic.name,
             },
         )
         if created:
-            logger.info(f"Created diagnostic {metric_model.slug}")
+            logger.info(f"Created diagnostic {diagnostic_model.full_slug()}")
 
 
 @frozen

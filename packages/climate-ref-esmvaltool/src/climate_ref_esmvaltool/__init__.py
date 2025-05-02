@@ -17,9 +17,9 @@ provider = CondaDiagnosticProvider(
 )
 
 # Register the diagnostics.
-for _metric_cls_name in climate_ref_esmvaltool.diagnostics.__all__:
-    _metric_cls = getattr(climate_ref_esmvaltool.diagnostics, _metric_cls_name)
-    provider.register(_metric_cls())
+for _diagnostic_cls_name in climate_ref_esmvaltool.diagnostics.__all__:
+    _diagnostic_cls = getattr(climate_ref_esmvaltool.diagnostics, _diagnostic_cls_name)
+    provider.register(_diagnostic_cls())
 
 # Register OBS, OBS6, and raw data
 dataset_registry_manager.register(

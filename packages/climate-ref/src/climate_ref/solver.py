@@ -212,7 +212,7 @@ def solve_executions(
 
 def _solve_from_data_requirements(
     data_catalog: dict[SourceDatasetType, pd.DataFrame],
-    metric: Diagnostic,
+    diagnostic: Diagnostic,
     data_requirements: Sequence[DataRequirement],
     provider: DiagnosticProvider,
 ) -> typing.Generator["DiagnosticExecution", None, None]:
@@ -224,7 +224,7 @@ def _solve_from_data_requirements(
             raise TypeError(f"Expected a DataRequirement, got {type(requirement)}")
         if requirement.source_type not in data_catalog:
             raise InvalidDiagnosticException(
-                metric, f"No data catalog for source type {requirement.source_type}"
+                diagnostic, f"No data catalog for source type {requirement.source_type}"
             )
 
         dataset_groups[requirement.source_type] = extract_covered_datasets(
@@ -235,7 +235,7 @@ def _solve_from_data_requirements(
     for items in itertools.product(*dataset_groups.values()):
         yield DiagnosticExecution(
             provider=provider,
-            diagnostic=metric,
+            diagnostic=diagnostic,
             datasets=ExecutionDatasetCollection(
                 {
                     key: DatasetCollection(
@@ -332,7 +332,8 @@ def solve_required_executions(
         definition = potential_execution.build_execution_definition(output_root=config.paths.scratch)
 
         logger.debug(
-            f"Identified candidate execution {definition.key} for {potential_execution.diagnostic.full_slug}"
+            f"Identified candidate execution {definition.key} "
+            f"for {potential_execution.diagnostic.full_slug()}"
         )
 
         if dry_run:
@@ -341,7 +342,7 @@ def solve_required_executions(
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
         with db.session.begin(nested=True):
-            metric = (
+            diagnostic = (
                 db.session.query(DiagnosticModel)
                 .join(DiagnosticModel.provider)
                 .filter(
@@ -354,7 +355,7 @@ def solve_required_executions(
             execution_group, created = db.get_or_create(
                 ExecutionGroup,
                 key=definition.key,
-                diagnostic_id=metric.id,
+                diagnostic_id=diagnostic.id,
                 defaults={
                     "selectors": potential_execution.selectors,
                     "dirty": True,
@@ -364,31 +365,31 @@ def solve_required_executions(
             if created:
                 logger.info(
                     f"Created new execution group: "
-                    f"{definition.key!r}  for {potential_execution.diagnostic.full_slug}"
+                    f"{definition.key!r}  for {potential_execution.diagnostic.full_slug()}"
                 )
                 db.session.flush()
 
             if execution_group.should_run(definition.datasets.hash):
                 logger.info(
                     f"Running new execution for execution group: "
-                    f"{definition.key!r} for {potential_execution.diagnostic.full_slug}"
+                    f"{definition.key!r} for {potential_execution.diagnostic.full_slug()}"
                 )
-                metric_execution_result = Execution(
+                execution = Execution(
                     execution_group=execution_group,
                     dataset_hash=definition.datasets.hash,
                     output_fragment=str(definition.output_fragment()),
                 )
-                db.session.add(metric_execution_result)
+                db.session.add(execution)
                 db.session.flush()
 
                 # Add links to the datasets used in the execution
-                metric_execution_result.register_datasets(db, definition.datasets)
+                execution.register_datasets(db, definition.datasets)
 
                 executor.run(
                     provider=potential_execution.provider,
                     diagnostic=potential_execution.diagnostic,
                     definition=definition,
-                    execution=metric_execution_result,
+                    execution=execution,
                 )
     if timeout > 0:
         executor.join(timeout=timeout)

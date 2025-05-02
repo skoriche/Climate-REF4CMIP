@@ -1,6 +1,6 @@
 [project]
 name = "cmip_ref_metrics_example"
-version = "0.4.0"
+version = "0.4.1"
 description = "Example metrics provider for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [

@@ -21,6 +21,31 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## cmip_ref 0.4.1 (2025-05-02)
+
+### Breaking Changes
+
+- Removed unnecessary prefixes in the metric slugs.
+  This will cause duplicate results to be generated so we recommend starting with a clean REF installation. ([#263](https://github.com/Climate-REF/climate-ref/pulls/263))
+
+### Features
+
+- Added PMP's annual cycle metrics ([#221](https://github.com/Climate-REF/climate-ref/pulls/221))
+- Add a `facets` attribute to a metric.
+  This attribute is used to define the facets of the values that the metric produces. ([#255](https://github.com/Climate-REF/climate-ref/pulls/255))
+- Added a diagnostic to calculate climate variables at global warming levels. ([#257](https://github.com/Climate-REF/climate-ref/pulls/257))
+- Support multiple sets of data requirements ([#266](https://github.com/Climate-REF/climate-ref/pulls/266))
+
+### Bug Fixes
+
+- Retry downloads if they fail ([#267](https://github.com/Climate-REF/climate-ref/pulls/267))
+- PMP annual cycle output JSON tranformed to be more comply with CMEC ([#268](https://github.com/Climate-REF/climate-ref/pulls/268))
+
+### Improved Documentation
+
+- Add deprecation notices to PyPi package README's ([#269](https://github.com/Climate-REF/climate-ref/pulls/269))
+
+
 ## cmip_ref 0.4.0 (2025-04-29)
 
 ### Breaking Changes

@@ -1,10 +1,16 @@
 [project]
 name = "climate-ref"
-version = "0.4.0"
+version = "0.4.1"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
-    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" },
+    { name = "Mika Pflueger", email = "mika.pflueger@climate-resource.com" },
+    { name = "Bouwe Andela", email = "b.andela@esciencecenter.nl" },
+    { name = "Jiwoo Lee", email = "lee1043@llnl.gov" },
+    { name = "Min Xu", email = "xum1@ornl.gov" },
+    { name = "Nathan Collier", email = "collierno@ornl.gov" },
+    { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
 ]
 requires-python = ">=3.11"
 classifiers = [
@@ -39,12 +45,12 @@ postgres = [
     "psycopg2-binary>=2.9.2",
 ]
 celery = [
-    "climate-ref-celery>=0.4.0",
+    "climate-ref-celery>=0.4.1",
 ]
 metrics = [
-    "climate-ref-esmvaltool>=0.4.0",
-    "climate-ref-pmp>=0.4.0",
-    "climate-ref-ilamb>=0.4.0",
+    "climate-ref-esmvaltool>=0.4.1",
+    "climate-ref-pmp>=0.4.1",
+    "climate-ref-ilamb>=0.4.1",
 ]
 [project.license]
 text = "Apache-2.0"

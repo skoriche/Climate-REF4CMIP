@@ -14,7 +14,7 @@ class GlobalMeanTimeseries(ESMValToolMetric):
     """
 
     name = "Global Mean Timeseries"
-    slug = "esmvaltool-global-mean-timeseries"
+    slug = "global-mean-timeseries"
     base_recipe = "examples/recipe_python.yml"
 
     data_requirements = (

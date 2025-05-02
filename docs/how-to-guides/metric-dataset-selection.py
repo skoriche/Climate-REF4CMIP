@@ -105,6 +105,9 @@ for unique_id, dataset_files in data_catalog.groupby(adapter.slug_column):
 # of datasets within the data catalog that match the requirements.
 # Below are some examples showing different data requests
 # and the corresponding groups of datasets that would be executed.
+#
+# Multiple sets of these data requirements are also supported if a list of lists of data requirements
+# are specified.
 
 # %%
 from cmip_ref.solver import extract_covered_datasets

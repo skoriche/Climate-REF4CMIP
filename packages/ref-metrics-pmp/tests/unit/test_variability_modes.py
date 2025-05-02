@@ -1,7 +1,6 @@
 import shutil
 from subprocess import CalledProcessError
 
-import cmip_ref_metrics_pmp
 import pandas as pd
 import pytest
 from cmip_ref_metrics_pmp.pmp_driver import _get_resource
@@ -20,18 +19,6 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Metric) -> {pd.Da
     first_key = next(iter(datasets.keys()))
 
     return datasets[first_key]
-
-
-@pytest.fixture
-def provider(tmp_path):
-    provider = cmip_ref_metrics_pmp.provider
-    provider.prefix = tmp_path / "conda"
-    provider.prefix.mkdir()
-    provider._conda_exe = provider.prefix / "mock_micromamba"
-    provider._conda_exe.touch()
-    provider.env_path.mkdir()
-
-    return provider
 
 
 @pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")

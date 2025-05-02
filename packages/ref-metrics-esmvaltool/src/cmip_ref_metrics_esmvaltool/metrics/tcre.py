@@ -23,7 +23,7 @@ class TransientClimateResponseEmissions(ESMValToolMetric):
     """
 
     name = "Transient Climate Response to Cumulative CO2 Emissions"
-    slug = "esmvaltool-transient-climate-response-emissions"
+    slug = "transient-climate-response-emissions"
     base_recipe = "recipe_tcre.yml"
 
     experiments = (

@@ -1,5 +1,5 @@
 import pytest
-from cmip_ref_metrics_pmp.pmp_driver import build_pmp_command, process_json_result
+from cmip_ref_metrics_pmp.pmp_driver import build_glob_pattern, build_pmp_command, process_json_result
 
 from cmip_ref_core.pycmec.metric import CMECMetric
 from cmip_ref_core.pycmec.output import CMECOutput
@@ -65,16 +65,25 @@ def test_execute_missing_parameter():
         )
 
 
-def test_execute_more_than_one_model():
-    with pytest.raises(NotImplementedError, match="Only one model file is supported"):
-        build_pmp_command(
-            driver_file="variability_mode/variability_modes_driver.py",
-            parameter_file="pmp_param_MoV-ts.py",
-            model_files=["model1.nc", "model2.nc"],
-            reference_name="HadISST-1-1",
-            reference_paths=["reference.nc"],
-            source_id="source_id",
-            member_id="member_id",
-            output_directory_path="output",
-            experiment_id="historical",
-        )
+def test_build_glob_pattern_from_docstring_example():
+    paths = [
+        "/home/user/data/folder1/file1.nc",
+        "/home/user/data/folder1/file2.nc",
+        "/home/user/data/folder2/file3.nc",
+    ]
+
+    pattern = build_glob_pattern(paths)
+    expected = "/home/user/data/**/file*.nc"
+    assert pattern == expected
+
+
+def test_build_glob_pattern_same_directory():
+    paths = [
+        "/home/user/data/folder1/sample_A.nc",
+        "/home/user/data/folder1/sample_B.nc",
+        "/home/user/data/folder1/sample_C.nc",
+    ]
+
+    pattern = build_glob_pattern(paths)
+    expected = "/home/user/data/folder1/sample_*.nc"
+    assert pattern == expected

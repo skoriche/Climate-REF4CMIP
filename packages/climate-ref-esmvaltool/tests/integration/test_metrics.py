@@ -1,7 +1,7 @@
 import pytest
 from climate_ref_esmvaltool import provider
 
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref.solver import solve_executions
 from climate_ref.testing import validate_result
 from climate_ref_core.diagnostics import Diagnostic
@@ -12,7 +12,7 @@ diagnostics = [pytest.param(metric, id=metric.slug) for metric in provider.diagn
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_metrics(diagnostic: Diagnostic, data_catalog, tmp_path, config, mocker):
-    mocker.patch.object(MetricExecutionResultModel, "execution")
+    mocker.patch.object(Execution, "execution")
     # Ensure the conda prefix is set
     provider.configure(config)
 

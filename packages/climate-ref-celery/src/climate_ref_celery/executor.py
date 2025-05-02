@@ -11,7 +11,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from climate_ref.config import Config
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref_celery.app import app
 from climate_ref_celery.tasks import generate_task_name
 from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition, ExecutionResult
@@ -46,7 +46,7 @@ class CeleryExecutor(Executor):
         provider: DiagnosticProvider,
         diagnostic: Diagnostic,
         definition: ExecutionDefinition,
-        execution: MetricExecutionResultModel | None = None,
+        execution: Execution | None = None,
     ) -> None:
         """
         Run a diagnostic calculation

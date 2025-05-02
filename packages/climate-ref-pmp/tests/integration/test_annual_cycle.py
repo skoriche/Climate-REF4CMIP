@@ -1,7 +1,7 @@
 import pytest
 from climate_ref_pmp import provider
 
-from climate_ref.models import Execution as MetricExecutionResultModel
+from climate_ref.models import Execution
 from climate_ref.solver import solve_executions
 from climate_ref.testing import validate_result
 
@@ -10,7 +10,7 @@ from climate_ref.testing import validate_result
 @pytest.mark.slow
 def test_annual_cycle(data_catalog, tmp_path, config, mocker):
     diagnostic = provider.get("annual-cycle")
-    mocker.patch.object(MetricExecutionResultModel, "execution_group")
+    mocker.patch.object(Execution, "execution_group")
 
     # Ensure the conda prefix is set
     provider.configure(config)

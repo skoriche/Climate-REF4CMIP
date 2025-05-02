@@ -4,9 +4,9 @@ from collections.abc import Iterable
 import pandas as pd
 import pytest
 
-from cmip_ref.config import default_metric_providers
-from cmip_ref.database import Database
-from cmip_ref.models import MetricExecutionGroup
+from climate_ref.config import default_metric_providers
+from climate_ref.database import Database
+from climate_ref.models import MetricExecutionGroup
 
 
 def create_execution_dataframe(executions: Iterable[MetricExecutionGroup]) -> pd.DataFrame:

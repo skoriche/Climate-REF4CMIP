@@ -69,7 +69,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run --package cmip_ref_core python scripts/test-install.py
+        run: uv run --package climate_ref_core python scripts/test-install.py
 
   check-build:
     runs-on: ubuntu-latest
@@ -80,13 +80,13 @@ jobs:
       - name: Check build
         run: |
           make build
-          tar -tvf dist/cmip_ref-*.tar.gz --wildcards '*ref/py.typed' '*/LICENCE' '*/NOTICE'
-          tar -tvf dist/cmip_ref_core-*.tar.gz --wildcards '*ref_core/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate_ref-*.tar.gz --wildcards '*climate_ref/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate_ref_core-*.tar.gz --wildcards '*climate_ref_core/py.typed' '*/LICENCE' '*/NOTICE'
       - name: Check installable
         run: |
           uv pip install dist/*.whl
           uv pip freeze
-          uv run --no-sync python -c "import cmip_ref; print(cmip_ref.__version__)"
+          uv run --no-sync python -c "import climate_ref; print(climate_ref.__version__)"
           uv run --no-sync ref config list
 
   # Check if a changelog message was added to the PR

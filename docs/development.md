@@ -83,7 +83,7 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/cmip_ref_core packages/cmip_ref packages/cmip_ref_metrics-*; do
+for package in packages/climate-ref*; do
      pip install -e $package;
 done
 ```
@@ -130,8 +130,8 @@ MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
 To update a conda-lock file, run for example:
 
 ```bash
-uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
-mv conda-lock.yml packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/conda-lock.yml
+uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
+mv conda-lock.yml packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/conda-lock.yml
 ```
 
 ## Tests and code quality
@@ -171,7 +171,7 @@ Updating the sample data can be done by running the following command:
 # Fetch the latest registry from the sample data repository
 make update-sample-data-registry
 
-# Manually edit the `SAMPLE_VERSION` in `packages/ref/src/cmip_ref/testing.py`
+# Manually edit the `SAMPLE_VERSION` in `packages/climate-ref/src/climate_ref/testing.py`
 
 # Regenerate any failing regression tests that depend on the sample data catalog
 export PYTEST_ADDOPTS="--force-regen"
@@ -195,7 +195,7 @@ a service for which we are very grateful.
 The RtD configuration can be found in the `.readthedocs.yaml` file
 in the root of this repository.
 The docs are automatically deployed at
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+[climate-ref.readthedocs.io](https://climate-ref.readthedocs.io/en/latest/).
 
 ## Workflows
 
@@ -258,11 +258,11 @@ The REF uses a local Sqlite database to store state information.
 We use [alembic](https://alembic.sqlalchemy.org/en/latest/) to manage our database migrations
 as the schema of this database changes.
 
-When making changes to the database models (`cmip_ref.models`),
+When making changes to the database models (`climate_ref.models`),
 a migration must also be added (see below).
 
 The migration definitions (and the alembic configuration file)
-are included in the `cmip_ref` package (`packages/ref/src/cmip_ref/migrations`)
+are included in the `climate_ref` package (`packages/climate-ref/src/climate_ref/migrations`)
 to enable users to apply these migrations transparently.
 Any new migrations are performed automatically when using the `ref` command line tool.
 
@@ -294,7 +294,7 @@ Alembic can autogenerate these migrations for you,
 but they will need to be reviewed to ensure they are correct.
 
 ```
-uv run alembic -c packages/ref/src/cmip_ref/alembic.ini \
+uv run alembic -c packages/climate-ref/src/climate_ref/alembic.ini \
    revision --autogenerate --message "your_migration_message"
 ```
 

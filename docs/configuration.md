@@ -11,7 +11,7 @@ to make the changes easier to reproduce in future.
 
 Executor to use for running the metrics.
 
-Defaults to use the local executor ("cmip_ref.executor.local.LocalExecutor").
+Defaults to use the local executor ("climate_ref.executor.local.LocalExecutor").
 
 
 ### `REF_RESULTS_ROOT`

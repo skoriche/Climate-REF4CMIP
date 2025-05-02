@@ -1,13 +1,13 @@
 # Installation
 
-There are several ways to install and use the `cmip_ref` package and associated CLI tool:
+There are several ways to install and use the `climate-ref` package and associated CLI tool:
 
 ## PyPI
 
-You can install `cmip_ref` using `pip`:
+You can install `climate-ref` using `pip`:
 
 ```bash
-pip install cmip_ref
+pip install climate-ref
 ```
 
 The PyPi package contains some additional extras that bundle some additional dependencies.
@@ -19,12 +19,12 @@ Depending on your use case you may want to install additional extras:
 These can be installed using:
 
 ```bash
-pip install cmip_ref[celery,providers]
+pip install climate-ref[celery,providers]
 ```
 
 /// admonition | Note
 
-`pip install cmip_ref[providers]` installs the metric providers packages which container the metrics definitions,
+`pip install climate-ref[providers]` installs the metric providers packages which container the metrics definitions,
 but not necessarily the additional packages required to run the metrics.
 ///
 
@@ -43,11 +43,11 @@ The conda-forge packages are a work in progress and are not yet available.
 See [#80](https://github.com/Climate-REF/climate-ref/issues/80) for more information.
 ///
 
-You can install `cmip_ref` using `mamba` or `conda`:
+You can install `climate-ref` using `mamba` or `conda`:
 
 ```bash
-mamba install -c conda-forge cmip_ref
-conda install -c conda-forge cmip_ref
+mamba install -c conda-forge climate-ref
+conda install -c conda-forge climate-ref
 ```
 
 A modern alternative to using `conda` as package a manager is [Pixi](https://pixi.sh/dev/).
@@ -56,7 +56,7 @@ Pixi uses the same packages as `conda` but is faster and can create reproducible
 
 ## Docker
 
-You can run `cmip_ref` using Docker. First, build the Docker container from the source code:
+You can run `climate-ref` using Docker. First, build the Docker container from the source code:
 
 ```bash
 git clone https://github.com/Climate-REF/climate-ref.git
@@ -72,7 +72,7 @@ docker-compose up
 
 ## From Source
 
-To install `cmip_ref` from the source code, clone the repository and install it:
+To install `climate-ref` from the source code, clone the repository and install it:
 
 ```bash
 git clone https://github.com/Climate-REF/climate-ref.git

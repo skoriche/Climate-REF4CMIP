@@ -1,0 +1,33 @@
+"""
+Rapid evaluating CMIP data
+"""
+
+import importlib.metadata
+
+from climate_ref_core.dataset_registry import dataset_registry_manager
+from climate_ref_core.providers import CondaMetricsProvider
+from climate_ref_pmp.annual_cycle import AnnualCycle
+from climate_ref_pmp.variability_modes import ExtratropicalModesOfVariability
+
+__version__ = importlib.metadata.version("climate-ref-pmp")
+
+# Initialise the metrics manager and register the example metric
+provider = CondaMetricsProvider("PMP", __version__)
+
+# Extratropical modes of variability
+provider.register(ExtratropicalModesOfVariability("PDO"))
+provider.register(ExtratropicalModesOfVariability("NPGO"))
+provider.register(ExtratropicalModesOfVariability("NAO"))
+provider.register(ExtratropicalModesOfVariability("NAM"))
+provider.register(ExtratropicalModesOfVariability("PNA"))
+provider.register(ExtratropicalModesOfVariability("NPO"))
+provider.register(ExtratropicalModesOfVariability("SAM"))
+provider.register(AnnualCycle())
+
+
+dataset_registry_manager.register(
+    "pmp-climatology",
+    "https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/",
+    package="climate_ref_pmp.dataset_registry",
+    resource="pmp_climatology.txt",
+)

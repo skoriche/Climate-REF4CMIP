@@ -146,8 +146,8 @@ This allows the framework to retain some flexibility in places that we know will
 
 These abstractions include:
 
--	[Executor][cmip_ref_core.executor.Executor] - Allows for different task execution styles to be used
--	[Database][cmip_ref.database.Database] - Enables switching between different databases, and keeps the database layer separate from the rest of the code
+-	[Executor][climate_ref_core.executor.Executor] - Allows for different task execution styles to be used
+-	[Database][climate_ref.database.Database] - Enables switching between different databases, and keeps the database layer separate from the rest of the code
 -	DatastoreManager - The underlying datastores may be POSIX file systems or S3-compatible object stores
 
 ### Metrics service
@@ -155,7 +155,7 @@ These abstractions include:
 
 /// admonition | Packaging
 
-The metrics provider packages are named `cmip_ref_metrics_*` and are available on PyPI.
+The metrics provider packages are named `climate_ref_*` and are available on PyPI.
 These REF-related packages are generally pretty lightweight and may not include the actual benchmarking code.
 The benchmarking code is expected to be in a separate package that is installed as a dependency,
 depending on how the REF will be deployed.

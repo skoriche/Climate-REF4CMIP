@@ -1,6 +1,6 @@
 import alembic.command
 
-from cmip_ref.database import Database
+from climate_ref.database import Database
 
 
 def test_sample_data_available(sample_data_dir):

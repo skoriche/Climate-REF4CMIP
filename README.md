@@ -26,11 +26,11 @@ The REF is agnostic to what types of data and metrics are to be performed.
 
 [![CI](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml)
 [![Coverage](https://codecov.io/gh/Climate-REF/climate-ref/branch/main/graph/badge.svg)](https://codecov.io/gh/Climate-REF/climate-ref)
-[![Docs](https://readthedocs.org/projects/climate-ref/badge/?version=latest)](https://cmip-ref.readthedocs.io)
+[![Docs](https://readthedocs.org/projects/climate-ref/badge/?version=latest)](https://climate-ref.readthedocs.io)
 
 **PyPI :**
-[![PyPI](https://img.shields.io/pypi/v/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
-[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
+[![PyPI](https://img.shields.io/pypi/v/climate-ref.svg)](https://pypi.org/project/climate-ref/)
+[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/climate-ref.svg)](https://pypi.org/project/climate-ref/)
 
 **Other info :**
 [![Licence](https://img.shields.io/github/license/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/blob/main/LICENCE)
@@ -49,9 +49,9 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
 
 
 ```bash
-pip install cmip_ref
-mamba install -c conda-forge cmip_ref
-conda install -c conda-forge cmip_ref
+pip install climate-ref
+mamba install -c conda-forge climate-ref
+conda install -c conda-forge climate-ref
 ```
 
 <!--- --8<-- [end:installation] -->
@@ -114,7 +114,7 @@ docker-compose up
 <!--- --8<-- [end:getting-started] -->
 
 Full documentation can be found at:
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+[climate-ref.readthedocs.io](https://climate-ref.readthedocs.io/en/latest/).
 We recommend reading the docs there because the internal documentation links
 don't render correctly on GitHub's viewer.
 
@@ -123,6 +123,6 @@ don't render correctly on GitHub's viewer.
 
 <!--- sec-begin-installation-dev -->
 
-For information on how to contribute see https://cmip-ref.readthedocs.io/en/latest/development/.
+For information on how to contribute see https://climate-ref.readthedocs.io/en/latest/development/.
 
 <!--- sec-end-installation-dev -->

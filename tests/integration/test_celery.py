@@ -10,15 +10,15 @@ from pathlib import Path
 
 import pytest
 import redis
-from cmip_ref_celery.app import create_celery_app
-from cmip_ref_celery.tasks import register_celery_tasks
-from cmip_ref_metrics_example import provider
+from climate_ref_celery.app import create_celery_app
+from climate_ref_celery.tasks import register_celery_tasks
+from climate_ref_example import provider
 from pytest_docker_tools import container, fetch, wrappers
 
-from cmip_ref.database import Database
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.models import MetricExecutionResult
-from cmip_ref.solver import solve_metrics
+from climate_ref.database import Database
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from climate_ref.models import MetricExecutionResult
+from climate_ref.solver import solve_metrics
 
 ROOT_DIR = Path(__file__).parents[2]
 
@@ -82,7 +82,7 @@ def celery_app(redis_container, monkeypatch, config):
 
     register_celery_tasks(app, provider)
 
-    import cmip_ref_celery.worker_tasks  # noqa
+    import climate_ref_celery.worker_tasks  # noqa
 
     return app
 
@@ -93,7 +93,7 @@ def celery_worker_parameters():
 
 
 def test_celery_solving(db_seeded, config, celery_worker, redis_container, monkeypatch):
-    config.executor.executor = "cmip_ref_celery.executor.CeleryExecutor"
+    config.executor.executor = "climate_ref_celery.executor.CeleryExecutor"
     monkeypatch.setenv("CELERY_BROKER_URL", redis_container.connection_url())
     monkeypatch.setenv("CELERY_RESULT_BACKEND", redis_container.connection_url())
 

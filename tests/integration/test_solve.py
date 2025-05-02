@@ -1,5 +1,5 @@
-from cmip_ref.database import Database
-from cmip_ref.models import Dataset, MetricExecutionGroup, MetricExecutionResult
+from climate_ref.database import Database
+from climate_ref.models import Dataset, MetricExecutionGroup, MetricExecutionResult
 
 
 def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):

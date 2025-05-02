@@ -18,7 +18,7 @@
 # Metric providers can be run locally without requiring the rest of the REF infrastructure.
 # This is useful for testing and debugging metrics.
 #
-# Running a metric locally requires that the target REF metrics package, e.g. `cmip_ref_metrics_example`,
+# Running a metric locally requires that the target REF metrics package, e.g. `climate_ref_example`,
 # and its dependencies are installed in the current Python environment.
 #
 # This guide will walk you through how to run a metric provider locally.
@@ -28,20 +28,20 @@
 import json
 from pathlib import Path
 
-import cmip_ref_metrics_example
+import climate_ref_example
 import pandas as pd
 import prettyprinter
 
-from cmip_ref.config import Config
-from cmip_ref.database import Database
-from cmip_ref.datasets import get_dataset_adapter
-from cmip_ref.solver import solve_metric_executions
-from cmip_ref_core.datasets import SourceDatasetType
+from climate_ref.config import Config
+from climate_ref.database import Database
+from climate_ref.datasets import get_dataset_adapter
+from climate_ref.solver import solve_metric_executions
+from climate_ref_core.datasets import SourceDatasetType
 
 prettyprinter.install_extras(["attrs"])
 
 # %%
-provider = cmip_ref_metrics_example.provider
+provider = climate_ref_example.provider
 provider
 
 # %% [markdown]
@@ -154,17 +154,17 @@ prettyprinter.pprint(direct_result)
 # ## Metric calculations
 #
 # Metric calculations are typically run using an
-# [Executor](../../api/cmip_ref_core/executor/#cmip_ref_core.executor.Executor)
+# [Executor](../../api/climate_ref_core/executor/#climate_ref_core.executor.Executor)
 # which provides an abstraction to enable metrics to be run in multiple different ways.
 # These executors can run metrics locally, on a cluster, or on a remote service
 #
 # The simplest executor is the
-# [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor).
+# [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor).
 # This executor runs a given metric synchronously in the current process.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor](../../api/cmip_ref/executor/local/#cmip_ref.executor.local.LocalExecutor)
+# The [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor)
 # is the default executor,
 # if no other configuration is provided.
 

@@ -67,7 +67,7 @@ flowchart LR
 * **Visualise** The results of the metrics are visualised. This can be in the form of plots, tables, or other outputs.
 
 ### Metrics
-At the core of the REF is the [Metric][cmip_ref_core.metrics.Metric] protocol.
+At the core of the REF is the [Metric][climate_ref_core.metrics.Metric] protocol.
 This protocol defines the common interface that all metrics must implement.
 A metric defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/metric-dataset-selection.py)), and how to calculate a value from them.
 How a metric is actually calculated depends on which metrics provider the metric comes from.
@@ -117,12 +117,12 @@ $ ref --help
 
 ### Executors
 
-An [executor][cmip_ref_core.executor.Executor] is responsible for running a metric calculation in an aync manner.
+An [executor][climate_ref_core.executor.Executor] is responsible for running a metric calculation in an aync manner.
 The REF supports multiple executors,
 each of which is responsible for running a metric calculation in a different way.
 
-* [Local][cmip_ref.executor.local.LocalExecutor] - Runs the metric calculation locally
-* [Celery][cmip_ref_celery.executor.CeleryExecutor] - Runs the metric calculation using Celery
+* [Local][climate_ref.executor.local.LocalExecutor] - Runs the metric calculation locally
+* [Celery][climate_ref_celery.executor.CeleryExecutor] - Runs the metric calculation using Celery
 
 One of the outcomes of this Hackathon will be to add support for running metrics on HPC systems.
 

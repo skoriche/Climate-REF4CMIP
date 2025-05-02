@@ -31,11 +31,11 @@ services:
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
-      - REF_EXECUTOR=cmip_ref_celery.executor.CeleryExecutor
-      - REF_METRIC_PROVIDERS=cmip_ref_metrics_example
+      - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
+      - REF_METRIC_PROVIDERS=climate_ref_example
     build:
       context: .
-      dockerfile: packages/ref/Dockerfile
+      dockerfile: packages/climate-ref/Dockerfile
       platforms:
         - linux/amd64
     command: ref celery start-worker
@@ -48,7 +48,7 @@ services:
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
-    command: ref celery start-worker --package cmip_ref_metrics_example
+    command: ref celery start-worker --package climate_ref_example
     volumes:
       - ./tests/test-data/sample-data:/ref/data
       - ref:/ref

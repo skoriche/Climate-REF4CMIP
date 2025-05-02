@@ -20,56 +20,55 @@ class AnnualCycle(CommandLineMetric):
     Calculate the annual cycle for a dataset
     """
 
-    def __init__(self) -> None:
-        self.name = "Annual Cycle"
-        self.slug = "annual-cycle"
-        self.data_requirements = (
-            # Surface temperature
-            (
-                DataRequirement(
-                    source_type=SourceDatasetType.PMPClimatology,
-                    filters=(FacetFilter(facets={"source_id": ("ERA-5",), "variable_id": ("ts",)}),),
-                    group_by=("variable_id", "source_id"),
-                ),
-                DataRequirement(
-                    source_type=SourceDatasetType.CMIP6,
-                    filters=(
-                        FacetFilter(
-                            facets={
-                                "frequency": "mon",
-                                "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                                "variable_id": ("ts",),
-                            }
-                        ),
-                    ),
-                    group_by=("variable_id", "source_id", "experiment_id", "member_id"),
-                ),
+    name = "Annual Cycle"
+    slug = "annual-cycle"
+    facets = ("model", "realization", "reference", "mode", "season", "method", "statistic")
+    data_requirements = (
+        # Surface temperature
+        (
+            DataRequirement(
+                source_type=SourceDatasetType.PMPClimatology,
+                filters=(FacetFilter(facets={"source_id": ("ERA-5",), "variable_id": ("ts",)}),),
+                group_by=("variable_id", "source_id"),
             ),
-            # Precipitation
-            (
-                DataRequirement(
-                    source_type=SourceDatasetType.PMPClimatology,
-                    filters=(
-                        FacetFilter(facets={"source_id": ("GPCP-Monthly-3-2",), "variable_id": ("pr",)}),
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(
+                    FacetFilter(
+                        facets={
+                            "frequency": "mon",
+                            "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
+                            "variable_id": ("ts",),
+                        }
                     ),
-                    group_by=("variable_id", "source_id"),
                 ),
-                DataRequirement(
-                    source_type=SourceDatasetType.CMIP6,
-                    filters=(
-                        FacetFilter(
-                            facets={
-                                "frequency": "mon",
-                                "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                                "variable_id": ("pr",),
-                            }
-                        ),
-                    ),
-                    group_by=("variable_id", "source_id", "experiment_id", "member_id"),
-                ),
+                group_by=("variable_id", "source_id", "experiment_id", "member_id"),
             ),
-        )
+        ),
+        # Precipitation
+        (
+            DataRequirement(
+                source_type=SourceDatasetType.PMPClimatology,
+                filters=(FacetFilter(facets={"source_id": ("GPCP-Monthly-3-2",), "variable_id": ("pr",)}),),
+                group_by=("variable_id", "source_id"),
+            ),
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=(
+                    FacetFilter(
+                        facets={
+                            "frequency": "mon",
+                            "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
+                            "variable_id": ("pr",),
+                        }
+                    ),
+                ),
+                group_by=("variable_id", "source_id", "experiment_id", "member_id"),
+            ),
+        ),
+    )
 
+    def __init__(self) -> None:
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
         self.parameter_file_2 = "pmp_param_annualcycle_2-metrics.py"
 
@@ -319,7 +318,7 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
                                     stat
                                 ].pop("CalendarMonths")
                                 for i, value in enumerate(calendar_months):
-                                    key_name = f"CalendarMonth-{i+1:02d}"
+                                    key_name = f"CalendarMonth-{i + 1:02d}"
                                     data["RESULTS"][model]["default"][realization][region][stat][key_name] = (
                                         value
                                     )

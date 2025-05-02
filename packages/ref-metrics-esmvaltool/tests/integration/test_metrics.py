@@ -31,4 +31,4 @@ def test_metrics(metric: Metric, data_catalog, tmp_path, config, mocker):
     result = metric.run(definition)
 
     # Check the result
-    validate_result(config, result)
+    validate_result(metric, config, result)

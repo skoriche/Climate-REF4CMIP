@@ -1,16 +1,21 @@
 import pytest
-from cmip_ref_metrics_pmp import provider
+from cmip_ref_metrics_ilamb import provider
 
 from cmip_ref.models import MetricExecutionResult as MetricExecutionResultModel
 from cmip_ref.solver import solve_metric_executions
 from cmip_ref.testing import validate_result
+from cmip_ref_core.metrics import Metric
+
+metrics = [pytest.param(metric, id=metric.slug) for metric in provider.metrics()]
 
 
 @pytest.mark.slow
-def test_annual_cycle(data_catalog, tmp_path, config, mocker):
-    metric = provider.get("annual-cycle")
-    mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
+@pytest.mark.parametrize("metric", metrics)
+def test_metrics(metric: Metric, data_catalog, tmp_path, config, mocker):
+    if metric.slug.startswith("thetao"):
+        pytest.xfail("Skipping thetao metric: Missing sample data")
 
+    mocker.patch.object(MetricExecutionResultModel, "metric_execution_group")
     # Ensure the conda prefix is set
     provider.configure(config)
 
@@ -25,8 +30,8 @@ def test_annual_cycle(data_catalog, tmp_path, config, mocker):
 
     # Run the metric
     definition = execution.build_metric_execution_info(output_root=config.paths.scratch)
-    definition.output_directory.mkdir(parents=True)
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
     result = metric.run(definition)
 
     # Check the result
-    validate_result(config, result)
+    validate_result(metric, config, result)

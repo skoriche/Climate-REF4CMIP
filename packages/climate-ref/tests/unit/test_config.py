@@ -24,7 +24,7 @@ class TestConfig:
 
         assert loaded.paths.log == tmp_path / "climate_ref" / "log"
         assert loaded.paths.scratch == tmp_path / "climate_ref" / "scratch"
-        assert loaded.paths.results == tmp_path / "climate_ref" / "executions"
+        assert loaded.paths.results == tmp_path / "climate_ref" / "results"
         assert loaded.db.database_url == f"sqlite:///{ref_configuration_value}/db/climate_ref.db"
 
         # The executions aren't serialised back to disk
@@ -154,7 +154,7 @@ filename = "sqlite://climate_ref.db"
             "executor": {"executor": "climate_ref.executor.local.LocalExecutor", "config": {}},
             "paths": {
                 "log": f"{default_path}/log",
-                "executions": f"{default_path}/executions",
+                "results": f"{default_path}/results",
                 "scratch": f"{default_path}/scratch",
                 "software": f"{default_path}/software",
                 "dimensions_cv": str(Path("pycmec") / "cv_cmip7_aft.yaml"),

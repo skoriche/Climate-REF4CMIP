@@ -331,7 +331,9 @@ def solve_required_executions(
         # The diagnostic output is first written to the scratch directory
         definition = potential_execution.build_execution_definition(output_root=config.paths.scratch)
 
-        logger.debug(f"Identified candidate diagnostic execution {definition.key}")
+        logger.debug(
+            f"Identified candidate execution {definition.key} for {potential_execution.diagnostic.full_slug}"
+        )
 
         if dry_run:
             continue
@@ -360,11 +362,17 @@ def solve_required_executions(
             )
 
             if created:
-                logger.info(f"Created execution {definition.key}")
+                logger.info(
+                    f"Created new execution group: "
+                    f"{definition.key!r}  for {potential_execution.diagnostic.full_slug}"
+                )
                 db.session.flush()
 
             if execution_group.should_run(definition.datasets.hash):
-                logger.info(f"Running diagnostic {potential_execution.diagnostic.slug}-{execution_group.key}")
+                logger.info(
+                    f"Running new execution for execution group: "
+                    f"{definition.key!r} for {potential_execution.diagnostic.full_slug}"
+                )
                 metric_execution_result = Execution(
                     execution_group=execution_group,
                     dataset_hash=definition.datasets.hash,

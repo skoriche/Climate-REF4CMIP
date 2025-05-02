@@ -57,7 +57,7 @@ class TestExecutionList:
 class TestExecutionInspect:
     def test_inspect(self, sample_data_dir, db_seeded, invoke_cli, file_regression, config):
         # Ensure the executions path is consistent
-        config.paths.results = pathlib.Path("/executions")
+        config.paths.results = pathlib.Path("/results")
         config.save()
 
         # Create a diagnostic execution group with a result
@@ -72,17 +72,17 @@ class TestExecutionInspect:
             db_seeded.session.add(execution_group)
             db_seeded.session.flush()
 
-            result = Execution(
+            execution = Execution(
                 execution_group_id=execution_group.id,
                 successful=True,
                 output_fragment="output",
                 dataset_hash="hash",
             )
-            db_seeded.session.add(result)
+            db_seeded.session.add(execution)
             db_seeded.session.flush()
             db_seeded.session.execute(
                 execution_datasets.insert(),
-                [{"execution_id": result.id, "dataset_id": idx} for idx in [1, 2]],
+                [{"execution_id": execution.id, "dataset_id": idx} for idx in [1, 2]],
             )
         result = invoke_cli(["executions", "inspect", str(execution_group.id)])
 

@@ -128,7 +128,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
 
     assert db.session.add.call_count == 3
     mock_result_output.assert_called_with(
-        metric_execution_result_id=mock_execution_result.id,
+        execution_id=mock_execution_result.id,
         output_type=ResultOutputType.HTML,
         filename="index.html",
         short_name="index",

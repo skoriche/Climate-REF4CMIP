@@ -103,7 +103,7 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
 execution_datasets = Table(
     "execution_dataset",
     Base.metadata,
-    Column("execution", ForeignKey("execution.id")),
+    Column("execution_id", ForeignKey("execution.id")),
     Column("dataset_id", ForeignKey("dataset.id")),
 )
 

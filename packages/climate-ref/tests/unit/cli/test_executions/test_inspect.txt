@@ -1,6 +1,6 @@
 ╭──────────────────────────── Execution Details: 1 ────────────────────────────╮
 │ Key: key1                                                                    │
-│ Metric: global-mean-timeseries                                               │
+│ Diagnostic: global-mean-timeseries                                           │
 │ Provider: example                                                            │
 │ Dirty: False                                                                 │
 │ Successful: True                                                             │

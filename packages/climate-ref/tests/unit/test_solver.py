@@ -35,12 +35,12 @@ def solver(db_seeded, config) -> ExecutionSolver:
 def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
     mock_execution = mock.MagicMock(spec=DiagnosticExecution)
     mock_execution.provider = provider
-    mock_execution.metric = provider.diagnostics()[0]
+    mock_execution.diagnostic = provider.diagnostics()[0]
     mock_execution.selectors = {"cmip6": (("source_id", "Test"),)}
 
     mock_dataset_collection = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
 
-    mock_execution.build_metric_execution_info.return_value = definition_factory(
+    mock_execution.build_execution_definition.return_value = definition_factory(
         execution_dataset_collection=mock_dataset_collection
     )
     return mock_execution

@@ -228,13 +228,13 @@ def upgrade() -> None:
 
     op.create_table(
         "execution_dataset",
-        sa.Column("execution", sa.Integer(), nullable=True),
+        sa.Column("execution_id", sa.Integer(), nullable=True),
         sa.Column("dataset_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["dataset_id"], ["dataset.id"], name=op.f("fk_execution_dataset_dataset_id_dataset")
         ),
         sa.ForeignKeyConstraint(
-            ["execution"], ["execution.id"], name=op.f("fk_execution_dataset_execution_execution")
+            ["execution_id"], ["execution.id"], name=op.f("fk_execution_dataset_execution_id_execution")
         ),
     )
     op.create_table(

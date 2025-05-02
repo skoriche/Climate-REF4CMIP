@@ -71,7 +71,7 @@ def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     #    },
     #    "data": {},
     #    "html": {},
-    #    "diagnostics": {},
+    #    "metrics": {},
     #    "plots": {},
     # }
     # create_template will generate the same above dictionary

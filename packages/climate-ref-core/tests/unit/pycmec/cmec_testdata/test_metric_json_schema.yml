@@ -2,10 +2,10 @@ $defs:
   MetricDimensions:
     additionalProperties: true
     default:
-      diagnostic: {}
       json_structure:
       - model
-      - diagnostic
+      - metric
+      metric: {}
       model: {}
     description: 'CMEC diagnostic bundle DIMENSIONS object
 

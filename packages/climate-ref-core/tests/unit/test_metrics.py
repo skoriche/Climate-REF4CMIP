@@ -51,7 +51,7 @@ def cmec_right_output_dict():
             },
         },
         "html": None,
-        "diagnostics": None,
+        "metrics": None,
         "plots": None,
     }
 

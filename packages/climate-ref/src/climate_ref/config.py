@@ -142,7 +142,7 @@ class PathConfig:
 
     @results.default
     def _results_factory(self) -> Path:
-        return env.path("REF_CONFIGURATION").resolve() / "executions"
+        return env.path("REF_CONFIGURATION").resolve() / "results"
 
     @dimensions_cv.default
     def _dimensions_cv_factory(self) -> Path:

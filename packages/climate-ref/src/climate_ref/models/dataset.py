@@ -51,6 +51,41 @@ class Dataset(Base):
     __mapper_args__: ClassVar[Any] = {"polymorphic_on": dataset_type}  # type: ignore
 
 
+class DatasetFile(Base):
+    """
+    Capture the metadata for a file in a dataset
+
+    A dataset may have multiple files, but is represented as a single dataset in the database.
+    A lot of the metadata will be duplicated for each file in the dataset,
+    but this will be more efficient for querying, filtering and building a data catalog.
+    """
+
+    __tablename__ = "dataset_file"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dataset_id: Mapped[int] = mapped_column(ForeignKey("dataset.id", ondelete="CASCADE"), nullable=False)
+    """
+    Foreign key to the dataset table
+    """
+
+    start_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
+    """
+    Start time of a given file
+    """
+
+    end_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
+    """
+    Start time of a given file
+    """
+
+    path: Mapped[str] = mapped_column()
+    """
+    Prefix that describes where the dataset is stored relative to the data directory
+    """
+
+    dataset = relationship("Dataset", backref="files")
+
+
 class CMIP6Dataset(Dataset):
     """
     Represents a CMIP6 dataset
@@ -103,37 +138,6 @@ class CMIP6Dataset(Dataset):
     __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.CMIP6}  # type: ignore
 
 
-class CMIP6File(Base):
-    """
-    Capture metadata for a file in an CMIP6 dataset
-
-    A dataset may have multiple files, but is represented as a single dataset in the database.
-    A lot of the metadata will be duplicated for each file in the dataset,
-    but this will be more efficient for querying, filtering and building a data catalog.
-    """
-
-    __tablename__ = "cmip6_dataset_file"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("cmip6_dataset.id", ondelete="CASCADE"), nullable=False
-    )
-    """
-    Foreign key to the dataset table
-    """
-
-    # File-specific metadata fields to track
-    end_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    start_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-
-    path: Mapped[str] = mapped_column()
-    """
-    Prefix that describes where the dataset is stored relative to the data directory
-    """
-
-    dataset = relationship("CMIP6Dataset", backref="files")
-
-
 class Obs4MIPsDataset(Dataset):
     """
     Represents a obs4mips dataset
@@ -168,37 +172,6 @@ class Obs4MIPsDataset(Dataset):
     __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.obs4MIPs}  # type: ignore
 
 
-class Obs4MIPsFile(Base):
-    """
-    Capture metadata for a file in an obs4MIPs dataset
-
-    A dataset may have multiple files, but is represented as a single dataset in the database.
-    A lot of the metadata will be duplicated for each file in the dataset,
-    but this will be more efficient for querying, filtering and building a data catalog.
-    """
-
-    __tablename__ = "obs4mips_dataset_file"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("obs4mips_dataset.id", ondelete="CASCADE"), nullable=False
-    )
-    """
-    Foreign key to the dataset table
-    """
-
-    # File-specific metadata fields to track
-    end_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    start_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-
-    path: Mapped[str] = mapped_column()
-    """
-    Prefix that describes where the dataset is stored relative to the data directory
-    """
-
-    dataset = relationship("Obs4MIPsDataset", backref="files")
-
-
 class PMPClimatologyDataset(Dataset):
     """
     Represents a climatology dataset from PMP
@@ -231,38 +204,3 @@ class PMPClimatologyDataset(Dataset):
     Unique identifier for the dataset.
     """
     __mapper_args__: ClassVar[Any] = {"polymorphic_identity": SourceDatasetType.PMPClimatology}  # type: ignore
-
-
-class PMPClimatologyFile(Base):
-    """
-    Capture metadata for a file in an PMP Climatology dataset
-
-    A dataset may have multiple files, but is represented as a single dataset in the database.
-    A lot of the metadata will be duplicated for each file in the dataset,
-    but this will be more efficient for querying, filtering and building a data catalog.
-    """
-
-    __tablename__ = "pmp_climatology_dataset_file"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("pmp_climatology_dataset.id", ondelete="CASCADE"), nullable=False
-    )
-    """
-    Foreign key to the dataset table
-    """
-
-    # File-specific metadata fields to track
-    end_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    start_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
-
-    path: Mapped[str] = mapped_column()
-    """
-    Prefix that describes where the dataset is stored relative to the data directory
-    """
-
-    dataset = relationship("PMPClimatologyDataset", backref="files")
-
-
-DatasetFile = CMIP6File | Obs4MIPsFile | PMPClimatologyFile
-# This should be handled via polymorphic association rather than a union

@@ -10,7 +10,7 @@ import pandas as pd
 from ecgtools import Builder
 
 from climate_ref.datasets.base import DatasetAdapter
-from climate_ref.models.dataset import CMIP6Dataset, CMIP6File
+from climate_ref.models.dataset import CMIP6Dataset
 
 
 def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
@@ -71,7 +71,6 @@ class CMIP6DatasetAdapter(DatasetAdapter):
     """
 
     dataset_cls = CMIP6Dataset
-    file_cls = CMIP6File
     slug_column = "instance_id"
 
     dataset_specific_metadata = (

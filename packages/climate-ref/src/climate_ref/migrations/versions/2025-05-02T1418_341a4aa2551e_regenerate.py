@@ -1,8 +1,8 @@
 """regenerate
 
-Revision ID: 5631c52fb97c
+Revision ID: 341a4aa2551e
 Revises:
-Create Date: 2025-05-02 10:29:39.350012
+Create Date: 2025-05-02 14:18:54.273708
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "5631c52fb97c"
+revision: str = "341a4aa2551e"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -85,6 +85,21 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_cmip6_dataset")),
     )
     op.create_table(
+        "dataset_file",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("dataset_id", sa.Integer(), nullable=False),
+        sa.Column("end_time", sa.DateTime(), nullable=True),
+        sa.Column("start_time", sa.DateTime(), nullable=True),
+        sa.Column("path", sa.String(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["dataset_id"],
+            ["dataset.id"],
+            name=op.f("fk_dataset_file_dataset_id_dataset"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_dataset_file")),
+    )
+    op.create_table(
         "diagnostic",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("slug", sa.String(), nullable=False),
@@ -147,21 +162,6 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_pmp_climatology_dataset")),
     )
     op.create_table(
-        "cmip6_dataset_file",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("dataset_id", sa.Integer(), nullable=False),
-        sa.Column("end_time", sa.DateTime(), nullable=True),
-        sa.Column("start_time", sa.DateTime(), nullable=True),
-        sa.Column("path", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["dataset_id"],
-            ["cmip6_dataset.id"],
-            name=op.f("fk_cmip6_dataset_file_dataset_id_cmip6_dataset"),
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_cmip6_dataset_file")),
-    )
-    op.create_table(
         "execution_group",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("diagnostic_id", sa.Integer(), nullable=False),
@@ -179,36 +179,6 @@ def upgrade() -> None:
     with op.batch_alter_table("execution_group", schema=None) as batch_op:
         batch_op.create_index(batch_op.f("ix_execution_group_key"), ["key"], unique=False)
 
-    op.create_table(
-        "obs4mips_dataset_file",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("dataset_id", sa.Integer(), nullable=False),
-        sa.Column("end_time", sa.DateTime(), nullable=True),
-        sa.Column("start_time", sa.DateTime(), nullable=True),
-        sa.Column("path", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["dataset_id"],
-            ["obs4mips_dataset.id"],
-            name=op.f("fk_obs4mips_dataset_file_dataset_id_obs4mips_dataset"),
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_obs4mips_dataset_file")),
-    )
-    op.create_table(
-        "pmp_climatology_dataset_file",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("dataset_id", sa.Integer(), nullable=False),
-        sa.Column("end_time", sa.DateTime(), nullable=True),
-        sa.Column("start_time", sa.DateTime(), nullable=True),
-        sa.Column("path", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["dataset_id"],
-            ["pmp_climatology_dataset.id"],
-            name=op.f("fk_pmp_climatology_dataset_file_dataset_id_pmp_climatology_dataset"),
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_pmp_climatology_dataset_file")),
-    )
     op.create_table(
         "execution",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -308,16 +278,14 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f("ix_execution_dataset_hash"))
 
     op.drop_table("execution")
-    op.drop_table("pmp_climatology_dataset_file")
-    op.drop_table("obs4mips_dataset_file")
     with op.batch_alter_table("execution_group", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_execution_group_key"))
 
     op.drop_table("execution_group")
-    op.drop_table("cmip6_dataset_file")
     op.drop_table("pmp_climatology_dataset")
     op.drop_table("obs4mips_dataset")
     op.drop_table("diagnostic")
+    op.drop_table("dataset_file")
     op.drop_table("cmip6_dataset")
     op.drop_table("provider")
     op.drop_table("dataset")

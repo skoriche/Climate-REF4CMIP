@@ -12,7 +12,7 @@ from loguru import logger
 
 from climate_ref.datasets.base import DatasetAdapter
 from climate_ref.datasets.cmip6 import _parse_datetime
-from climate_ref.models.dataset import Dataset, DatasetFile, Obs4MIPsDataset, Obs4MIPsFile
+from climate_ref.models.dataset import Dataset, Obs4MIPsDataset
 
 
 def extract_attr_with_regex(
@@ -121,7 +121,6 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
     """
 
     dataset_cls: type[Dataset] = Obs4MIPsDataset
-    file_cls: type[DatasetFile] = Obs4MIPsFile
     slug_column = "instance_id"
 
     dataset_specific_metadata = (

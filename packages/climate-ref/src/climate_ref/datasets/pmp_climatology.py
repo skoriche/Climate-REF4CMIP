@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
-from climate_ref.models.dataset import PMPClimatologyDataset, PMPClimatologyFile
+from climate_ref.models.dataset import PMPClimatologyDataset
 
 
 class PMPClimatologyDatasetAdapter(Obs4MIPsDatasetAdapter):
@@ -13,4 +13,3 @@ class PMPClimatologyDatasetAdapter(Obs4MIPsDatasetAdapter):
     """
 
     dataset_cls = PMPClimatologyDataset
-    file_cls = PMPClimatologyFile

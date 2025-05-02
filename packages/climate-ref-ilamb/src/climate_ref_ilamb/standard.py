@@ -33,7 +33,7 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
     ilamb_regions = ilr.Regions()
     bundle = {
         "DIMENSIONS": {
-            "json_structure": ["region", "model", "diagnostic", "statistic"],
+            "json_structure": ["region", "model", "metric", "statistic"],
             "region": {
                 r: {
                     "LongName": "None" if r == "None" else ilamb_regions.get_name(r),
@@ -43,7 +43,7 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
                 for r in df["region"].unique()
             },
             "model": {m: {"Description": m, "Source": m} for m in df["source"].unique() if m != "Reference"},
-            "diagnostic": {
+            "metric": {
                 name: {
                     "Name": name,
                     "Abstract": "benchmark score",

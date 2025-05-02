@@ -58,9 +58,9 @@ class MetricDimensions(RootModel[Any]):
 
     root: dict[str, Any] = Field(
         default={
-            MetricCV.JSON_STRUCTURE.value: ["model", "diagnostic"],
+            MetricCV.JSON_STRUCTURE.value: ["model", "metric"],
             "model": {},
-            "diagnostic": {},
+            "metric": {},
         }
     )
 
@@ -416,7 +416,7 @@ def _walk_results(
         if key == MetricCV.ATTRIBUTES.value:
             continue
         metadata[dimension] = key
-        if isinstance(value, str | float):
+        if isinstance(value, str | float | int):
             yield MetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )

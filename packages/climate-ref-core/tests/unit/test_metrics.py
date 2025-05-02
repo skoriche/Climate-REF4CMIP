@@ -60,13 +60,13 @@ def cmec_right_output_dict():
 def cmec_right_metric_dict():
     return {
         "DIMENSIONS": {
-            "json_structure": ["model", "diagnostic", "statistic"],
+            "json_structure": ["model", "metric", "statistic"],
             "model": {
                 "E3SM": {"name": "E3SM"},
                 "CESM2": {"name": "CESM2"},
                 "IPSL-CM5A-LR": {"name": "IPSL-CM5A-LR"},
             },
-            "diagnostic": {
+            "metric": {
                 "Ecosystem and Carbon Cycle": {"name": "Ecosystem and Carbon Cycle"},
                 "Hydrology Cycle": {"name": "Hydrology Cycle"},
             },

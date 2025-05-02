@@ -186,7 +186,7 @@ def solve_executions(
 
     """
     if not diagnostic.data_requirements:
-        raise ValueError(f"Diagnostic {diagnostic.slug} has no data requirements")
+        raise ValueError(f"Diagnostic {diagnostic.slug!r} has no data requirements")
 
     first_item = next(iter(diagnostic.data_requirements))
 

@@ -149,7 +149,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
     def build(
         cls,
         *,
-        execution_result_id: int,
+        execution_id: int,
         value: float,
         dimensions: dict[str, str],
         attributes: dict[str, Any] | None,
@@ -162,8 +162,8 @@ class MetricValue(CreatedUpdatedMixin, Base):
 
         Parameters
         ----------
-        execution_result_id
-            Execution result that created the diagnostic value
+        execution_id
+            Execution that created the diagnostic value
         value
             The value of the diagnostic
         dimensions
@@ -188,7 +188,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
                 raise KeyError(f"Unknown dimension column '{k}'")
 
         return MetricValue(
-            execution_result_id=execution_result_id,
+            execution_id=execution_id,
             value=value,
             attributes=attributes,
             **dimensions,

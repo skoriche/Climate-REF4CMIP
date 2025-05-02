@@ -235,12 +235,12 @@ def mock_diagnostic() -> MockDiagnostic:
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *,
-        execution_datase_collection: ExecutionDatasetCollection | None = None,
+        execution_dataset_collection: ExecutionDatasetCollection | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
         pmp_climatology: DatasetCollection | None = None,
     ) -> ExecutionDefinition:
-        if execution_datase_collection is None:
+        if execution_dataset_collection is None:
             datasets = {}
             if cmip6:
                 datasets[SourceDatasetType.CMIP6] = cmip6
@@ -248,11 +248,11 @@ def definition_factory(tmp_path: Path, config):
                 datasets[SourceDatasetType.obs4MIPs] = obs4mips
             if pmp_climatology:
                 datasets[SourceDatasetType.PMPClimatology] = pmp_climatology
-            execution_datase_collection = ExecutionDatasetCollection(datasets)
+            execution_dataset_collection = ExecutionDatasetCollection(datasets)
 
         return ExecutionDefinition(
             key="key",
-            datasets=execution_datase_collection,
+            datasets=execution_dataset_collection,
             root_directory=config.paths.scratch,
             output_directory=config.paths.scratch / "output_fragment",
         )
@@ -270,7 +270,7 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
             }
         )
     ]
-    metric_dataset = ExecutionDatasetCollection(
+    collection = ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 selected_dataset,
@@ -278,4 +278,4 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
             )
         }
     )
-    return definition_factory(metric_dataset=metric_dataset)
+    return definition_factory(execution_dataset_collection=collection)

@@ -18,8 +18,8 @@ def create_execution_dataframe(executions: Iterable[ExecutionGroup]) -> pd.DataF
 
         data.append(
             {
-                "diagnostic": execution.metric.slug,
-                "provider": execution.metric.provider.slug,
+                "diagnostic": execution.diagnostic.slug,
+                "provider": execution.diagnostic.provider.slug,
                 "execution_id": execution.id,
                 "result_id": result.id,
                 "execution_key": execution.key,

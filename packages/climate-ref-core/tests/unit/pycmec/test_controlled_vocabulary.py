@@ -93,11 +93,11 @@ def test_invalid_dimension(cv, cmec_metric):
 def test_missing_value(cv, cmec_metric):
     cmec_metric = CMECMetric(
         DIMENSIONS={
-            "json_structure": ["model", "diagnostic", "statistic"],
+            "json_structure": ["model", "metric", "statistic"],
             "model": {
                 "E3SM": {"name": "E3SM"},
             },
-            "diagnostic": {
+            "metric": {
                 "Hydrology Cycle": {"name": "Hydrology Cycle"},
             },
             "statistic": {

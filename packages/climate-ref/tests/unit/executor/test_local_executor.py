@@ -14,7 +14,7 @@ class TestLocalExecutor:
         mock_execution_result = mocker.MagicMock()
         executor = LocalExecutor()
 
-        executor.run_metric(provider, mock_diagnostic, metric_definition, mock_execution_result)
+        executor.run(provider, mock_diagnostic, metric_definition, mock_execution_result)
         # This directory is created by the executor
         assert metric_definition.output_directory.exists()
 
@@ -35,7 +35,7 @@ class TestLocalExecutor:
 
         mock_diagnostic.run = lambda definition: 1 / 0
 
-        executor.run_metric(provider, mock_diagnostic, metric_definition, mock_execution_result)
+        executor.run(provider, mock_diagnostic, metric_definition, mock_execution_result)
 
         config, db, metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False

@@ -108,12 +108,12 @@ def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
             "json_structure": [
                 "model",
                 "region",
-                "diagnostic",
+                "metric",
                 "statistic",
             ],
             "model": {dataset.attrs["source_id"]: {}},
             "region": {"global": {}},
-            "diagnostic": {"tas": {}, "pr": {}},
+            "metric": {"tas": {}, "pr": {}},
             "statistic": {"rmse": {}, "mb": {}},
         },
         "RESULTS": {

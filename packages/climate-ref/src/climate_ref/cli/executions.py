@@ -17,6 +17,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from climate_ref.cli._utils import df_to_table, pretty_print_df
+from climate_ref.config import Config
 from climate_ref.models import Execution, ExecutionGroup
 from climate_ref.models.execution import get_execution_group_and_latest
 from climate_ref_core.executor import EXECUTION_LOG_FILENAME
@@ -178,7 +179,7 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
     Inspect a specific execution group by its ID
     """
-    config = ctx.obj.config
+    config: Config = ctx.obj.config
     session = ctx.obj.database.session
     execution_group = session.get(ExecutionGroup, execution_id)
 
@@ -193,7 +194,7 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
         return
 
     result: Execution = execution_group.executions[-1]
-    result_directory = config.paths.executions / result.output_fragment
+    result_directory = config.paths.results / result.output_fragment
 
     console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))

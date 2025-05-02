@@ -67,9 +67,9 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
     These are also used to define the dataset key.
     """
 
-    diagnostic: Mapped["Diagnostic"] = relationship(back_populates="executions")
+    diagnostic: Mapped["Diagnostic"] = relationship(back_populates="execution_groups")
     executions: Mapped[list["Execution"]] = relationship(
-        back_populates="execution", order_by="Execution.created_at"
+        back_populates="execution_group", order_by="Execution.created_at"
     )
 
     def should_run(self, dataset_hash: str) -> bool:
@@ -134,7 +134,7 @@ class Execution(CreatedUpdatedMixin, Base):
 
     execution_group_id: Mapped[int] = mapped_column(
         ForeignKey(
-            "execution.id",
+            "execution_group.id",
             name="fk_execution_id",
         )
     )
@@ -170,7 +170,7 @@ class Execution(CreatedUpdatedMixin, Base):
     These data may still be visible in the UI, but should be marked as retracted.
     """
 
-    execution_group: Mapped["ExecutionGroup"] = relationship(back_populates="execution")
+    execution_group: Mapped["ExecutionGroup"] = relationship(back_populates="executions")
     outputs: Mapped[list["ExecutionOutput"]] = relationship(back_populates="execution")
     values: Mapped[list["MetricValue"]] = relationship(back_populates="execution")
 

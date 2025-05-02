@@ -125,11 +125,11 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
             MetricCV.JSON_STRUCTURE.value: [
                 "source_id",
                 "region",
-                "diagnostic",
+                "metric",
             ],
             "source_id": {source_id: {}},
             "region": {"global": {}},
-            "diagnostic": {"ecs": {}, "lambda": {}},
+            "metric": {"ecs": {}, "lambda": {}},
         }
         metric_args[MetricCV.RESULTS.value] = {
             source_id: {

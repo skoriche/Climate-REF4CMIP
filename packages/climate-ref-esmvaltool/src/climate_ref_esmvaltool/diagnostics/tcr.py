@@ -112,11 +112,11 @@ class TransientClimateResponse(ESMValToolDiagnostic):
             "json_structure": [
                 "source_id",
                 "region",
-                "diagnostic",
+                "metric",
             ],
             "source_id": {source_id: {}},
             "region": {"global": {}},
-            "diagnostic": {"tcr": {}},
+            "metric": {"tcr": {}},
         }
         metric_args[MetricCV.RESULTS.value] = {
             source_id: {

@@ -38,10 +38,10 @@ def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
     mock_execution.metric = provider.diagnostics()[0]
     mock_execution.selectors = {"cmip6": (("source_id", "Test"),)}
 
-    mock_metric_dataset = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
+    mock_dataset_collection = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
 
     mock_execution.build_metric_execution_info.return_value = definition_factory(
-        metric_dataset=mock_metric_dataset
+        execution_dataset_collection=mock_dataset_collection
     )
     return mock_execution
 
@@ -333,7 +333,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     for definition in definitions:
         output[definition.key] = {
             str(source_type): ds_collection.instance_id.unique().tolist()
-            for source_type, ds_collection in definition.execution_dataset.items()
+            for source_type, ds_collection in definition.datasets.items()
         }
 
     # Write to a file for regression testing

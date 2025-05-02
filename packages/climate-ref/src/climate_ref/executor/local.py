@@ -33,10 +33,10 @@ class LocalExecutor:
         self.database = database
         self.config = config
 
-    def run_metric(
+    def run(
         self,
         provider: DiagnosticProvider,
-        metric: Diagnostic,
+        diagnostic: Diagnostic,
         definition: ExecutionDefinition,
         execution: Execution | None = None,
     ) -> None:
@@ -47,7 +47,7 @@ class LocalExecutor:
         ----------
         provider
             The provider of the diagnostic
-        metric
+        diagnostic
             Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
@@ -59,7 +59,7 @@ class LocalExecutor:
 
         try:
             with redirect_logs(definition, self.config.log_level):
-                result = metric.run(definition=definition)
+                result = diagnostic.run(definition=definition)
         except Exception:
             if execution is not None:  # pragma: no branch
                 info_msg = (
@@ -69,7 +69,7 @@ class LocalExecutor:
             else:
                 info_msg = ""
 
-            logger.exception(f"Error running diagnostic {metric.slug}. {info_msg}")
+            logger.exception(f"Error running diagnostic {diagnostic.slug}. {info_msg}")
             result = ExecutionResult.build_from_failure(definition)
 
         if execution:

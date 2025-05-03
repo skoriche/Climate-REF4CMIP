@@ -1,5 +1,5 @@
 [tool.towncrier]
-package = "climate-ref"
+package = "climate_ref"
 package_dir = "src"
 filename = "docs/changelog.md"
 directory = "changelog/"

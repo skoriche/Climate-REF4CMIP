@@ -21,6 +21,35 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.0 (2025-05-03)
+
+### Breaking Changes
+
+- Renamed packages to start with `climate_ref_` and removed `metrics` from the package name to avoid confusion.
+  This changes the root name of the PyPi packages from `cmip_ref` to `climate-ref` and will require updating your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref` instead of `cmip_ref`. ([#270](https://github.com/Climate-REF/climate-ref/pulls/270))
+- Clarified the difference between a diagnostic and a metric.
+  This caused significant refactoring of names of classes and functions throughout the codebase,
+  as well as renaming of database tables.
+
+  | Package                      | Old Name                   | New Name                      |
+  |------------------------------|----------------------------|-------------------------------|
+  | climate_ref_core.diagnostics | Metric                     | Diagnostic                    |
+  | climate_ref_core.diagnostics | MetricExecutionDefinition  | ExecutionDefinition           |
+  | climate_ref_core.diagnostics | MetricExecutionResult      | ExecutionResult               |
+  | climate_ref.models.execution | MetricExecutionResultß     | Execution                     |
+  | climate_ref.models.execution | MetricExecutionGroup       | ExecutionGroup                |
+  | climate_ref.models.execution | ResultOutput               | ExecutionOutput               |
+  | climate_ref_core.datasets    | MetricDataset              | ExecutionDatasetCollection    |
+  | climate_ref_core.solver      | MetricSolver               | ExecutionSolver               |
+  | climate_ref_core.providers   | MetricsProvider            | DiagnosticProvider            |
+  | climate_ref_core.providers   | CommandLineMetricsProvider | CommandLineDiagnosticProvider |
+  | climate_ref_core.providers   | CondaMetricsProvider       | CondaDiagnosticProvider       |
+  | climate_ref.config           | MetricsProviderConfig      | DiagnosticProviderConfig      |
+
+  This removes any previous database migrations and replaces them with a new clean migration.
+  If you have an existing database, you will need to delete it and re-create it. ([#271](https://github.com/Climate-REF/climate-ref/pulls/271))
+
+
 ## cmip_ref 0.4.1 (2025-05-02)
 
 ### Breaking Changes

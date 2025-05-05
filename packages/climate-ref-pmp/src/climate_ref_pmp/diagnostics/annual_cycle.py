@@ -101,15 +101,18 @@ class AnnualCycle(CommandLineDiagnostic):
             Command arguments to execute in the PMP environment
         """
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
-        source_id = input_datasets["source_id"].unique()[0]
-        experiment_id = input_datasets["experiment_id"].unique()[0]
-        member_id = input_datasets["member_id"].unique()[0]
-        variable_id = input_datasets["variable_id"].unique()[0]
+        reference_datasets = definition.datasets[SourceDatasetType.PMPClimatology]
 
-        logger.debug(f"input_datasets['source_id'].unique(): {input_datasets['source_id'].unique()}")
-        logger.debug(f"input_datasets['experiment_id'].unique(): {input_datasets['experiment_id'].unique()}")
-        logger.debug(f"input_datasets['member_id'].unique(): {input_datasets['member_id'].unique()}")
-        logger.debug(f"input_datasets['variable_id'].unique(): {input_datasets['variable_id'].unique()}")
+        selector = input_datasets.selector_dict()
+        reference_selector = reference_datasets.selector_dict()
+
+        source_id = selector["source_id"]
+        experiment_id = selector["experiment_id"]
+        member_id = selector["member_id"]
+        variable_id = selector["variable_id"]
+
+        logger.debug(f"selector: {selector}")
+        logger.debug(f"reference selector: {reference_selector}")
 
         model_files_raw = input_datasets.path.to_list()
         if len(model_files_raw) == 1:
@@ -123,22 +126,11 @@ class AnnualCycle(CommandLineDiagnostic):
 
         logger.debug(f"input_datasets: {input_datasets}")
         logger.debug(f"input_datasets.keys(): {input_datasets.keys()}")
-        logger.debug(f"input_datasets['variable_id']: {input_datasets['variable_id']}")
 
-        logger.debug(f"source_id: {source_id}")
-        logger.debug(f"experiment_id: {experiment_id}")
-        logger.debug(f"member_id: {member_id}")
-        logger.debug(f"variable_id: {variable_id}")
+        reference_dataset_name = reference_datasets["source_id"].unique()[0]
+        reference_dataset_path = reference_datasets.datasets.iloc[0]["path"]
 
-        reference_dataset = definition.datasets[SourceDatasetType.PMPClimatology]
-        reference_dataset_name = reference_dataset["source_id"].unique()[0]
-        reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
-
-        logger.debug(f"reference_dataset.datasets: {reference_dataset.datasets}")
-        logger.debug(f"reference_dataset['source_id']: {reference_dataset['source_id']}")
-        logger.debug(
-            f"reference_dataset.datasets.iloc[0]['path']: {reference_dataset.datasets.iloc[0]['path']}"
-        )
+        logger.debug(f"reference_dataset.datasets: {reference_datasets.datasets}")
 
         logger.debug(f"reference_dataset_name: {reference_dataset_name}")
         logger.debug(f"reference_dataset_path: {reference_dataset_path}")
@@ -256,6 +248,11 @@ class AnnualCycle(CommandLineDiagnostic):
             results_file_transformed, png_files, data_files
         )
 
+        # Add missing dimensions to the output
+        # TODO: Add reference source id
+        selectors = input_datasets.selector
+        cmec_metric = cmec_metric.prepend_values({key: value for key, value in selectors})
+
         return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output_bundle,
@@ -276,7 +273,6 @@ class AnnualCycle(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        logger.debug("PMP annual cycle run start")
         cmds = self.build_cmds(definition)
 
         runs = [self.provider.run(cmd) for cmd in cmds]
@@ -299,41 +295,27 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
     dict
         The transformed executions dictionary.
     """
+    # Remove the model, reference, rip dimensions
+    # These are later replaced with a REF-specific naming convention
+    models = list(data["DIMENSIONS"]["model"].keys())
+    references = list(data["DIMENSIONS"]["reference"].keys())
+    realizations = list(data["DIMENSIONS"]["rip"].keys())
+
+    assert len(models) == 1, "Multiple models found in the data"
+    assert len(references) == 1, "Multiple references found in the data"
+    assert len(realizations) == 1, "Multiple realizations found in the data"
+
+    inner_results = data["RESULTS"][models[0]][references[0]][realizations[0]]
+
+    # TODO: replace this with the ability to capture series
     # Remove the "CalendarMonths" key from the nested structure
-    if "RESULTS" in data:
-        models = list(data["RESULTS"].keys())
-        for model in models:
-            if "default" in data["RESULTS"][model]:
-                realizations = list(data["RESULTS"][model]["default"].keys())
-                if "attributes" in realizations:
-                    realizations.remove("attributes")
-                for realization in realizations:
-                    regions = list(data["RESULTS"][model]["default"][realization].keys())
-                    for region in regions:
-                        stats = list(data["RESULTS"][model]["default"][realization][region].keys())
-                        for stat in stats:
-                            if (
-                                "CalendarMonths"
-                                in data["RESULTS"][model]["default"][realization][region][stat]
-                            ):
-                                calendar_months = data["RESULTS"][model]["default"][realization][region][
-                                    stat
-                                ].pop("CalendarMonths")
-                                for i, value in enumerate(calendar_months):
-                                    key_name = f"CalendarMonth-{i + 1:02d}"
-                                    data["RESULTS"][model]["default"][realization][region][stat][key_name] = (
-                                        float(value)
-                                    )
+    for region, region_values in inner_results.items():
+        for stat, stat_values in region_values.items():
+            if "CalendarMonths" in stat_values:
+                stat_values.pop("CalendarMonths")
 
     # Remove the "CalendarMonths" key from the nested structure in "DIMENSIONS"
-    if (
-        "DIMENSIONS" in data
-        and "season" in data["DIMENSIONS"]
-        and "CalendarMonths" in data["DIMENSIONS"]["season"]
-    ):
-        calendar_months = data["DIMENSIONS"]["season"].pop("CalendarMonths")
-        for i in range(1, 13):
-            key_name = f"CalendarMonth-{i:02d}"
-            data["DIMENSIONS"]["season"][key_name] = {}
-
+    data["DIMENSIONS"]["season"].pop("CalendarMonths")
+    # drop the first 3 elements of the "json_structure" list
+    data["DIMENSIONS"]["json_structure"] = data["DIMENSIONS"]["json_structure"][3:]
     return data

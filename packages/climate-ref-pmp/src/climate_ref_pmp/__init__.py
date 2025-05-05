@@ -6,7 +6,7 @@ import importlib.metadata
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.providers import CondaDiagnosticProvider
-from climate_ref_pmp.diagnostics import AnnualCycle, ENSO, ExtratropicalModesOfVariability
+from climate_ref_pmp.diagnostics import ENSO, AnnualCycle, ExtratropicalModesOfVariability
 
 __version__ = importlib.metadata.version("climate-ref-pmp")
 

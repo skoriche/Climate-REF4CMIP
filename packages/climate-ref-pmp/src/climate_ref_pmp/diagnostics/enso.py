@@ -84,8 +84,11 @@ class ENSO(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        # Get the input datasets information for the model
+        mc_name = self.metrics_collection
 
+        # ------------------------------------------------
+        # Get the input datasets information for the model
+        # ------------------------------------------------
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
         source_id = input_datasets["source_id"].unique()[0]
         experiment_id = input_datasets["experiment_id"].unique()[0]
@@ -105,8 +108,9 @@ class ENSO(CommandLineDiagnostic):
                 "landmaskname": list_name_land,
             }
 
+        # -------------------------------------------------------
         # Get the input datasets information for the observations
-
+        # -------------------------------------------------------
         reference_dataset = definition.datasets[SourceDatasetType.obs4MIPs]
         reference_dataset_names = reference_dataset["source_id"].unique()
 
@@ -126,11 +130,12 @@ class ENSO(CommandLineDiagnostic):
         # Create input directory
         dictDatasets = {"model": dict_mod, "observations": dict_obs}
 
+        # ------------------------------
         # Computes the metric collection
+        # ------------------------------
         # https://github.com/CLIVAR-PRP/ENSO_metrics/blob/d50c2613354564a155e0fe0f637eb448dfd7c479/lib/EnsoComputeMetricsLib.py#L59
-        logger.debug("\n### Compute the metric collection ###\n")
-
-        mc_name = self.metrics_collection
+        
+        logger.debug("\n### PMP ENSO: Compute the metric collection ###\n")
 
         dict_metric = {}
         dict_dive = {}

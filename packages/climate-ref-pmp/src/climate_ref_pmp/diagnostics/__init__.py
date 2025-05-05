@@ -5,7 +5,7 @@ from climate_ref_pmp.diagnostics.enso import ENSO
 from climate_ref_pmp.diagnostics.variability_modes import ExtratropicalModesOfVariability
 
 __all__ = [
-    "AnnualCycle",
     "ENSO",
+    "AnnualCycle",
     "ExtratropicalModesOfVariability",
 ]

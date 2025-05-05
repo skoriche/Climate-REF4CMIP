@@ -389,8 +389,8 @@ class CMECMetric(BaseModel):
 
         return cls(DIMENSIONS=merged_obj_dims, RESULTS=merged_obj_rlts)
 
-    @validate_call
-    def prepend_values(self, values: dict[str, str]) -> "CMECMetric":
+    @classmethod
+    def prepend_dimensions(self, values: dict[str, str]) -> "CMECMetric":
         """
         Prepend the existing metric values with additional dimensions
 

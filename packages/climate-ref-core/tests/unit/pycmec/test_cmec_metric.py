@@ -362,7 +362,7 @@ def test_metric_json_schema(data_regression):
 def test_metric_prepend(cmec_right_metric_dict):
     metric = CMECMetric(**cmec_right_metric_dict)
 
-    result = metric.prepend_values({"test": "value", "other": "inner"})
+    result = metric.prepend_dimensions({"test": "value", "other": "inner"})
 
     assert id(result) != id(metric)
 
@@ -380,4 +380,4 @@ def test_metric_prepend_duplicate(cmec_right_metric_dict):
     metric = CMECMetric(**cmec_right_metric_dict)
 
     with pytest.raises(ValueError, match="Dimension 'model' is already defined in the metric bundle"):
-        metric.prepend_values({"model": "value", "other": "inner"})
+        metric.prepend_dimensions({"model": "value", "other": "inner"})

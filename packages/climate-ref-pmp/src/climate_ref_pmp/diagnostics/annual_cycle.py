@@ -251,7 +251,7 @@ class AnnualCycle(CommandLineDiagnostic):
         # Add missing dimensions to the output
         # TODO: Add reference source id
         selectors = input_datasets.selector
-        cmec_metric = cmec_metric.prepend_values({key: value for key, value in selectors})
+        cmec_metric_bundle = cmec_metric_bundle.prepend_dimensions({key: value for key, value in selectors})
 
         return ExecutionResult.build_from_output_bundle(
             definition,

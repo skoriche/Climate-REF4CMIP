@@ -1,0 +1,67 @@
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/plots/cmip6/ecs/ACCESS-ESM1-5.png
+: &id001
+  ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  authors:
+  - schlund_manuel
+  caption: Scatterplot between TOA radiance and global mean surface temperature anomaly
+    for 150 years of the abrupt 4x CO2 experiment including linear regression to calculate
+    ECS for ACCESS-ESM1-5 (CMIP6).
+  domains:
+  - global
+  plot_types:
+  - scatter
+  realms:
+  - atmos
+  references:
+  - gregory04grl
+  statistics:
+  - mean
+  - diff
+  themes:
+  - phys
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/work/cmip6/ecs/ecs.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  authors:
+  - schlund_manuel
+  caption: Equilibrium Climate Sensitivity (Gregory method) for multiple climate models.
+  domains:
+  - global
+  realms:
+  - atmos
+  references:
+  - gregory04grl
+  statistics:
+  - mean
+  - diff
+  themes:
+  - phys
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/work/cmip6/ecs/ecs_regression_ACCESS-ESM1-5.nc
+: *id001
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/work/cmip6/ecs/lambda.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/rtnt/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_rtnt_gn_01010116T120000-01251216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_abrupt-4xCO2_r1i1p1f1_tas_gn_01010116T120000-01251216T120000.nc
+  authors:
+  - schlund_manuel
+  caption: Climate Feedback Parameter for multiple climate models.
+  domains:
+  - global
+  realms:
+  - atmos
+  references:
+  - gregory04grl
+  statistics:
+  - mean
+  - diff
+  themes:
+  - phys

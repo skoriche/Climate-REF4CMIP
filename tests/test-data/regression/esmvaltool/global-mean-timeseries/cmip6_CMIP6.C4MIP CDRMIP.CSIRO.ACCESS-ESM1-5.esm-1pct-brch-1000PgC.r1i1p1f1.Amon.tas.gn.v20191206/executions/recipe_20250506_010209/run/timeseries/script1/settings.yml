@@ -1,0 +1,17 @@
+quickplot:
+  plot_type: plot
+recipe: recipe.yml
+version: 2.12.0
+script: script1
+run_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/run/timeseries/script1
+plot_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/plots/timeseries/script1
+work_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/work/timeseries/script1
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /Users/jared/auxiliary_data
+themes:
+- phys
+realms:
+- atmos
+input_files:
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/preproc/timeseries/tas/metadata.yml

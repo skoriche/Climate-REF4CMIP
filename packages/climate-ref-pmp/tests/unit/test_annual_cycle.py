@@ -2,7 +2,8 @@ import datetime
 
 import pandas as pd
 import pytest
-from climate_ref_pmp import AnnualCycle, provider
+from climate_ref_pmp import AnnualCycle
+from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.pmp_driver import _get_resource
 
 from climate_ref.solver import extract_covered_datasets, solve_executions
@@ -10,9 +11,9 @@ from climate_ref_core.datasets import DatasetCollection, SourceDatasetType
 from climate_ref_core.diagnostics import Diagnostic
 
 
-def get_first_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {pd.DataFrame}:
+def get_first_match(data_catalog: pd.DataFrame, diagostic: Diagnostic) -> {pd.DataFrame}:
     # obs4mips requirement is first
-    datasets = extract_covered_datasets(data_catalog, metric.data_requirements[1])
+    datasets = extract_covered_datasets(data_catalog, diagostic.data_requirements[1])
     assert len(datasets) > 0
     first_key = next(iter(datasets.keys()))
 
@@ -36,43 +37,43 @@ def test_expected_executions():
             columns=["source_id", "variable_id"],
         ),
     }
-    executions = list(solve_executions(data_catalog, diagnostic, provider=provider))
+    executions = list(solve_executions(data_catalog, diagnostic, provider=pmp_provider))
     assert len(executions) == 3
 
     # ts
     assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (
-        ("variable_id", "ts"),
-        ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r1i1p1f1"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("variable_id", "ts"),
     )
     assert executions[0].datasets[SourceDatasetType.PMPClimatology].selector == (
-        ("variable_id", "ts"),
         ("source_id", "ERA-5"),
+        ("variable_id", "ts"),
     )
 
     # ts with different member_id
     assert executions[1].datasets[SourceDatasetType.CMIP6].selector == (
-        ("variable_id", "ts"),
-        ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r2i1p1f1"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("variable_id", "ts"),
     )
     assert executions[0].datasets[SourceDatasetType.PMPClimatology].selector == (
-        ("variable_id", "ts"),
         ("source_id", "ERA-5"),
+        ("variable_id", "ts"),
     )
 
     # pr
     assert executions[2].datasets[SourceDatasetType.CMIP6].selector == (
-        ("variable_id", "pr"),
-        ("source_id", "ACCESS-ESM1-5"),
         ("experiment_id", "historical"),
         ("member_id", "r1i1p1f1"),
+        ("source_id", "ACCESS-ESM1-5"),
+        ("variable_id", "pr"),
     )
     assert executions[2].datasets[SourceDatasetType.PMPClimatology].selector == (
-        ("variable_id", "pr"),
         ("source_id", "GPCP-Monthly-3-2"),
+        ("variable_id", "pr"),
     )
 
 
@@ -202,7 +203,7 @@ def test_diagnostic_run(mocker, provider):
     diagnostic.build_execution_result.assert_called_once_with("definition")
 
 
-def test_build_cmd_raises(provider):
+def test_build_cmd_raises():
     diagnostic = AnnualCycle()
     with pytest.raises(NotImplementedError):
         diagnostic.build_cmd("definition")

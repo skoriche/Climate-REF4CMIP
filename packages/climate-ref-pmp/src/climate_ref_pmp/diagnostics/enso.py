@@ -1,4 +1,7 @@
-from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection
+from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection  # How can I import this?
+from pcmdi_metrics.enso.lib import metrics_to_json
+from pcmdi_metrics import resources
+
 from loguru import logger
 
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
@@ -149,5 +152,20 @@ class ENSO(CommandLineDiagnostic):
             debug=True,
             obs_interpreter=True,
         )
-
         
+        egg_pth = resources.resource_path()
+        output_directory_path = str(definition.output_directory)
+        json_name = f"{mc_name}_{mod_run}_{experiment_id}"
+
+        # OUTPUT METRICS TO JSON FILE (per simulation)
+        metrics_to_json(
+            mc_name,
+            dict_obs,
+            dict_metric,
+            dict_dive,
+            egg_pth,
+            output_directory_path,
+            json_name,
+            mod=self.source_id,
+            run=self.member_id,
+        )

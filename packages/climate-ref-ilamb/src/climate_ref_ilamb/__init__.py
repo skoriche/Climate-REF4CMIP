@@ -39,7 +39,7 @@ dataset_registry_manager.register(
 dataset_registry_manager.register(
     "iomb",
     base_url="https://www.ilamb.org/ilamb3-data/",
-    package="climate_ref_metrics_ilamb.dataset_registry",
+    package="climate_ref_ilamb.dataset_registry",
     resource="iomb.txt",
     cache_name="ilamb3",
     version=ILAMB_DATA_VERSION,

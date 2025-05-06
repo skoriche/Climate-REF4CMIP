@@ -265,21 +265,24 @@ def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[
     metric_bundle = deepcopy(raw_metric_bundle)
 
     for dim in dimensions:
-        values = list(metric_bundle["DIMENSIONS"][dim].keys())
+        # bundle_dims is modified inplace below
+        bundle_dims = metric_bundle[MetricCV.DIMENSIONS.value]
+
+        level_id = bundle_dims[MetricCV.JSON_STRUCTURE.value].index(dim)
+        if level_id != 0:
+            raise NotImplementedError("Only the first dimension can be removed")
+
+        values = list(bundle_dims[dim].keys())
         if len(values) != 1:
             raise ValueError(f"Can only remove dimensions with a single value. Found: {values}")
         value = values[0]
 
-        level_id = metric_bundle["DIMENSIONS"]["json_structure"].index(dim)
-        if level_id != 0:
-            raise NotImplementedError("Only the first dimension can be removed")
+        new_result = metric_bundle[MetricCV.RESULTS.value][value]
 
-        new_result = metric_bundle["RESULTS"][value]
-
-        # Update the new bundle
-        metric_bundle["DIMENSIONS"]["json_structure"].pop(level_id)
-        metric_bundle["DIMENSIONS"].pop(dim)
-        metric_bundle["RESULTS"] = new_result
+        # Update the dimensions and results to remove the dimension
+        bundle_dims.pop(dim)
+        bundle_dims[MetricCV.JSON_STRUCTURE.value].pop(level_id)
+        metric_bundle[MetricCV.RESULTS.value] = new_result
 
     return metric_bundle
 

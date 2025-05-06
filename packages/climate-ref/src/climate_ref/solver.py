@@ -129,7 +129,7 @@ def extract_covered_datasets(
 
     for name, group in groups:
         if requirement.group_by is None:
-            assert len(groups) == 1  # noqa: S101
+            assert len(groups) == 1
             group_keys: Selector = ()
         else:
             group_keys = tuple(zip(requirement.group_by, name))
@@ -227,12 +227,12 @@ def _solve_from_data_requirements(
             diagnostic=diagnostic,
             datasets=ExecutionDatasetCollection(
                 {
-                    key: DatasetCollection(
-                        datasets=dataset_groups[key][dataset_group_key],
-                        slug_column=get_dataset_adapter(key.value).slug_column,
-                        selector=dataset_group_key,
+                    source_type: DatasetCollection(
+                        datasets=dataset_groups[source_type][selector],
+                        slug_column=get_dataset_adapter(source_type.value).slug_column,
+                        selector=selector,
                     )
-                    for key, dataset_group_key in zip(dataset_groups.keys(), items)
+                    for source_type, selector in zip(dataset_groups.keys(), items)
                 }
             ),
         )

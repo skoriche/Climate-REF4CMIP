@@ -86,6 +86,23 @@ class FacetFilter:
     """
 
 
+def sort_selector(inp: Selector) -> Selector:
+    """
+    Sort the selector by key
+
+    Parameters
+    ----------
+    inp
+        Selector to sort
+
+    Returns
+    -------
+    :
+        Sorted selector
+    """
+    return tuple(sorted(inp, key=lambda x: x[0]))
+
+
 @frozen
 class DatasetCollection:
     """
@@ -93,14 +110,32 @@ class DatasetCollection:
     """
 
     datasets: pd.DataFrame
+    """
+    DataFrame containing the datasets that were selected for the execution.
+
+    The columns in this dataframe depend on the source dataset type, but always include:
+    * path
+    * [slug_column]
+    """
     slug_column: str
     """
     Column in datasets that contains the unique identifier for the dataset
     """
-    selector: tuple[tuple[str, str], ...] = ()
+    selector: Selector = field(converter=sort_selector, factory=tuple)
     """
     Unique key, value pairs that were selected during the initial groupby
     """
+
+    def selector_dict(self) -> dict[str, str]:
+        """
+        Convert the selector to a dictionary
+
+        Returns
+        -------
+        :
+            Dictionary of the selector
+        """
+        return {key: value for key, value in self.selector}
 
     def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)

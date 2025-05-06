@@ -461,8 +461,8 @@ def test_solve_metric_executions_multiple_sets(solver, mock_diagnostic, provider
     assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (("variable_id", "tas"),)
 
     assert executions[1].datasets[SourceDatasetType.CMIP6].selector == (
-        ("variable_id", "pr"),
         ("experiment_id", "ssp119"),
+        ("variable_id", "pr"),
     )
 
 

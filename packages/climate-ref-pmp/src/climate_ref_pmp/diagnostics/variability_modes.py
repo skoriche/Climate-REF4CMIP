@@ -165,10 +165,10 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         png_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.png")]
         data_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.nc")]
 
-        cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
+        cmec_output_bundle, cmec_metric_bundle = process_json_result(results_files[0], png_files, data_files)
 
         return ExecutionResult.build_from_output_bundle(
             definition,
-            cmec_output_bundle=cmec_output,
-            cmec_metric_bundle=cmec_metric,
+            cmec_output_bundle=cmec_output_bundle,
+            cmec_metric_bundle=cmec_metric_bundle,
         )

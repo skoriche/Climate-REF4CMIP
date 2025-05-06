@@ -63,7 +63,8 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
                 DataRequirement(
                     source_type=SourceDatasetType.CMIP6,
                     filters=tuple(filters),
-                    group_by=("source_id", "member_id", "experiment_id"),
+                    # TODO: remove unneeded variant_label
+                    group_by=("source_id", "experiment_id", "variant_label", "member_id"),
                 ),
             )
 

@@ -1,0 +1,28 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "source_id",
+      "region",
+      "metric"
+    ],
+    "source_id": {
+      "MPI-ESM1-2-LR": {}
+    },
+    "region": {
+      "global": {}
+    },
+    "metric": {
+      "tcre": {}
+    }
+  },
+  "RESULTS": {
+    "MPI-ESM1-2-LR": {
+      "global": {
+        "tcre": 46.46865463256836
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

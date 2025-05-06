@@ -1,0 +1,46 @@
+[project]
+name = "climate-ref-celery"
+version = "0.5.0"
+description = "Celery app for mananging tasks and workers"
+readme = "README.md"
+authors = [
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "cmip-ref-core",
+    "celery[redis]>=5.4.0",
+    "typer>=0.12.0",
+    "environs>=9",
+    "loguru>=0.7.2",
+    "tqdm>=4.67.1",
+]
+
+[project.scripts]
+ref-celery = "climate_ref_celery.cli:app"
+
+
+[tool.uv]
+dev-dependencies = [
+    "celery-types>=0.23.0",
+    "types-tqdm>=4.67.0.20250301",
+]
+
+[tool.uv.sources]
+ref-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

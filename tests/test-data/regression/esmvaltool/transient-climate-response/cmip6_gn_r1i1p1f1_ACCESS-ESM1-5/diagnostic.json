@@ -1,0 +1,28 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "source_id",
+      "region",
+      "metric"
+    ],
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "region": {
+      "global": {}
+    },
+    "metric": {
+      "tcr": {}
+    }
+  },
+  "RESULTS": {
+    "ACCESS-ESM1-5": {
+      "global": {
+        "tcr": 1.9725439548492432
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

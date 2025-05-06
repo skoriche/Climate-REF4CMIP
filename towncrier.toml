@@ -1,9 +1,9 @@
 [tool.towncrier]
-package = "cmip_ref_core"
+package = "climate_ref"
 package_dir = "src"
 filename = "docs/changelog.md"
 directory = "changelog/"
-title_format = "## cmip_ref {version} ({project_date})"
+title_format = "## climate-ref {version} ({project_date})"
 underlines = ["", "", ""]
 issue_format = "[#{issue}](https://github.com/Climate-REF/climate-ref/pulls/{issue})"
 

@@ -1,0 +1,28 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "source_id",
+      "region",
+      "metric"
+    ],
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "region": {
+      "global": {}
+    },
+    "metric": {
+      "zec": {}
+    }
+  },
+  "RESULTS": {
+    "ACCESS-ESM1-5": {
+      "global": {
+        "zec": 0.005867405794560909
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

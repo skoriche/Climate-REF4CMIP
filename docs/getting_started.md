@@ -10,7 +10,7 @@ $ uv run ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...
 
- cmip_ref: A CLI for the CMIP Rapid Evaluation Framework
+ ref: A CLI for the CMIP Rapid Evaluation Framework
 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --configuration-direc…          PATH                  Configuration          │
@@ -29,10 +29,10 @@ $ uv run ref
 │                                                       exit.                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ solve        Solve for metrics that require recalculation                    │
+│ solve        Solve for diagnostics that require recalculation                    │
 │ config       View and update the REF configuration                           │
 │ datasets     View and ingest input datasets                                  │
-│ executions   View metric executions                                          │
+│ executions   View diagnostic executions                                          │
 │ providers    Manage the REF providers.                                       │
 │ celery       Managing remote execution workers                               │
 ╰──────────────────────────────────────────────────────────────────────────────╯

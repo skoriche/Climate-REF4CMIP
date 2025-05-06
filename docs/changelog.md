@@ -21,6 +21,129 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.0 (2025-05-03)
+
+### Breaking Changes
+
+- Renamed packages to start with `climate_ref_` and removed `metrics` from the package name to avoid confusion.
+  This changes the root name of the PyPi packages from `cmip_ref` to `climate-ref` and will require updating your `requirements.txt`, `pyproject.toml`, `setup.py`, or other dependency management files to list `climate-ref` instead of `cmip_ref`. ([#270](https://github.com/Climate-REF/climate-ref/pulls/270))
+- Clarified the difference between a diagnostic and a metric.
+  This caused significant refactoring of names of classes and functions throughout the codebase,
+  as well as renaming of database tables.
+
+  | Package                      | Old Name                   | New Name                      |
+  |------------------------------|----------------------------|-------------------------------|
+  | climate_ref_core.diagnostics | Metric                     | Diagnostic                    |
+  | climate_ref_core.diagnostics | MetricExecutionDefinition  | ExecutionDefinition           |
+  | climate_ref_core.diagnostics | MetricExecutionResult      | ExecutionResult               |
+  | climate_ref.models.execution | MetricExecutionResultß     | Execution                     |
+  | climate_ref.models.execution | MetricExecutionGroup       | ExecutionGroup                |
+  | climate_ref.models.execution | ResultOutput               | ExecutionOutput               |
+  | climate_ref_core.datasets    | MetricDataset              | ExecutionDatasetCollection    |
+  | climate_ref_core.solver      | MetricSolver               | ExecutionSolver               |
+  | climate_ref_core.providers   | MetricsProvider            | DiagnosticProvider            |
+  | climate_ref_core.providers   | CommandLineMetricsProvider | CommandLineDiagnosticProvider |
+  | climate_ref_core.providers   | CondaMetricsProvider       | CondaDiagnosticProvider       |
+  | climate_ref.config           | MetricsProviderConfig      | DiagnosticProviderConfig      |
+
+  This removes any previous database migrations and replaces them with a new clean migration.
+  If you have an existing database, you will need to delete it and re-create it. ([#271](https://github.com/Climate-REF/climate-ref/pulls/271))
+
+
+## cmip_ref 0.4.1 (2025-05-02)
+
+### Breaking Changes
+
+- Removed unnecessary prefixes in the metric slugs.
+  This will cause duplicate results to be generated so we recommend starting with a clean REF installation. ([#263](https://github.com/Climate-REF/climate-ref/pulls/263))
+
+### Features
+
+- Added PMP's annual cycle metrics ([#221](https://github.com/Climate-REF/climate-ref/pulls/221))
+- Add a `facets` attribute to a metric.
+  This attribute is used to define the facets of the values that the metric produces. ([#255](https://github.com/Climate-REF/climate-ref/pulls/255))
+- Added a diagnostic to calculate climate variables at global warming levels. ([#257](https://github.com/Climate-REF/climate-ref/pulls/257))
+- Support multiple sets of data requirements ([#266](https://github.com/Climate-REF/climate-ref/pulls/266))
+
+### Bug Fixes
+
+- Retry downloads if they fail ([#267](https://github.com/Climate-REF/climate-ref/pulls/267))
+- PMP annual cycle output JSON tranformed to be more comply with CMEC ([#268](https://github.com/Climate-REF/climate-ref/pulls/268))
+
+### Improved Documentation
+
+- Add deprecation notices to PyPi package README's ([#269](https://github.com/Climate-REF/climate-ref/pulls/269))
+
+
+## cmip_ref 0.4.0 (2025-04-29)
+
+### Breaking Changes
+
+- Removed `climate_ref.solver.MetricSolver.solve_metric_executions` in preference for a standalone function `climate_ref.solver.solve_metric_executions`
+  with identical functionality. ([#229](https://github.com/Climate-REF/climate-ref/pulls/229))
+- Updated the algorithm to generate the unique identifier for a Metric Execution Group.
+  This will cause duplicate entries in the database if the old identifier was used.
+  We recommend removing your existing database and starting fresh. ([#233](https://github.com/Climate-REF/climate-ref/pulls/233))
+- Removed the implicit treatment of the deepest dimension. The change will cause a validation error if the deepest dimension in the `RESULTS` is a dictionary. ([#246](https://github.com/Climate-REF/climate-ref/pulls/246))
+- Ensure that the order of the source dataset types in the MetricExecutionGroup dataset key are stable ([#248](https://github.com/Climate-REF/climate-ref/pulls/248))
+
+### Deprecations
+
+- Removes support for Python 3.10.
+  The minimum and default supported Python version is now 3.11. ([#226](https://github.com/Climate-REF/climate-ref/pulls/226))
+
+### Features
+
+- Add the basic framework for enforcing a controlled vocabulary
+  for the results in a CMEC metrics bundle.
+  This is still in the prototype stage
+  and is not yet integrated into post-metric execution processing. ([#183](https://github.com/Climate-REF/climate-ref/pulls/183))
+- Scalar values from the metrics are now stored in the database
+  if they pass validation.
+  The controlled vocabulary for these metrics is still under development. ([#185](https://github.com/Climate-REF/climate-ref/pulls/185))
+- Added Zero Emission Commitment (ZEC) metric to the ESMValTool metrics package. ([#204](https://github.com/Climate-REF/climate-ref/pulls/204))
+- Added Transient Climate Response to Cumulative CO2 Emissions (TCRE) metric to the ESMValTool metrics package. ([#208](https://github.com/Climate-REF/climate-ref/pulls/208))
+- Add `ref datasets fetch-obs4ref-data` CLI command to fetch datasets that are in the process of being published to obs4MIPs and are appropriately licensed for use within the REF.
+  The CLI command fetches the datasets and writes them to a local directory.
+  These datasets can then be ingested into the REF as obs4MIPs datasets. ([#219](https://github.com/Climate-REF/climate-ref/pulls/219))
+- Enabled metric providers to register registries of datasets for download.
+  This unifies the fetching of datasets across the REF via the `ref datasets fetch-data` CLI command.
+  Added registries for the datasets that haven't been published to obs4MIPs yet (`obs4REF`) as well as PMP annual cycle datasets. ([#227](https://github.com/Climate-REF/climate-ref/pulls/227))
+- Capture log output for each execution and display via `ref executions inspect`. ([#232](https://github.com/Climate-REF/climate-ref/pulls/232))
+- Added the option to install development versions of metrics packages. ([#236](https://github.com/Climate-REF/climate-ref/pulls/236))
+- Added seasonal cycle and time series of sea ice area metrics. ([#239](https://github.com/Climate-REF/climate-ref/pulls/239))
+- The unique group identifiers for a MetricExecutionGroup are now tracked in the database. These values are used for presentation. ([#248](https://github.com/Climate-REF/climate-ref/pulls/248))
+- Added a new dataset source type to track PMP climatology data ([#253](https://github.com/Climate-REF/climate-ref/pulls/253))
+
+### Improvements
+
+- Refactored `MetricSolver.solve_metric_executions` to be a standalone function for easier testing.
+  Also added some additional integration tests for the Extratropical Modes of Variability metric from PMP. ([#229](https://github.com/Climate-REF/climate-ref/pulls/229))
+- The configuration paths are now all resolved to absolute paths ([#230](https://github.com/Climate-REF/climate-ref/pulls/230))
+- Verified support for PostgreSQL database backends ([#231](https://github.com/Climate-REF/climate-ref/pulls/231))
+- Updated the ESMValTool metric and output bundles. ([#235](https://github.com/Climate-REF/climate-ref/pulls/235))
+- Update to v0.5.0 of the sample data ([#264](https://github.com/Climate-REF/climate-ref/pulls/264))
+
+### Bug Fixes
+
+- Relax some of the requirements for the availability of metadata in CMIP6 datasets. ([#245](https://github.com/Climate-REF/climate-ref/pulls/245))
+- Added a missing migration and tests to ensure that the migration are up to date. ([#247](https://github.com/Climate-REF/climate-ref/pulls/247))
+- Fixed how the path to ESMValTool outputs was determined,
+  and added support for outputs in nested directories. ([#250](https://github.com/Climate-REF/climate-ref/pulls/250))
+- Marked failing tests as xfail as a temporary solution. ([#259](https://github.com/Climate-REF/climate-ref/pulls/259))
+- Fetch ESMValTool reference data in the integration test suite ([#265](https://github.com/Climate-REF/climate-ref/pulls/265))
+
+### Improved Documentation
+
+- Now following [SPEC-0000](https://scientific-python.org/specs/spec-0000/) for dependency support windows.
+  Support for Python versions will be dropped after 3 years and support for key scientific libraries will be dropped after 2 years. ([#226](https://github.com/Climate-REF/climate-ref/pulls/226))
+- Migrate from the use of ‘AR7 Fast Track’ to ‘Assessment Fast Track’ in response to the CMIP Panel decision to [change the name of the CMIP7 fast track](https://wcrp-cmip.org/fast-track-name-update/). ([#251](https://github.com/Climate-REF/climate-ref/pulls/251))
+
+### Trivial/Internal Changes
+
+- [#220](https://github.com/Climate-REF/climate-ref/pulls/220)
+
+
 ## cmip_ref 0.3.1 (2025-03-28)
 
 ### Trivial/Internal Changes
@@ -52,7 +175,7 @@ from the examples given in that link.
   - `ref providers create-env` - Create conda environments for providers
 
   ([#117](https://github.com/Climate-REF/climate-ref/pulls/117))
-- Added [CMECMetric.create_template][cmip_ref_core.pycmec.metric.CMECMetric.create_template] method to create an empty CMEC metric bundle. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
+- Added [CMECMetric.create_template][climate_ref_core.pycmec.metric.CMECMetric.create_template] method to create an empty CMEC metric bundle. ([#123](https://github.com/Climate-REF/climate-ref/pulls/123))
 - Outputs from a metric execution and their associated metadata are now tracked in the database. This includes HTML, plots and data outputs.
 
   Metric providers can register outputs via the CMEC output bundle.
@@ -120,8 +243,8 @@ from the examples given in that link.
 
 ### Breaking Changes
 
-- Refactor `cmip_ref.env` module to `cmip_ref_core.env` ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
-- Removed `cmip_ref.executor.ExecutorManager` in preference to loading an executor using a fully qualified package name.
+- Refactor `climate_ref.env` module to `climate_ref_core.env` ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
+- Removed `climate_ref.executor.ExecutorManager` in preference to loading an executor using a fully qualified package name.
 
   This allows the user to specify a custom executor as configuration
   without needing any change to the REF codebase. ([#77](https://github.com/Climate-REF/climate-ref/pulls/77))
@@ -132,7 +255,7 @@ from the examples given in that link.
   This removes the need for a `config.paths.data` directory and the `config.paths.allow_out_of_tree_datasets` configuration option.
   This will enable more flexibility about where input datasets are ingested from.
   Using absolute paths everywhere does add a requirement that datasets are available via the same paths for all nodes/container that may run the REF. ([#100](https://github.com/Climate-REF/climate-ref/pulls/100))
-- An [Executor][cmip_ref_core.executor.Executor] now supports only the asynchronous processing of tasks.
+- An [Executor][climate_ref_core.executor.Executor] now supports only the asynchronous processing of tasks.
   A result is now not returned from the `run_metric` method,
   but instead optionally updated in the database.
 
@@ -147,8 +270,8 @@ from the examples given in that link.
   as it can be deployed locally using docker containers. ([#60](https://github.com/Climate-REF/climate-ref/pulls/60))
 - Add `metric_providers` and `executor` sections to the configuration which loads the metric provider and executor using a fully qualified package name. ([#77](https://github.com/Climate-REF/climate-ref/pulls/77))
 - Implemented Pydantic data models to validate and serialize CMEC metric and output bundles. ([#84](https://github.com/Climate-REF/climate-ref/pulls/84))
-- Add the `cmip_ref_celery` CLI commands to the `ref` CLI tool.
-  These commands should be available when the `cmip_ref_celery` package is installed.
+- Add the `climate_ref_celery` CLI commands to the `ref` CLI tool.
+  These commands should be available when the `climate_ref_celery` package is installed.
   The commands should be available in the `ref` CLI tool as `ref celery ...`. ([#86](https://github.com/Climate-REF/climate-ref/pulls/86))
 - Add `fetch-sample-data` to the CLI under the `datasets` command.
 
@@ -239,7 +362,7 @@ from the examples given in that link.
 ### Features
 
 - Migrate to use UV workspaces to support multiple packages in the same repository.
-  Adds a `ref-metrics-example` package that will be used to demonstrate the integration of a metric
+  Adds a `climate-ref-example` package that will be used to demonstrate the integration of a metric
   package into the REF. ([#2](https://github.com/Climate-REF/climate-ref/pulls/2))
 - Adds the placeholder concept of `Executor`'s which are responsible for running metrics
   in different environments. ([#4](https://github.com/Climate-REF/climate-ref/pulls/4))
@@ -297,7 +420,7 @@ from the examples given in that link.
 
 ### Improved Documentation
 
-- Deployed documentation to https://cmip-ref.readthedocs.io/en/latest/ ([#16](https://github.com/Climate-REF/climate-ref/pulls/16))
+- Deployed documentation to https://climate-ref.readthedocs.io/en/latest/ ([#16](https://github.com/Climate-REF/climate-ref/pulls/16))
 - General documentation cleanup.
 
   Added notebook describing the process of executing a notebook locally ([#19](https://github.com/Climate-REF/climate-ref/pulls/19))

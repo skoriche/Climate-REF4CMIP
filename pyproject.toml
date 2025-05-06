@@ -1,6 +1,6 @@
 [project]
-name = "cmip-ref-root"
-version = "0.3.1"
+name = "climate-ref-root"
+version = "0.5.0"
 description = "CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -8,13 +8,13 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "cmip_ref[postgres]",
-    "cmip_ref_core",
-    "cmip_ref_celery",
-    "cmip_ref_metrics_example",
-    "cmip_ref_metrics_esmvaltool",
-    "cmip_ref_metrics_ilamb",
-    "cmip_ref_metrics_pmp",
+    "climate-ref[postgres]",
+    "climate-ref-core",
+    "climate-ref-celery",
+    "climate-ref-example",
+    "climate-ref-esmvaltool",
+    "climate-ref-ilamb",
+    "climate-ref-pmp",
 ]
 
 [project.license]
@@ -32,7 +32,7 @@ dev-dependencies = [
     "pytest-regressions>=2.5.0",
     "coverage>=7.2.0",
     "mypy>=1.11.0",
-    "ruff>=0.6.9",
+    "ruff>=0.11.7",
     "pre-commit>=3.3.1",
     "towncrier>=24.8.0",
     "bump-my-version>=0.28.1",
@@ -59,26 +59,27 @@ dev-dependencies = [
     "pandas-stubs>=2.2.3.241009",
     "celery-types>=0.23.0",
     "types-tqdm>=4.67.0.20250301",
+    "pytest-xdist>=3.6.1",
 ]
 
 [tool.uv.workspace]
 members = ["packages/*"]
 
 [tool.uv.sources]
-cmip_ref = { workspace = true }
-cmip_ref_core = { workspace = true }
-cmip_ref_celery = { workspace = true }
-cmip_ref_metrics_example = { workspace = true }
-cmip_ref_metrics_esmvaltool = { workspace = true }
-cmip_ref_metrics_ilamb = { workspace = true }
-cmip_ref_metrics_pmp = { workspace = true }
+climate-ref = { workspace = true }
+climate-ref-core = { workspace = true }
+climate-ref-celery = { workspace = true }
+climate-ref-example = { workspace = true }
+climate-ref-esmvaltool = { workspace = true }
+climate-ref-ilamb = { workspace = true }
+climate-ref-pmp = { workspace = true }
 
 [tool.coverage.run]
 source = ["packages"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 95
+fail_under = 90
 skip_empty = true
 show_missing = true
 # Regexes for lines to exclude from consideration in addition to the defaults

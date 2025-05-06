@@ -15,7 +15,7 @@ def main() -> None:
     """
     CHANGELOG = Path("docs") / "changelog.md"
 
-    lead_in = "## cmip_ref"
+    lead_in = "## climate-ref"
 
     with open(CHANGELOG) as fh:
         changelog_raw = fh.read()

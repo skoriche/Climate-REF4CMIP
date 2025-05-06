@@ -9,9 +9,9 @@ to make the changes easier to reproduce in future.
 
 ### `REF_EXECUTOR`
 
-Executor to use for running the metrics.
+Executor to use for running the diagnostics.
 
-Defaults to use the local executor ("cmip_ref.executor.local.LocalExecutor").
+Defaults to use the local executor ("climate_ref.executor.local.LocalExecutor").
 
 
 ### `REF_RESULTS_ROOT`
@@ -19,3 +19,10 @@ Defaults to use the local executor ("cmip_ref.executor.local.LocalExecutor").
 Path to the root directory where data should be stored.
 This has to be shared between any workers and the parent
 process.
+
+
+### `REF_DATASET_CACHE_DIR`
+
+Path where any datasets that are fetched via the `ref datasets fetch-data` command are stored.
+This is used to cache the datasets so that they are not downloaded multiple times.
+It is not recommended to ingest datasets from this directory (see `--output-dir` argument for `ref datasets fetch-data`).

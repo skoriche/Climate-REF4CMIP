@@ -16,6 +16,7 @@ import pathlib
 import warnings
 from collections import Counter
 from collections.abc import Generator
+from copy import deepcopy
 from enum import Enum
 from typing import Any, cast
 
@@ -239,6 +240,48 @@ class MetricValue(BaseModel):
     attributes: dict[str, str | float | int] | None = None
 
 
+def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[str]) -> dict[str, Any]:
+    """
+    Remove the dimensions from the raw metric bundle
+
+    Currently only the first dimension is supported to be removed
+
+    Parameters
+    ----------
+    raw_metric_bundle
+        The raw metric bundle to be modified
+    dimension
+        The name of the dimension to be removed
+
+    Returns
+    -------
+        The new, modified metric bundle with the dimension removed
+    """
+    if isinstance(dimensions, str):
+        dimensions = [dimensions]
+
+    metric_bundle = deepcopy(raw_metric_bundle)
+
+    for dim in dimensions:
+        values = list(metric_bundle["DIMENSIONS"][dim].keys())
+        if len(values) != 1:
+            raise ValueError(f"Can only remove dimensions with a single value. Found: {values}")
+        value = values[0]
+
+        level_id = metric_bundle["DIMENSIONS"]["json_structure"].index(dim)
+        if level_id != 0:
+            raise NotImplementedError("Only the first dimension can be removed")
+
+        new_result = metric_bundle["RESULTS"][value]
+
+        # Update the new bundle
+        metric_bundle["DIMENSIONS"]["json_structure"].pop(level_id)
+        metric_bundle["DIMENSIONS"].pop(dim)
+        metric_bundle["RESULTS"] = new_result
+
+    return metric_bundle
+
+
 class CMECMetric(BaseModel):
     """
     CMEC diagnostic bundle object
@@ -388,6 +431,22 @@ class CMECMetric(BaseModel):
         MetricResults.model_validate(merged_obj_rlts, context=merged_obj_dims)
 
         return cls(DIMENSIONS=merged_obj_dims, RESULTS=merged_obj_rlts)
+
+    def remove_dimensions(self, dimensions: str | list[str]) -> "CMECMetric":
+        """
+        Remove the dimensions from the metric bundle
+
+        Parameters
+        ----------
+        dimensions
+            The name of the dimension to be removed
+
+        Returns
+        -------
+        :
+            A new CMECMetric object with the dimension removed
+        """
+        return CMECMetric(**remove_dimensions(self.model_dump(), dimensions))
 
     def prepend_dimensions(self, values: dict[str, str]) -> "CMECMetric":
         """

@@ -12,6 +12,7 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
+from climate_ref_core.pycmec.metric import remove_dimensions
 from climate_ref_pmp.pmp_driver import build_glob_pattern, build_pmp_command, process_json_result
 
 
@@ -22,7 +23,16 @@ class AnnualCycle(CommandLineDiagnostic):
 
     name = "Annual Cycle"
     slug = "annual-cycle"
-    facets = ("experiment_id", "member_id", "source_id", "variable_id", "region", "statistic", "season")
+    facets = (
+        "source_id",
+        "member_id",
+        "experiment_id",
+        "variable_id",
+        "reference_source_id",
+        "region",
+        "statistic",
+        "season",
+    )
     data_requirements = (
         # Surface temperature
         (
@@ -250,9 +260,17 @@ class AnnualCycle(CommandLineDiagnostic):
         )
 
         # Add missing dimensions to the output
-        # TODO: Add reference source id
-        selectors = input_datasets.selector_dict()
-        cmec_metric_bundle = cmec_metric_bundle.prepend_dimensions(selectors)
+        input_selectors = input_datasets.selector_dict()
+        reference_selectors = definition.datasets[SourceDatasetType.PMPClimatology].selector_dict()
+        cmec_metric_bundle = cmec_metric_bundle.prepend_dimensions(
+            {
+                "source_id": input_selectors["source_id"],
+                "member_id": input_selectors["member_id"],
+                "experiment_id": input_selectors["experiment_id"],
+                "variable_id": input_selectors["variable_id"],
+                "reference_source_id": reference_selectors["source_id"],
+            }
+        )
 
         return ExecutionResult.build_from_output_bundle(
             definition,
@@ -298,30 +316,16 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
     """
     # Remove the model, reference, rip dimensions
     # These are later replaced with a REF-specific naming convention
-    models = list(data["DIMENSIONS"]["model"].keys())
-    references = list(data["DIMENSIONS"]["reference"].keys())
-    realizations = list(data["DIMENSIONS"]["rip"].keys())
-
-    assert len(models) == 1, "Multiple models found in the data"
-    assert len(references) == 1, "Multiple references found in the data"
-    assert len(realizations) == 1, "Multiple realizations found in the data"
-
-    inner_results = data["RESULTS"][models[0]][references[0]][realizations[0]]
+    data = remove_dimensions(data, ["model", "reference", "rip"])
 
     # TODO: replace this with the ability to capture series
     # Remove the "CalendarMonths" key from the nested structure
-    for region, region_values in inner_results.items():
+    for region, region_values in data["RESULTS"].items():
         for stat, stat_values in region_values.items():
             if "CalendarMonths" in stat_values:
                 stat_values.pop("CalendarMonths")
 
-    data["RESULTS"] = inner_results
-
     # Remove the "CalendarMonths" key from the nested structure in "DIMENSIONS"
     data["DIMENSIONS"]["season"].pop("CalendarMonths")
-    # drop the first 3 elements of the "json_structure" list
-    data["DIMENSIONS"]["json_structure"] = data["DIMENSIONS"]["json_structure"][3:]
-    data["DIMENSIONS"].pop("model")
-    data["DIMENSIONS"].pop("rip")
-    data["DIMENSIONS"].pop("reference")
+
     return data

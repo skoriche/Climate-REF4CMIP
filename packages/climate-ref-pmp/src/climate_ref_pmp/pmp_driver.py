@@ -134,7 +134,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
 def build_pmp_command(
     driver_file: str,
     parameter_file: str,
-    **kwargs: dict[str, str | int | float | list[str]],
+    **kwargs: str | int | float | list[str] | None,
 ) -> list[str]:
     """
     Run a PMP driver script via a conda environment

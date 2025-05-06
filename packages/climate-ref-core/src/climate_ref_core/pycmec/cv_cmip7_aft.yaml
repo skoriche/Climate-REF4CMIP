@@ -6,7 +6,7 @@ dimensions:
   required: false
 - name: reference_source_id
   long_name: Reference Source ID
-  description: "Source ID of the reference dataset(e.g., GFDL-CM4)"
+  description: "Source ID of the reference dataset(e.g., HadISST)"
   allow_extra_values: true
   required: false
 - name: experiment_id

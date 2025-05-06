@@ -20,7 +20,16 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
     ts_modes = ("PDO", "NPGO", "AMO")
     psl_modes = ("NAO", "NAM", "PNA", "NPO", "SAM")
 
-    facets = ("model", "realization", "reference", "mode", "season", "method", "statistic")
+    facets = (
+        "source_id",
+        "member_id",
+        "experiment_id",
+        "reference_source_id",
+        "mode",
+        "season",
+        "method",
+        "statistic",
+    )
 
     def __init__(self, mode_id: str):
         self.mode_id = mode_id.upper()
@@ -32,7 +41,6 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             obs_variable: str,
             cmip_variable: str,
             extra_experiments: str | tuple[str, ...] | list[str] = (),
-            remove_experiments: str | tuple[str, ...] | list[str] = (),
         ) -> tuple[DataRequirement, DataRequirement]:
             filters = [
                 FacetFilter(
@@ -55,7 +63,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
                 DataRequirement(
                     source_type=SourceDatasetType.CMIP6,
                     filters=tuple(filters),
-                    group_by=("source_id", "experiment_id", "variant_label", "member_id"),
+                    group_by=("source_id", "member_id", "experiment_id"),
                 ),
             )
 
@@ -84,9 +92,10 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             Command arguments to execute in the PMP environment
         """
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
-        source_id = input_datasets["source_id"].unique()[0]
-        experiment_id = input_datasets["experiment_id"].unique()[0]
-        member_id = input_datasets["member_id"].unique()[0]
+        input_selectors = input_datasets.selector_dict()
+        source_id = input_selectors["source_id"]
+        experiment_id = input_selectors["experiment_id"]
+        member_id = input_selectors["member_id"]
 
         logger.debug(f"input_datasets: {input_datasets}")
         logger.debug(f"source_id: {source_id}")
@@ -94,8 +103,8 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         logger.debug(f"member_id: {member_id}")
 
         reference_dataset = definition.datasets[SourceDatasetType.obs4MIPs]
-        reference_dataset_name = reference_dataset["source_id"].unique()[0]
-        # reference_dataset_path = reference_dataset.datasets[0]["path"]
+        reference_selectors = input_datasets.selector_dict()
+        reference_dataset_name = reference_selectors["source_id"]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
         logger.debug(f"reference_dataset: {reference_dataset}")
@@ -119,9 +128,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             reference_data_path = reference_dataset_path
 
         # Build the command to run the PMP driver script
-        params = {
-            "driver_file": "variability_mode/variability_modes_driver.py",
-            "parameter_file": self.parameter_file,
+        params: dict[str, str | int | None] = {
             "variability_mode": self.mode_id,
             "modpath": modpath,
             "modpath_lf": "none",
@@ -141,7 +148,11 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             params["oeyear"] = 2005
 
         # Pass the parameters using **kwargs
-        return build_pmp_command(**params)
+        return build_pmp_command(
+            diver_file="variability_mode/variability_modes_driver.py",
+            parameter_file=self.parameter_file,
+            **params,  # type: ignore[arg-type]
+        )
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
@@ -166,6 +177,24 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         data_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.nc")]
 
         cmec_output_bundle, cmec_metric_bundle = process_json_result(results_files[0], png_files, data_files)
+
+        # Add additional metadata to the metrics
+        input_selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
+        reference_selectors = definition.datasets[SourceDatasetType.obs4MIPs].selector_dict()
+        cmec_metric_bundle = cmec_metric_bundle.remove_dimensions(
+            [
+                "model",
+                "realization",
+                "reference",
+            ],
+        ).prepend_dimensions(
+            {
+                "source_id": input_selectors["source_id"],
+                "member_id": input_selectors["member_id"],
+                "experiment_id": input_selectors["experiment_id"],
+                "reference_source_id": reference_selectors["source_id"],
+            }
+        )
 
         return ExecutionResult.build_from_output_bundle(
             definition,

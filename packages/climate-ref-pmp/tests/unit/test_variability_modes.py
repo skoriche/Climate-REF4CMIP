@@ -3,11 +3,13 @@ from subprocess import CalledProcessError
 
 import pandas as pd
 import pytest
+from attr import evolve
+from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.diagnostics import ExtratropicalModesOfVariability
 from climate_ref_pmp.pmp_driver import _get_resource
 
 import climate_ref_core.providers
-from climate_ref.solver import extract_covered_datasets
+from climate_ref.solver import extract_covered_datasets, solve_executions
 from climate_ref_core.datasets import DatasetCollection
 from climate_ref_core.diagnostics import Diagnostic
 
@@ -169,3 +171,25 @@ def test_mode_id_invalid():
     with pytest.raises(ValueError) as excinfo:
         ExtratropicalModesOfVariability("INVALID")
     assert "Unknown mode_id 'INVALID'" in str(excinfo.value)
+
+
+def test_diagnostic_build_result(config, provider, execution_regression_dir, data_catalog):
+    diagnostic = ExtratropicalModesOfVariability("PDO")
+    diagnostic.provider = pmp_provider
+    diagnostic.provider.configure(config)
+
+    key = "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_r1i1p1f1__obs4mips_HadISST-1-1_ts"
+    output_directory = execution_regression_dir(diagnostic, key)
+
+    execution = next(
+        solve_executions(
+            data_catalog=data_catalog,
+            diagnostic=diagnostic,
+            provider=diagnostic.provider,
+        )
+    )
+    definition = execution.build_execution_definition(output_root=config.paths.scratch)
+    definition = evolve(definition, output_directory=output_directory)
+
+    result = diagnostic.build_execution_result(definition)
+    assert result.successful

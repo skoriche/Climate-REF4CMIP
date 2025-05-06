@@ -244,14 +244,16 @@ def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[
     """
     Remove the dimensions from the raw metric bundle
 
-    Currently only the first dimension is supported to be removed
+    Currently only the first dimension is supported to be removed.
+    Multiple dimensions can be removed at once, but only if they are in order from the first
+    dimension.
 
     Parameters
     ----------
     raw_metric_bundle
         The raw metric bundle to be modified
-    dimension
-        The name of the dimension to be removed
+    dimensions
+        The name of the dimensions to be removed
 
     Returns
     -------
@@ -436,6 +438,10 @@ class CMECMetric(BaseModel):
         """
         Remove the dimensions from the metric bundle
 
+         Currently only the first dimension is supported to be removed.
+        Multiple dimensions can be removed at once, but only if they are in order from the first
+        dimension..
+
         Parameters
         ----------
         dimensions
@@ -444,7 +450,7 @@ class CMECMetric(BaseModel):
         Returns
         -------
         :
-            A new CMECMetric object with the dimension removed
+            A new CMECMetric object with the dimensions removed
         """
         return CMECMetric(**remove_dimensions(self.model_dump(), dimensions))
 

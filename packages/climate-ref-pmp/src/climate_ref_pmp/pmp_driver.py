@@ -83,12 +83,6 @@ def process_json_result(
         dimensions.update(dimensions["dimensions"])
         del dimensions["dimensions"]
 
-    if "statistic" in dimensions["json_structure"]:  # pragma: no branch
-        dimensions["json_structure"].remove("statistic")
-        dimensions.pop("statistic")
-
-    # Remove the "attributes" key from the RESULTS
-    # This isn't standard CMEC output, but it is what PMP produces
     results = json_result["RESULTS"]
 
     cmec_metric["RESULTS"] = results
@@ -179,9 +173,7 @@ def build_pmp_command(
             else:
                 cmd.extend([f"--{key}"])
 
-    logger.info("-- PMP command to run --")
-    logger.info("[PMP] Command to run:", " ".join(map(str, cmd)))
-    logger.info("[PMP] Command generation for the driver completed.")
+    logger.info(f"PMP Command: {cmd}")
 
     return cmd
 

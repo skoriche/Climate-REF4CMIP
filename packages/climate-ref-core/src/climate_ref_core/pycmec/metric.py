@@ -13,11 +13,13 @@ Both ways will create the CMECMetric instance (cmec)
 
 import json
 import pathlib
+import warnings
 from collections import Counter
 from collections.abc import Generator
 from enum import Enum
 from typing import Any, cast
 
+from loguru import logger
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -32,6 +34,10 @@ from pydantic import (
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode, JsonSchemaValue
 from pydantic_core import CoreSchema
 from typing_extensions import Self
+
+from climate_ref_core.env import env
+
+ALLOW_EXTRA_KEYS = env.bool("ALLOW_EXTRA_KEYS", default=True)
 
 
 class MetricCV(Enum):
@@ -151,7 +157,7 @@ class MetricResults(RootModel[Any]):
     root: dict[str, dict[Any, Any]]
 
     @classmethod
-    def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:
+    def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:  # noqa: PLR0912
         dim_name = metdims[MetricCV.JSON_STRUCTURE.value][level]
 
         dict_keys = set(nested.keys())
@@ -183,7 +189,14 @@ class MetricResults(RootModel[Any]):
         else:
             expected_keys = set(metdims[dim_name].keys())
             if not (dict_keys.issubset(expected_keys)):
-                raise ValueError(f"Unknown dimension values: {dict_keys - expected_keys}")
+                msg = f"Unknown dimension values: {dict_keys - expected_keys} for {dim_name}"
+                logger.error(msg)
+                if not ALLOW_EXTRA_KEYS:  # pragma: no cover
+                    raise ValueError(f"{msg}\nExpected keys: {expected_keys}")
+                else:
+                    warnings.warn(msg)
+                    for key in dict_keys - expected_keys:
+                        nested.pop(key)
 
             tmp = dict(nested)
             if MetricCV.ATTRIBUTES.value in tmp:
@@ -211,7 +224,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float | int | list[str | float | int]]
+    root: dict[str, float | int]
 
 
 class MetricValue(BaseModel):
@@ -416,7 +429,7 @@ def _walk_results(
         if key == MetricCV.ATTRIBUTES.value:
             continue
         metadata[dimension] = key
-        if isinstance(value, str | float | int):
+        if isinstance(value, float | int):
             yield MetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )

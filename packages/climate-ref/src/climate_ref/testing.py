@@ -10,7 +10,7 @@ from loguru import logger
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.executor import handle_execution_result
-from climate_ref.models import Execution
+from climate_ref.models import Execution, ExecutionGroup
 from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_all_files
 from climate_ref_core.diagnostics import Diagnostic, ExecutionResult
 from climate_ref_core.pycmec.metric import CMECMetric
@@ -82,10 +82,16 @@ def validate_result(diagnostic: Diagnostic, config: Config, result: ExecutionRes
     This should only be used by the test suite as it will create a fake
     database entry for the diagnostic execution result.
     """
-    # Add a fake item in the Database
+    # Add a fake execution/execution group in the Database
     database = Database.from_config(config)
+    execution_group = ExecutionGroup(
+        diagnostic_id=1, key=result.definition.key, dirty=True, selectors=result.definition.datasets.selectors
+    )
+    database.session.add(execution_group)
+    database.session.flush()
+
     execution = Execution(
-        execution_group_id=1,
+        execution_group_id=execution_group.id,
         dataset_hash=result.definition.datasets.hash,
         output_fragment=str(result.definition.output_fragment()),
     )

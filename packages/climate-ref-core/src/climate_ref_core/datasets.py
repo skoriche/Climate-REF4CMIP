@@ -11,6 +11,16 @@ from typing import Any, Self
 import pandas as pd
 from attrs import field, frozen
 
+Selector = tuple[tuple[str, str], ...]
+"""
+Type describing the key used to identify a group of datasets
+
+This is a tuple of tuples, where each inner tuple contains a metadata and dimension value
+that was used to group the datasets together.
+
+This type must be hashable, as it is used as a key in a dictionary.
+"""
+
 
 class SourceDatasetType(enum.Enum):
     """
@@ -155,3 +165,19 @@ class ExecutionDatasetCollection:
         hash_sum = sum(hash(item) for item in self._collection.values())
         hash_bytes = hash_sum.to_bytes(16, "little", signed=True)
         return hashlib.sha1(hash_bytes).hexdigest()  # noqa: S324
+
+    @property
+    def selectors(self) -> dict[str, Selector]:
+        """
+        Collection of selectors used to identify the datasets
+
+        These are the key, value pairs that were selected during the initial group-by,
+        for each data requirement.
+        """
+        # The "value" of SourceType is used here so this can be stored in the db
+        s = {}
+        for source_type in SourceDatasetType.ordered():
+            if source_type not in self._collection:
+                continue
+            s[source_type.value] = self._collection[source_type].selector
+        return s

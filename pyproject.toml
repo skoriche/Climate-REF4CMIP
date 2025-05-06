@@ -59,6 +59,7 @@ dev-dependencies = [
     "pandas-stubs>=2.2.3.241009",
     "celery-types>=0.23.0",
     "types-tqdm>=4.67.0.20250301",
+    "pytest-xdist>=3.6.1",
 ]
 
 [tool.uv.workspace]

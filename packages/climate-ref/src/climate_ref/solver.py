@@ -25,20 +25,15 @@ from climate_ref.models import Provider as ProviderModel
 from climate_ref.models.execution import Execution
 from climate_ref.provider_registry import ProviderRegistry
 from climate_ref_core.constraints import apply_constraint
-from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
+from climate_ref_core.datasets import (
+    DatasetCollection,
+    ExecutionDatasetCollection,
+    Selector,
+    SourceDatasetType,
+)
 from climate_ref_core.diagnostics import DataRequirement, Diagnostic, ExecutionDefinition
 from climate_ref_core.exceptions import InvalidDiagnosticException
 from climate_ref_core.providers import DiagnosticProvider
-
-SelectorKey = tuple[tuple[str, str], ...]
-"""
-Type describing the key used to identify a group of datasets
-
-This is a tuple of tuples, where each inner tuple contains a metadata and dimension value
-that was used to group the datasets together.
-
-This SelectorKey type must be hashable, as it is used as a key in a dictionary.
-"""
 
 
 @frozen
@@ -81,20 +76,14 @@ class DiagnosticExecution:
         return "__".join(key_values)
 
     @property
-    def selectors(self) -> dict[str, SelectorKey]:
+    def selectors(self) -> dict[str, Selector]:
         """
         Collection of selectors used to identify the datasets
 
         These are the key, value pairs that were selected during the initial group-by,
         for each data requirement.
         """
-        # The "value" of SourceType is used here so this can be stored in the db
-        s = {}
-        for source_type in SourceDatasetType.ordered():
-            if source_type not in self.datasets:
-                continue
-            s[source_type.value] = self.datasets[source_type].selector
-        return s
+        return self.datasets.selectors
 
     def build_execution_definition(self, output_root: pathlib.Path) -> ExecutionDefinition:
         """
@@ -116,7 +105,7 @@ class DiagnosticExecution:
 
 def extract_covered_datasets(
     data_catalog: pd.DataFrame, requirement: DataRequirement
-) -> dict[SelectorKey, pd.DataFrame]:
+) -> dict[Selector, pd.DataFrame]:
     """
     Determine the different diagnostic executions that should be performed with the current data catalog
     """
@@ -141,7 +130,7 @@ def extract_covered_datasets(
     for name, group in groups:
         if requirement.group_by is None:
             assert len(groups) == 1  # noqa: S101
-            group_keys: SelectorKey = ()
+            group_keys: Selector = ()
         else:
             group_keys = tuple(zip(requirement.group_by, name))
         constrained_group = _process_group_constraints(data_catalog, group, requirement)

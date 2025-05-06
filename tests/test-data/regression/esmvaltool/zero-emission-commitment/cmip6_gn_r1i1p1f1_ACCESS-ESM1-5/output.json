@@ -1,0 +1,42 @@
+{
+  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/index.html",
+  "provenance": {
+    "environment": {},
+    "modeldata": [],
+    "obsdata": {},
+    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/run/main_log_debug.txt"
+  },
+  "data": {
+    "executions/recipe_20250506_010209/work/zec/zec/zec.nc": {
+      "filename": "executions/recipe_20250506_010209/work/zec/zec/zec.nc",
+      "long_name": "",
+      "description": ""
+    },
+    "executions/recipe_20250506_010209/work/zec/zec/zec_50.nc": {
+      "filename": "executions/recipe_20250506_010209/work/zec/zec/zec_50.nc",
+      "long_name": "",
+      "description": ""
+    }
+  },
+  "plots": {
+    "executions/recipe_20250506_010209/plots/zec/zec/zec_50_barplot.png": {
+      "filename": "executions/recipe_20250506_010209/plots/zec/zec/zec_50_barplot.png",
+      "long_name": "Barplot of ZEC_50",
+      "description": ""
+    },
+    "executions/recipe_20250506_010209/plots/zec/zec/zec_timeseries_all_models.png": {
+      "filename": "executions/recipe_20250506_010209/plots/zec/zec/zec_timeseries_all_models.png",
+      "long_name": "ZEC timeseries",
+      "description": ""
+    }
+  },
+  "html": {
+    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/index.html": {
+      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/index.html",
+      "long_name": "Results page",
+      "description": "Page showing the executions of the ESMValTool run."
+    }
+  },
+  "metrics": null,
+  "diagnostics": {}
+}

@@ -1,0 +1,21 @@
+calc_tcre_period:
+- 45
+- 65
+exp_target: esm-1pctCO2
+pyplot_kwargs:
+  title: Transient Climate Response to Cumulative CO2 Emissions (TCRE)
+  xlabel: Cumulative CO$_2$ emissions [PgC]
+  ylabel: Global mean surface air temperature change [K]
+recipe: recipe.yml
+version: 2.12.0
+script: calculate_tcre
+run_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/run/tcre/calculate_tcre
+plot_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/plots/tcre/calculate_tcre
+work_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/work/tcre/calculate_tcre
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /Users/jared/auxiliary_data
+input_files:
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/preproc/tcre/tas_esm-1pctCO2/metadata.yml
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/preproc/tcre/tas_esm-piControl/metadata.yml
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/preproc/tcre/fco2antt/metadata.yml

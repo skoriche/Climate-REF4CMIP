@@ -130,7 +130,7 @@ test-quick: clean  ## run all the tests at once
 	# It doesn't execute each test using the target package as above
 	uv run \
 		pytest tests packages \
-		-r a -v  --cov-report=term
+		-r a -v  --cov-report=term -n auto
 
 # Note on code coverage and testing:
 # If you want to debug what is going on with coverage, we have found

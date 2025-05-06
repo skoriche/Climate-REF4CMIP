@@ -1,0 +1,45 @@
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/plots/cmip6/tcr/ACCESS-ESM1-5.png
+: &id001
+  ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01010116T120000-01801216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_tas_gn_01010116T120000-01801216T120000.nc
+  authors:
+  - schlund_manuel
+  caption: Time series of the global mean surface air temperature anomaly (relative
+    to the linear fit of the pre-industrial control run) of ACCESS-ESM1-5 for the
+    1% CO2 increase per year experiment. The horizontal dashed line indicates the
+    transient climate response (TCR) defined as the 20 year average temperature anomaly
+    centered at the time of CO2 doubling (vertical dashed lines).
+  domains:
+  - global
+  plot_types:
+  - times
+  realms:
+  - atmos
+  references:
+  - gregory08jgr
+  statistics:
+  - mean
+  - diff
+  themes:
+  - phys
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/work/cmip6/tcr/ACCESS-ESM1-5.nc
+: *id001
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/work/cmip6/tcr/tcr.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01010116T120000-01801216T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/preproc/cmip6/tas/CMIP6_ACCESS-ESM1-5_Amon_piControl_r1i1p1f1_tas_gn_01010116T120000-01801216T120000.nc
+  authors:
+  - schlund_manuel
+  caption: Transient Climate Response (TCR) for multiple climate models.
+  domains:
+  - global
+  realms:
+  - atmos
+  references:
+  - gregory08jgr
+  statistics:
+  - mean
+  - diff
+  themes:
+  - phys

@@ -149,3 +149,5 @@ class ENSO(CommandLineDiagnostic):
             debug=True,
             obs_interpreter=True,
         )
+
+        

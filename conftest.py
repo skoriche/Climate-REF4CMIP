@@ -301,6 +301,7 @@ def result_regression(request, test_data_dir):
         The data are only copied if the `--force-regen` pytest option is set.
         """
         if not request.config.getoption("force_regen"):
+            logger.info("Not regenerating regression results")
             return
 
         logger.info(f"Regenerating regression output for {diagnostic.full_slug()}")

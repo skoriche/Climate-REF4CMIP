@@ -3,12 +3,12 @@
         "platform": {
             "OS": "Darwin",
             "Version": "24.4.0",
-            "Name": "Jareds-Laptop.local"
+            "Name": "MacBookPro.localdomain"
         },
         "userId": "root",
         "osAccess": false,
-        "commandLine": "/Users/jared/code/Climate-REF/climate-ref/.venv/lib/python3.11/site-packages/pcmdi_metrics/mean_climate/mean_climate_driver.py -p /Users/jared/code/Climate-REF/climate-ref/packages/climate-ref-pmp/src/climate_ref_pmp/params/pmp_param_annualcycle_2-metrics.py --vars ts --custom_observations /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-89/popen-gw1/test_annual_cycle0/climate_ref/packages.climate-ref-pmp.tests.integration.test_annual_cycle/test_annual_cycle/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9/obs_dict.json --test_data_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-89/popen-gw1/test_annual_cycle0/climate_ref/packages.climate-ref-pmp.tests.integration.test_annual_cycle/test_annual_cycle/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --test_data_set ACCESS-ESM1-5 --realization r1i1p1f1 --filename_template ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250506.nc --metrics_output_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-89/popen-gw1/test_annual_cycle0/climate_ref/packages.climate-ref-pmp.tests.integration.test_annual_cycle/test_annual_cycle/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --cmec",
-        "date": "2025-05-06 09:44:18",
+        "commandLine": "/Users/jared/code/Climate-REF/climate-ref/.venv/lib/python3.11/site-packages/pcmdi_metrics/mean_climate/mean_climate_driver.py -p /Users/jared/code/Climate-REF/climate-ref/packages/climate-ref-pmp/src/climate_ref_pmp/params/pmp_param_annualcycle_2-metrics.py --vars ts --custom_observations /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9/obs_dict.json --test_data_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --test_data_set ACCESS-ESM1-5 --realization r1i1p1f1 --filename_template ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250506.nc --metrics_output_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --cmec",
+        "date": "2025-05-06 11:32:50",
         "conda": {
             "Version": "24.11.3",
             "buildVersion": "not installed",

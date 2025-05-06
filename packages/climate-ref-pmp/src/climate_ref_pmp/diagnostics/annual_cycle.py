@@ -112,17 +112,15 @@ class AnnualCycle(CommandLineDiagnostic):
         """
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
         reference_datasets = definition.datasets[SourceDatasetType.PMPClimatology]
-
         selector = input_datasets.selector_dict()
         reference_selector = reference_datasets.selector_dict()
-
-        source_id = selector["source_id"]
-        experiment_id = selector["experiment_id"]
-        member_id = selector["member_id"]
-        variable_id = selector["variable_id"]
-
         logger.debug(f"selector: {selector}")
         logger.debug(f"reference selector: {reference_selector}")
+
+        source_id = input_datasets["source_id"].unique()[0]
+        experiment_id = input_datasets["experiment_id"].unique()[0]
+        member_id = input_datasets["member_id"].unique()[0]
+        variable_id = input_datasets["variable_id"].unique()[0]
 
         model_files_raw = input_datasets.path.to_list()
         if len(model_files_raw) == 1:
@@ -141,7 +139,6 @@ class AnnualCycle(CommandLineDiagnostic):
         reference_dataset_path = reference_datasets.datasets.iloc[0]["path"]
 
         logger.debug(f"reference_dataset.datasets: {reference_datasets.datasets}")
-
         logger.debug(f"reference_dataset_name: {reference_dataset_name}")
         logger.debug(f"reference_dataset_path: {reference_dataset_path}")
 

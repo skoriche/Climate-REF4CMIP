@@ -193,7 +193,7 @@ def test_annual_cycle_diagnostic(
 
 def test_diagnostic_run(mocker, provider):
     diagnostic = AnnualCycle()
-    diagnostic.provider = pmp_provider
+    diagnostic.provider = provider
     diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
     diagnostic.build_execution_result = mocker.MagicMock()
 

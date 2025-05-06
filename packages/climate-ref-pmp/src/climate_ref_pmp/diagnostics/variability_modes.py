@@ -92,10 +92,9 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             Command arguments to execute in the PMP environment
         """
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
-        input_selectors = input_datasets.selector_dict()
-        source_id = input_selectors["source_id"]
-        experiment_id = input_selectors["experiment_id"]
-        member_id = input_selectors["member_id"]
+        source_id = input_datasets["source_id"].unique()[0]
+        experiment_id = input_datasets["experiment_id"].unique()[0]
+        member_id = input_datasets["member_id"].unique()[0]
 
         logger.debug(f"input_datasets: {input_datasets}")
         logger.debug(f"source_id: {source_id}")
@@ -103,8 +102,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
         logger.debug(f"member_id: {member_id}")
 
         reference_dataset = definition.datasets[SourceDatasetType.obs4MIPs]
-        reference_selectors = input_datasets.selector_dict()
-        reference_dataset_name = reference_selectors["source_id"]
+        reference_dataset_name = reference_dataset["source_id"].unique()[0]
         reference_dataset_path = reference_dataset.datasets.iloc[0]["path"]
 
         logger.debug(f"reference_dataset: {reference_dataset}")
@@ -149,9 +147,9 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
 
         # Pass the parameters using **kwargs
         return build_pmp_command(
-            diver_file="variability_mode/variability_modes_driver.py",
+            driver_file="variability_mode/variability_modes_driver.py",
             parameter_file=self.parameter_file,
-            **params,  # type: ignore[arg-type]
+            **params,
         )
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:

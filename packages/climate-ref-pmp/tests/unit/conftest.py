@@ -15,12 +15,14 @@ def pdo_example_dir(regression_data_dir) -> Path:
 
 
 @pytest.fixture
-def provider(tmp_path):
+def provider(tmp_path, mocker):
     provider = climate_ref_pmp.provider
     provider.prefix = tmp_path / "conda"
     provider.prefix.mkdir()
     provider._conda_exe = provider.prefix / "mock_micromamba"
     provider._conda_exe.touch()
     provider.env_path.mkdir()
+
+    provider.run = mocker.Mock()
 
     return provider

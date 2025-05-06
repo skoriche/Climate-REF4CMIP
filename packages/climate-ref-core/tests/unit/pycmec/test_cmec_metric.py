@@ -435,10 +435,10 @@ def test_remove():
     }
 
     # via CMECMetric
-    result = CMECMetric(**metric_bundle).remove_dimensions(["source_id", "variable_id"])
+    result = CMECMetric(**metric_bundle).remove_dimensions(["source_id"])
     assert isinstance(result, CMECMetric)
-    assert result["RESULTS"] == results["GFDL-ESM2M"]
-    assert result["DIMENSIONS"] == expected_dimensions
+    assert result.RESULTS == results["GFDL-ESM2M"]
+    assert result.DIMENSIONS.root == expected_dimensions
 
     # str
     result = remove_dimensions(metric_bundle, "source_id")

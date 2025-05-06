@@ -235,7 +235,7 @@ class MetricValue(BaseModel):
     """
 
     dimensions: dict[str, str]
-    value: float | str
+    value: float | int
     attributes: dict[str, str | float | int] | None = None
 
 

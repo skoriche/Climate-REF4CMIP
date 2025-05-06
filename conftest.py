@@ -94,6 +94,11 @@ def sample_data_dir(test_data_dir) -> Path:
     return test_data_dir / "sample-data"
 
 
+@pytest.fixture(scope="session")
+def regression_data_dir(test_data_dir) -> Path:
+    return test_data_dir / "regression"
+
+
 @pytest.fixture(autouse=True, scope="session")
 def sample_data() -> None:
     # Downloads the sample data if it doesn't exist
@@ -285,8 +290,23 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
     return definition_factory(execution_dataset_collection=collection)
 
 
+@pytest.fixture(scope="session")
+def execution_regression_dir(regression_data_dir):
+    """
+    Directory where the regression data are stored
+    """
+
+    def _regression_dir(diagnostic: Diagnostic, key: str) -> Path:
+        """
+        Get the regression directory for a given diagnostic
+        """
+        return regression_data_dir / diagnostic.provider.slug / diagnostic.slug / key
+
+    return _regression_dir
+
+
 @pytest.fixture
-def execution_regression(request, test_data_dir):
+def execution_regression(request, execution_regression_dir):
     def _regression(
         diagnostic: Diagnostic,
         output_directory: Path,
@@ -305,7 +325,7 @@ def execution_regression(request, test_data_dir):
             return
 
         logger.info(f"Regenerating regression output for {diagnostic.full_slug()}")
-        output_dir = test_data_dir / "regression" / diagnostic.provider.slug / diagnostic.slug / key
+        output_dir = execution_regression_dir(diagnostic, key)
         if output_dir.exists():
             shutil.rmtree(output_dir)
 

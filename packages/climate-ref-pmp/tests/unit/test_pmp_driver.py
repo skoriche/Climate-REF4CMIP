@@ -5,11 +5,10 @@ from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
 
-@pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
 def test_process_json_result(pdo_example_dir):
     json_file = (
         pdo_example_dir
-        / "var_mode_PDO_EOF1_stat_cmip5_historical_mo_atm_ACCESS-ESM1-5_r1i1p1f1_2000-2005_cmec.json"
+        / "var_mode_PDO_EOF1_stat_cmip6_hist-GHG_mo_atm_ACCESS-ESM1-5_r1i1p1f1_2000-2005_cmec.json"
     )
     png_files = [pdo_example_dir / "pdo.png"]
     data_files = [pdo_example_dir / "pdo.nc"]
@@ -26,6 +25,7 @@ def test_process_json_result(pdo_example_dir):
         "mode",
         "season",
         "method",
+        "statistic",
     ]
 
 

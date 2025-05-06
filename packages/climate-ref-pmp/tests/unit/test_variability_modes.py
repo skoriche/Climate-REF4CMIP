@@ -21,7 +21,6 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {p
     return datasets[first_key]
 
 
-@pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
 def test_pdo_metric(
     cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
 ):
@@ -70,24 +69,26 @@ def test_pdo_metric(
             _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
             "-p",
             _get_resource("climate_ref_pmp.params", "pmp_param_MoV-ts.py", True),
-            "--modnames",
-            "ACCESS-ESM1-5",
+            "--variability_mode",
+            "PDO",
+            "--modpath",
+            metric_dataset.path.to_list()[0],
+            "--modpath_lf",
+            "none",
             "--exp",
             "hist-GHG",
             "--realization",
             "r1i1p1f1",
-            "--modpath",
-            metric_dataset.path.to_list()[0],
-            "--reference_data_path",
-            expected_reference_filename,
+            "--modnames",
+            "ACCESS-ESM1-5",
             "--reference_data_name",
             "HadISST-1-1",
+            "--reference_data_path",
+            expected_reference_filename,
             "--results_dir",
             str(definition.output_directory),
             "--cmec",
             "--no_provenance",
-            "--variability_mode",
-            "PDO",
         ],
     )
 

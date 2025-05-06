@@ -23,6 +23,4 @@ def provider(tmp_path, mocker):
     provider._conda_exe.touch()
     provider.env_path.mkdir()
 
-    provider.run = mocker.Mock()
-
     return provider

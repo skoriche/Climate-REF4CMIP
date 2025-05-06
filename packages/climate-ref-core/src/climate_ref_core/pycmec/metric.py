@@ -389,7 +389,6 @@ class CMECMetric(BaseModel):
 
         return cls(DIMENSIONS=merged_obj_dims, RESULTS=merged_obj_rlts)
 
-    @classmethod
     def prepend_dimensions(self, values: dict[str, str]) -> "CMECMetric":
         """
         Prepend the existing metric values with additional dimensions
@@ -418,15 +417,23 @@ class CMECMetric(BaseModel):
             *existing_dimensions,
         ]
 
+        # Nest each new dimension inside the previous one
         for key, value in values.items():
+            if not isinstance(value, str):
+                raise TypeError(f"Dimension value {value!r} is not a string")
+
             current[value] = {}
             current = current[value]
             dimensions.root[key] = {value: {}}
+        # Add the existing dimensions as the innermost dimensions
         current.update(self.RESULTS)
 
         MetricResults.model_validate(results, context=dimensions)
 
-        return CMECMetric(DIMENSIONS=dimensions, RESULTS=results)
+        result = self.model_copy()
+        result.DIMENSIONS = dimensions
+        result.RESULTS = results
+        return result
 
     @staticmethod
     def create_template() -> dict[str, Any]:

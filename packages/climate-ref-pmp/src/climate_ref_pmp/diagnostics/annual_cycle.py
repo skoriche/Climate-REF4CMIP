@@ -22,7 +22,7 @@ class AnnualCycle(CommandLineDiagnostic):
 
     name = "Annual Cycle"
     slug = "annual-cycle"
-    facets = ("model", "realization", "reference", "mode", "season", "method", "statistic")
+    facets = ("experiment_id", "member_id", "source_id", "variable_id", "region", "statistic", "season")
     data_requirements = (
         # Surface temperature
         (
@@ -219,6 +219,7 @@ class AnnualCycle(CommandLineDiagnostic):
         # Find the executions file
         results_files = list(results_directory.glob("*_cmec.json"))
         if len(results_files) != 1:  # pragma: no cover
+            logger.error(f"More than one or no cmec file found: {results_files}")
             return ExecutionResult.build_from_failure(definition)
         else:
             results_file = results_files[0]
@@ -250,8 +251,8 @@ class AnnualCycle(CommandLineDiagnostic):
 
         # Add missing dimensions to the output
         # TODO: Add reference source id
-        selectors = input_datasets.selector
-        cmec_metric_bundle = cmec_metric_bundle.prepend_dimensions({key: value for key, value in selectors})
+        selectors = input_datasets.selector_dict()
+        cmec_metric_bundle = cmec_metric_bundle.prepend_dimensions(selectors)
 
         return ExecutionResult.build_from_output_bundle(
             definition,
@@ -314,8 +315,13 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
             if "CalendarMonths" in stat_values:
                 stat_values.pop("CalendarMonths")
 
+    data["RESULTS"] = inner_results
+
     # Remove the "CalendarMonths" key from the nested structure in "DIMENSIONS"
     data["DIMENSIONS"]["season"].pop("CalendarMonths")
     # drop the first 3 elements of the "json_structure" list
     data["DIMENSIONS"]["json_structure"] = data["DIMENSIONS"]["json_structure"][3:]
+    data["DIMENSIONS"].pop("model")
+    data["DIMENSIONS"].pop("rip")
+    data["DIMENSIONS"].pop("reference")
     return data

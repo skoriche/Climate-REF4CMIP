@@ -89,7 +89,7 @@ def process_json_result(
     cmec_metric["DIMENSIONS"] = dimensions
 
     if "provenance" in json_result:  # pragma: no branch
-        cmec_metric["provenance"] = json_result["provenance"]
+        cmec_metric["PROVENANCE"] = json_result["provenance"]
 
     logger.info(f"cmec_output: {pretty_repr(cmec_output)}")
     logger.info(f"cmec_metric: {pretty_repr(cmec_metric)}")

@@ -286,14 +286,14 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
 
 
 @pytest.fixture
-def result_regression(request, test_data_dir):
+def execution_regression(request, test_data_dir):
     def _regression(
         diagnostic: Diagnostic,
         output_directory: Path,
         key: str,
     ) -> None:
         """
-        Copy the scratch output from a diagnostic to the test-data directory
+        Copy the execution output from a diagnostic to the test-data directory
 
         These data can then be used to test the parsing of the CMEC bundles without
         having to run the entire diagnostic.
@@ -315,7 +315,7 @@ def result_regression(request, test_data_dir):
 
 
 @pytest.fixture
-def diagnostic_validation(config, mocker, provider, data_catalog, result_regression):
+def diagnostic_validation(config, mocker, provider, data_catalog, execution_regression):
     mocker.patch.object(Execution, "execution_group")
 
     def _validate(diagnostic: Diagnostic) -> None:
@@ -335,7 +335,7 @@ def diagnostic_validation(config, mocker, provider, data_catalog, result_regress
             result = diagnostic.run(definition)
         finally:
             # Potentially save the result for regression testing
-            result_regression(diagnostic, definition.output_directory, definition.key)
+            execution_regression(diagnostic, definition.output_directory, definition.key)
 
         # Check the result
         validate_result(diagnostic, config, result)

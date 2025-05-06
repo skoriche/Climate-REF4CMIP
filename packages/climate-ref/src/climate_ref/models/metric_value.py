@@ -143,7 +143,7 @@ class MetricValue(CreatedUpdatedMixin, Base):
         for key in keys:
             cls._cv_dimensions.remove(key)
 
-        assert not len(cls._cv_dimensions)  # noqa
+        assert not len(cls._cv_dimensions)
 
     @classmethod
     def build(

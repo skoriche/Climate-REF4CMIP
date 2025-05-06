@@ -94,7 +94,7 @@ def _copy_file_to_results(
     filename
         The name of the file to be copied
     """
-    assert results_directory != scratch_directory  # noqa
+    assert results_directory != scratch_directory
     input_directory = scratch_directory / fragment
     output_directory = results_directory / fragment
 

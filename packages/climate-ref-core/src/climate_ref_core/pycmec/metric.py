@@ -423,7 +423,7 @@ class CMECMetric(BaseModel):
 def _walk_results(
     dimensions: list[str], results: dict[str, Any], metadata: dict[str, str]
 ) -> Generator[MetricValue]:
-    assert len(dimensions), "Not enough dimensions"  # noqa: S101
+    assert len(dimensions), "Not enough dimensions"
     dimension = dimensions[0]
     for key, value in results.items():
         if key == MetricCV.ATTRIBUTES.value:

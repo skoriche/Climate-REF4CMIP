@@ -1,0 +1,67 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "region",
+      "model",
+      "metric",
+      "statistic"
+    ],
+    "region": {
+      "global": {
+        "LongName": "Global - Land",
+        "Description": "Global - Land",
+        "Generator": "GlobalLand.nc"
+      },
+      "tropical": {
+        "LongName": "Tropical climates",
+        "Description": "Tropical climates",
+        "Generator": "Koppen_coarse.nc"
+      }
+    },
+    "model": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
+        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
+      }
+    },
+    "metric": {
+      "cmip6_historical": {
+        "Name": "cmip6_historical",
+        "Abstract": "benchmark score",
+        "URI": [
+          "https://www.osti.gov/biblio/1330803",
+          "https://doi.org/10.1029/2018MS001354"
+        ],
+        "Contact": "forrest AT climatemodeling.org"
+      }
+    },
+    "statistic": {
+      "Period Mean [g d-1 m-2] [g d-1 m-2]": {},
+      "Bias [g d-1 m-2] [g d-1 m-2]": {},
+      "Bias Score [1] [1]": {}
+    }
+  },
+  "RESULTS": {
+    "global": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [g d-1 m-2] [g d-1 m-2]": 2.2687100463058907,
+          "Bias [g d-1 m-2] [g d-1 m-2]": -1.028983073684895,
+          "Bias Score [1] [1]": 0.6050551017406941
+        }
+      }
+    },
+    "tropical": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [g d-1 m-2] [g d-1 m-2]": 4.110798013458021,
+          "Bias [g d-1 m-2] [g d-1 m-2]": -3.323554342871441,
+          "Bias Score [1] [1]": 0.1344503906317
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

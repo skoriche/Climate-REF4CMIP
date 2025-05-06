@@ -9,4 +9,7 @@ diagnostics = [pytest.param(diagnostic, id=diagnostic.slug) for diagnostic in il
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_diagnostics(diagnostic: Diagnostic, diagnostic_validation):
+    if diagnostic.slug.startswith("thetao"):
+        pytest.xfail("Missing data for thetao diagnostics")
+
     diagnostic_validation(diagnostic)

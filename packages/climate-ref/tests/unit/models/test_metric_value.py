@@ -1,9 +1,11 @@
+import re
+
 import pytest
 
-from climate_ref.models import MetricValue
+from climate_ref.models import ScalarMetricValue, SeriesMetricValue
 
 
-class TestMetricValue:
+class TestScalarMetricValue:
     @pytest.mark.parametrize(
         "attributes",
         (
@@ -14,7 +16,7 @@ class TestMetricValue:
         ),
     )
     def test_build(self, db_seeded, attributes):
-        item_orig = MetricValue.build(
+        item_orig = ScalarMetricValue.build(
             execution_id=1,
             value=1.0,
             attributes=attributes,
@@ -23,7 +25,7 @@ class TestMetricValue:
         db_seeded.session.add(item_orig)
         db_seeded.session.commit()
 
-        item = db_seeded.session.query(MetricValue).get(item_orig.id)
+        item = db_seeded.session.query(ScalarMetricValue).get(item_orig.id)
         assert item.attributes == attributes
         assert item.value == 1.0
 
@@ -32,7 +34,7 @@ class TestMetricValue:
     def test_invalid_dimension(self, db_seeded):
         exp_msg = "Unknown dimension column 'not_a_dimension'"
         with pytest.raises(KeyError, match=exp_msg):
-            MetricValue.build(
+            ScalarMetricValue.build(
                 execution_id=1,
                 value=1.0,
                 attributes=None,
@@ -41,27 +43,80 @@ class TestMetricValue:
 
     def test_register_dimensions(self, cmip7_aft_cv):
         metric_value_kwargs = dict(execution_id=1, value=1.0, attributes=None, dimensions={"model": "test"})
-        MetricValue._reset_cv_dimensions()
-        assert MetricValue._cv_dimensions == []
+        ScalarMetricValue._reset_cv_dimensions()
+        assert ScalarMetricValue._cv_dimensions == []
 
         with pytest.raises(KeyError):
-            MetricValue.build(**metric_value_kwargs)
+            ScalarMetricValue.build(**metric_value_kwargs)
 
-        MetricValue.register_cv_dimensions(cmip7_aft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
+        ScalarMetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert ScalarMetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
 
         # Should work now that the dimension has been registered
-        item = MetricValue.build(**metric_value_kwargs)
+        item = ScalarMetricValue.build(**metric_value_kwargs)
 
-        for k in MetricValue._cv_dimensions:
+        for k in ScalarMetricValue._cv_dimensions:
             assert hasattr(item, k)
 
     def test_register_dimensions_multiple_times(self, cmip7_aft_cv):
-        MetricValue._reset_cv_dimensions()
-        assert MetricValue._cv_dimensions == []
+        ScalarMetricValue._reset_cv_dimensions()
+        assert ScalarMetricValue._cv_dimensions == []
 
-        MetricValue.register_cv_dimensions(cmip7_aft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
+        ScalarMetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert ScalarMetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
 
-        MetricValue.register_cv_dimensions(cmip7_aft_cv)
-        assert MetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
+        ScalarMetricValue.register_cv_dimensions(cmip7_aft_cv)
+        assert ScalarMetricValue._cv_dimensions == [d.name for d in cmip7_aft_cv.dimensions]
+
+
+class TestSeriesMetricValue:
+    def test_build_with_matching_lengths(self, db_seeded):
+        """Test that building a SeriesMetricValue with matching lengths works"""
+        item = SeriesMetricValue.build(
+            execution_id=1,
+            values=[1.0, 2.0, 3.0],
+            index=[0, 1, 2],
+            index_name="time",
+            dimensions={"model": "test"},
+            attributes={"attr": "value"},
+        )
+        db_seeded.session.add(item)
+        db_seeded.session.commit()
+
+        item = db_seeded.session.query(SeriesMetricValue).get(item.id)
+        assert item.values == [1.0, 2.0, 3.0]
+        assert item.index == [0, 1, 2]
+        assert item.index_name == "time"
+        assert item.dimensions == {"model": "test"}
+        assert item.attributes == {"model": "test"}
+
+    def test_build_with_mismatched_lengths(self, db_seeded):
+        """Test that building a SeriesMetricValue with mismatched lengths raises an error"""
+        with pytest.raises(ValueError, match=re.escape(r"Index length (2) must match values length (3)")):
+            SeriesMetricValue.build(
+                execution_id=1,
+                values=[1.0, 2.0, 3.0],
+                index=[0, 1],
+                index_name="time",
+                dimensions={"model": "test"},
+                attributes=None,
+            )
+
+    def test_update_with_mismatched_lengths(self, db_seeded):
+        """Test that updating a SeriesMetricValue with mismatched lengths raises an error"""
+        item = SeriesMetricValue.build(
+            execution_id=1,
+            values=[1.0, 2.0],
+            index=[0, 1],
+            index_name="time",
+            dimensions={"model": "test"},
+            attributes=None,
+        )
+        db_seeded.session.add(item)
+        db_seeded.session.commit()
+
+        item = db_seeded.session.query(SeriesMetricValue).get(item.id)
+        item.values = [1.0, 2.0, 3.0]  # Make lengths mismatch
+
+        with pytest.raises(ValueError, match=re.escape("Index length (2) must match values length (3)")):
+            db_seeded.session.commit()

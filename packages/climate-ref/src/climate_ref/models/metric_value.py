@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from loguru import logger
-from sqlalchemy import Column, ForeignKey, Text
+from sqlalchemy import Column, ForeignKey, Text, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from climate_ref.models.base import Base, CreatedUpdatedMixin
@@ -282,6 +282,8 @@ class SeriesMetricValue(MetricValue):
             If an unknown dimension was supplied.
 
             Dimensions must exist in the controlled vocabulary.
+        ValueError
+            If the length of values and index do not match.
 
         Returns
         -------
@@ -291,6 +293,9 @@ class SeriesMetricValue(MetricValue):
             if k not in cls._cv_dimensions:
                 raise KeyError(f"Unknown dimension column '{k}'")
 
+        if len(values) != len(index):
+            raise ValueError(f"Index length ({len(index)}) must match values length ({len(values)})")
+
         return SeriesMetricValue(
             execution_id=execution_id,
             values=values,
@@ -298,4 +303,18 @@ class SeriesMetricValue(MetricValue):
             index_name=index_name,
             attributes=attributes,
             **dimensions,
+        )
+
+
+@event.listens_for(SeriesMetricValue, "before_insert")
+@event.listens_for(SeriesMetricValue, "before_update")
+def validate_series_lengths(mapper: Any, connection: Any, target: SeriesMetricValue) -> None:
+    """
+    Validate that values and index have matching lengths
+
+    This is done on insert and update to ensure that the database is consistent.
+    """
+    if target.values is not None and target.index is not None and len(target.values) != len(target.index):
+        raise ValueError(
+            f"Index length ({len(target.index)}) must match values length ({len(target.values)})"
         )

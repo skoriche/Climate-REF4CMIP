@@ -88,7 +88,7 @@ class TestSeriesMetricValue:
         assert item.index == [0, 1, 2]
         assert item.index_name == "time"
         assert item.dimensions == {"model": "test"}
-        assert item.attributes == {"model": "test"}
+        assert item.attributes == {"attr": "value"}
 
     def test_build_with_mismatched_lengths(self, db_seeded):
         """Test that building a SeriesMetricValue with mismatched lengths raises an error"""

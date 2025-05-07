@@ -6,6 +6,7 @@ See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing
 
 import os
 import re
+import shutil
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
@@ -17,15 +18,22 @@ from click.testing import Result
 from loguru import logger
 from typer.testing import CliRunner
 
-from cmip_ref import cli
-from cmip_ref.config import Config, MetricsProviderConfig
-from cmip_ref.datasets.cmip6 import CMIP6DatasetAdapter
-from cmip_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
-from cmip_ref.testing import TEST_DATA_DIR, fetch_sample_data
-from cmip_ref_core.datasets import DatasetCollection, MetricDataset, SourceDatasetType
-from cmip_ref_core.logging import add_log_handler, remove_log_handler
-from cmip_ref_core.metrics import DataRequirement, Metric, MetricExecutionDefinition, MetricExecutionResult
-from cmip_ref_core.providers import MetricsProvider
+from climate_ref import cli
+from climate_ref.config import Config, DiagnosticProviderConfig
+from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
+from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
+from climate_ref.models import Execution
+from climate_ref.solver import solve_executions
+from climate_ref.testing import TEST_DATA_DIR, fetch_sample_data, validate_result
+from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
+from climate_ref_core.diagnostics import (
+    DataRequirement,
+    Diagnostic,
+    ExecutionDefinition,
+    ExecutionResult,
+)
+from climate_ref_core.logging import add_log_handler, remove_log_handler
+from climate_ref_core.providers import DiagnosticProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
 
@@ -86,12 +94,17 @@ def sample_data_dir(test_data_dir) -> Path:
     return test_data_dir / "sample-data"
 
 
+@pytest.fixture(scope="session")
+def regression_data_dir(test_data_dir) -> Path:
+    return test_data_dir / "regression"
+
+
 @pytest.fixture(autouse=True, scope="session")
 def sample_data() -> None:
     # Downloads the sample data if it doesn't exist
-    logger.disable("cmip_ref_core.dataset_registry")
+    logger.disable("climate_ref_core.dataset_registry")
     fetch_sample_data(force_cleanup=False, symlink=False)
-    logger.enable("cmip_ref_core.dataset_registry")
+    logger.enable("climate_ref_core.dataset_registry")
 
 
 @pytest.fixture(scope="session")
@@ -122,8 +135,8 @@ def data_catalog(cmip6_data_catalog, obs4mips_data_catalog):
 @pytest.fixture(autouse=True)
 def config(tmp_path, monkeypatch, request) -> Config:
     # Optionally use the `REF_TEST_OUTPUT` env variable as the root output directory
-    # This is useful in the CI to capture any results for later analysis
-    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "cmip_ref"))
+    # This is useful in the CI to capture any executions for later analysis
+    root_output_dir = Path(os.environ.get("REF_TEST_OUTPUT", tmp_path / "climate_ref"))
     # Each test gets its own directory (based on the test filename and the test name)
     # Sanitize the directory name to remove invalid characters
     dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
@@ -139,7 +152,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
     cfg.paths.software = Path(__file__).parent / ".ref" / "software"
 
     # Allow adding datasets from outside the tree for testing
-    cfg.metric_providers = [MetricsProviderConfig(provider="cmip_ref_metrics_example")]
+    cfg.diagnostic_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]
 
     cfg.save()
 
@@ -185,66 +198,70 @@ def invoke_cli():
     return _invoke_cli
 
 
-class MockMetric(Metric):
+class MockDiagnostic(Diagnostic):
     name = "mock"
     slug = "mock"
 
     # This runs on every dataset
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
         # TODO: This doesn't write output.json, use build function?
-        return MetricExecutionResult(
+        return ExecutionResult(
             output_bundle_filename=definition.output_directory / "output.json",
-            metric_bundle_filename=definition.output_directory / "metric.json",
+            metric_bundle_filename=definition.output_directory / "diagnostic.json",
             successful=True,
             definition=definition,
         )
 
 
-class FailedMetric(Metric):
+class FailedDiagnostic(Diagnostic):
     name = "failed"
     slug = "failed"
 
     data_requirements = (DataRequirement(source_type=SourceDatasetType.CMIP6, filters=(), group_by=None),)
 
-    def run(self, definition: MetricExecutionDefinition) -> MetricExecutionResult:
-        return MetricExecutionResult.build_from_failure(definition)
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+        return ExecutionResult.build_from_failure(definition)
 
 
 @pytest.fixture
-def provider(tmp_path, mock_metric) -> MetricsProvider:
-    provider = MetricsProvider("mock_provider", "v0.1.0")
-    provider.register(mock_metric)
-    provider.register(FailedMetric())
+def provider(tmp_path, mock_diagnostic, config) -> DiagnosticProvider:
+    provider = DiagnosticProvider("mock_provider", "v0.1.0")
+    provider.register(mock_diagnostic)
+    provider.register(FailedDiagnostic())
+    provider.configure(config)
 
     return provider
 
 
 @pytest.fixture
-def mock_metric() -> MockMetric:
-    return MockMetric()
+def mock_diagnostic() -> MockDiagnostic:
+    return MockDiagnostic()
 
 
 @pytest.fixture
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *,
-        metric_dataset: MetricDataset | None = None,
+        execution_dataset_collection: ExecutionDatasetCollection | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
-    ) -> MetricExecutionDefinition:
-        if metric_dataset is None:
+        pmp_climatology: DatasetCollection | None = None,
+    ) -> ExecutionDefinition:
+        if execution_dataset_collection is None:
             datasets = {}
             if cmip6:
                 datasets[SourceDatasetType.CMIP6] = cmip6
             if obs4mips:
                 datasets[SourceDatasetType.obs4MIPs] = obs4mips
-            metric_dataset = MetricDataset(datasets)
+            if pmp_climatology:
+                datasets[SourceDatasetType.PMPClimatology] = pmp_climatology
+            execution_dataset_collection = ExecutionDatasetCollection(datasets)
 
-        return MetricExecutionDefinition(
-            dataset_key="key",
-            metric_dataset=metric_dataset,
+        return ExecutionDefinition(
+            key="key",
+            datasets=execution_dataset_collection,
             root_directory=config.paths.scratch,
             output_directory=config.paths.scratch / "output_fragment",
         )
@@ -253,7 +270,7 @@ def definition_factory(tmp_path: Path, config):
 
 
 @pytest.fixture
-def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecutionDefinition:
+def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefinition:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {
@@ -262,7 +279,7 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecution
             }
         )
     ]
-    metric_dataset = MetricDataset(
+    collection = ExecutionDatasetCollection(
         {
             SourceDatasetType.CMIP6: DatasetCollection(
                 selected_dataset,
@@ -270,4 +287,77 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> MetricExecution
             )
         }
     )
-    return definition_factory(metric_dataset=metric_dataset)
+    return definition_factory(execution_dataset_collection=collection)
+
+
+@pytest.fixture(scope="session")
+def execution_regression_dir(regression_data_dir):
+    """
+    Directory where the regression data are stored
+    """
+
+    def _regression_dir(diagnostic: Diagnostic, key: str) -> Path:
+        """
+        Get the regression directory for a given diagnostic
+        """
+        return regression_data_dir / diagnostic.provider.slug / diagnostic.slug / key
+
+    return _regression_dir
+
+
+@pytest.fixture
+def execution_regression(request, execution_regression_dir):
+    def _regression(
+        diagnostic: Diagnostic,
+        output_directory: Path,
+        key: str,
+    ) -> None:
+        """
+        Copy the execution output from a diagnostic to the test-data directory
+
+        These data can then be used to test the parsing of the CMEC bundles without
+        having to run the entire diagnostic.
+
+        The data are only copied if the `--force-regen` pytest option is set.
+        """
+        if not request.config.getoption("force_regen"):
+            logger.info("Not regenerating regression results")
+            return
+
+        logger.info(f"Regenerating regression output for {diagnostic.full_slug()}")
+        output_dir = execution_regression_dir(diagnostic, key)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+
+        shutil.copytree(output_directory, output_dir)
+
+    return _regression
+
+
+@pytest.fixture
+def diagnostic_validation(config, mocker, provider, data_catalog, execution_regression):
+    mocker.patch.object(Execution, "execution_group")
+
+    def _validate(diagnostic: Diagnostic) -> None:
+        diagnostic.provider.configure(config)
+
+        execution = next(
+            solve_executions(
+                data_catalog=data_catalog,
+                diagnostic=diagnostic,
+                provider=diagnostic.provider,
+            )
+        )
+        # Run the diagnostic
+        definition = execution.build_execution_definition(output_root=config.paths.scratch)
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+        try:
+            result = diagnostic.run(definition)
+        finally:
+            # Potentially save the result for regression testing
+            execution_regression(diagnostic, definition.output_directory, definition.key)
+
+        # Check the result
+        validate_result(diagnostic, config, result)
+
+    return _validate

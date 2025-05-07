@@ -1,0 +1,52 @@
+[project]
+name = "climate-ref-core"
+version = "0.5.0"
+description = "Core library for the CMIP Rapid Evaluation Framework"
+readme = "README.md"
+authors = [
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" },
+    { name = "Mika Pflueger", email = "mika.pflueger@climate-resource.com" },
+    { name = "Bouwe Andela", email = "b.andela@esciencecenter.nl" },
+    { name = "Jiwoo Lee", email = "lee1043@llnl.gov" },
+    { name = "Min Xu", email = "xum1@ornl.gov" },
+    { name = "Nathan Collier", email = "collierno@ornl.gov" },
+    { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "attrs>=23.2.0",
+    "pydantic>=2.10.6",
+    "typing_extensions",
+    "requests",
+    "rich",
+
+    # SPEC 0000 constraints
+    # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)
+    # which defines a 2-year support window for key libraries and 3-year window for Python versions
+    "pandas>=2.1.0",
+    "numpy>=1.25.0"
+]
+
+[project.license]
+text = "Apache-2.0"
+
+[tool.uv]
+dev-dependencies = [
+    "types-requests",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

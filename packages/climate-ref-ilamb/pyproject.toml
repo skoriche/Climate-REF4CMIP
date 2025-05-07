@@ -1,0 +1,37 @@
+[project]
+name = "climate-ref-ilamb"
+version = "0.5.0"
+description = "ILAMB diagnostic provider for the Rapid Evaluation Framework"
+readme = "README.md"
+authors = [{ name = "Nathan Collier", email = "nathaniel.collier@gmail.com" }]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "climate-ref-core",
+    "ilamb3",
+    "types-pyyaml>=6.0.12.20241230",
+]
+
+[tool.uv.sources]
+ilamb3 = { git = "https://github.com/rubisco-sfa/ilamb3", rev = "7c64e37ebda04b6902b39ef30db96f4bcabba472" }
+
+[project.license]
+text = "Apache-2.0"
+
+[tool.uv]
+dev-dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

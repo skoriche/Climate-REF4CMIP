@@ -15,7 +15,7 @@ REF is a community project, and we welcome contributions from anyone.
 
 The concept of the REF was proposed by the CMIP Model Benchmarking Task Team (MBTT),
 to enable the near-realtime evaluation of CMIP7 Assessment Fast Track (AFT) datasets.
-This particular deployment will feature a set of metrics selected by
+This particular deployment will feature a set of diagnostics selected by
 the MBTT in consultation with the community (URL with the CMIP7 AFT configuration to come).
 
 The individual components of the REF have been designed to be useful for
@@ -26,11 +26,11 @@ The REF is agnostic to what types of data and metrics are to be performed.
 
 [![CI](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/Climate-REF/climate-ref/actions/workflows/ci.yaml)
 [![Coverage](https://codecov.io/gh/Climate-REF/climate-ref/branch/main/graph/badge.svg)](https://codecov.io/gh/Climate-REF/climate-ref)
-[![Docs](https://readthedocs.org/projects/climate-ref/badge/?version=latest)](https://cmip-ref.readthedocs.io)
+[![Docs](https://readthedocs.org/projects/climate-ref/badge/?version=latest)](https://climate-ref.readthedocs.io)
 
 **PyPI :**
-[![PyPI](https://img.shields.io/pypi/v/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
-[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/cmip_ref.svg)](https://pypi.org/project/cmip-ref/)
+[![PyPI](https://img.shields.io/pypi/v/climate-ref.svg)](https://pypi.org/project/climate-ref/)
+[![PyPI: Supported Python versions](https://img.shields.io/pypi/pyversions/climate-ref.svg)](https://pypi.org/project/climate-ref/)
 
 **Other info :**
 [![Licence](https://img.shields.io/github/license/Climate-REF/climate-ref.svg)](https://github.com/Climate-REF/climate-ref/blob/main/LICENCE)
@@ -49,9 +49,9 @@ CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
 
 
 ```bash
-pip install cmip_ref
-mamba install -c conda-forge cmip_ref
-conda install -c conda-forge cmip_ref
+pip install climate-ref[metrics]
+mamba install -c conda-forge climate-ref
+conda install -c conda-forge climate-ref
 ```
 
 <!--- --8<-- [end:installation] -->
@@ -59,13 +59,14 @@ conda install -c conda-forge cmip_ref
 ## Getting started
 <!--- --8<-- [start:getting-started] -->
 
-### As a metrics provider
+### As a diagnostics provider
 
-Metrics providers are the core of the REF.
-They define the metrics that will be calculated and the data that will be used to calculate them,
+Diagnostic providers are the core of the REF.
+They define the diagnostics that will be calculated and the data that will be used to calculate them,
 by providing a consistent interface for the REF to interact with.
 
-These metrics providers can be run as standalone applications or as part of the REF.
+These diagnostic providers can be run as standalone applications or as part of the REF.
+This allows them to be used in other packages or applications that may not be using the REF compute engine.
 
 ### As a modelling center
 
@@ -73,7 +74,9 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-The REF requires some reference data to be available to run the metrics. Some of the reference datasets needed by the REF are available on ESGF yet. The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
+The REF requires some reference data to be available to run the diagnostics.
+Some of the reference datasets needed by the REF are available on ESGF yet.
+The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
 
 ```bash
 ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
@@ -114,7 +117,7 @@ docker-compose up
 <!--- --8<-- [end:getting-started] -->
 
 Full documentation can be found at:
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+[climate-ref.readthedocs.io](https://climate-ref.readthedocs.io/en/latest/).
 We recommend reading the docs there because the internal documentation links
 don't render correctly on GitHub's viewer.
 
@@ -123,6 +126,6 @@ don't render correctly on GitHub's viewer.
 
 <!--- sec-begin-installation-dev -->
 
-For information on how to contribute see https://cmip-ref.readthedocs.io/en/latest/development/.
+For information on how to contribute see https://climate-ref.readthedocs.io/en/latest/development/.
 
 <!--- sec-end-installation-dev -->

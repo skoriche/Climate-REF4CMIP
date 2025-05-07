@@ -1,0 +1,67 @@
+[project]
+name = "climate-ref"
+version = "0.5.0"
+description = "Application which runs the CMIP Rapid Evaluation Framework"
+readme = "README.md"
+authors = [
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" },
+    { name = "Mika Pflueger", email = "mika.pflueger@climate-resource.com" },
+    { name = "Bouwe Andela", email = "b.andela@esciencecenter.nl" },
+    { name = "Jiwoo Lee", email = "lee1043@llnl.gov" },
+    { name = "Min Xu", email = "xum1@ornl.gov" },
+    { name = "Nathan Collier", email = "collierno@ornl.gov" },
+    { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "climate-ref-core",
+    "attrs>=24.2.0",
+    "cattrs>=24.1.2",
+    "environs>=11.0.0",
+    "tomlkit>=0.13.2",
+    "typer>=0.12.5",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.13.3",
+    "loguru>=0.7.2",
+    "ecgtools>=2024.7.31",
+    "platformdirs>=4.3.6",
+    "setuptools>=75.8.0",
+]
+
+[project.optional-dependencies]
+postgres = [
+    "psycopg2-binary>=2.9.2",
+]
+celery = [
+    "climate-ref-celery>=0.5.0",
+]
+metrics = [
+    "climate-ref-esmvaltool>=0.5.0",
+    "climate-ref-pmp>=0.5.0",
+    "climate-ref-ilamb>=0.5.0",
+]
+[project.license]
+text = "Apache-2.0"
+
+[project.scripts]
+ref = "climate_ref.cli:app"
+
+[tool.uv]
+dev-dependencies = [
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

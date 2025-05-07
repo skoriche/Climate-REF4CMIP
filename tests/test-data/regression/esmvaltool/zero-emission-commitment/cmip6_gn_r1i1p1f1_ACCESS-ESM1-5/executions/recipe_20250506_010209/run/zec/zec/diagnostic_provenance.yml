@@ -1,0 +1,36 @@
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/plots/zec/zec/zec_50_barplot.png
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas_base/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01580116T120000-01780116T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - gier_bettina
+  caption: Barplot of ZEC_50
+  plot_type: bar
+  references:
+  - macdougall20
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/plots/zec/zec/zec_timeseries_all_models.png
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas_base/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01580116T120000-01780116T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - gier_bettina
+  caption: ZEC timeseries
+  plot_type: times
+  references:
+  - macdougall20
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/work/zec/zec/zec.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas_base/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01580116T120000-01780116T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - gier_bettina
+  references:
+  - macdougall20
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/work/zec/zec/zec_50.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas_base/CMIP6_ACCESS-ESM1-5_Amon_1pctCO2_r1i1p1f1_tas_gn_01580116T120000-01780116T120000.nc
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - gier_bettina
+  references:
+  - macdougall20

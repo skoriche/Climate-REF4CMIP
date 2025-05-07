@@ -1,0 +1,14 @@
+drs:
+  CMIP6: ESGF
+  OBS: default
+  OBS6: default
+  native6: default
+output_dir: 
+  /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw0/test_diagnostics_climate_at_gl0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_climate-at-global-warming-levels_/scratch/esmvaltool/climate-at-global-warming-levels/25bf62f7b68cba99447842b1ac48de04a8f46978/executions
+rootpath:
+  default: 
+    /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw0/test_diagnostics_climate_at_gl0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_climate-at-global-warming-levels_/scratch/esmvaltool/climate-at-global-warming-levels/25bf62f7b68cba99447842b1ac48de04a8f46978/climate_data
+  OBS: /Users/jared/Library/Caches/ref/ESMValTool/OBS
+  OBS6: /Users/jared/Library/Caches/ref/ESMValTool/OBS6
+  native6: /Users/jared/Library/Caches/ref/ESMValTool/RAWOBS
+search_esgf: never

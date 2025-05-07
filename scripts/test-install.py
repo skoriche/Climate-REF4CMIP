@@ -9,7 +9,7 @@ Thanks https://stackoverflow.com/a/25562415/10473080
 import importlib
 import pkgutil
 
-import cmip_ref_core
+import climate_ref_core
 
 
 def import_submodules(package_name):
@@ -26,5 +26,5 @@ def import_submodules(package_name):
 
 
 # TODO: Make this agnostic to the package name
-import_submodules("cmip_ref_core")
-print(cmip_ref_core.__version__)
+import_submodules("climate_ref_core")
+print(climate_ref_core.__version__)

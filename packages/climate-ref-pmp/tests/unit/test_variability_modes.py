@@ -123,7 +123,9 @@ def test_mode_id_invalid():
 
 @pytest.mark.parametrize(
     "mode",
-    set(ExtratropicalModesOfVariability.psl_modes + ExtratropicalModesOfVariability.ts_modes) - {"AMO"},
+    sorted(
+        set(ExtratropicalModesOfVariability.psl_modes + ExtratropicalModesOfVariability.ts_modes) - {"AMO"}
+    ),
 )
 def test_diagnostic_build_result(mode, config, provider, execution_regression_dir, data_catalog):
     diagnostic = ExtratropicalModesOfVariability(mode)

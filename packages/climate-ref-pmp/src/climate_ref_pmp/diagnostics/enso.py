@@ -1,9 +1,8 @@
-from EnsoMetrics.EnsoCollectionsLib import defCollection  # How can I import this?
-from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection
+import json
+import os
+from collections.abc import Iterable
 
 from loguru import logger
-from pcmdi_metrics import resources
-from pcmdi_metrics.enso.lib import metrics_to_json
 
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
@@ -12,9 +11,6 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
-
-import os
-import json
 
 
 class ENSO(CommandLineDiagnostic):
@@ -28,6 +24,8 @@ class ENSO(CommandLineDiagnostic):
         self.metrics_collection = metrics_collection
         self.parameter_file = "pmp_param_enso.py"
 
+        # TO DO: sftlf and areacell
+        # TO DO: Get the path to the files per variable
         def _get_data_requirements(
             metrics_collection: str,
             extra_experiments: str | tuple[str, ...] | list[str] = (),
@@ -44,7 +42,8 @@ class ENSO(CommandLineDiagnostic):
                 obs_sources = ("GPCP", "ERA5", "TropFlux")
             else:
                 raise ValueError(
-                    f"Unknown metrics collection: {metrics_collection}. Valid options are: ENSO_perf, ENSO_tel, ENSO_proc"
+                    f"Unknown metrics collection: {metrics_collection}. "
+                    "Valid options are: ENSO_perf, ENSO_tel, ENSO_proc"
                 )
 
             obs_variables = model_variables
@@ -112,7 +111,7 @@ class ENSO(CommandLineDiagnostic):
                 "varname": variable,
                 "path + filename_area": list_areacell,
                 "areaname": list_name_area,
-                "path + filename_landmask": list_landmask,
+                "path + filename_landmask": list_landmask,  # sftlf
                 "landmaskname": list_name_land,
             }
 
@@ -137,147 +136,34 @@ class ENSO(CommandLineDiagnostic):
                 }
 
         # Create input directory
-        dictDatasets = {"model": dict_mod, "observations": dict_obs}
+        dictDatasets = {
+            "model": dict_mod,
+            "observations": dict_obs,
+            "metricsCollection": mc_name,
+            "experiment_id": experiment_id,
+        }
 
-        # ------------------------------
-        # Computes the metric collection
-        # ------------------------------
-        # https://github.com/CLIVAR-PRP/ENSO_metrics/blob/d50c2613354564a155e0fe0f637eb448dfd7c479/lib/EnsoComputeMetricsLib.py#L59
-
-        logger.debug("\n### PMP ENSO: Compute the metric collection ###\n")
-
-        dict_metric = {}
-        dict_dive = {}
-        
-        pattern = f"{mc_name}_{mod_run}_{experiment_id}"
-
-        dict_metric, dict_dive = ComputeCollection(
-            mc_name,
-            dictDatasets,
-            mod_run,
-            netcdf=True,
-            netcdf_name=pattern,
-            debug=True,
-            obs_interpreter=True,
+        # Create JSON file for dictDatasets
+        json_file = os.path.join(
+            definition.output_directory, f"{mc_name}_{source_id}_{experiment_id}_{member_id}.json"
         )
+        with open(json_file, "w") as f:
+            json.dump(dictDatasets, f, indent=4)
+        logger.debug(f"JSON file created: {json_file}")
 
-        egg_pth = resources.resource_path()
-        output_directory_path = str(definition.output_directory)
-        mod = self.source_id
-        run = self.member_id
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
+        """
+        Build the command to run the diagnostic
 
-        # OUTPUT METRICS TO JSON FILE (per simulation)
-        metrics_to_json(
-            mc_name,
-            dict_obs,
-            dict_metric,
-            dict_dive,
-            egg_pth,
-            output_directory_path,
-            pattern,
-            mod=mod,
-            run=run,
-        )
-        
-        # Plot
-        with open(os.path.join(output_directory_path, f"{pattern}.json")) as ff:
-            data_json = json.load(ff)["RESULTS"]["model"][mod][run]
+        Parameters
+        ----------
+        definition
+            Definition of the diagnostic execution
 
-        _plot_enso(
-            mc_name,
-            mod,
-            run,
-            experiment_id,
-            os.path.join(output_directory_path, f"{pattern}.nc"),
-            output_directory_path,
-            data_json
-        )
+        Returns
+        -------
+            Command arguments to execute in the PMP environment
+        """
+        # TO DO: Implement the command to run the enso driver
 
-
-def _plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
-
-    metrics = sorted(
-        defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper()
-    )
-    print("metrics:", metrics)
-    
-    pattern = "_".join([mc_name, mod, run])
-
-    for met in metrics:
-        print("met:", met)
-        # get NetCDF file name
-        filename_nc = os.path.join(
-            path_in_nc, pattern + "_" + met + ".nc"
-        )
-        print("filename_nc:", filename_nc)
-        if os.path.exists(filename_nc):
-            # get diagnostic values for the given model and observations
-            if mc_name == "ENSO_tel" and "Map" in met:
-                dict_dia = data_json["value"][met + "Corr"]["diagnostic"]
-                diagnostic_values = dict(
-                    (key1, None) for key1 in dict_dia.keys()
-                )
-                diagnostic_units = ""
-            else:
-                dict_dia = data_json["value"][met]["diagnostic"]
-                diagnostic_values = dict(
-                    (key1, dict_dia[key1]["value"]) for key1 in dict_dia.keys()
-                )
-                diagnostic_units = data_json["metadata"]["metrics"][met][
-                    "diagnostic"
-                ]["units"]
-            # get metric values computed with the given model and observations
-            if mc_name == "ENSO_tel" and "Map" in met:
-                list1, list2 = [met + "Corr", met + "Rmse"], [
-                    "diagnostic",
-                    "metric",
-                ]
-                dict_met = data_json["value"]
-                metric_values = dict(
-                    (
-                        key1,
-                        {
-                            mod: [
-                                dict_met[su][ty][key1]["value"]
-                                for su, ty in zip(list1, list2)
-                            ]
-                        },
-                    )
-                    for key1 in dict_met[list1[0]]["metric"].keys()
-                )
-                metric_units = [
-                    data_json["metadata"]["metrics"][su]["metric"]["units"]
-                    for su in list1
-                ]
-            else:
-                dict_met = data_json["value"][met]["metric"]
-                metric_values = dict(
-                    (key1, {mod: dict_met[key1]["value"]})
-                    for key1 in dict_met.keys()
-                )
-                metric_units = data_json["metadata"]["metrics"][met]["metric"][
-                    "units"
-                ]
-            # figure name
-            figure_name = "_".join([mip, exp, mc_name, mod, run, met])
-            print("figure_name:", figure_name)
-
-            main_plotter(
-                mc_name,
-                met,
-                mod,
-                exp,
-                filename_nc,
-                diagnostic_values,
-                diagnostic_units,
-                metric_values,
-                metric_units,
-                member=run,
-                path_png=path_out,
-                name_png=figure_name,
-            )
-
-            print("figure plotting done")
-
-        else:
-            print("file not found:", filename_nc)
+        raise NotImplementedError("Function not required")

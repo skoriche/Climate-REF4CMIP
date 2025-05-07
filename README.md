@@ -88,7 +88,7 @@ These datasets can then be ingested into the REF and the metrics solved using:
 ```bash
 uv run ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
 uv run ref datasets ingest --source-type obs4mips datasets/obs4ref
-ref solve
+uv run ref solve
 ```
 
 The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.

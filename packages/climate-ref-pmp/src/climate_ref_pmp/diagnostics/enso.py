@@ -11,6 +11,7 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
+from climate_ref_pmp.pmp_driver import process_json_result
 
 
 class ENSO(CommandLineDiagnostic):
@@ -145,12 +146,12 @@ class ENSO(CommandLineDiagnostic):
 
         # Create JSON file for dictDatasets
         json_file = os.path.join(
-            definition.output_directory, f"{mc_name}_{source_id}_{experiment_id}_{member_id}.json"
+            definition.output_directory, f"input_{mc_name}_{source_id}_{experiment_id}_{member_id}.json"
         )
         with open(json_file, "w") as f:
             json.dump(dictDatasets, f, indent=4)
         logger.debug(f"JSON file created: {json_file}")
-
+        
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run the diagnostic
@@ -167,3 +168,41 @@ class ENSO(CommandLineDiagnostic):
         # TO DO: Implement the command to run the enso driver
 
         raise NotImplementedError("Function not required")
+
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
+        """
+        Build a diagnostic result from the output of the PMP driver
+
+        Parameters
+        ----------
+        definition
+            Definition of the diagnostic execution
+
+        Returns
+        -------
+            Result of the diagnostic execution
+        """
+        input_datasets = definition.datasets[SourceDatasetType.CMIP6]
+        source_id = input_datasets["source_id"].unique()[0]
+        experiment_id = input_datasets["experiment_id"].unique()[0]
+        member_id = input_datasets["member_id"].unique()[0]
+        mod_run = f"{source_id}_{member_id}"
+        mc_name = self.metrics_collection
+        pattern = f"{mc_name}_{mod_run}_{experiment_id}"
+        
+        results_files = list(definition.output_directory.glob(f"{pattern}.json"))
+        if len(results_files) != 1:  # pragma: no cover
+            logger.warning(f"A single cmec output file not found: {results_files}")
+            return ExecutionResult.build_from_failure(definition)
+
+        # Find the other outputs
+        png_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.png")]
+        data_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.nc")]
+
+        cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
+
+        return ExecutionResult.build_from_output_bundle(
+            definition,
+            cmec_output_bundle=cmec_output,
+            cmec_metric_bundle=cmec_metric,
+        )

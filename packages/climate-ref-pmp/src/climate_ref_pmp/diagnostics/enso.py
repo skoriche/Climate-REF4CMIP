@@ -167,7 +167,7 @@ class ENSO(CommandLineDiagnostic):
         """
         # TO DO: Implement the command to run the enso driver
 
-        raise NotImplementedError("Function not required")
+        raise NotImplementedError("Function will be implemented in the future.")
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """

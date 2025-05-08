@@ -89,7 +89,7 @@ def process_json_result(
     cmec_metric["DIMENSIONS"] = dimensions
 
     if "provenance" in json_result:  # pragma: no branch
-        cmec_metric["provenance"] = json_result["provenance"]
+        cmec_metric["PROVENANCE"] = json_result["provenance"]
 
     logger.info(f"cmec_output: {pretty_repr(cmec_output)}")
     logger.info(f"cmec_metric: {pretty_repr(cmec_metric)}")
@@ -134,7 +134,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
 def build_pmp_command(
     driver_file: str,
     parameter_file: str,
-    **kwargs: dict[str, str | int | float | list[str]],
+    **kwargs: str | int | float | list[str] | None,
 ) -> list[str]:
     """
     Run a PMP driver script via a conda environment

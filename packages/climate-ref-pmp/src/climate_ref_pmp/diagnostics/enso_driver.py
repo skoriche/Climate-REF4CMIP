@@ -2,12 +2,14 @@ import argparse
 import json
 import os
 
-from EnsoMetrics.EnsoCollectionsLib import defCollection
-from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection
-from EnsoPlots.EnsoMetricPlot import main_plotter
 from loguru import logger
-from pcmdi_metrics import resources
-from pcmdi_metrics.enso.lib import metrics_to_json
+
+from pcmdi_metrics import resources  # isort:skip
+from pcmdi_metrics.enso.lib import metrics_to_json  # isort:skip
+
+from EnsoMetrics.EnsoCollectionsLib import defCollection  # isort:skip
+from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection  # isort:skip
+from EnsoPlots.EnsoMetricPlot import main_plotter  # isort:skip
 
 
 def main():
@@ -19,10 +21,14 @@ def main():
     1. input_json_path: Path to the JSON file containing the datasets.
     2. output_directory: Directory where the output files will be saved.
     """
+    print("### PMP ENSO: Compute the metric collection ###\n")
+
     # Create an argument parser
     parser = argparse.ArgumentParser(description="A script that takes two inputs and processes them.")
 
     # Add arguments
+    parser.add_argument("--metrics_collection", type=str, help="metrics collection")
+    parser.add_argument("--experiment_id", type=str, help="experiment id")
     parser.add_argument("--input_json_path", type=str, help="JSON file path")
     parser.add_argument("--output_directory", type=str, help="output directory")
 
@@ -30,18 +36,27 @@ def main():
     args = parser.parse_args()
 
     # Access the inputs
+    mc_name = args.metrics_collection
+    experiment_id = args.experiment_id
     json_file = args.input_json_path
     output_directory = args.output_directory
 
     # Load information from JSON file
     with open(json_file) as f:
         dictDatasets = json.load(f)
+
+    print(f"JSON file loaded: {json_file}")
+    print(f"dictDatasets: {dictDatasets}")
+
     logger.debug(f"JSON file loaded: {json_file}")
     logger.debug(f"dictDatasets: {dictDatasets}")
 
-    mc_name = dictDatasets["metricsCollection"]
-    experiment_id = dictDatasets["experiment_id"]
     mod_run = list(dictDatasets["model"].keys())[0]
+    mod = mod_run.split("_")[0]
+    run = mod_run.split("_")[1]
+
+    print(f"mod: {mod}")
+    print(f"run: {run}")
 
     # ------------------------------
     # Computes the metric collection
@@ -55,6 +70,13 @@ def main():
 
     pattern = f"{mc_name}_{mod_run}_{experiment_id}"
 
+    print(f"pattern: {pattern}")
+    print(f"mod_run: {mod_run}")
+    print(f"experiment_id: {experiment_id}")
+    print(f"mc_name: {mc_name}")
+    print(f"dictDatasets: {dictDatasets}")
+    print(f"output_directory: {output_directory}")
+
     dict_metric, dict_dive = ComputeCollection(
         mc_name,
         dictDatasets,
@@ -65,9 +87,13 @@ def main():
         obs_interpreter=True,
     )
 
+    print(f"dict_metric: {dict_metric}")
+    print(f"dict_dive: {dict_dive}")
+
+    logger.debug(f"dict_metric: {dict_metric}")
+    logger.debug(f"dict_dive: {dict_dive}")
+
     egg_pth = resources.resource_path()
-    mod = mod_run.split("_")[0]
-    run = mod_run.split("_")[1]
 
     dict_obs = dictDatasets["observations"]
 
@@ -86,7 +112,7 @@ def main():
 
     # Plot
     with open(os.path.join(output_directory, f"{pattern}.json")) as ff:
-        data_json = json.load(ff)["RESULTS"]["model"][mod][run]
+        data_json = json.load(ff)["RESULTS"]["model"][mod_run]
 
     plot_enso(
         mc_name,

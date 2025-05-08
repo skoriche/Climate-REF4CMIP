@@ -11,6 +11,14 @@ from pcmdi_metrics.enso.lib import metrics_to_json
 
 
 def main():
+    """
+    Run the ENSO metrics collection and plotting.
+
+    This script is designed to be run from the command line.
+    It takes two command line arguments:
+    1. input_json_path: Path to the JSON file containing the datasets.
+    2. output_directory: Directory where the output files will be saved.
+    """
     # Create an argument parser
     parser = argparse.ArgumentParser(description="A script that takes two inputs and processes them.")
 
@@ -80,7 +88,7 @@ def main():
     with open(os.path.join(output_directory, f"{pattern}.json")) as ff:
         data_json = json.load(ff)["RESULTS"]["model"][mod][run]
 
-    _plot_enso(
+    plot_enso(
         mc_name,
         mod,
         run,
@@ -91,7 +99,27 @@ def main():
     )
 
 
-def _plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
+def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
+    """
+    Plot the ENSO metrics collection.
+
+    Parameters
+    ----------
+    mc_name : str
+        Name of the metrics collection.
+    mod : str
+        Model name.
+    run : str
+        Run name.
+    exp : str
+        Experiment name.
+    path_in_nc : str
+        Path to the input NetCDF file.
+    path_out : str
+        Path to the output directory.
+    data_json : dict
+        Data loaded from the JSON file.
+    """
     metrics = sorted(defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper())
     print("metrics:", metrics)
 

@@ -82,9 +82,9 @@ def main():
         dictDatasets,
         mod_run,
         netcdf=True,
-        netcdf_name=pattern,
-        debug=True,
+        netcdf_name=os.path.join(output_directory, pattern),
         obs_interpreter=True,
+        debug=True,
     )
 
     print(f"dict_metric: {dict_metric}")

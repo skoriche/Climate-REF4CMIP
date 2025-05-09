@@ -228,16 +228,13 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
             variables = dictDatasets[data_type][dataset].keys()
             for variable in variables:
                 path = dictDatasets[data_type][dataset][variable]["path + filename"]
-                if variable == next(iter(variables)):
-                    if data_type == "observations":
-                        # For observations, we need to generate the landmask path.
-                        # Generate it only for the first variable and reuse for the rest variables
-                        # because they are all the same resolution per dataset.
-                        path_landmask = generate_landmask_path(
-                            path, variable, output_dir=output_dir, output_filename=f"sftlf_{dataset}.nc"
-                        )
-                    elif data_type == "model":
-                        path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]
+                if data_type == "observations":
+                    # For observations, we need to generate the landmask path.
+                    # Generate it per variable because it is possible that
+                    # different variables are on different staggered grids.
+                    path_landmask = generate_landmask_path(path, variable, output_dir=output_dir)
+                elif data_type == "model":
+                    path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]
 
                 dictDatasets2[data_type][dataset][variable]["areaname"] = "areacella"
                 dictDatasets2[data_type][dataset][variable]["landmaskname"] = "sftlf"

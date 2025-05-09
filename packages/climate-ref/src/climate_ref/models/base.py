@@ -12,6 +12,8 @@ class Base(DeclarativeBase):
 
     type_annotation_map = {  # noqa: RUF012
         dict[str, Any]: JSON,
+        list[float | int]: JSON,
+        list[float | int | str]: JSON,
     }
     metadata = MetaData(
         # Enforce a common naming convention for constraints

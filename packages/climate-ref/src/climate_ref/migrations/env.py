@@ -1,3 +1,4 @@
+import alembic_postgresql_enum  # noqa
 from alembic import context, op
 from loguru import logger
 from sqlalchemy import Connection, inspect

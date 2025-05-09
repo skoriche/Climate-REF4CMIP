@@ -14,6 +14,7 @@ from attrs import field, frozen
 
 from climate_ref_core.constraints import GroupConstraint
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
+from climate_ref_core.metric_values import SeriesMetricValue
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -170,7 +171,11 @@ class ExecutionResult:
     """
     Whether the diagnostic execution ran successfully.
     """
-    # Log info is in the output bundle file already, but is definitely useful
+
+    series: Sequence[SeriesMetricValue] = field(factory=tuple)
+    """
+    A collection of series metric values that were extracted from the execution.
+    """
 
     @staticmethod
     def build_from_output_bundle(
@@ -426,7 +431,7 @@ class AbstractDiagnostic(Protocol):
         """
         Run the diagnostic on the given configuration.
 
-        The implementation of this method method is left to the diagnostic providers.
+        The implementation of this method is left to the diagnostic providers.
 
 
         Parameters

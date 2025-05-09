@@ -2,11 +2,14 @@ import pathlib
 import shutil
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from climate_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
 from climate_ref.executor.local import LocalExecutor
+from climate_ref.models import ScalarMetricValue
 from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
+from climate_ref.models.metric_value import MetricValueType
 from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor
@@ -36,6 +39,7 @@ def test_import_executor_missing():
 @pytest.fixture
 def mock_execution_result(mocker):
     mock_result = mocker.Mock(spec=Execution)
+    mock_result.id = 1
     mock_result.output_fragment = "output_fragment"
     return mock_result
 
@@ -74,6 +78,10 @@ def test_handle_execution_result_successful(
     )
     mock_execution_result.mark_successful.assert_called_once_with(metric_bundle_filename)
     assert not mock_execution_result.execution_group.dirty
+
+    scalars = list(db.session.execute(select(ScalarMetricValue)).scalars())
+    assert scalars
+    assert scalars[0].type == MetricValueType.SCALAR
 
 
 def test_handle_execution_result_with_files(config, mock_execution_result, mocker, definition_factory):

@@ -133,7 +133,7 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
         Data loaded from the JSON file.
     """
     metrics = sorted(defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper())
-    logger.debug("metrics:", metrics)
+    logger.debug(f"metrics: {metrics}")
 
     mod = mod_run.split("_")[0]
     run = mod_run.split("_")[1]
@@ -141,10 +141,10 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
     pattern = "_".join([mc_name, mod, exp, run])
 
     for met in metrics:
-        logger.debug("met:", met)
+        logger.debug(f"met: {met}")
         # get NetCDF file name
         filename_nc = os.path.join(path_work_dir, pattern + "_" + met + ".nc")
-        logger.debug("filename_nc:", filename_nc)
+        logger.debug(f"filename_nc: {filename_nc}")
         if os.path.exists(filename_nc):
             # get diagnostic values for the given model and observations
             if mc_name == "ENSO_tel" and "Map" in met:
@@ -179,7 +179,7 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
                 metric_units = data_json["metadata"]["metrics"][met]["metric"]["units"]
             # figure name
             figure_name = "_".join([mc_name, mod, exp, run, met])
-            logger.debug("figure_name:", figure_name)
+            logger.debug(f"figure_name: {figure_name}")
 
             main_plotter(
                 mc_name,
@@ -199,7 +199,7 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
             logger.debug("figure plotting done")
 
         else:
-            logger.warning("file not found:", filename_nc)
+            logger.warning(f"file not found: {filename_nc}")
 
 
 def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:

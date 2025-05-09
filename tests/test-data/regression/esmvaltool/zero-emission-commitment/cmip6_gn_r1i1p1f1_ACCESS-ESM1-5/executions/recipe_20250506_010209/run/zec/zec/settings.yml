@@ -1,0 +1,13 @@
+zec_year: 50
+recipe: recipe.yml
+version: 2.12.0
+script: zec
+run_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/run/zec/zec
+plot_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/plots/zec/zec
+work_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/work/zec/zec
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /Users/jared/auxiliary_data
+input_files:
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas_base/metadata.yml
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw6/test_diagnostics_zero_emission0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_zero-emission-commitment_/scratch/esmvaltool/zero-emission-commitment/c2000792c51f2095e6e241feb5b3f426a668ea00/executions/recipe_20250506_010209/preproc/zec/tas/metadata.yml

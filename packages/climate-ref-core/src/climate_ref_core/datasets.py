@@ -11,6 +11,16 @@ from typing import Any, Self
 import pandas as pd
 from attrs import field, frozen
 
+Selector = tuple[tuple[str, str], ...]
+"""
+Type describing the key used to identify a group of datasets
+
+This is a tuple of tuples, where each inner tuple contains a metadata and dimension value
+that was used to group the datasets together.
+
+This type must be hashable, as it is used as a key in a dictionary.
+"""
+
 
 class SourceDatasetType(enum.Enum):
     """
@@ -76,6 +86,23 @@ class FacetFilter:
     """
 
 
+def sort_selector(inp: Selector) -> Selector:
+    """
+    Sort the selector by key
+
+    Parameters
+    ----------
+    inp
+        Selector to sort
+
+    Returns
+    -------
+    :
+        Sorted selector
+    """
+    return tuple(sorted(inp, key=lambda x: x[0]))
+
+
 @frozen
 class DatasetCollection:
     """
@@ -83,14 +110,32 @@ class DatasetCollection:
     """
 
     datasets: pd.DataFrame
+    """
+    DataFrame containing the datasets that were selected for the execution.
+
+    The columns in this dataframe depend on the source dataset type, but always include:
+    * path
+    * [slug_column]
+    """
     slug_column: str
     """
     Column in datasets that contains the unique identifier for the dataset
     """
-    selector: tuple[tuple[str, str], ...] = ()
+    selector: Selector = field(converter=sort_selector, factory=tuple)
     """
     Unique key, value pairs that were selected during the initial groupby
     """
+
+    def selector_dict(self) -> dict[str, str]:
+        """
+        Convert the selector to a dictionary
+
+        Returns
+        -------
+        :
+            Dictionary of the selector
+        """
+        return {key: value for key, value in self.selector}
 
     def __getattr__(self, item: str) -> Any:
         return getattr(self.datasets, item)
@@ -155,3 +200,19 @@ class ExecutionDatasetCollection:
         hash_sum = sum(hash(item) for item in self._collection.values())
         hash_bytes = hash_sum.to_bytes(16, "little", signed=True)
         return hashlib.sha1(hash_bytes).hexdigest()  # noqa: S324
+
+    @property
+    def selectors(self) -> dict[str, Selector]:
+        """
+        Collection of selectors used to identify the datasets
+
+        These are the key, value pairs that were selected during the initial group-by,
+        for each data requirement.
+        """
+        # The "value" of SourceType is used here so this can be stored in the db
+        s = {}
+        for source_type in SourceDatasetType.ordered():
+            if source_type not in self._collection:
+                continue
+            s[source_type.value] = self._collection[source_type].selector
+        return s

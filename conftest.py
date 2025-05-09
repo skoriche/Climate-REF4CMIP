@@ -6,6 +6,7 @@ See https://docs.pytest.org/en/7.1.x/reference/fixtures.html#conftest-py-sharing
 
 import os
 import re
+import shutil
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
@@ -21,7 +22,9 @@ from climate_ref import cli
 from climate_ref.config import Config, DiagnosticProviderConfig
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
-from climate_ref.testing import TEST_DATA_DIR, fetch_sample_data
+from climate_ref.models import Execution
+from climate_ref.solver import solve_executions
+from climate_ref.testing import TEST_DATA_DIR, fetch_sample_data, validate_result
 from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
 from climate_ref_core.diagnostics import (
     DataRequirement,
@@ -89,6 +92,11 @@ def test_data_dir() -> Path:
 @pytest.fixture(scope="session")
 def sample_data_dir(test_data_dir) -> Path:
     return test_data_dir / "sample-data"
+
+
+@pytest.fixture(scope="session")
+def regression_data_dir(test_data_dir) -> Path:
+    return test_data_dir / "regression"
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -218,10 +226,11 @@ class FailedDiagnostic(Diagnostic):
 
 
 @pytest.fixture
-def provider(tmp_path, mock_diagnostic) -> DiagnosticProvider:
+def provider(tmp_path, mock_diagnostic, config) -> DiagnosticProvider:
     provider = DiagnosticProvider("mock_provider", "v0.1.0")
     provider.register(mock_diagnostic)
     provider.register(FailedDiagnostic())
+    provider.configure(config)
 
     return provider
 
@@ -279,3 +288,76 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
         }
     )
     return definition_factory(execution_dataset_collection=collection)
+
+
+@pytest.fixture(scope="session")
+def execution_regression_dir(regression_data_dir):
+    """
+    Directory where the regression data are stored
+    """
+
+    def _regression_dir(diagnostic: Diagnostic, key: str) -> Path:
+        """
+        Get the regression directory for a given diagnostic
+        """
+        return regression_data_dir / diagnostic.provider.slug / diagnostic.slug / key
+
+    return _regression_dir
+
+
+@pytest.fixture
+def execution_regression(request, execution_regression_dir):
+    def _regression(
+        diagnostic: Diagnostic,
+        output_directory: Path,
+        key: str,
+    ) -> None:
+        """
+        Copy the execution output from a diagnostic to the test-data directory
+
+        These data can then be used to test the parsing of the CMEC bundles without
+        having to run the entire diagnostic.
+
+        The data are only copied if the `--force-regen` pytest option is set.
+        """
+        if not request.config.getoption("force_regen"):
+            logger.info("Not regenerating regression results")
+            return
+
+        logger.info(f"Regenerating regression output for {diagnostic.full_slug()}")
+        output_dir = execution_regression_dir(diagnostic, key)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+
+        shutil.copytree(output_directory, output_dir)
+
+    return _regression
+
+
+@pytest.fixture
+def diagnostic_validation(config, mocker, provider, data_catalog, execution_regression):
+    mocker.patch.object(Execution, "execution_group")
+
+    def _validate(diagnostic: Diagnostic) -> None:
+        diagnostic.provider.configure(config)
+
+        execution = next(
+            solve_executions(
+                data_catalog=data_catalog,
+                diagnostic=diagnostic,
+                provider=diagnostic.provider,
+            )
+        )
+        # Run the diagnostic
+        definition = execution.build_execution_definition(output_root=config.paths.scratch)
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+        try:
+            result = diagnostic.run(definition)
+        finally:
+            # Potentially save the result for regression testing
+            execution_regression(diagnostic, definition.output_directory, definition.key)
+
+        # Check the result
+        validate_result(diagnostic, config, result)
+
+    return _validate

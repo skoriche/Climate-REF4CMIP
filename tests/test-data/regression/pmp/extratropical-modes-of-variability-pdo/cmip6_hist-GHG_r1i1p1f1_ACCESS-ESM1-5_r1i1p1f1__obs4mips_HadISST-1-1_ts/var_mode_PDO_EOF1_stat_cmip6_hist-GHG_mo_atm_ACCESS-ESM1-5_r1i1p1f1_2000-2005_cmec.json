@@ -1,0 +1,125 @@
+{
+    "DIMENSIONS": {
+        "json_structure": [
+            "model",
+            "realization",
+            "reference",
+            "mode",
+            "season",
+            "method",
+            "statistic"
+        ],
+        "model": {
+            "ACCESS-ESM1-5": {}
+        },
+        "realization": {
+            "r1i1p1f1": {}
+        },
+        "reference": {
+            "defaultReference": {}
+        },
+        "mode": {
+            "PDO": {}
+        },
+        "season": {
+            "monthly": {}
+        },
+        "method": {
+            "cbf": {},
+            "eof1": {}
+        },
+        "statistic": {
+            "bias": {},
+            "bias_glo": {},
+            "cor": {},
+            "cor_glo": {},
+            "frac": {},
+            "frac_cbf_regrid": {},
+            "mean": {},
+            "mean_glo": {},
+            "rms": {},
+            "rms_glo": {},
+            "rmsc": {},
+            "rmsc_glo": {},
+            "stdv_pc": {},
+            "stdv_pc_ratio_to_obs": {}
+        }
+    },
+    "SCHEMA": {
+        "name": "CMEC",
+        "package": "PMP",
+        "version": "v1"
+    },
+    "REF": {
+        "obs": {
+            "defaultReference": {
+                "PDO": {
+                    "monthly": {
+                        "frac": 0.2769474120559583,
+                        "mean": -0.005411319969245747,
+                        "mean_glo": 0.06433412780513445,
+                        "stdv_pc": 0.2161207275878831
+                    }
+                },
+                "period": "1900-2005",
+                "reference_eofs": 1,
+                "source": "/Users/jared/code/Climate-REF/climate-ref/tests/test-data/sample-data/obs4REF/obs4MIPs_PCMDI_monthly/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+            }
+        }
+    },
+    "json_version": 3.0,
+    "provenance": {},
+    "RESULTS": {
+        "ACCESS-ESM1-5": {
+            "r1i1p1f1": {
+                "defaultReference": {
+                    "PDO": {
+                        "monthly": {
+                            "cbf": {
+                                "bias": -0.005244829343949603,
+                                "bias_glo": -0.014724865837433265,
+                                "cor": 0.8638085067667459,
+                                "cor_glo": 0.5825302006503772,
+                                "frac": 0.14233271466410413,
+                                "frac_cbf_regrid": 0.21915318802927647,
+                                "mean": -2.115321365992236e-17,
+                                "mean_glo": 0.05007454649916923,
+                                "rms": 0.15277735747291377,
+                                "rms_glo": 0.1513042705649884,
+                                "rmsc": 0.5718894836911487,
+                                "rmsc_glo": 0.916083836556443,
+                                "stdv_pc": 0.16836110532988535,
+                                "stdv_pc_ratio_to_obs": 0.7790141519925393
+                            },
+                            "eof1": {
+                                "bias": -0.027150582586100244,
+                                "bias_glo": 0.027139106992987525,
+                                "cor": 0.5425764283185278,
+                                "cor_glo": 0.4472352700832359,
+                                "frac": 0.17062006725773204,
+                                "mean": -4.5328314985547923e-17,
+                                "mean_glo": 0.09657039849775795,
+                                "rms": 0.23621886777589546,
+                                "rms_glo": 0.19087172225588442,
+                                "rmsc": 0.8511178682478864,
+                                "rmsc_glo": 1.0340765828551082,
+                                "stdv_pc": 0.22235014222791247,
+                                "stdv_pc_ratio_to_obs": 1.0288237722941047,
+                                "tcor_cbf_vs_eof_pc": 0.6893282063592023
+                            },
+                            "attributes": {
+                                "best_matching_model_eofs__cor": 1,
+                                "best_matching_model_eofs__rms": 1,
+                                "best_matching_model_eofs__tcor_cbf_vs_eof_pc": 1,
+                                "period": "2000-2005"
+                            }
+                        },
+                        "attributes": {
+                            "target_model_eofs": 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

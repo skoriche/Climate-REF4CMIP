@@ -1,14 +1,13 @@
 import shutil
-from subprocess import CalledProcessError
 
 import pandas as pd
 import pytest
+from attr import evolve
+from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.diagnostics import ExtratropicalModesOfVariability
 from climate_ref_pmp.pmp_driver import _get_resource
 
-import climate_ref_core.providers
-from climate_ref.solver import extract_covered_datasets
-from climate_ref_core.datasets import DatasetCollection
+from climate_ref.solver import extract_covered_datasets, solve_executions
 from climate_ref_core.diagnostics import Diagnostic
 
 
@@ -21,32 +20,18 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {p
     return datasets[first_key]
 
 
-@pytest.mark.xfail(reason="https://github.com/Climate-REF/climate-ref/issues/258")
-def test_pdo_metric(
-    cmip6_data_catalog, obs4mips_data_catalog, mocker, definition_factory, pdo_example_dir, provider
-):
-    metric = ExtratropicalModesOfVariability("PDO")
-    metric._provider = provider
-    metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
+def test_pdo_metric(data_catalog, config, mocker, definition_factory, pdo_example_dir, provider):
+    diagnostic = ExtratropicalModesOfVariability("PDO")
+    diagnostic.provider = provider
 
-    expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
-
-    definition = definition_factory(
-        cmip6=DatasetCollection(metric_dataset, "instance_id"),
-        obs4mips=DatasetCollection(
-            pd.Series(
-                {
-                    "instance_id": "HadISST",
-                    "source_id": "HadISST-1-1",
-                    "variable_id": "ts",
-                    "path": expected_reference_filename,
-                }
-            )
-            .to_frame()
-            .T,
-            "instance_id",
-        ),
+    execution = next(
+        solve_executions(
+            data_catalog=data_catalog,
+            diagnostic=diagnostic,
+            provider=diagnostic.provider,
+        )
     )
+    definition = execution.build_execution_definition(output_root=config.paths.scratch)
 
     def mock_run_fn(cmd, *args, **kwargs):
         # Copy the output from the test-data directory to the output directory
@@ -62,7 +47,7 @@ def test_pdo_metric(
         spec_set=True,
         side_effect=mock_run_fn,
     )
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     mock_run.assert_called_with(
         [
@@ -70,24 +55,26 @@ def test_pdo_metric(
             _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
             "-p",
             _get_resource("climate_ref_pmp.params", "pmp_param_MoV-ts.py", True),
-            "--modnames",
-            "ACCESS-ESM1-5",
+            "--variability_mode",
+            "PDO",
+            "--modpath",
+            definition.datasets["cmip6"].path.to_list()[0],
+            "--modpath_lf",
+            "none",
             "--exp",
             "hist-GHG",
             "--realization",
             "r1i1p1f1",
-            "--modpath",
-            metric_dataset.path.to_list()[0],
-            "--reference_data_path",
-            expected_reference_filename,
+            "--modnames",
+            "ACCESS-ESM1-5",
             "--reference_data_name",
             "HadISST-1-1",
+            "--reference_data_path",
+            definition.datasets["obs4mips"].path.to_list()[0],
             "--results_dir",
             str(definition.output_directory),
             "--cmec",
             "--no_provenance",
-            "--variability_mode",
-            "PDO",
         ],
     )
 
@@ -107,42 +94,6 @@ def test_pdo_metric(
     assert result.successful
     assert metric_bundle_path.exists()
     assert metric_bundle_path.is_file()
-
-
-def test_pdo_metric_failed(cmip6_data_catalog, mocker, definition_factory, pdo_example_dir, provider):
-    metric = ExtratropicalModesOfVariability("PDO")
-    metric._provider = provider
-    metric_dataset = get_first_metric_match(cmip6_data_catalog, metric)
-
-    definition = definition_factory(
-        cmip6=DatasetCollection(metric_dataset, "instance_id"),
-        obs4mips=DatasetCollection(
-            pd.Series(
-                {
-                    "instance_id": "HadISST",
-                    "source_id": "HadISST-1-1",
-                    "variable_id": "ts",
-                    "path": "not_a_file",
-                }
-            )
-            .to_frame()
-            .T,
-            "instance_id",
-        ),
-    )
-
-    # Mock the subprocess.run call to avoid running PMP
-    # Instead the mock_run_call function will be called
-    mocker.patch.object(
-        climate_ref_core.providers.subprocess,
-        "run",
-        autospec=True,
-        spec_set=True,
-        side_effect=CalledProcessError(1, ["cmd"], "output", "stderr"),
-    )
-
-    with pytest.raises(CalledProcessError):
-        metric.run(definition)
 
 
 def test_mode_id_valid():
@@ -168,3 +119,31 @@ def test_mode_id_invalid():
     with pytest.raises(ValueError) as excinfo:
         ExtratropicalModesOfVariability("INVALID")
     assert "Unknown mode_id 'INVALID'" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "mode",
+    sorted(
+        set(ExtratropicalModesOfVariability.psl_modes + ExtratropicalModesOfVariability.ts_modes) - {"AMO"}
+    ),
+)
+def test_diagnostic_build_result(mode, config, provider, execution_regression_dir, data_catalog):
+    diagnostic = ExtratropicalModesOfVariability(mode)
+    diagnostic.provider = pmp_provider
+    diagnostic.provider.configure(config)
+
+    execution = next(
+        solve_executions(
+            data_catalog=data_catalog,
+            diagnostic=diagnostic,
+            provider=diagnostic.provider,
+        )
+    )
+    definition = execution.build_execution_definition(output_root=config.paths.scratch)
+    output_directory = execution_regression_dir(diagnostic, definition.key)
+    assert output_directory.exists()
+
+    definition = evolve(definition, output_directory=output_directory)
+
+    result = diagnostic.build_execution_result(definition)
+    assert result.successful

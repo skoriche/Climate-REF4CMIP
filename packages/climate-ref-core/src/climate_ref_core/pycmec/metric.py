@@ -13,11 +13,14 @@ Both ways will create the CMECMetric instance (cmec)
 
 import json
 import pathlib
+import warnings
 from collections import Counter
 from collections.abc import Generator
+from copy import deepcopy
 from enum import Enum
 from typing import Any, cast
 
+from loguru import logger
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -32,6 +35,10 @@ from pydantic import (
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode, JsonSchemaValue
 from pydantic_core import CoreSchema
 from typing_extensions import Self
+
+from climate_ref_core.env import env
+
+ALLOW_EXTRA_KEYS = env.bool("ALLOW_EXTRA_KEYS", default=True)
 
 
 class MetricCV(Enum):
@@ -151,7 +158,7 @@ class MetricResults(RootModel[Any]):
     root: dict[str, dict[Any, Any]]
 
     @classmethod
-    def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:
+    def _check_nested_dict_keys(cls, nested: dict[Any, Any], metdims: dict[Any, Any], level: int = 0) -> None:  # noqa: PLR0912
         dim_name = metdims[MetricCV.JSON_STRUCTURE.value][level]
 
         dict_keys = set(nested.keys())
@@ -183,7 +190,14 @@ class MetricResults(RootModel[Any]):
         else:
             expected_keys = set(metdims[dim_name].keys())
             if not (dict_keys.issubset(expected_keys)):
-                raise ValueError(f"Unknown dimension values: {dict_keys - expected_keys}")
+                msg = f"Unknown dimension values: {dict_keys - expected_keys} for {dim_name}"
+                logger.error(msg)
+                if not ALLOW_EXTRA_KEYS:  # pragma: no cover
+                    raise ValueError(f"{msg}\nExpected keys: {expected_keys}")
+                else:
+                    warnings.warn(msg)
+                    for key in dict_keys - expected_keys:
+                        nested.pop(key)
 
             tmp = dict(nested)
             if MetricCV.ATTRIBUTES.value in tmp:
@@ -211,7 +225,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float | int | list[str | float | int]]
+    root: dict[str, float | int]
 
 
 class MetricValue(BaseModel):
@@ -222,8 +236,55 @@ class MetricValue(BaseModel):
     """
 
     dimensions: dict[str, str]
-    value: float | str
+    value: float | int
     attributes: dict[str, str | float | int] | None = None
+
+
+def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[str]) -> dict[str, Any]:
+    """
+    Remove the dimensions from the raw metric bundle
+
+    Currently only the first dimension is supported to be removed.
+    Multiple dimensions can be removed at once, but only if they are in order from the first
+    dimension.
+
+    Parameters
+    ----------
+    raw_metric_bundle
+        The raw metric bundle to be modified
+    dimensions
+        The name of the dimensions to be removed
+
+    Returns
+    -------
+        The new, modified metric bundle with the dimension removed
+    """
+    if isinstance(dimensions, str):
+        dimensions = [dimensions]
+
+    metric_bundle = deepcopy(raw_metric_bundle)
+
+    for dim in dimensions:
+        # bundle_dims is modified inplace below
+        bundle_dims = metric_bundle[MetricCV.DIMENSIONS.value]
+
+        level_id = bundle_dims[MetricCV.JSON_STRUCTURE.value].index(dim)
+        if level_id != 0:
+            raise NotImplementedError("Only the first dimension can be removed")
+
+        values = list(bundle_dims[dim].keys())
+        if len(values) != 1:
+            raise ValueError(f"Can only remove dimensions with a single value. Found: {values}")
+        value = values[0]
+
+        new_result = metric_bundle[MetricCV.RESULTS.value][value]
+
+        # Update the dimensions and results to remove the dimension
+        bundle_dims.pop(dim)
+        bundle_dims[MetricCV.JSON_STRUCTURE.value].pop(level_id)
+        metric_bundle[MetricCV.RESULTS.value] = new_result
+
+    return metric_bundle
 
 
 class CMECMetric(BaseModel):
@@ -376,6 +437,72 @@ class CMECMetric(BaseModel):
 
         return cls(DIMENSIONS=merged_obj_dims, RESULTS=merged_obj_rlts)
 
+    def remove_dimensions(self, dimensions: str | list[str]) -> "CMECMetric":
+        """
+        Remove the dimensions from the metric bundle
+
+         Currently only the first dimension is supported to be removed.
+        Multiple dimensions can be removed at once, but only if they are in order from the first
+        dimension..
+
+        Parameters
+        ----------
+        dimensions
+            The name of the dimension to be removed
+
+        Returns
+        -------
+        :
+            A new CMECMetric object with the dimensions removed
+        """
+        return CMECMetric(**remove_dimensions(self.model_dump(), dimensions))
+
+    def prepend_dimensions(self, values: dict[str, str]) -> "CMECMetric":
+        """
+        Prepend the existing metric values with additional dimensions
+
+        Parameters
+        ----------
+        values
+            Additional metric dimensions and their values to be added to the metric bundle
+
+        Returns
+        -------
+        :
+            A new CMECMetric object with the additional dimensions prepended to the existing metric bundle
+        """
+        results: dict[str, Any] = {}
+        current = results
+
+        existing_dimensions = self.DIMENSIONS.root[MetricCV.JSON_STRUCTURE.value]
+        for dim in existing_dimensions:
+            if dim in values:
+                raise ValueError(f"Dimension {dim!r} is already defined in the metric bundle")
+
+        dimensions = self.DIMENSIONS.model_copy(deep=True)
+        dimensions.root[MetricCV.JSON_STRUCTURE.value] = [
+            *list(values.keys()),
+            *existing_dimensions,
+        ]
+
+        # Nest each new dimension inside the previous one
+        for key, value in values.items():
+            if not isinstance(value, str):
+                raise TypeError(f"Dimension value {value!r} is not a string")
+
+            current[value] = {}
+            current = current[value]
+            dimensions.root[key] = {value: {}}
+        # Add the existing dimensions as the innermost dimensions
+        current.update(self.RESULTS)
+
+        MetricResults.model_validate(results, context=dimensions)
+
+        result = self.model_copy()
+        result.DIMENSIONS = dimensions
+        result.RESULTS = results
+        return result
+
     @staticmethod
     def create_template() -> dict[str, Any]:
         """
@@ -410,13 +537,13 @@ class CMECMetric(BaseModel):
 def _walk_results(
     dimensions: list[str], results: dict[str, Any], metadata: dict[str, str]
 ) -> Generator[MetricValue]:
-    assert len(dimensions), "Not enough dimensions"  # noqa: S101
+    assert len(dimensions), "Not enough dimensions"
     dimension = dimensions[0]
     for key, value in results.items():
         if key == MetricCV.ATTRIBUTES.value:
             continue
         metadata[dimension] = key
-        if isinstance(value, str | float | int):
+        if isinstance(value, float | int):
             yield MetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )

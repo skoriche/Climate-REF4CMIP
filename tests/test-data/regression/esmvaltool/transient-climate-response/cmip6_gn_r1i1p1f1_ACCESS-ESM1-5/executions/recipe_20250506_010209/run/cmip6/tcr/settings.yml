@@ -1,0 +1,12 @@
+calculate_mmm: false
+recipe: recipe.yml
+version: 2.12.0
+script: tcr
+run_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/run/cmip6/tcr
+plot_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/plots/cmip6/tcr
+work_dir: /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/work/cmip6/tcr
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /Users/jared/auxiliary_data
+input_files:
+- /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/preproc/cmip6/tas/metadata.yml

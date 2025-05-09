@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from climate_ref_core.datasets import DatasetCollection, ExecutionDatasetCollection, SourceDatasetType
@@ -61,6 +62,37 @@ class TestDatasetCollection:
     def test_get_item(self, dataset_collection):
         expected = dataset_collection.datasets.instance_id
         assert dataset_collection["instance_id"].equals(expected)
+
+    def test_selector_ordered(self):
+        dc = DatasetCollection(
+            selector=(
+                ("variable_id", "tas"),
+                ("grid_label", "gn"),
+            ),
+            datasets=pd.DataFrame(),
+            slug_column="instance_id",
+        )
+        # Alphabetically sorted by dimension
+        assert dc.selector == (
+            ("grid_label", "gn"),
+            ("variable_id", "tas"),
+        )
+
+    def test_selector_dict(self):
+        dc = DatasetCollection(
+            selector=(
+                ("variable_id", "tas"),
+                ("grid_label", "gn"),
+            ),
+            datasets=pd.DataFrame(),
+            slug_column="instance_id",
+        )
+        # Alphabetically sorted by dimension
+        assert dc.selector_dict() == {
+            "grid_label": "gn",
+            "variable_id": "tas",
+        }
+        assert list(dc.selector_dict().keys()) == ["grid_label", "variable_id"]
 
     def test_get_attr(self, dataset_collection):
         expected = dataset_collection.datasets.instance_id

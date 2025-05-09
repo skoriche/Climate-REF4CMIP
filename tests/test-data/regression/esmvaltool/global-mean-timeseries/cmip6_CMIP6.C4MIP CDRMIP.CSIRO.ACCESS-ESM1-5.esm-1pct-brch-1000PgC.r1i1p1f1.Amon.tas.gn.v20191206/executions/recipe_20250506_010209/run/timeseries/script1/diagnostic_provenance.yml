@@ -1,0 +1,30 @@
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/plots/timeseries/script1/png/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.png
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/preproc/timeseries/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - andela_bouwe
+  - righi_mattia
+  caption: Annual global mean Near-Surface Air Temperature according to ACCESS-ESM1-5.
+  domains:
+  - global
+  plot_types:
+  - zonal
+  references:
+  - acknow_project
+  statistics:
+  - mean
+? /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/work/timeseries/script1/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+: ancestors:
+  - /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/preproc/timeseries/tas/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc
+  authors:
+  - andela_bouwe
+  - righi_mattia
+  caption: Annual global mean Near-Surface Air Temperature according to ACCESS-ESM1-5.
+  domains:
+  - global
+  plot_types:
+  - zonal
+  references:
+  - acknow_project
+  statistics:
+  - mean

@@ -1,0 +1,32 @@
+{
+  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/index.html",
+  "provenance": {
+    "environment": {},
+    "modeldata": [],
+    "obsdata": {},
+    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/run/main_log_debug.txt"
+  },
+  "data": {
+    "executions/recipe_20250506_010209/work/tcre/calculate_tcre/tcre.nc": {
+      "filename": "executions/recipe_20250506_010209/work/tcre/calculate_tcre/tcre.nc",
+      "long_name": "Transient Climate Response to Cumulative CO2 Emissions (TCRE) for multiple datasets.",
+      "description": ""
+    }
+  },
+  "plots": {
+    "executions/recipe_20250506_010209/plots/tcre/calculate_tcre/tcre.png": {
+      "filename": "executions/recipe_20250506_010209/plots/tcre/calculate_tcre/tcre.png",
+      "long_name": "Surface air temperature anomaly versus cumulative CO2 emissions for multiple datasets.",
+      "description": ""
+    }
+  },
+  "html": {
+    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/index.html": {
+      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw5/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response-emissions_/scratch/esmvaltool/transient-climate-response-emissions/15b091da11cd4ef3c6cf8288d4af7af22f6aa3c4/executions/recipe_20250506_010209/index.html",
+      "long_name": "Results page",
+      "description": "Page showing the executions of the ESMValTool run."
+    }
+  },
+  "metrics": null,
+  "diagnostics": {}
+}

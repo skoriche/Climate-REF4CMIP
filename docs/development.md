@@ -153,6 +153,17 @@ make mypy
 make test
 ```
 
+If you require executing a specific diagnostic, you manually invoke `pytest` as follows for `ilamb's `gpp-fluxnet2015` diagnostic:
+
+```bash
+pytest --slow -k gpp-fluxnet2015
+```
+
+Some diagnostics may require additional filtering to limit the pytest's scope to a directory or test name.
+Adding `--collect-only` to this will describe which tests will be executed which is useful as some of these test may take 30s to minutes to run.
+
+When adding a new diagnostic to a provider, you should run the above command with `--force-regen` attribute to capture the output from the execution.
+
 ### Sample data
 
 We use sample data  from [ref-sample-data](https://github.com/Climate-REF/ref-sample-data)

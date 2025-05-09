@@ -18,7 +18,7 @@ class TestMetricValue:
             execution_id=1,
             value=1.0,
             attributes=attributes,
-            dimensions={"model": "test"},
+            dimensions={"source_id": "test"},
         )
         db_seeded.session.add(item_orig)
         db_seeded.session.commit()
@@ -27,7 +27,7 @@ class TestMetricValue:
         assert item.attributes == attributes
         assert item.value == 1.0
 
-        assert item.dimensions == {"model": "test"}
+        assert item.dimensions == {"source_id": "test"}
 
     def test_invalid_dimension(self, db_seeded):
         exp_msg = "Unknown dimension column 'not_a_dimension'"
@@ -40,7 +40,9 @@ class TestMetricValue:
             )
 
     def test_register_dimensions(self, cmip7_aft_cv):
-        metric_value_kwargs = dict(execution_id=1, value=1.0, attributes=None, dimensions={"model": "test"})
+        metric_value_kwargs = dict(
+            execution_id=1, value=1.0, attributes=None, dimensions={"source_id": "test"}
+        )
         MetricValue._reset_cv_dimensions()
         assert MetricValue._cv_dimensions == []
 

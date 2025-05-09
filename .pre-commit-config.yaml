@@ -4,6 +4,13 @@ ci:
   autoupdate_schedule: quarterly
   autoupdate_branch: pre-commit-autoupdate
 
+# Ignore regression files as they should be kept as is
+# See https://pre-commit.com/#regular-expressions
+exclude: |
+    (?x)^(
+        tests/test-data/regression/.*
+    )$
+
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

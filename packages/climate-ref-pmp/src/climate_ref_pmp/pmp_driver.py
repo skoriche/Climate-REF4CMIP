@@ -83,19 +83,13 @@ def process_json_result(
         dimensions.update(dimensions["dimensions"])
         del dimensions["dimensions"]
 
-    if "statistic" in dimensions["json_structure"]:  # pragma: no branch
-        dimensions["json_structure"].remove("statistic")
-        dimensions.pop("statistic")
-
-    # Remove the "attributes" key from the RESULTS
-    # This isn't standard CMEC output, but it is what PMP produces
     results = json_result["RESULTS"]
 
     cmec_metric["RESULTS"] = results
     cmec_metric["DIMENSIONS"] = dimensions
 
     if "provenance" in json_result:  # pragma: no branch
-        cmec_metric["provenance"] = json_result["provenance"]
+        cmec_metric["PROVENANCE"] = json_result["provenance"]
 
     logger.info(f"cmec_output: {pretty_repr(cmec_output)}")
     logger.info(f"cmec_metric: {pretty_repr(cmec_metric)}")
@@ -140,7 +134,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
 def build_pmp_command(
     driver_file: str,
     parameter_file: str,
-    **kwargs: dict[str, str | int | float | list[str]],
+    **kwargs: str | int | float | list[str] | None,
 ) -> list[str]:
     """
     Run a PMP driver script via a conda environment
@@ -179,9 +173,7 @@ def build_pmp_command(
             else:
                 cmd.extend([f"--{key}"])
 
-    logger.info("-- PMP command to run --")
-    logger.info("[PMP] Command to run:", " ".join(map(str, cmd)))
-    logger.info("[PMP] Command generation for the driver completed.")
+    logger.info(f"PMP Command: {cmd}")
 
     return cmd
 

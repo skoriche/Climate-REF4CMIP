@@ -1,13 +1,15 @@
 import argparse
+import copy
 import json
 import os
-
 from collections import defaultdict
-from loguru import logger
+
+import xcdat as xc
 
 from pcmdi_metrics import resources  # isort:skip
 from pcmdi_metrics.enso.lib import metrics_to_json  # isort:skip
 from pcmdi_metrics.io import StringConstructor  # isort:skip
+from pcmdi_metrics.utils import create_land_sea_mask
 
 from EnsoMetrics.EnsoCollectionsLib import defCollection  # isort:skip
 from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection  # isort:skip
@@ -25,120 +27,88 @@ def main():
     """
     print("### PMP ENSO: Compute the metric collection ###\n")
 
-    # Create an argument parser
-    parser = argparse.ArgumentParser(description="A script that takes two inputs and processes them.")
+    args = parse_arguments()
+    dictDatasets, mod, run = prepare_datasets(args)
+    dict_metric, dict_dive, pattern = compute_metrics(args, dictDatasets, mod, run)
+    save_metrics_to_json(args, dictDatasets, dict_metric, dict_dive, pattern)
+    plot_results(args, pattern, mod, run)
 
-    # Add arguments
+
+def parse_arguments():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="A script that takes two inputs and processes them.")
     parser.add_argument("--metrics_collection", type=str, help="metrics collection")
     parser.add_argument("--experiment_id", type=str, help="experiment id")
     parser.add_argument("--input_json_path", type=str, help="JSON file path")
     parser.add_argument("--output_directory", type=str, help="output directory")
+    return parser.parse_args()
 
-    # Parse the arguments
-    args = parser.parse_args()
 
-    # Access the inputs
-    mc_name = args.metrics_collection
-    experiment_id = args.experiment_id
-    json_file = args.input_json_path
-    output_directory = args.output_directory
-    
-    # Make sure the output directory exists
-    os.makedirs(output_directory, exist_ok=True)
-
-    # Load information from JSON file
-    with open(json_file) as f:
+def prepare_datasets(args):
+    """Prepare datasets and update them with land-sea masks."""
+    os.makedirs(args.output_directory, exist_ok=True)
+    with open(args.input_json_path) as f:
         dictDatasets = json.load(f)
+    mod_run = next(iter(dictDatasets["model"].keys()))
+    mod, run = mod_run.split("_")
+    dictDatasets = update_dict_datasets(dictDatasets, os.path.join(args.output_directory, "ref_landmask"))
+    return dictDatasets, mod, run
 
-    print(f"JSON file loaded: {json_file}")
-    print(f"dictDatasets: {dictDatasets}")
 
-    logger.debug(f"JSON file loaded: {json_file}")
-    logger.debug(f"dictDatasets: {dictDatasets}")
-
-    mod_run = list(dictDatasets["model"].keys())[0]
-    mod = mod_run.split("_")[0]
-    run = mod_run.split("_")[1]
-
-    print(f"mod: {mod}")
-    print(f"run: {run}")
-
-    # ------------------------------
-    # Computes the metric collection
-    # ------------------------------
-    # https://github.com/CLIVAR-PRP/ENSO_metrics/blob/d50c2613354564a155e0fe0f637eb448dfd7c479/lib/EnsoComputeMetricsLib.py#L59
-
-    logger.debug("\n### PMP ENSO: Compute the metric collection ###\n")
-
-    # Use defaultdict to automatically handle nested dictionary initialization
+def compute_metrics(args, dictDatasets, mod, run):
+    """Compute the metric collection."""
+    pattern = f"{args.metrics_collection}_{mod}_{args.experiment_id}_{run}"
     dict_metric = defaultdict(dict)
     dict_dive = defaultdict(dict)
-
-    # Compose the pattern string
-    pattern = f"{mc_name}_{mod_run}_{experiment_id}"
-
-    # Debug print
-    print(f"pattern: {pattern}")
-    print(f"mod_run: {mod_run}")
-    print(f"experiment_id: {experiment_id}")
-    print(f"mc_name: {mc_name}")
-    print(f"dictDatasets: {dictDatasets}")
-    print(f"output_directory: {output_directory}")
-
-    # Call the function and unpack the results
     metrics, dive_results = ComputeCollection(
-        mc_name,
+        args.metrics_collection,
         dictDatasets,
-        mod_run,
+        f"{mod}_{run}",
         netcdf=True,
-        netcdf_name=os.path.join(output_directory, pattern),
+        netcdf_name=os.path.join(args.output_directory, pattern),
         obs_interpreter=True,
         debug=True,
     )
-
-    # Store the results in the dictionaries
     dict_metric[mod][run] = metrics
     dict_dive[mod][run] = dive_results
+    return dict_metric, dict_dive, pattern
 
-    print(f"dict_metric: {dict_metric}")
-    print(f"dict_dive: {dict_dive}")
 
-    logger.debug(f"dict_metric: {dict_metric}")
-    logger.debug(f"dict_dive: {dict_dive}")
-
+def save_metrics_to_json(args, dictDatasets, dict_metric, dict_dive, pattern):
+    """Save metrics to a JSON file."""
     egg_pth = resources.resource_path()
-
     dict_obs = dictDatasets["observations"]
-
-    # OUTPUT METRICS TO JSON FILE (per simulation)
+    # pattern = f"{args.metrics_collection}_{mod}_{args.experiment_id}_{run}"
+    mod = pattern.split("_")[-3]
+    run = pattern.split("_")[-1]
     metrics_to_json(
-        mc_name,
+        args.metrics_collection,
         dict_obs,
         dict_metric,
         dict_dive,
         egg_pth,
-        StringConstructor(output_directory),
+        StringConstructor(args.output_directory),
         pattern,
         mod=mod,
         run=run,
     )
 
-    # Plot
-    with open(os.path.join(output_directory, f"{pattern}.json")) as ff:
-        data_json = json.load(ff)["RESULTS"]["model"][mod][run]
 
+def plot_results(args, pattern, mod, run):
+    """Plot the results."""
+    mod_run = f"{mod}_{run}"
+    with open(os.path.join(args.output_directory, f"{pattern}.json")) as ff:
+        data_json = json.load(ff)["RESULTS"]["model"][mod][run]
     plot_enso(
-        mc_name,
-        mod,
-        run,
-        experiment_id,
-        output_directory,
-        output_directory,
+        args.metrics_collection,
+        mod_run,
+        args.experiment_id,
+        args.output_directory,
         data_json,
     )
 
 
-def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
+def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
     """
     Plot the ENSO metrics collection.
 
@@ -146,28 +116,28 @@ def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
     ----------
     mc_name : str
         Name of the metrics collection.
-    mod : str
-        Model name.
-    run : str
-        Run name.
+    mod_run : str
+        Model and run name, separated by an underscore.
+        e.g., "ACCESS-CM2_r1i1p1f1".
     exp : str
         Experiment name.
-    path_in_nc : str
-        Path to the input NetCDF file.
-    path_out : str
-        Path to the output directory.
+    path_work_dir : str
+        Path of directory that contains the input NetCDF files and used to save the output PNG files.
     data_json : dict
         Data loaded from the JSON file.
     """
     metrics = sorted(defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper())
     print("metrics:", metrics)
 
-    pattern = "_".join([mc_name, mod, run, exp])
+    mod = mod_run.split("_")[0]
+    run = mod_run.split("_")[1]
+
+    pattern = "_".join([mc_name, mod, exp, run])
 
     for met in metrics:
         print("met:", met)
         # get NetCDF file name
-        filename_nc = os.path.join(path_in_nc, pattern + "_" + met + ".nc")
+        filename_nc = os.path.join(path_work_dir, pattern + "_" + met + ".nc")
         print("filename_nc:", filename_nc)
         if os.path.exists(filename_nc):
             # get diagnostic values for the given model and observations
@@ -216,7 +186,7 @@ def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
                 metric_values,
                 metric_units,
                 member=run,
-                path_png=path_out,
+                path_png=path_work_dir,
                 name_png=figure_name,
             )
 
@@ -224,6 +194,126 @@ def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
 
         else:
             print("file not found:", filename_nc)
+
+
+def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
+    """
+    Update the dictDatasets to include the land-sea mask and remap observation names.
+
+    Parameters
+    ----------
+    dictDatasets : dict
+        Dictionary containing datasets information.
+    output_dir : str
+        Directory where the land-sea mask will be saved.
+        Default is the current directory.
+
+    Returns
+    -------
+    dict
+        Updated dictionary with land-sea mask and remapped observation names.
+    """
+    dictDatasets2 = copy.deepcopy(dictDatasets)
+    data_types = dictDatasets.keys()  # ["model", "observations"]
+
+    for data_type in data_types:
+        datasets = dictDatasets[data_type].keys()
+        for dataset in datasets:
+            variables = dictDatasets[data_type][dataset].keys()
+            for variable in variables:
+                path = dictDatasets[data_type][dataset][variable]["path + filename"]
+
+                if data_type == "observations":
+                    # For observations, we need to generate the landmask path
+                    path_landmask = generate_landmask_path(path, variable, output_dir=output_dir)
+                elif data_type == "model":
+                    path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]
+
+                dictDatasets2[data_type][dataset][variable]["areaname"] = "areacella"
+                dictDatasets2[data_type][dataset][variable]["landmaskname"] = "sftlf"
+                dictDatasets2[data_type][dataset][variable]["path + filename_area"] = path_landmask
+                dictDatasets2[data_type][dataset][variable]["path + filename_landmask"] = path_landmask
+
+                # Map variable names to ENSO package recognized names
+                var_name_mapping = {"ts": "sst", "tauu": "taux"}
+                var_name_key = var_name_mapping.get(variable, variable)
+
+                # Update the variable name in the dictDatasets
+                dictDatasets2[data_type][dataset][var_name_key] = dictDatasets2[data_type][dataset].pop(
+                    variable
+                )
+
+            if data_type == "observations":
+                # Mapping of old observation names to new ones recognized by the ENSO package
+                observation_name_mapping = {
+                    "GPCP-2-3": "GPCPv2.3",
+                    "ERA-INT": "ERA-Interim",
+                    "AVISO-1-0": "AVISO",
+                    "TropFlux-1-0": "TropFlux",
+                    "HadISST-1-1": "HadISST",
+                }
+                # Get the new name if it exists in the mapping, otherwise keep the original name
+                dataset_name_key = observation_name_mapping.get(dataset, dataset)
+                # Update the dictDatasets with the new name
+                dictDatasets2[data_type][dataset_name_key] = dictDatasets2[data_type].pop(dataset)
+            # Remove sftlf from the dictDatasets
+            elif "sftlf" in dictDatasets2[data_type][dataset]:
+                dictDatasets2[data_type][dataset].pop("sftlf")
+
+    return dictDatasets2
+
+
+def generate_landmask_path(file_path, var_name, output_dir="."):
+    """
+    Generate the landmask path based on the given file path.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to the input NetCDF file.
+    var_name : str
+        Variable name to be used for creating the land-sea mask.
+    output_dir : str
+        Directory where the land-sea mask will be saved.
+        Default is the current directory.
+
+    Returns
+    -------
+    str
+        Path to the generated land-sea mask file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the input file path is not valid.
+    ValueError
+        If the variable name is not valid.
+    """
+    # Check if the file path is valid
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    # Check if the variable name is valid
+    if not isinstance(var_name, str):
+        raise ValueError(f"Invalid variable name: {var_name}")
+
+    # Open the dataset using xcdat and create the land-sea mask
+    ds = xc.open_dataset(file_path)
+    mask = create_land_sea_mask(ds[var_name])
+
+    # Name mask variable as 'sftlf'
+    mask.name = "sftlf"
+
+    # Check if the output directory exists, create it if not
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Save the land-sea mask to a new NetCDF file
+    landmask_filename = os.path.basename(file_path).replace(".nc", "_landmask.nc")
+    landmask_path = os.path.join(output_dir, landmask_filename)
+    mask.to_netcdf(landmask_path)
+
+    return os.path.abspath(landmask_path)
 
 
 if __name__ == "__main__":

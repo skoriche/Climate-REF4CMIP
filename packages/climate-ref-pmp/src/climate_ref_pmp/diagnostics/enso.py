@@ -65,7 +65,7 @@ class ENSO(CommandLineDiagnostic):
                 DataRequirement(
                     source_type=SourceDatasetType.obs4MIPs,
                     filters=(FacetFilter(facets={"source_id": obs_sources, "variable_id": obs_variables}),),
-                    group_by=("source_id",),
+                    group_by=(),
                 ),
                 DataRequirement(
                     source_type=SourceDatasetType.CMIP6,
@@ -117,9 +117,9 @@ class ENSO(CommandLineDiagnostic):
                 "path + filename": list_files,
                 "varname": variable,
                 "path + filename_area": list_areacella,
-                "areaname": list_name_area,
+                "areaname": "areacella",
                 "path + filename_landmask": list_sftlf,
-                "landmaskname": list_name_land,
+                "landmaskname": "sftlf",
             }
 
         # -------------------------------------------------------
@@ -136,14 +136,9 @@ class ENSO(CommandLineDiagnostic):
                 list_files = input_datasets.datasets[input_datasets["variable_id"] == variable][
                     "path"
                 ].to_list()
-                # Do these have areacella and sftlf?
                 dict_obs[obs_name][variable] = {
                     "path + filename": list_files,
                     "varname": variable,
-                    "path + filename_area": list_areacell,
-                    "areaname": list_name_area,
-                    "path + filename_landmask": list_landmask,
-                    "landmaskname": list_name_land,
                 }
 
         # Create input directory
@@ -193,9 +188,8 @@ class ENSO(CommandLineDiagnostic):
         source_id = input_datasets["source_id"].unique()[0]
         experiment_id = input_datasets["experiment_id"].unique()[0]
         member_id = input_datasets["member_id"].unique()[0]
-        mod_run = f"{source_id}_{member_id}"
         mc_name = self.metrics_collection
-        pattern = f"{mc_name}_{mod_run}_{experiment_id}"
+        pattern = f"{mc_name}_{source_id}_{experiment_id}_{member_id}"
 
         results_files = list(definition.output_directory.glob(f"{pattern}.json"))
         if len(results_files) != 1:  # pragma: no cover

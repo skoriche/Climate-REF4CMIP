@@ -1,23 +1,26 @@
 import json
 import os
 from collections.abc import Iterable
+from typing import Any
 
 from loguru import logger
 
-from climate_ref_core.datasets import FacetFilter, SourceDatasetType
+from climate_ref_core.datasets import DatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
     CommandLineDiagnostic,
     DataRequirement,
     ExecutionDefinition,
     ExecutionResult,
 )
-from climate_ref_pmp.pmp_driver import process_json_result
+from climate_ref_pmp.pmp_driver import _get_resource, process_json_result
 
 
 class ENSO(CommandLineDiagnostic):
     """
     Calculate the ENSO performance metrics for a dataset
     """
+
+    facets = ()
 
     def __init__(self, metrics_collection: str) -> None:
         self.name = metrics_collection
@@ -30,11 +33,10 @@ class ENSO(CommandLineDiagnostic):
         def _get_data_requirements(
             metrics_collection: str,
             extra_experiments: str | tuple[str, ...] | list[str] = (),
-            remove_experiments: str | tuple[str, ...] | list[str] = (),
         ) -> tuple[DataRequirement, DataRequirement]:
             if metrics_collection == "ENSO_perf":
-                model_variables = ("pr", "ts", "taux")
-                obs_sources = ("GPCP", "ERA5")
+                model_variables: tuple[str, ...] = ("pr", "ts", "taux")
+                obs_sources: tuple[str, ...] = ("GPCP", "ERA5")
             elif metrics_collection == "ENSO_tel":
                 model_variables = ("pr", "ts")
                 obs_sources = ("GPCP", "ERA5")
@@ -59,14 +61,11 @@ class ENSO(CommandLineDiagnostic):
                 )
             ]
 
-            if remove_experiments:
-                filters.append(FacetFilter(facets={"experiment_id": remove_experiments}, keep=False))
-
             return (
                 DataRequirement(
                     source_type=SourceDatasetType.obs4MIPs,
                     filters=(FacetFilter(facets={"source_id": obs_sources, "variable_id": obs_variables}),),
-                    group_by=("source_id", "variable_id"),
+                    group_by=("source_id",),
                 ),
                 DataRequirement(
                     source_type=SourceDatasetType.CMIP6,
@@ -77,7 +76,7 @@ class ENSO(CommandLineDiagnostic):
 
         self.data_requirements = _get_data_requirements(metrics_collection)
 
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Run the diagnostic on the given configuration.
 
@@ -103,16 +102,23 @@ class ENSO(CommandLineDiagnostic):
         variable_ids = input_datasets["variable_id"].unique()
         mod_run = f"{source_id}_{member_id}"
 
-        dict_mod = {}
+        dict_mod: dict[str, dict[str, Any]] = {}
+
+        def extract_variable(dc: DatasetCollection, variable: str) -> list[str]:
+            return dc.datasets[input_datasets["variable_id"] == variable]["path"].to_list()  # type: ignore
 
         # TO DO: Get the path to the files per variable
         for variable in variable_ids:
+            list_files = extract_variable(input_datasets, variable)
+            list_areacella = extract_variable(input_datasets, "areacella")
+            list_sftlf = extract_variable(input_datasets, "sftlf")
+
             dict_mod[mod_run][variable] = {
                 "path + filename": list_files,
                 "varname": variable,
-                "path + filename_area": list_areacell,
+                "path + filename_area": list_areacella,
                 "areaname": list_name_area,
-                "path + filename_landmask": list_landmask,  # sftlf
+                "path + filename_landmask": list_sftlf,
                 "landmaskname": list_name_land,
             }
 
@@ -122,11 +128,15 @@ class ENSO(CommandLineDiagnostic):
         reference_dataset = definition.datasets[SourceDatasetType.obs4MIPs]
         reference_dataset_names = reference_dataset["source_id"].unique()
 
-        dict_obs = {}
+        dict_obs: dict[str, dict[str, Any]] = {}
 
         # TO DO: Get the path to the files per variable and per source
         for obs_name in reference_dataset_names:
             for variable in variable_ids:
+                list_files = input_datasets.datasets[input_datasets["variable_id"] == variable][
+                    "path"
+                ].to_list()
+                # Do these have areacella and sftlf?
                 dict_obs[obs_name][variable] = {
                     "path + filename": list_files,
                     "varname": variable,
@@ -151,23 +161,20 @@ class ENSO(CommandLineDiagnostic):
         with open(json_file, "w") as f:
             json.dump(dictDatasets, f, indent=4)
         logger.debug(f"JSON file created: {json_file}")
-        
-    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
-        """
-        Build the command to run the diagnostic
 
-        Parameters
-        ----------
-        definition
-            Definition of the diagnostic execution
-
-        Returns
-        -------
-            Command arguments to execute in the PMP environment
-        """
-        # TO DO: Implement the command to run the enso driver
-
-        raise NotImplementedError("Function will be implemented in the future.")
+        driver_file = _get_resource("climate_ref_pmp.drivers", "enso_driver.py", use_resources=True)
+        return [
+            "python",
+            driver_file,
+            "--metrics_collection",
+            mc_name,
+            "--experiment_id",
+            experiment_id,
+            "--input_json_path",
+            json_file,
+            "--output_directory",
+            str(definition.output_directory),
+        ]
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
@@ -189,7 +196,7 @@ class ENSO(CommandLineDiagnostic):
         mod_run = f"{source_id}_{member_id}"
         mc_name = self.metrics_collection
         pattern = f"{mc_name}_{mod_run}_{experiment_id}"
-        
+
         results_files = list(definition.output_directory.glob(f"{pattern}.json"))
         if len(results_files) != 1:  # pragma: no cover
             logger.warning(f"A single cmec output file not found: {results_files}")

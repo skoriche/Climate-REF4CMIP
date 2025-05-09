@@ -2,10 +2,12 @@ import argparse
 import json
 import os
 
+from collections import defaultdict
 from loguru import logger
 
 from pcmdi_metrics import resources  # isort:skip
 from pcmdi_metrics.enso.lib import metrics_to_json  # isort:skip
+from pcmdi_metrics.io import StringConstructor  # isort:skip
 
 from EnsoMetrics.EnsoCollectionsLib import defCollection  # isort:skip
 from EnsoMetrics.EnsoComputeMetricsLib import ComputeCollection  # isort:skip
@@ -40,6 +42,9 @@ def main():
     experiment_id = args.experiment_id
     json_file = args.input_json_path
     output_directory = args.output_directory
+    
+    # Make sure the output directory exists
+    os.makedirs(output_directory, exist_ok=True)
 
     # Load information from JSON file
     with open(json_file) as f:
@@ -65,11 +70,14 @@ def main():
 
     logger.debug("\n### PMP ENSO: Compute the metric collection ###\n")
 
-    dict_metric = {}
-    dict_dive = {}
+    # Use defaultdict to automatically handle nested dictionary initialization
+    dict_metric = defaultdict(dict)
+    dict_dive = defaultdict(dict)
 
+    # Compose the pattern string
     pattern = f"{mc_name}_{mod_run}_{experiment_id}"
 
+    # Debug print
     print(f"pattern: {pattern}")
     print(f"mod_run: {mod_run}")
     print(f"experiment_id: {experiment_id}")
@@ -77,7 +85,8 @@ def main():
     print(f"dictDatasets: {dictDatasets}")
     print(f"output_directory: {output_directory}")
 
-    dict_metric, dict_dive = ComputeCollection(
+    # Call the function and unpack the results
+    metrics, dive_results = ComputeCollection(
         mc_name,
         dictDatasets,
         mod_run,
@@ -86,6 +95,10 @@ def main():
         obs_interpreter=True,
         debug=True,
     )
+
+    # Store the results in the dictionaries
+    dict_metric[mod][run] = metrics
+    dict_dive[mod][run] = dive_results
 
     print(f"dict_metric: {dict_metric}")
     print(f"dict_dive: {dict_dive}")
@@ -104,7 +117,7 @@ def main():
         dict_metric,
         dict_dive,
         egg_pth,
-        output_directory,
+        StringConstructor(output_directory),
         pattern,
         mod=mod,
         run=run,
@@ -112,14 +125,14 @@ def main():
 
     # Plot
     with open(os.path.join(output_directory, f"{pattern}.json")) as ff:
-        data_json = json.load(ff)["RESULTS"]["model"][mod_run]
+        data_json = json.load(ff)["RESULTS"]["model"][mod][run]
 
     plot_enso(
         mc_name,
         mod,
         run,
         experiment_id,
-        os.path.join(output_directory, f"{pattern}.nc"),
+        output_directory,
         output_directory,
         data_json,
     )
@@ -149,7 +162,7 @@ def plot_enso(mc_name, mod, run, exp, path_in_nc, path_out, data_json):
     metrics = sorted(defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper())
     print("metrics:", metrics)
 
-    pattern = "_".join([mc_name, mod, exp, run])
+    pattern = "_".join([mc_name, mod, run, exp])
 
     for met in metrics:
         print("met:", met)

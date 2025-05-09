@@ -79,7 +79,7 @@ class TestSeriesMetricValue:
             values=[1.0, 2.0, 3.0],
             index=[0, 1, 2],
             index_name="time",
-            dimensions={"model": "test"},
+            dimensions={"source_id": "test"},
             attributes={"attr": "value"},
         )
         db_seeded.session.add(item)
@@ -89,7 +89,7 @@ class TestSeriesMetricValue:
         assert item.values == [1.0, 2.0, 3.0]
         assert item.index == [0, 1, 2]
         assert item.index_name == "time"
-        assert item.dimensions == {"model": "test"}
+        assert item.dimensions == {"source_id": "test"}
         assert item.attributes == {"attr": "value"}
 
     def test_build_with_mismatched_lengths(self, db_seeded):
@@ -100,7 +100,7 @@ class TestSeriesMetricValue:
                 values=[1.0, 2.0, 3.0],
                 index=[0, 1],
                 index_name="time",
-                dimensions={"model": "test"},
+                dimensions={"source_id": "test"},
                 attributes=None,
             )
 
@@ -111,7 +111,7 @@ class TestSeriesMetricValue:
             values=[1.0, 2.0],
             index=[0, 1],
             index_name="time",
-            dimensions={"model": "test"},
+            dimensions={"source_id": "test"},
             attributes=None,
         )
         db_seeded.session.add(item)

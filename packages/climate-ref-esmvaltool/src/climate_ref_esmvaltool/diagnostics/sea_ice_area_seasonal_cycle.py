@@ -39,7 +39,7 @@ class SeaIceAreaSeasonalCycle(ESMValToolDiagnostic):
         ),
         # TODO: Use OSI-450-nh and OSI-450-sh from obs4MIPs once available.
     )
-    facets = ("model", "metric")
+    facets = ()
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:

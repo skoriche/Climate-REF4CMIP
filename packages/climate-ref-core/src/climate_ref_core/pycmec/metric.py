@@ -66,9 +66,7 @@ class MetricDimensions(RootModel[Any]):
 
     root: dict[str, Any] = Field(
         default={
-            MetricCV.JSON_STRUCTURE.value: ["model", "metric"],
-            "model": {},
-            "metric": {},
+            MetricCV.JSON_STRUCTURE.value: [],
         }
     )
 
@@ -217,7 +215,11 @@ class MetricResults(RootModel[Any]):
             # executions = rlt.root
             results = rlt
             metdims = info.context.root
-            cls._check_nested_dict_keys(results, metdims, level=0)
+            if len(metdims[MetricCV.JSON_STRUCTURE.value]) == 0:
+                if rlt != {}:
+                    raise ValueError("Expected an empty dictionary for the metric bundle")
+            else:
+                cls._check_nested_dict_keys(results, metdims, level=0)
 
         return rlt
 

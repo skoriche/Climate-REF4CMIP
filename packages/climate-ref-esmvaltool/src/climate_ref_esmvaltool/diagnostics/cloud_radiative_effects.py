@@ -22,10 +22,7 @@ class CloudRadiativeEffects(ESMValToolDiagnostic):
     slug = "cloud-radiative-effects"
     base_recipe = "ref/recipe_ref_cre.yml"
 
-    # TODO: These facets are needed to pass metric bundle validation,
-    # in the integration test, but this diagnostic does not produce a metric.
-    # Should they be removed?
-    facets = ("model", "metric")
+    facets = ()
 
     variables = (
         "rlut",

@@ -341,12 +341,15 @@ def test_metric_merge():
 
 def test_metric_create_template():
     assert CMECMetric.create_template() == {
-        "DIMENSIONS": {"json_structure": ["model", "metric"], "metric": {}, "model": {}},
+        "DIMENSIONS": {
+            "json_structure": [],
+        },
         "RESULTS": {},
         "DISCLAIMER": None,
         "NOTES": None,
         "PROVENANCE": None,
     }
+    CMECMetric.model_validate(CMECMetric.create_template())
 
 
 def test_metric_load_from_jsons(datadir):

@@ -28,3 +28,13 @@ filename = "pyproject.toml"
 
 [[tool.bumpversion.files]]
 glob = "packages/*/pyproject.toml"
+
+# Update the version and the date in the CITATION file
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+search = "date-released: \\d{{4}}-\\d{{2}}-\\d{{2}}"
+replace = "date-released: {now:%Y-%m-%d}"
+regex = true

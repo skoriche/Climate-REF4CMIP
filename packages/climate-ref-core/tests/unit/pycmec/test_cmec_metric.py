@@ -198,6 +198,14 @@ def test_validate_result_wo_dim(cmec_right_metric_dict):
         MetricResults(cmec_right_metric_dict["RESULTS"])
 
 
+def test_validate_semi_empty(cmec_right_metric_dict):
+    with pytest.raises(ValidationError):
+        CMECMetric(DIMENSIONS={"json_structure": []}, RESULTS={"model": {}})
+
+    with pytest.raises(ValidationError):
+        CMECMetric(DIMENSIONS={}, RESULTS={})
+
+
 def test_metric_deepest_dictionary_value(cmec_right_metric_dict):
     cmec_right_metric_dict["RESULTS"]["CESM2"]["Ecosystem and Carbon Cycle"]["overall score"] = {
         "value": 0.11,

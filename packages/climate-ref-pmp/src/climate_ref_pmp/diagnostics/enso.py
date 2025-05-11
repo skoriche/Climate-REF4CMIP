@@ -103,6 +103,7 @@ class ENSO(CommandLineDiagnostic):
         mod_run = f"{source_id}_{member_id}"
 
         dict_mod: dict[str, dict[str, Any]] = {}
+        dict_mod[mod_run] = {}
 
         def extract_variable(dc: DatasetCollection, variable: str) -> list[str]:
             return dc.datasets[input_datasets["variable_id"] == variable]["path"].to_list()  # type: ignore

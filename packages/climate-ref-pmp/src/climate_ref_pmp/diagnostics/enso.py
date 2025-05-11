@@ -133,6 +133,7 @@ class ENSO(CommandLineDiagnostic):
 
         # TO DO: Get the path to the files per variable and per source
         for obs_name in reference_dataset_names:
+            dict_obs[obs_name] = {}
             for variable in variable_ids:
                 list_files = input_datasets.datasets[input_datasets["variable_id"] == variable][
                     "path"

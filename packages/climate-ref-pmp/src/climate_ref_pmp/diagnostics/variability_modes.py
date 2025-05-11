@@ -148,7 +148,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
 
         # Pass the parameters using **kwargs
         return build_pmp_command(
-            driver_file="variability_mode/variability_modes_driver.py",
+            driver_file="variability_modes_driver.py",
             parameter_file=self.parameter_file,
             **params,
         )

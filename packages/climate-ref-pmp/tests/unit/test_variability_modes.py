@@ -51,8 +51,7 @@ def test_pdo_metric(data_catalog, config, mocker, definition_factory, pdo_exampl
 
     mock_run.assert_called_with(
         [
-            "python",
-            _get_resource("pcmdi_metrics", "variability_mode/variability_modes_driver.py", False),
+            "variability_modes_driver.py",
             "-p",
             _get_resource("climate_ref_pmp.params", "pmp_param_MoV-ts.py", True),
             "--variability_mode",

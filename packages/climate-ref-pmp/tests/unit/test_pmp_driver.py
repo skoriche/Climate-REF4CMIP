@@ -29,24 +29,6 @@ def test_process_json_result(pdo_example_dir):
     ]
 
 
-def test_execute_missing_driver():
-    with pytest.raises(
-        FileNotFoundError,
-        match="Resource variability_mode/missing.py not found in pcmdi_metrics package.",
-    ):
-        build_pmp_command(
-            driver_file="variability_mode/missing.py",
-            parameter_file="pmp_param_MoV-ts.py",
-            model_files=["model1.nc"],
-            reference_name="HadISST-1-1",
-            reference_paths=["reference.nc"],
-            source_id="source_id",
-            member_id="member_id",
-            output_directory_path="output",
-            experiment_id="historical",
-        )
-
-
 def test_execute_missing_parameter():
     with pytest.raises(
         FileNotFoundError,

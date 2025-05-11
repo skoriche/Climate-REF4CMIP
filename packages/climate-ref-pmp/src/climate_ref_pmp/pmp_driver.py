@@ -157,6 +157,12 @@ def build_pmp_command(
     _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = _get_resource("climate_ref_pmp.params", parameter_file, use_resources=True)
 
+    # This is a workaround for a fatal error in internal_Finalize of MPICH
+    # when running in a conda environment on MacOS.
+    # It is not clear if this is a bug in MPICH or a problem with the conda environment.
+    if "FI_PROVIDER" in os.environ:
+        os.environ["FI_PROVIDER"] = "tcp"
+
     # Run the driver script inside the PMP conda environment
     cmd = [
         "python",

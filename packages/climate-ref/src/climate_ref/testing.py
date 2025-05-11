@@ -26,7 +26,7 @@ def _determine_test_directory() -> Path | None:
 
 
 TEST_DATA_DIR = _determine_test_directory()
-SAMPLE_DATA_VERSION = "v0.5.0"
+SAMPLE_DATA_VERSION = "v0.5.2"
 
 
 def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> None:
@@ -102,9 +102,7 @@ def validate_result(diagnostic: Diagnostic, config: Config, result: ExecutionRes
 
     # Validate bundles
     metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
-    assert diagnostic.facets == tuple(metric_bundle.DIMENSIONS.root["json_structure"]), (
-        metric_bundle.DIMENSIONS.root["json_structure"]
-    )
+    assert diagnostic.facets == tuple(metric_bundle.DIMENSIONS.root["json_structure"])
     CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
 
     # Create a fake log file if one doesn't exist

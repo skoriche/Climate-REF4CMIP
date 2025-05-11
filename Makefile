@@ -76,7 +76,7 @@ test-core:  ## run the tests
 test-celery:  ## run the tests
 	uv run --package climate-ref-celery \
 		pytest packages/climate-ref-celery \
-		-r a -v --doctest-modules --cov=packages/climate-ref-celery/src
+		-r a -v --doctest-modules --cov=packages/climate-ref-celery/src --cov-report=term --cov-append
 
 .PHONY: test-diagnostic-example
 test-diagnostic-example:  ## run the tests
@@ -177,4 +177,4 @@ fetch-ref-data:  ## Download reference data needed by providers and (temporarily
 
 .PHONY: update-sample-data-registry
 update-sample-data-registry:  ## Update the sample data registry
-	curl --output packages/ref/src/climate_ref/dataset_registry/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt
+	curl --output packages/climate-ref/src/climate_ref/dataset_registry/sample_data.txt https://raw.githubusercontent.com/Climate-REF/ref-sample-data/refs/heads/main/registry.txt

@@ -18,8 +18,8 @@ from loguru import logger
 from sqlalchemy import insert
 
 from climate_ref.database import Database
+from climate_ref.models import ScalarMetricValue
 from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
-from climate_ref.models.metric_value import MetricValue
 from climate_ref_core.diagnostics import ExecutionResult, ensure_relative_path
 from climate_ref_core.exceptions import InvalidExecutorException, ResultValidationError
 from climate_ref_core.executor import EXECUTION_LOG_FILENAME, Executor
@@ -176,7 +176,7 @@ def handle_execution_result(
             # TODO: Mark the diagnostic execution result as failed once the CV has stabilised
             # execution.mark_failed()
 
-        # Perform a bulk insert of a diagnostic bundle
+        # Perform a bulk insert of scalar values
         # TODO: The section below will likely fail until we have agreed on a controlled vocabulary
         # The current implementation will swallow the exception, but display a log message
         try:
@@ -184,7 +184,7 @@ def handle_execution_result(
             # goes wrong
             with database.session.begin_nested():
                 database.session.execute(
-                    insert(MetricValue),
+                    insert(ScalarMetricValue),
                     [
                         {
                             "execution_id": execution.id,
@@ -198,6 +198,8 @@ def handle_execution_result(
         except Exception:
             # TODO: Remove once we have settled on a controlled vocabulary
             logger.exception("Something went wrong when ingesting diagnostic values")
+
+        # TODO Ingest the series values
 
         # TODO: This should check if the result is the most recent for the execution,
         # if so then update the dirty fields

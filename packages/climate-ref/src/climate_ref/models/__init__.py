@@ -14,7 +14,7 @@ from climate_ref.models.execution import (
     ExecutionGroup,
     ExecutionOutput,
 )
-from climate_ref.models.metric_value import MetricValue
+from climate_ref.models.metric_value import MetricValue, ScalarMetricValue, SeriesMetricValue
 from climate_ref.models.provider import Provider
 
 Table = TypeVar("Table", bound=Base)
@@ -29,5 +29,7 @@ __all__ = [
     "ExecutionOutput",
     "MetricValue",
     "Provider",
+    "ScalarMetricValue",
+    "SeriesMetricValue",
     "Table",
 ]

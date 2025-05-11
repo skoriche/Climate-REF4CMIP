@@ -89,7 +89,7 @@ def process_json_result(
     cmec_metric["DIMENSIONS"] = dimensions
 
     if "provenance" in json_result:  # pragma: no branch
-        cmec_metric["provenance"] = json_result["provenance"]
+        cmec_metric["PROVENANCE"] = json_result["provenance"]
 
     logger.info(f"cmec_output: {pretty_repr(cmec_output)}")
     logger.info(f"cmec_metric: {pretty_repr(cmec_metric)}")
@@ -134,7 +134,7 @@ def _get_resource(package: str, resource_name: str | pathlib.Path, use_resources
 def build_pmp_command(
     driver_file: str,
     parameter_file: str,
-    **kwargs: dict[str, str | int | float | list[str]],
+    **kwargs: str | int | float | list[str] | None,
 ) -> list[str]:
     """
     Run a PMP driver script via a conda environment
@@ -143,6 +143,9 @@ def build_pmp_command(
     The driver script is responsible for running the PMP diagnostics and producing output.
     The output consists of a JSON file that contains the executions of the PMP diagnostics,
     and a set of PNG and data files that are produced by the diagnostics.
+
+    The PMP driver scripts are installed in the PMP conda environment,
+    but absolute paths should be used for non-PMP scripts.
 
     Parameters
     ----------
@@ -154,13 +157,17 @@ def build_pmp_command(
         Additional arguments to pass to the driver script
     """
     # Note this uses the driver script from the REF env *not* the PMP conda env
-    _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = _get_resource("climate_ref_pmp.params", parameter_file, use_resources=True)
+
+    # This is a workaround for a fatal error in internal_Finalize of MPICH
+    # when running in a conda environment on MacOS.
+    # It is not clear if this is a bug in MPICH or a problem with the conda environment.
+    if "FI_PROVIDER" in os.environ:
+        os.environ["FI_PROVIDER"] = "tcp"
 
     # Run the driver script inside the PMP conda environment
     cmd = [
-        "python",
-        _driver_script,
+        driver_file,
         "-p",
         _parameter_file,
     ]

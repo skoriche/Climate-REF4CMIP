@@ -43,6 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 postgres = [
     "psycopg2-binary>=2.9.2",
+    "alembic-postgresql-enum>=1.7.0",
 ]
 celery = [
     "climate-ref-celery>=0.5.0",

@@ -2,6 +2,7 @@ import datetime
 
 import pandas as pd
 import pytest
+from attr import evolve
 from climate_ref_pmp import AnnualCycle
 from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.pmp_driver import _get_resource
@@ -132,9 +133,6 @@ def test_annual_cycle_diagnostic(
     )
     # The output directory must exist
     output_dir = definition.output_directory
-    driver_script = _get_resource(
-        "pcmdi_metrics", "mean_climate/pcmdi_compute_climatologies.py", use_resources=False
-    )
     parameter_file = _get_resource(
         "climate_ref_pmp.params", "pmp_param_annualcycle_1-clims.py", use_resources=True
     )
@@ -149,8 +147,7 @@ def test_annual_cycle_diagnostic(
     # Check the first command
     cmd = result[0]
     assert cmd == [
-        "python",
-        driver_script,
+        "pcmdi_compute_climatologies.py",
         "-p",
         parameter_file,
         "--vars",
@@ -162,14 +159,12 @@ def test_annual_cycle_diagnostic(
     ]
 
     # Check the second command
-    driver_script = _get_resource("pcmdi_metrics", "mean_climate/mean_climate_driver.py", use_resources=False)
     parameter_file = _get_resource(
         "climate_ref_pmp.params", "pmp_param_annualcycle_2-metrics.py", use_resources=True
     )
     cmd = result[1]
     assert cmd == [
-        "python",
-        driver_script,
+        "mean_climate_driver.py",
         "-p",
         parameter_file,
         "--vars",
@@ -192,7 +187,15 @@ def test_annual_cycle_diagnostic(
 
 def test_diagnostic_run(mocker, provider):
     diagnostic = AnnualCycle()
-    diagnostic.provider = mocker.MagicMock()
+    diagnostic.provider = provider
+
+    mocker.patch.object(
+        provider,
+        "run",
+        autospec=True,
+        spec_set=True,
+    )
+
     diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
     diagnostic.build_execution_result = mocker.MagicMock()
 
@@ -207,3 +210,25 @@ def test_build_cmd_raises():
     diagnostic = AnnualCycle()
     with pytest.raises(NotImplementedError):
         diagnostic.build_cmd("definition")
+
+
+def test_diagnostic_build_result(config, provider, execution_regression_dir, data_catalog):
+    diagnostic = AnnualCycle()
+    diagnostic.provider = pmp_provider
+    diagnostic.provider.configure(config)
+
+    key = "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_ts__pmp-climatology_ERA-5_ts"
+    output_directory = execution_regression_dir(diagnostic, key)
+
+    execution = next(
+        solve_executions(
+            data_catalog=data_catalog,
+            diagnostic=diagnostic,
+            provider=diagnostic.provider,
+        )
+    )
+    definition = execution.build_execution_definition(output_root=config.paths.scratch)
+    definition = evolve(definition, output_directory=output_directory)
+
+    result = diagnostic.build_execution_result(definition)
+    assert result.successful

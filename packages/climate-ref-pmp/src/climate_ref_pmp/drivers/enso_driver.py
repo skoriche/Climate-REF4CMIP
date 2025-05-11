@@ -5,7 +5,6 @@ import os
 from collections import defaultdict
 
 import xcdat as xc
-from loguru import logger
 
 from pcmdi_metrics import resources  # isort:skip
 from pcmdi_metrics.enso.lib import metrics_to_json  # isort:skip
@@ -26,7 +25,7 @@ def main():
     1. input_json_path: Path to the JSON file containing the datasets.
     2. output_directory: Directory where the output files will be saved.
     """
-    logger.debug("### PMP ENSO: Compute the metric collection ###\n")
+    print("### PMP ENSO: Compute the metric collection ###\n")
 
     args = parse_arguments()
     dictDatasets, mod, run, pattern = prepare_datasets(args)
@@ -58,7 +57,7 @@ def prepare_datasets(args):
     json_file = os.path.join(args.output_directory, f"input_{pattern}.json")
     with open(json_file, "w") as f:
         json.dump(dictDatasets, f, indent=4)
-    logger.debug(f"JSON file created: {json_file}")
+    print(f"JSON file created: {json_file}")
     return dictDatasets, mod, run, pattern
 
 
@@ -133,7 +132,7 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
         Data loaded from the JSON file.
     """
     metrics = sorted(defCollection(mc_name)["metrics_list"].keys(), key=lambda v: v.upper())
-    logger.debug(f"metrics: {metrics}")
+    print(f"metrics: {metrics}")
 
     mod = mod_run.split("_")[0]
     run = mod_run.split("_")[1]
@@ -141,10 +140,10 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
     pattern = "_".join([mc_name, mod, exp, run])
 
     for met in metrics:
-        logger.debug(f"met: {met}")
+        print(f"met: {met}")
         # get NetCDF file name
         filename_nc = os.path.join(path_work_dir, pattern + "_" + met + ".nc")
-        logger.debug(f"filename_nc: {filename_nc}")
+        print(f"filename_nc: {filename_nc}")
         if os.path.exists(filename_nc):
             # get diagnostic values for the given model and observations
             if mc_name == "ENSO_tel" and "Map" in met:
@@ -179,7 +178,7 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
                 metric_units = data_json["metadata"]["metrics"][met]["metric"]["units"]
             # figure name
             figure_name = "_".join([mc_name, mod, exp, run, met])
-            logger.debug(f"figure_name: {figure_name}")
+            print(f"figure_name: {figure_name}")
 
             main_plotter(
                 mc_name,
@@ -196,10 +195,10 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
                 name_png=figure_name,
             )
 
-            logger.debug("figure plotting done")
+            print("figure plotting done")
 
         else:
-            logger.warning(f"file not found: {filename_nc}")
+            print(f"file not found: {filename_nc}")
 
 
 def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
@@ -222,19 +221,21 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
     dictDatasets2 = copy.deepcopy(dictDatasets)
     data_types = dictDatasets.keys()  # ["model", "observations"]
 
+    # Select only model and observations datasets
+    data_types = [data_type for data_type in data_types if data_type in ["model", "observations"]]
+
     for data_type in data_types:
         datasets = dictDatasets[data_type].keys()
         for dataset in datasets:
             variables = dictDatasets[data_type][dataset].keys()
             for variable in variables:
                 path = dictDatasets[data_type][dataset][variable]["path + filename"]
-                if data_type == "observations":
-                    # For observations, we need to generate the landmask path.
-                    # Generate it per variable because it is possible that
-                    # different variables are on different staggered grids.
-                    path_landmask = generate_landmask_path(path, variable, output_dir=output_dir)
-                elif data_type == "model":
+                # Generate the landmask path for both observations and models.
+                if data_type == "model" and "sftlf" in dictDatasets[data_type][dataset]:
                     path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]
+                else:
+                    # Generate it per variable as different variables may be on different grids.
+                    path_landmask = generate_landmask_path(path, variable, output_dir=output_dir)
 
                 dictDatasets2[data_type][dataset][variable]["areaname"] = "areacella"
                 dictDatasets2[data_type][dataset][variable]["landmaskname"] = "sftlf"
@@ -300,6 +301,10 @@ def generate_landmask_path(file_path, var_name, output_dir=".", output_filename=
     ValueError
         If the variable name is not valid.
     """
+    # If file_path is a list, take the first element
+    if isinstance(file_path, list):
+        file_path = file_path[0]
+
     # Check if the file path is valid
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")

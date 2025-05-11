@@ -133,9 +133,6 @@ def test_annual_cycle_diagnostic(
     )
     # The output directory must exist
     output_dir = definition.output_directory
-    driver_script = _get_resource(
-        "pcmdi_metrics", "mean_climate/pcmdi_compute_climatologies.py", use_resources=False
-    )
     parameter_file = _get_resource(
         "climate_ref_pmp.params", "pmp_param_annualcycle_1-clims.py", use_resources=True
     )
@@ -150,8 +147,7 @@ def test_annual_cycle_diagnostic(
     # Check the first command
     cmd = result[0]
     assert cmd == [
-        "python",
-        driver_script,
+        "pcmdi_compute_climatologies.py",
         "-p",
         parameter_file,
         "--vars",
@@ -163,14 +159,12 @@ def test_annual_cycle_diagnostic(
     ]
 
     # Check the second command
-    driver_script = _get_resource("pcmdi_metrics", "mean_climate/mean_climate_driver.py", use_resources=False)
     parameter_file = _get_resource(
         "climate_ref_pmp.params", "pmp_param_annualcycle_2-metrics.py", use_resources=True
     )
     cmd = result[1]
     assert cmd == [
-        "python",
-        driver_script,
+        "mean_climate_driver.py",
         "-p",
         parameter_file,
         "--vars",

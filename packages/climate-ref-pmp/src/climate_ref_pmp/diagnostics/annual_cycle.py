@@ -153,14 +153,18 @@ class AnnualCycle(CommandLineDiagnostic):
         data_name = f"{source_id}_{experiment_id}_{member_id}"
         data_path = model_files
         params = {
-            "driver_file": "mean_climate/pcmdi_compute_climatologies.py",
-            "parameter_file": self.parameter_file_1,
             "vars": variable_id,
             "infile": data_path,
             "outfile": f"{output_directory_path}/{variable_id}_{data_name}_clims.nc",
         }
 
-        cmds.append(build_pmp_command(**params))
+        cmds.append(
+            build_pmp_command(
+                driver_file="pcmdi_compute_climatologies.py",
+                parameter_file=self.parameter_file_1,
+                **params,
+            )
+        )
 
         # ----------------------------------------------
         # PART 2: Build the command to calculate diagnostics
@@ -183,8 +187,6 @@ class AnnualCycle(CommandLineDiagnostic):
         date = datetime.datetime.now().strftime("%Y%m%d")
 
         params = {
-            "driver_file": "mean_climate/mean_climate_driver.py",
-            "parameter_file": self.parameter_file_2,
             "vars": variable_id,
             "custom_observations": f"{output_directory_path}/obs_dict.json",
             "test_data_path": output_directory_path,
@@ -195,7 +197,13 @@ class AnnualCycle(CommandLineDiagnostic):
             "cmec": "",
         }
 
-        cmds.append(build_pmp_command(**params))
+        cmds.append(
+            build_pmp_command(
+                driver_file="mean_climate_driver.py",
+                parameter_file=self.parameter_file_2,
+                **params,
+            )
+        )
 
         return cmds
 

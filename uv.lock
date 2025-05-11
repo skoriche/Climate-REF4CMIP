@@ -750,14 +750,10 @@ version = "0.5.0"
 source = { editable = "packages/climate-ref-pmp" }
 dependencies = [
     { name = "climate-ref-core" },
-    { name = "pcmdi-metrics" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "climate-ref-core", editable = "packages/climate-ref-core" },
-    { name = "pcmdi-metrics", git = "https://github.com/PCMDI/pcmdi_metrics?rev=v3.9.1" },
-]
+requires-dist = [{ name = "climate-ref-core", editable = "packages/climate-ref-core" }]
 
 [package.metadata.requires-dev]
 dev = []
@@ -2884,11 +2880,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/d1/81/74f6a65b848ffd16c
 wheels = [
     { url = "https://files.pythonhosted.org/packages/87/2b/b50d3d08ea0fc419c183a84210571eba005328efa62b6b98bc28e9ead32a/patsy-1.0.1-py2.py3-none-any.whl", hash = "sha256:751fb38f9e97e62312e921a1954b81e1bb2bcda4f5eeabaf94db251ee791509c", size = 232923 },
 ]
-
-[[package]]
-name = "pcmdi-metrics"
-version = "3.9.1"
-source = { git = "https://github.com/PCMDI/pcmdi_metrics?rev=v3.9.1#15907575b99dea4fae53c242b8d6dcd7365da902" }
 
 [[package]]
 name = "pexpect"

@@ -12,7 +12,7 @@ class SynchronousExecutor:
     Run a diagnostic synchronously, in-process.
 
     This is mainly useful for debugging and testing.
-    [climate_ref.executor.local.LocalExecutor][] is a more general purpose executor.
+    [climate_ref.executor.LocalExecutor][] is a more general purpose executor.
     """
 
     name = "synchronous"

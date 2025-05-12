@@ -158,21 +158,22 @@ prettyprinter.pprint(direct_result)
 # which provides an abstraction to enable diagnostics to be run in multiple different ways.
 # These executors can run diagnostics locally, on a cluster, or on a remote service
 #
-# The simplest executor is the
-# [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor).
-# This executor runs a given diagnostic synchronously in the current process.
+# The default executor is the
+# [LocalExecutor][climate_ref.executor.LocalExecutor]
+# This executor runs executions in parallel using a process pool.
+# Another option is the [SynchronousExecutor][climate_ref.executor.SynchronousExecutor].
+# This executor runs the execution in the main process which can be useful for debugging purposes.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor)
-# is the default executor,
+# The [LocalExecutor][climate_ref.executor.LocalExecutor] is the default executor,
 # if no other configuration is provided.
 
 # %%
 executor = config.executor.build(config=config, database=db)
 diagnostic = provider.get("global-mean-timeseries")
 
-executor.run(provider, diagnostic, definition=definition)
+executor.run(definition)
 
 # %%
 output_file = definition.to_output_path("output.json")

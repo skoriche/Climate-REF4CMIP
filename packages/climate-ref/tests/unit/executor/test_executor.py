@@ -17,8 +17,11 @@ from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
 
-def test_import_executor():
-    executor = import_executor_cls("climate_ref.executor.local.LocalExecutor")
+@pytest.mark.parametrize(
+    "import_str", ["climate_ref.executor.local.LocalExecutor", "climate_ref.executor.LocalExecutor"]
+)
+def test_import_executor(import_str):
+    executor = import_executor_cls(import_str)
 
     assert isinstance(executor, Executor)
     assert executor == LocalExecutor

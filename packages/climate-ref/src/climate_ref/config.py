@@ -156,12 +156,12 @@ class ExecutorConfig:
     Configuration to define the executor to use for running diagnostics
     """
 
-    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.local.LocalExecutor")
+    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.LocalExecutor")
     """
     Executor to use for running diagnostics
 
     This should be the fully qualified name of the executor class
-    (e.g. `climate_ref.executor.local.LocalExecutor`).
+    (e.g. `climate_ref.executor.LocalExecutor`).
     The default is to use the local executor.
     The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
 

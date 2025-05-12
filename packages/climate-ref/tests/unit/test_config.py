@@ -151,7 +151,7 @@ filename = "sqlite://climate_ref.db"
                     "config": {},
                 },
             ],
-            "executor": {"executor": "climate_ref.executor.local.LocalExecutor", "config": {}},
+            "executor": {"executor": "climate_ref.executor.LocalExecutor", "config": {}},
             "paths": {
                 "log": f"{default_path}/log",
                 "results": f"{default_path}/results",

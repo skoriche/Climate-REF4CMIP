@@ -241,7 +241,8 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                 # If path is a list and has one element, take it as a string,
                 # otherwise raise notImplementedError
                 if isinstance(path, list) and len(path) == 1:
-                    dictDatasets[data_type][dataset][variable]["path + filename"] = path[0]
+                    path = path[0]
+                    dictDatasets[data_type][dataset][variable]["path + filename"] = path
                 elif isinstance(path, list) and len(path) > 1:
                     raise NotImplementedError(
                         f"Multiple paths found for {data_type} {dataset} {variable}: {path}"
@@ -290,7 +291,7 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                 # Update the dictDatasets with the new name
                 dictDatasets2[data_type][dataset_name_key] = dictDatasets2[data_type].pop(dataset)
             # Remove sftlf from the dictDatasets
-            elif "sftlf" in dictDatasets2[data_type][dataset]:
+            elif data_type == "model" and "sftlf" in dictDatasets2[data_type][dataset]:
                 dictDatasets2[data_type][dataset].pop("sftlf")
 
     return dictDatasets2

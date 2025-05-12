@@ -206,8 +206,7 @@ def _handle_outputs(
     database: Database,
     execution: Execution,
 ) -> None:
-    if outputs is None:
-        return
+    outputs = outputs or {}
 
     for key, output_info in outputs.items():
         filename = ensure_relative_path(

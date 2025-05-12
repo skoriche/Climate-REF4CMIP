@@ -4,7 +4,7 @@
 name: climate-ref
 services:
   # Base worker to track the executions of async tasks
-  climate-ref-worker:
+  climate-ref:
     build:
         context: .
         dockerfile: packages/climate-ref/Dockerfile

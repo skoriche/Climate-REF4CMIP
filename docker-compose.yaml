@@ -16,12 +16,6 @@ services:
       POSTGRES_PASSWORD: example
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
   flower:
     image: mher/flower
     restart: always
@@ -37,13 +31,11 @@ services:
     image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
     depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
-      redis:
-        condition: service_started
+      - postgres
+      - redis
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
       - REF_DATABASE_URL=postgresql://postgres:example@postgres:5432/postgres
     command: celery start-worker
@@ -55,17 +47,17 @@ services:
   # ESMValTool worker
   climate-ref-esmvaltool:
     extends:
-      service: climate-ref-worker
+      service: climate-ref
     command: celery start-worker --package climate_ref_esmvaltool
   # ILAMB worker
   climate-ref-ilamb:
     extends:
-      service: climate-ref-worker
+      service: climate-ref
     command: celery start-worker --package climate_ref_ilamb
   # PMP worker
   climate-ref-pmp:
     extends:
-      service: climate-ref-worker
+      service: climate-ref
     command: celery start-worker --package climate_ref_pmp
 
 volumes:

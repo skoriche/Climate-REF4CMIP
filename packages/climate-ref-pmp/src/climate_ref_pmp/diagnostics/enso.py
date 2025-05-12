@@ -35,7 +35,7 @@ class ENSO(CommandLineDiagnostic):
             extra_experiments: str | tuple[str, ...] | list[str] = (),
         ) -> tuple[DataRequirement, DataRequirement]:
             if metrics_collection == "ENSO_perf":
-                model_variables: tuple[str, ...] = ("pr", "ts", "taux")
+                model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
                 obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT")
             elif metrics_collection == "ENSO_tel":
                 model_variables = ("pr", "ts")

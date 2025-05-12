@@ -20,31 +20,37 @@ jobs:
     name: climate-ref
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/build-container
+      - uses: actions/checkout@v4
+      - uses: .github/actions/build-container
         with:
           container-name: climate-ref
           dockerfile: packages/climate-ref/Dockerfile
   climate-ref-esmvaltool:
     name: climate-ref-esmvaltool
+    needs: climate-ref
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/build-container
+      - uses: actions/checkout@v4
+      - uses: .github/actions/build-container
         with:
           container-name: climate-ref-esmvaltool
           dockerfile: packages/climate-ref-esmvaltool/Dockerfile
   climate-ref-pmp:
     name: climate-ref-pmp
+    needs: climate-ref
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/build-container
+      - uses: actions/checkout@v4
+      - uses: .github/actions/build-container
         with:
           container-name: climate-ref-pmp
           dockerfile: packages/climate-ref-pmp/Dockerfile
   climate-ref-ilamb:
     name: climate-ref-ilamb
+    needs: climate-ref
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/build-container
+      - uses: .github/actions/build-container
         with:
           container-name: climate-ref-ilamb
           dockerfile: packages/climate-ref-ilamb/Dockerfile

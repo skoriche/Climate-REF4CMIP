@@ -1,7 +1,7 @@
 # Build the container for the ESMValTool metrics package
 # This docker container extends the base REF compute engine with ESMValTool-specific configurations
 
-FROM climate-ref:latest AS base
+FROM ghcr.io/climate-ref/climate-ref:latest AS base
 
 USER root
 

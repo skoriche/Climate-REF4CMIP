@@ -27,7 +27,7 @@ services:
       - redis
   # Base worker to track the executions of async tasks
   climate-ref-worker:
-    image: climate-ref:latest
+    image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
@@ -43,7 +43,7 @@ services:
       - ref:/ref
   # ESMValTool metrics worker
   metrics-esmvaltool:
-    image: climate-ref-esmvaltool:latest
+    image: ghcr.io/climate-ref/climate-ref-esmvaltool:latest
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
@@ -57,7 +57,7 @@ services:
       - ref:/ref
   # ILAMB metrics worker
   metrics-ilamb:
-    image: climate-ref-ilamb:latest
+    image: ghcr.io/climate-ref/climate-ref-ilamb:latest
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
@@ -71,7 +71,7 @@ services:
       - ref:/ref
   # PMP metrics worker
   metrics-pmp:
-    image: climate-ref-pmp:latest
+    image: ghcr.io/climate-ref/climate-ref-pmp:latest
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1

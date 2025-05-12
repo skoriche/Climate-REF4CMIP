@@ -31,16 +31,16 @@ def test_annual_mean(sample_data_dir, metric_dataset):
 
 
 def test_example_metric(metric_dataset, cmip6_data_catalog, mocker, definition_factory):
-    metric = GlobalMeanTimeseries()
+    diagnostic = GlobalMeanTimeseries()
     ds = cmip6_data_catalog.groupby("instance_id").first()
 
     mock_calc = mocker.patch("climate_ref_example.example.calculate_annual_mean_timeseries")
 
     mock_calc.return_value.attrs.__getitem__.return_value = "ABC"
 
-    definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
 
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     assert mock_calc.call_count == 1
 

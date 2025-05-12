@@ -10,6 +10,7 @@ import shutil
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -154,6 +155,9 @@ def config(tmp_path, monkeypatch, request) -> Config:
     # Allow adding datasets from outside the tree for testing
     cfg.diagnostic_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]
 
+    # Use the synchronous executor for testing to avoid spinning up multiple processes on every test
+    cfg.executor.executor = "climate_ref.executor.SynchronousExecutor"
+
     cfg.save()
 
     return cfg
@@ -226,9 +230,9 @@ class FailedDiagnostic(Diagnostic):
 
 
 @pytest.fixture
-def provider(tmp_path, mock_diagnostic, config) -> DiagnosticProvider:
+def provider(tmp_path, config) -> DiagnosticProvider:
     provider = DiagnosticProvider("mock_provider", "v0.1.0")
-    provider.register(mock_diagnostic)
+    provider.register(MockDiagnostic())
     provider.register(FailedDiagnostic())
     provider.configure(config)
 
@@ -236,14 +240,15 @@ def provider(tmp_path, mock_diagnostic, config) -> DiagnosticProvider:
 
 
 @pytest.fixture
-def mock_diagnostic() -> MockDiagnostic:
-    return MockDiagnostic()
+def mock_diagnostic(provider) -> MockDiagnostic:
+    return cast(MockDiagnostic, provider.get("mock"))
 
 
 @pytest.fixture
 def definition_factory(tmp_path: Path, config):
     def _create_definition(
         *,
+        diagnostic: Diagnostic,
         execution_dataset_collection: ExecutionDatasetCollection | None = None,
         cmip6: DatasetCollection | None = None,
         obs4mips: DatasetCollection | None = None,
@@ -260,6 +265,7 @@ def definition_factory(tmp_path: Path, config):
             execution_dataset_collection = ExecutionDatasetCollection(datasets)
 
         return ExecutionDefinition(
+            diagnostic=diagnostic,
             key="key",
             datasets=execution_dataset_collection,
             root_directory=config.paths.scratch,
@@ -270,7 +276,7 @@ def definition_factory(tmp_path: Path, config):
 
 
 @pytest.fixture
-def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefinition:
+def metric_definition(definition_factory, cmip6_data_catalog, mock_diagnostic) -> ExecutionDefinition:
     selected_dataset = cmip6_data_catalog[
         cmip6_data_catalog["instance_id"].isin(
             {
@@ -287,7 +293,7 @@ def metric_definition(definition_factory, cmip6_data_catalog) -> ExecutionDefini
             )
         }
     )
-    return definition_factory(execution_dataset_collection=collection)
+    return definition_factory(diagnostic=mock_diagnostic, execution_dataset_collection=collection)
 
 
 @pytest.fixture(scope="session")

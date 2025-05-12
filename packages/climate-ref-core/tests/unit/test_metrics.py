@@ -122,6 +122,7 @@ class TestMetric:
         assert isinstance(metric.provider, DiagnosticProvider)
 
     def test_no_provider(self, mock_diagnostic):
+        mock_diagnostic.provider = None
         with pytest.raises(ValueError, match="register .* with a DiagnosticProvider before using"):
             mock_diagnostic.provider
 
@@ -169,8 +170,10 @@ class TestMetricResult:
         cmec_right_output_dict,
         cmec_right_metric_dict,
         tmp_path,
+        mock_diagnostic,
     ):
         definition = ExecutionDefinition(
+            diagnostic=mock_diagnostic,
             root_directory=tmp_path,
             output_directory=tmp_path,
             key="mocked-diagnostic-slug",
@@ -198,13 +201,14 @@ class TestMetricResult:
 
     def test_build_from_metric_bundle(
         self,
+        mock_diagnostic,
         definition_factory,
         cmec_right_metric_data,
         cmec_right_metric_dict,
         cmec_right_output_dict,
         tmp_path,
     ):
-        definition = definition_factory()
+        definition = definition_factory(diagnostic=mock_diagnostic)
         # Setting the output directory generally happens as a side effect of the executor
         definition = evolve(definition, output_directory=tmp_path)
 
@@ -228,8 +232,9 @@ class TestMetricResult:
 
         assert output_filename.is_relative_to(tmp_path)
 
-    def test_build_from_failure(self, tmp_path):
+    def test_build_from_failure(self, tmp_path, mock_diagnostic):
         definition = ExecutionDefinition(
+            diagnostic=mock_diagnostic,
             root_directory=tmp_path,
             output_directory=tmp_path,
             key="mocked-diagnostic-slug",

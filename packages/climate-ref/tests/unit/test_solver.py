@@ -32,7 +32,7 @@ def solver(db_seeded, config) -> ExecutionSolver:
 
 
 @pytest.fixture
-def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
+def mock_metric_execution(tmp_path, definition_factory, mock_diagnostic) -> DiagnosticExecution:
     mock_execution = mock.MagicMock(spec=DiagnosticExecution)
     mock_execution.provider = provider
     mock_execution.diagnostic = provider.diagnostics()[0]
@@ -41,7 +41,7 @@ def mock_metric_execution(tmp_path, definition_factory) -> DiagnosticExecution:
     mock_dataset_collection = mock.Mock(hash="123456", items=mock.Mock(return_value=[]))
 
     mock_execution.build_execution_definition.return_value = definition_factory(
-        execution_dataset_collection=mock_dataset_collection
+        diagnostic=mock_diagnostic, execution_dataset_collection=mock_dataset_collection
     )
     return mock_execution
 
@@ -310,8 +310,6 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     # A single run would have been run
     assert mock_executor.return_value.run.call_count == 1
     mock_executor.return_value.run.assert_called_with(
-        provider=mock_metric_execution.provider,
-        diagnostic=mock_metric_execution.diagnostic,
         definition=mock_metric_execution.build_execution_definition(),
         execution=execution_result,
     )

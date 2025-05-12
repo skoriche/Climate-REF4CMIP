@@ -14,9 +14,8 @@ from climate_ref.config import Config
 from climate_ref.models import Execution
 from climate_ref_celery.app import app
 from climate_ref_celery.tasks import generate_task_name
-from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition, ExecutionResult
+from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.executor import Executor
-from climate_ref_core.providers import DiagnosticProvider
 
 
 class CeleryExecutor(Executor):
@@ -43,8 +42,6 @@ class CeleryExecutor(Executor):
 
     def run(
         self,
-        provider: DiagnosticProvider,
-        diagnostic: Diagnostic,
         definition: ExecutionDefinition,
         execution: Execution | None = None,
     ) -> None:
@@ -62,10 +59,6 @@ class CeleryExecutor(Executor):
 
         Parameters
         ----------
-        provider
-            Provider for the diagnostic
-        diagnostic
-            Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
             This includes relative paths to the data files,
@@ -78,12 +71,14 @@ class CeleryExecutor(Executor):
         """
         from climate_ref_celery.worker_tasks import handle_result
 
-        name = generate_task_name(provider, diagnostic)
+        diagnostic = definition.diagnostic
+
+        name = generate_task_name(diagnostic.provider, diagnostic)
 
         async_result = app.send_task(
             name,
             args=[definition, self.config.log_level],
-            queue=provider.slug,
+            queue=diagnostic.provider.slug,
             link=handle_result.s(execution_id=execution.id).set(queue="celery") if execution else None,
         )
         logger.debug(f"Celery task {async_result.id} submitted")

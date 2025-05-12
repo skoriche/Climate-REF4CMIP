@@ -1,42 +1,129 @@
+import concurrent.futures
+import time
+from concurrent.futures import Future, ProcessPoolExecutor
 from typing import Any
 
+from attrs import define
 from loguru import logger
+from tqdm import tqdm
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref.executor import handle_execution_result
 from climate_ref.models import Execution
-from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition, ExecutionResult
+from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
+from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.logging import redirect_logs
-from climate_ref_core.providers import DiagnosticProvider
+
+from .result_handling import handle_execution_result
+
+
+def execute_locally(
+    definition: ExecutionDefinition,
+    log_level: str,
+) -> ExecutionResult:
+    """
+    Run a diagnostic execution locally
+
+    Parameters
+    ----------
+    definition
+        A description of the information needed for this execution of the diagnostic
+    log_level
+        The log level to use for the execution
+    """
+    try:
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+        with redirect_logs(definition, log_level):
+            return definition.diagnostic.run(definition=definition)
+    except Exception:
+        # If the diagnostic fails, we want to log the error and return a failure result
+        logger.exception(f"Error running {definition.execution_slug()!r}")
+        return ExecutionResult.build_from_failure(definition)
+
+
+def process_result(
+    config: Config, database: Database, result: ExecutionResult, execution: Execution | None
+) -> None:
+    """
+    Process the result of a diagnostic execution
+
+    Parameters
+    ----------
+    config
+        The configuration object
+    database
+        The database object
+    result
+        The result of the diagnostic execution.
+
+        This could have either been a success or failure.
+    execution
+        A database model representing the execution of the diagnostic.
+    """
+    if not result.successful:
+        if execution is not None:  # pragma: no branch
+            info_msg = (
+                f"\nAdditional information about this execution can be viewed using: "
+                f"ref executions inspect {execution.execution_group_id}"
+            )
+        else:
+            info_msg = ""
+
+        logger.exception(f"Error running {result.definition.execution_slug()}. {info_msg}")
+
+    if execution:
+        handle_execution_result(config, database, execution, result)
+
+
+@define
+class ExecutionFuture:
+    """
+    A container to hold the future and execution definition
+    """
+
+    future: Future[ExecutionResult]
+    definition: ExecutionDefinition
+    execution: Execution | None = None
 
 
 class LocalExecutor:
     """
-    Run a diagnostic locally, in-process.
+    Run a diagnostic locally using a process pool.
 
-    This is mainly useful for debugging and testing.
-    The production executor will run the diagnostic in a separate process or container,
-    the exact manner of which is yet to be determined.
+    This performs the diagnostic executions in parallel using different processes.
+    The maximum number of processes is determined by the `n` parameter and default to the number of CPUs.
+
+    This executor is the default executor and is used when no other executor is specified.
     """
 
     name = "local"
 
     def __init__(
-        self, *, database: Database | None = None, config: Config | None = None, **kwargs: Any
+        self,
+        *,
+        database: Database | None = None,
+        config: Config | None = None,
+        n: int | None = None,
+        pool: concurrent.futures.Executor | None = None,
+        **kwargs: Any,
     ) -> None:
         if config is None:
             config = Config.default()
         if database is None:
             database = Database.from_config(config, run_migrations=False)
+        self.n = n
 
         self.database = database
         self.config = config
 
+        if pool is not None:
+            self.pool = pool
+        else:
+            self.pool = ProcessPoolExecutor(max_workers=n)
+        self._results: list[ExecutionFuture] = []
+
     def run(
         self,
-        provider: DiagnosticProvider,
-        diagnostic: Diagnostic,
         definition: ExecutionDefinition,
         execution: Execution | None = None,
     ) -> None:
@@ -45,45 +132,85 @@ class LocalExecutor:
 
         Parameters
         ----------
-        provider
-            The provider of the diagnostic
-        diagnostic
-            Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
         execution
             A database model representing the execution of the diagnostic.
             If provided, the result will be updated in the database when completed.
         """
-        definition.output_directory.mkdir(parents=True, exist_ok=True)
-
-        try:
-            with redirect_logs(definition, self.config.log_level):
-                result = diagnostic.run(definition=definition)
-        except Exception:
-            if execution is not None:  # pragma: no branch
-                info_msg = (
-                    f"\nAdditional information about this execution can be viewed using: "
-                    f"ref executions inspect {execution.execution_group_id}"
-                )
-            else:
-                info_msg = ""
-
-            logger.exception(f"Error running diagnostic {diagnostic.slug}. {info_msg}")
-            result = ExecutionResult.build_from_failure(definition)
-
-        if execution:
-            handle_execution_result(self.config, self.database, execution, result)
+        # Submit the execution to the process pool
+        # and track the future so we can wait for it to complete
+        future = self.pool.submit(
+            execute_locally,
+            definition=definition,
+            log_level=self.config.log_level,
+        )
+        self._results.append(
+            ExecutionFuture(
+                future=future,
+                definition=definition,
+                execution=execution,
+            )
+        )
 
     def join(self, timeout: float) -> None:
         """
         Wait for all diagnostics to finish
 
-        This returns immediately because the local executor runs diagnostics synchronously.
+        This will block until all diagnostics have completed or the timeout is reached.
+        If the timeout is reached, the method will return and raise an exception.
 
         Parameters
         ----------
         timeout
-            Timeout in seconds (Not used)
+            Timeout in seconds
+
+        Raises
+        ------
+        TimeoutError
+            If the timeout is reached
         """
-        return
+        start_time = time.time()
+        refresh_time = 0.5  # Time to wait between checking for completed tasks in seconds
+
+        results = self._results
+        t = tqdm(total=len(results), desc="Waiting for executions to complete", unit="execution")
+
+        try:
+            while results:
+                # Iterate over a copy of the list and remove finished tasks
+                for result in results[:]:
+                    if result.future.done():
+                        try:
+                            execution_result = result.future.result(timeout=0)
+                        except Exception as e:
+                            # Something went wrong when attempting to run the execution
+                            # This is likely a failure in the execution itself not the diagnostic
+                            raise ExecutionError(
+                                f"Failed to execute {result.definition.execution_slug()!r}"
+                            ) from e
+
+                        assert execution_result is not None, "Execution result should not be None"
+                        assert isinstance(execution_result, ExecutionResult), (
+                            "Execution result should be of type ExecutionResult"
+                        )
+
+                        # Process the result in the main process
+                        process_result(self.config, self.database, result.future.result(), result.execution)
+                        logger.debug(f"Execution completed: {result}")
+                        t.update(n=1)
+                        results.remove(result)
+
+                # Break early to avoid waiting for one more sleep cycle
+                if len(results) == 0:
+                    break
+
+                elapsed_time = time.time() - start_time
+
+                if elapsed_time > timeout:
+                    raise TimeoutError("Not all tasks completed within the specified timeout")
+
+                # Wait for a short time before checking for completed executions
+                time.sleep(refresh_time)
+        finally:
+            t.close()

@@ -35,10 +35,9 @@ from climate_ref._config_helpers import (
     transform_error,
 )
 from climate_ref.constants import config_filename
-from climate_ref.executor import import_executor_cls
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
-from climate_ref_core.executor import Executor
+from climate_ref_core.executor import Executor, import_executor_cls
 
 if TYPE_CHECKING:
     from climate_ref.database import Database
@@ -156,12 +155,12 @@ class ExecutorConfig:
     Configuration to define the executor to use for running diagnostics
     """
 
-    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.local.LocalExecutor")
+    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.LocalExecutor")
     """
     Executor to use for running diagnostics
 
     This should be the fully qualified name of the executor class
-    (e.g. `climate_ref.executor.local.LocalExecutor`).
+    (e.g. `climate_ref.executor.LocalExecutor`).
     The default is to use the local executor.
     The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
 

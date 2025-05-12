@@ -102,6 +102,7 @@ def test_annual_cycle_diagnostic(
     expected_reference_filename = obs4mips_data_catalog["path"].iloc[0]
 
     definition = definition_factory(
+        diagnostic=diagnostic,
         cmip6=DatasetCollection(
             pd.Series(
                 {

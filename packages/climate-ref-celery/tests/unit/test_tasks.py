@@ -12,7 +12,11 @@ def test_diagnostic_task_factory(tmp_path, caplog):
     mock_metric = Mock()
 
     definition = ExecutionDefinition(
-        key="test", datasets=None, output_directory=tmp_path / "output", root_directory=tmp_path
+        diagnostic=None,
+        key="test",
+        datasets=None,
+        output_directory=tmp_path / "output",
+        root_directory=tmp_path,
     )
 
     # Create task using factory

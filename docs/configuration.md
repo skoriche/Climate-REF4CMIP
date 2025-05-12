@@ -11,7 +11,8 @@ to make the changes easier to reproduce in future.
 
 Executor to use for running the diagnostics.
 
-Defaults to use the local executor ("climate_ref.executor.local.LocalExecutor").
+Defaults to use the local executor ("climate_ref.executor.LocalExecutor")
+which runs the executions locally, in-parallel using a process pool.
 
 
 ### `REF_RESULTS_ROOT`

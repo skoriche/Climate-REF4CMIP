@@ -62,6 +62,11 @@ class ExecutionDefinition:
     for a specific set of datasets fulfilling the requirements.
     """
 
+    diagnostic: Diagnostic
+    """
+    The diagnostic that is being executed
+    """
+
     key: str
     """
     The unique identifier for the datasets in the diagnostic execution group.
@@ -85,6 +90,12 @@ class ExecutionDefinition:
     """
     Root directory for storing the output of the diagnostic execution
     """
+
+    def execution_slug(self) -> str:
+        """
+        Get a slug for the execution
+        """
+        return f"{self.diagnostic.full_slug()}/{self.key}"
 
     def to_output_path(self, filename: pathlib.Path | str | None) -> pathlib.Path:
         """

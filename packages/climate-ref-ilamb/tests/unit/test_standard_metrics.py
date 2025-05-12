@@ -7,7 +7,7 @@ from climate_ref_core.datasets import DatasetCollection
 
 
 def test_standard_site(cmip6_data_catalog, definition_factory):
-    metric = ILAMBStandard(
+    diagnostic = ILAMBStandard(
         registry_file="ilamb-test", metric_name="test-site-tas", sources={"tas": "test/Site/tas.nc"}
     )
     ds = (
@@ -19,10 +19,10 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
         .first()
     )
 
-    definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     assert str(result.output_bundle_filename) == "output.json"
 
@@ -42,7 +42,7 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
 
 
 def test_standard_grid(cmip6_data_catalog, definition_factory):
-    metric = ILAMBStandard(
+    diagnostic = ILAMBStandard(
         registry_file="ilamb-test",
         metric_name="test-grid-gpp",
         sources={"gpp": "test/Grid/gpp.nc"},
@@ -54,10 +54,10 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
     ].groupby(["source_id", "member_id", "grid_label"])
     _, ds = next(iter(grp))
 
-    definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     assert str(result.output_bundle_filename) == "output.json"
 

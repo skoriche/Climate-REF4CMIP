@@ -573,6 +573,7 @@ dependencies = [
     { name = "setuptools" },
     { name = "sqlalchemy" },
     { name = "tomlkit" },
+    { name = "tqdm" },
     { name = "typer" },
 ]
 
@@ -609,6 +610,7 @@ requires-dist = [
     { name = "setuptools", specifier = ">=75.8.0" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
     { name = "tomlkit", specifier = ">=0.13.2" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
 

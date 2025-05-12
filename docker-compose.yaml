@@ -16,6 +16,12 @@ services:
       POSTGRES_PASSWORD: example
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
   flower:
     image: mher/flower
     restart: always
@@ -25,64 +31,43 @@ services:
       - "5555:5555"
     depends_on:
       - redis
+
   # Base worker to track the executions of async tasks
   climate-ref-worker:
     image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
-    build:
-      context: .
-      dockerfile: packages/climate-ref/Dockerfile
-      platforms:
-        - linux/amd64
-    command: ref celery start-worker
-    volumes:
-      - ./tests/test-data/sample-data:/ref/data
-      - ref:/ref
-  # ESMValTool metrics worker
-  metrics-esmvaltool:
-    image: ghcr.io/climate-ref/climate-ref-esmvaltool:latest
-    restart: always
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/1
-    build:
-      context: .
-      dockerfile: packages/climate-ref-esmvaltool/Dockerfile
-      platforms:
-        - linux/amd64
-    volumes:
-      - ./tests/test-data/sample-data:/ref/data
-      - ref:/ref
-  # ILAMB metrics worker
-  metrics-ilamb:
-    image: ghcr.io/climate-ref/climate-ref-ilamb:latest
-    restart: always
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/1
-    build:
-      context: .
-      dockerfile: packages/climate-ref-ilamb/Dockerfile
-      platforms:
-        - linux/amd64
-    volumes:
-      - ./tests/test-data/sample-data:/ref/data
-      - ref:/ref
-  # PMP metrics worker
-  metrics-pmp:
-    image: ghcr.io/climate-ref/climate-ref-pmp:latest
-    restart: always
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/1
-    build:
-      context: .
-      dockerfile: packages/climate-ref-pmp/Dockerfile
-      platforms:
-        - linux/amd64
+      - REF_DATABASE_URL=postgresql://postgres:example@postgres:5432/postgres
+    command: celery start-worker
     volumes:
       - ./tests/test-data/sample-data:/ref/data
       - ref:/ref
 
+  # Diagnostic workers - one per diagnostic package based on the climate-ref service
+  # ESMValTool worker
+  climate-ref-esmvaltool:
+    extends:
+      service: climate-ref-worker
+    command: celery start-worker --package climate_ref_esmvaltool
+  # ILAMB worker
+  climate-ref-ilamb:
+    extends:
+      service: climate-ref-worker
+    command: celery start-worker --package climate_ref_ilamb
+  # PMP worker
+  climate-ref-pmp:
+    extends:
+      service: climate-ref-worker
+    command: celery start-worker --package climate_ref_pmp
+
 volumes:
+  # This volume contains the database, scratch directories and the conda environments
   ref:

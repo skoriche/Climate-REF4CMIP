@@ -1,0 +1,12 @@
+# Services to run the Rapid Evaluation Framework (REF) diagnostic workers
+# These can be started by running `docker-compose up` in the root directory of the codebase.
+
+name: climate-ref
+services:
+  # Base worker to track the executions of async tasks
+  climate-ref-worker:
+    build:
+        context: .
+        dockerfile: packages/climate-ref/Dockerfile
+        platforms:
+          - linux/amd64

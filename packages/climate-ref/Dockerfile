@@ -36,6 +36,10 @@ FROM python:3.11-slim AS runtime
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
 LABEL description="Base Docker image for the REF compute engine"
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create a non-root user
 RUN useradd -m -u 1000 app
 

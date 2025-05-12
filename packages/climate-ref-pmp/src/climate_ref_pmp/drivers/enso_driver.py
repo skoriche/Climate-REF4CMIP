@@ -241,8 +241,8 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                 # If path is a list and has one element, take it as a string,
                 # otherwise raise notImplementedError
                 if isinstance(path, list) and len(path) == 1:
-                    path = path[0]
-                    dictDatasets[data_type][dataset][variable]["path + filename"] = path
+                    path = copy.deepcopy(path[0])
+                    dictDatasets2[data_type][dataset][variable]["path + filename"] = path
                 elif isinstance(path, list) and len(path) > 1:
                     raise NotImplementedError(
                         f"Multiple paths found for {data_type} {dataset} {variable}: {path}"

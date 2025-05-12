@@ -251,6 +251,8 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                     raise NotImplementedError(
                         f"Path is not a string for {data_type} {dataset} {variable}: {path}"
                     )
+                else:
+                    dictDatasets2[data_type][dataset][variable]["path + filename"] = path
 
                 # Check if the file exists
                 if not os.path.exists(path):

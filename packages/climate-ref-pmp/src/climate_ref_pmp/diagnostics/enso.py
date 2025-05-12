@@ -114,14 +114,15 @@ class ENSO(CommandLineDiagnostic):
             list_areacella = extract_variable(input_datasets, "areacella")
             list_sftlf = extract_variable(input_datasets, "sftlf")
 
-            dict_mod[mod_run][variable] = {
-                "path + filename": list_files,
-                "varname": variable,
-                "path + filename_area": list_areacella,
-                "areaname": "areacella",
-                "path + filename_landmask": list_sftlf,
-                "landmaskname": "sftlf",
-            }
+            if len(list_files) > 0:
+                dict_mod[mod_run][variable] = {
+                    "path + filename": list_files,
+                    "varname": variable,
+                    "path + filename_area": list_areacella,
+                    "areaname": "areacella",
+                    "path + filename_landmask": list_sftlf,
+                    "landmaskname": "sftlf",
+                }
 
         # -------------------------------------------------------
         # Get the input datasets information for the observations
@@ -135,13 +136,17 @@ class ENSO(CommandLineDiagnostic):
         for obs_name in reference_dataset_names:
             dict_obs[obs_name] = {}
             for variable in variable_ids:
-                list_files = reference_dataset.datasets[reference_dataset["variable_id"] == variable][
-                    "path"
-                ].to_list()
-                dict_obs[obs_name][variable] = {
-                    "path + filename": list_files,
-                    "varname": variable,
-                }
+                # Get the list of files for the current variable and observation source
+                list_files = reference_dataset.datasets[
+                    (reference_dataset["variable_id"] == variable)
+                    & (reference_dataset["source_id"] == obs_name)
+                ]["path"].to_list()
+                # If the list is not empty, add it to the dictionary
+                if len(list_files) > 0:
+                    dict_obs[obs_name][variable] = {
+                        "path + filename": list_files,
+                        "varname": variable,
+                    }
 
         # Create input directory
         dictDatasets = {

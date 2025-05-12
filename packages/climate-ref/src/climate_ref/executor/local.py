@@ -9,11 +9,12 @@ from tqdm import tqdm
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref.executor import handle_execution_result
 from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.logging import redirect_logs
+
+from .result_handling import handle_execution_result
 
 
 def execute_locally(
@@ -103,7 +104,7 @@ class LocalExecutor:
         database: Database | None = None,
         config: Config | None = None,
         n: int | None = None,
-        process_pool: concurrent.futures.Executor | None = None,
+        pool: concurrent.futures.Executor | None = None,
         **kwargs: Any,
     ) -> None:
         if config is None:
@@ -115,10 +116,10 @@ class LocalExecutor:
         self.database = database
         self.config = config
 
-        if process_pool is not None:
-            self.process_pool = process_pool
+        if pool is not None:
+            self.pool = pool
         else:
-            self.process_pool = ProcessPoolExecutor(max_workers=n)
+            self.pool = ProcessPoolExecutor(max_workers=n)
         self._results: list[ExecutionFuture] = []
 
     def run(
@@ -143,7 +144,7 @@ class LocalExecutor:
         """
         # Submit the execution to the process pool
         # and track the future so we can wait for it to complete
-        future = self.process_pool.submit(
+        future = self.pool.submit(
             execute_locally,
             definition=definition,
             log_level=self.config.log_level,
@@ -181,14 +182,6 @@ class LocalExecutor:
 
         try:
             while results:
-                # Wait for a short time before checking for completed executions
-                time.sleep(refresh_time)
-
-                elapsed_time = time.time() - start_time
-
-                if elapsed_time > timeout:
-                    raise TimeoutError("Not all tasks completed within the specified timeout")
-
                 # Iterate over a copy of the list and remove finished tasks
                 for result in results[:]:
                     if result.future.done():
@@ -198,7 +191,7 @@ class LocalExecutor:
                             # Something went wrong when attempting to run the execution
                             # This is likely a failure in the execution itself not the diagnostic
                             raise ExecutionError(
-                                f"Failed to execute {result.definition.execution_slug()}"
+                                f"Failed to execute {result.definition.execution_slug()!r}"
                             ) from e
 
                         assert execution_result is not None, "Execution result should not be None"
@@ -211,5 +204,17 @@ class LocalExecutor:
                         logger.debug(f"Execution completed: {result}")
                         t.update(n=1)
                         results.remove(result)
+
+                # Break early to avoid waiting for one more sleep cycle
+                if len(results) == 0:
+                    break
+
+                elapsed_time = time.time() - start_time
+
+                if elapsed_time > timeout:
+                    raise TimeoutError("Not all tasks completed within the specified timeout")
+
+                # Wait for a short time before checking for completed executions
+                time.sleep(refresh_time)
         finally:
             t.close()

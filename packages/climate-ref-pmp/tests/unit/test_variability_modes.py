@@ -20,7 +20,7 @@ def get_first_metric_match(data_catalog: pd.DataFrame, metric: Diagnostic) -> {p
     return datasets[first_key]
 
 
-def test_pdo_metric(data_catalog, config, mocker, definition_factory, pdo_example_dir, provider):
+def test_pdo_metric(data_catalog, config, mocker, pdo_example_dir, provider):
     diagnostic = ExtratropicalModesOfVariability("PDO")
     diagnostic.provider = provider
 

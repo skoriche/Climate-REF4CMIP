@@ -2,11 +2,16 @@
 Executor interface for running diagnostics
 """
 
+import importlib
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
+from loguru import logger
+
 from climate_ref_core.diagnostics import ExecutionDefinition
+from climate_ref_core.exceptions import InvalidExecutorException
 
 if TYPE_CHECKING:
+    # TODO: break this import cycle and move it into the execution definition
     from climate_ref.models import Execution
 
 EXECUTION_LOG_FILENAME = "out.log"
@@ -88,3 +93,46 @@ class Executor(Protocol):
         TimeoutError
             If the timeout is reached
         """
+
+
+def import_executor_cls(fqn: str) -> type[Executor]:
+    """
+    Import an executor using a fully qualified module path
+
+    Parameters
+    ----------
+    fqn
+        Full package and attribute name of the executor to import
+
+        For example: `climate_ref_example.executor` will use the `executor` attribute from the
+        `climate_ref_example` package.
+
+    Raises
+    ------
+    InvalidExecutorException
+        If the executor cannot be imported
+
+        If the executor isn't a valid `DiagnosticProvider`.
+
+    Returns
+    -------
+    :
+        Executor instance
+    """
+    module, attribute_name = fqn.rsplit(".", 1)
+
+    try:
+        imp = importlib.import_module(module)
+        executor: type[Executor] = getattr(imp, attribute_name)
+
+        # We can't really check if the executor is a subclass of Executor here
+        # Protocols can't be used with issubclass if they have non-method members
+        # We have to check this at class instantiation time
+
+        return executor
+    except ModuleNotFoundError:
+        logger.error(f"Package '{fqn}' not found")
+        raise InvalidExecutorException(fqn, f"Module '{module}' not found")
+    except AttributeError:
+        logger.error(f"Provider '{fqn}' not found")
+        raise InvalidExecutorException(fqn, f"Executor '{attribute_name}' not found in {module}")

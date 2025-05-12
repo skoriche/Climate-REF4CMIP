@@ -5,38 +5,13 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from climate_ref.executor import _copy_file_to_results, handle_execution_result, import_executor_cls
-from climate_ref.executor.local import LocalExecutor
+from climate_ref.executor.result_handling import _copy_file_to_results, handle_execution_result
 from climate_ref.models import ScalarMetricValue
 from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
 from climate_ref.models.metric_value import MetricValueType
 from climate_ref_core.diagnostics import ExecutionResult
-from climate_ref_core.exceptions import InvalidExecutorException
-from climate_ref_core.executor import Executor
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
-
-
-@pytest.mark.parametrize(
-    "import_str", ["climate_ref.executor.local.LocalExecutor", "climate_ref.executor.LocalExecutor"]
-)
-def test_import_executor(import_str):
-    executor = import_executor_cls(import_str)
-
-    assert isinstance(executor, Executor)
-    assert executor == LocalExecutor
-
-
-def test_import_executor_missing():
-    fqn = "climate_ref.executor.local.WrongExecutor"
-    match = f"Invalid executor: '{fqn}'\n Executor 'WrongExecutor' not found in climate_ref.executor.local"
-    with pytest.raises(InvalidExecutorException, match=match):
-        import_executor_cls(fqn)
-
-    fqn = "missing.executor.local.WrongExecutor"
-    match = f"Invalid executor: '{fqn}'\n Module 'missing.executor.local' not found"
-    with pytest.raises(InvalidExecutorException, match=match):
-        import_executor_cls(fqn)
 
 
 @pytest.fixture
@@ -47,23 +22,33 @@ def mock_execution_result(mocker):
     return mock_result
 
 
+@pytest.fixture
+def mock_definition(mocker, definition_factory):
+    definition = definition_factory(
+        diagnostic=mocker.Mock(),
+    )
+
+    # Ensure that the output directory exists and a log file is available
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
+    definition.to_output_path("out.log").touch()
+
+    return definition
+
+
 def test_handle_execution_result_successful(
-    db, config, mock_execution_result, mocker, definition_factory, test_data_dir
+    db, config, mock_execution_result, mocker, mock_definition, test_data_dir
 ):
     metric_bundle_filename = pathlib.Path("bundle.json")
-    definition = definition_factory()
     result = ExecutionResult(
-        definition=definition, successful=True, metric_bundle_filename=metric_bundle_filename
+        definition=mock_definition, successful=True, metric_bundle_filename=metric_bundle_filename
     )
 
-    # Copy a sample diagnostic bundle to the output directory
-    definition.output_directory.mkdir(parents=True, exist_ok=True)
     shutil.copy(
         test_data_dir / "cmec-output" / "pr_v3-LR_0101_1x1_esmf_metrics_default_v20241023_cmec.json",
-        definition.to_output_path(metric_bundle_filename),
+        mock_definition.to_output_path(metric_bundle_filename),
     )
 
-    mock_copy = mocker.patch("climate_ref.executor._copy_file_to_results")
+    mock_copy = mocker.patch("climate_ref.executor.result_handling._copy_file_to_results")
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -87,7 +72,7 @@ def test_handle_execution_result_successful(
     assert scalars[0].type == MetricValueType.SCALAR
 
 
-def test_handle_execution_result_with_files(config, mock_execution_result, mocker, definition_factory):
+def test_handle_execution_result_with_files(config, mock_execution_result, mocker, mock_definition):
     db = mocker.MagicMock()
     db.session = mocker.MagicMock(spec=Session)
 
@@ -121,19 +106,19 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
         },
     )
 
-    definition = definition_factory()
     result = ExecutionResult.build_from_output_bundle(
-        definition=definition, cmec_output_bundle=cmec_output, cmec_metric_bundle=cmec_metric
+        definition=mock_definition, cmec_output_bundle=cmec_output, cmec_metric_bundle=cmec_metric
     )
 
     # The outputs must exist
-    definition.to_output_path("out.log").touch()
-    definition.to_output_path("fig_1.jpg").touch()
-    definition.to_output_path("folder").mkdir()
-    definition.to_output_path("folder/fig_2.jpg").touch()
-    definition.to_output_path("index.html").touch()
+    mock_definition.to_output_path("fig_1.jpg").touch()
+    mock_definition.to_output_path("folder").mkdir()
+    mock_definition.to_output_path("folder/fig_2.jpg").touch()
+    mock_definition.to_output_path("index.html").touch()
 
-    mock_result_output = mocker.patch("climate_ref.executor.ExecutionOutput", spec=ExecutionOutput)
+    mock_result_output = mocker.patch(
+        "climate_ref.executor.result_handling.ExecutionOutput", spec=ExecutionOutput
+    )
 
     handle_execution_result(config, db, mock_execution_result, result)
 
@@ -149,25 +134,17 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     db.session.add.assert_called_with(mock_result_output.return_value)
 
 
-def test_handle_execution_result_failed(config, db, mock_execution_result, definition_factory):
-    definition = definition_factory()
-    definition.output_directory.mkdir(parents=True, exist_ok=True)
-    definition.to_output_path("out.log").touch()
-
-    result = ExecutionResult(definition=definition, successful=False, metric_bundle_filename=None)
+def test_handle_execution_result_failed(config, db, mock_execution_result, mock_definition):
+    result = ExecutionResult(definition=mock_definition, successful=False, metric_bundle_filename=None)
 
     handle_execution_result(config, db, mock_execution_result, result)
 
     mock_execution_result.mark_failed.assert_called_once()
 
 
-def test_handle_execution_result_missing_file(config, db, mock_execution_result, definition_factory):
-    definition = definition_factory()
-    definition.output_directory.mkdir(parents=True, exist_ok=True)
-    definition.to_output_path("out.log").touch()
-
+def test_handle_execution_result_missing_file(config, db, mock_execution_result, mock_definition):
     result = ExecutionResult(
-        definition=definition, successful=True, metric_bundle_filename=pathlib.Path("diagnostic.json")
+        definition=mock_definition, successful=True, metric_bundle_filename=pathlib.Path("diagnostic.json")
     )
 
     with pytest.raises(

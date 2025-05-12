@@ -35,10 +35,9 @@ from climate_ref._config_helpers import (
     transform_error,
 )
 from climate_ref.constants import config_filename
-from climate_ref.executor import import_executor_cls
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
-from climate_ref_core.executor import Executor
+from climate_ref_core.executor import Executor, import_executor_cls
 
 if TYPE_CHECKING:
     from climate_ref.database import Database

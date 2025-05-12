@@ -179,7 +179,7 @@ filename = "sqlite://climate_ref.db"
 
     def test_executor_build(self, config, db):
         executor = config.executor.build(config, db)
-        assert executor.name == "local"
+        assert executor.name == "synchronous"
         assert isinstance(executor, Executor)
 
     @pytest.mark.skipif(

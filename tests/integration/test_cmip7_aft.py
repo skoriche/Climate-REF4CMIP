@@ -37,6 +37,8 @@ def config_cmip7_aft(config):
     """
     # Force the default diagnostic providers
     config.diagnostic_providers = default_providers()
+    # Use the local executor to parallise the executions
+    config.executor.executor = "climate_ref.executor.LocalExecutor"
 
     # Write the config to disk so it is used by the CLI
     # This overwrites the default config

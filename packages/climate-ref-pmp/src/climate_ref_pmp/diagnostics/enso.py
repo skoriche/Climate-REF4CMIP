@@ -135,7 +135,7 @@ class ENSO(CommandLineDiagnostic):
         for obs_name in reference_dataset_names:
             dict_obs[obs_name] = {}
             for variable in variable_ids:
-                list_files = input_datasets.datasets[input_datasets["variable_id"] == variable][
+                list_files = reference_dataset.datasets[reference_dataset["variable_id"] == variable][
                     "path"
                 ].to_list()
                 dict_obs[obs_name][variable] = {

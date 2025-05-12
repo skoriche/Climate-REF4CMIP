@@ -57,7 +57,6 @@ class Executor(Protocol):
 
         Parameters
         ----------
-            Diagnostic to run
         definition
             Definition of the information needed to execute a diagnostic
 

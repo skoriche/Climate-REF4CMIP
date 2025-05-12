@@ -130,7 +130,7 @@ executions[0].datasets["cmip6"]
 # and which datasets should be used for the diagnostic calculation.
 
 # %%
-output_directory = Path("./out")
+output_directory = Path("../out")
 definition = executions[0].build_execution_definition(output_directory)
 prettyprinter.pprint(definition)
 

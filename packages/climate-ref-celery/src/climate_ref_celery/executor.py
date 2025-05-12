@@ -59,10 +59,6 @@ class CeleryExecutor(Executor):
 
         Parameters
         ----------
-        provider
-            Provider for the diagnostic
-        diagnostic
-            Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
             This includes relative paths to the data files,

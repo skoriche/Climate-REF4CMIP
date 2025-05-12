@@ -38,10 +38,6 @@ class SynchronousExecutor:
 
         Parameters
         ----------
-        provider
-            The provider of the diagnostic
-        diagnostic
-            Diagnostic to run
         definition
             A description of the information needed for this execution of the diagnostic
         execution

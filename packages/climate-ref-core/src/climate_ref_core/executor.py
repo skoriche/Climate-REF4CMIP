@@ -4,8 +4,7 @@ Executor interface for running diagnostics
 
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition
-from climate_ref_core.providers import DiagnosticProvider
+from climate_ref_core.diagnostics import ExecutionDefinition
 
 if TYPE_CHECKING:
     from climate_ref.models import Execution
@@ -37,8 +36,6 @@ class Executor(Protocol):
 
     def run(
         self,
-        provider: DiagnosticProvider,
-        diagnostic: Diagnostic,
         definition: ExecutionDefinition,
         execution: "Execution | None" = None,
     ) -> None:
@@ -55,9 +52,6 @@ class Executor(Protocol):
 
         Parameters
         ----------
-        provider
-            Provider of the diagnostic
-        diagnostic
             Diagnostic to run
         definition
             Definition of the information needed to execute a diagnostic

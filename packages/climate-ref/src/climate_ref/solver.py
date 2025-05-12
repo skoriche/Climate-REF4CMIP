@@ -96,6 +96,7 @@ class DiagnosticExecution:
         fragment = pathlib.Path() / self.provider.slug / self.diagnostic.slug / self.datasets.hash
 
         return ExecutionDefinition(
+            diagnostic=self.diagnostic,
             root_directory=output_root,
             output_directory=output_root / fragment,
             key=self.dataset_key,
@@ -375,8 +376,6 @@ def solve_required_executions(
                 execution.register_datasets(db, definition.datasets)
 
                 executor.run(
-                    provider=potential_execution.provider,
-                    diagnostic=potential_execution.diagnostic,
                     definition=definition,
                     execution=execution,
                 )

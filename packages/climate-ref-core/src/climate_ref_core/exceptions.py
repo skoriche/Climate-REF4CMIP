@@ -46,3 +46,10 @@ class ConstraintNotSatisfied(RefException):
 
 class ResultValidationError(RefException):
     """Exception raised when the executions from a diagnostic are invalid"""
+
+
+class ExecutionError(RefException):
+    """Exception raised when an execution fails"""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)

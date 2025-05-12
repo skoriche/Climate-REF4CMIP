@@ -1,12 +1,10 @@
-from functools import partial
 from typing import Any
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref.executor.local import execute_locally
+from climate_ref.executor.local import execute_locally, process_result
 from climate_ref.models import Execution
-from climate_ref_core.diagnostics import Diagnostic, ExecutionDefinition
-from climate_ref_core.providers import DiagnosticProvider
+from climate_ref_core.diagnostics import ExecutionDefinition
 
 
 class SynchronousExecutor:
@@ -14,8 +12,7 @@ class SynchronousExecutor:
     Run a diagnostic synchronously, in-process.
 
     This is mainly useful for debugging and testing.
-    The production executor will run the diagnostic in a separate process or container,
-    the exact manner of which is yet to be determined.
+    [climate_ref.executor.local.LocalExecutor][] is a more general purpose executor.
     """
 
     name = "synchronous"
@@ -31,12 +28,8 @@ class SynchronousExecutor:
         self.database = database
         self.config = config
 
-        self._execution_func = partial(execute_locally, config=config, database=database)
-
     def run(
         self,
-        provider: DiagnosticProvider,
-        diagnostic: Diagnostic,
         definition: ExecutionDefinition,
         execution: Execution | None = None,
     ) -> None:
@@ -55,11 +48,8 @@ class SynchronousExecutor:
             A database model representing the execution of the diagnostic.
             If provided, the result will be updated in the database when completed.
         """
-        self._execution_func(
-            diagnostic=diagnostic,
-            definition=definition,
-            execution=execution,
-        )
+        result = execute_locally(definition, log_level=self.config.log_level)
+        process_result(self.config, self.database, result, execution)
 
     def join(self, timeout: float) -> None:
         """

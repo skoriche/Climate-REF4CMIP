@@ -6,7 +6,7 @@
 docker-compose build
 
 # Run any migrations
-docker-compose run --rm climate-ref-worker config list
+docker-compose run --rm climate-ref config list
 
 # Initialise the conda containers
 docker-compose run --rm climate-ref-pmp providers create-env --provider pmp

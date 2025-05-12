@@ -33,7 +33,7 @@ services:
       - redis
 
   # Base worker to track the executions of async tasks
-  climate-ref-worker:
+  climate-ref:
     image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
     depends_on:

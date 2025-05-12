@@ -54,7 +54,7 @@ def prepare_datasets(args):
     pattern = f"{args.metrics_collection}_{mod}_{args.experiment_id}_{run}"
     dictDatasets = update_dict_datasets(dictDatasets, os.path.join(args.output_directory, "ref_landmask"))
     # Write a JSON file for dictDatasets
-    json_file = os.path.join(args.output_directory, f"input_{pattern}.json")
+    json_file = os.path.join(args.output_directory, f"input_{pattern}_processed.json")
     with open(json_file, "w") as f:
         json.dump(dictDatasets, f, indent=4)
     print(f"JSON file created: {json_file}")
@@ -217,6 +217,13 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
     -------
     dict
         Updated dictionary with land-sea mask and remapped observation names.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the input file path is not valid.
+    NotImplementedError
+        If multiple paths are found for a dataset or if the path is not a string.
     """
     dictDatasets2 = copy.deepcopy(dictDatasets)
     data_types = dictDatasets.keys()  # ["model", "observations"]
@@ -230,6 +237,24 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
             variables = dictDatasets[data_type][dataset].keys()
             for variable in variables:
                 path = dictDatasets[data_type][dataset][variable]["path + filename"]
+
+                # If path is a list and has one element, take it as a string,
+                # otherwise raise notImplementedError
+                if isinstance(path, list) and len(path) == 1:
+                    dictDatasets[data_type][dataset][variable]["path + filename"] = path[0]
+                elif isinstance(path, list) and len(path) > 1:
+                    raise NotImplementedError(
+                        f"Multiple paths found for {data_type} {dataset} {variable}: {path}"
+                    )
+                elif not isinstance(path, str):
+                    raise NotImplementedError(
+                        f"Path is not a string for {data_type} {dataset} {variable}: {path}"
+                    )
+
+                # Check if the file exists
+                if not os.path.exists(path):
+                    raise FileNotFoundError(f"File not found: {path}")
+
                 # Generate the landmask path for both observations and models.
                 if data_type == "model" and "sftlf" in dictDatasets[data_type][dataset]:
                     path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]

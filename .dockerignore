@@ -1,6 +1,7 @@
 .esgpull
 .ref
 .venv
+data
 out
 dist
 tests/test-data

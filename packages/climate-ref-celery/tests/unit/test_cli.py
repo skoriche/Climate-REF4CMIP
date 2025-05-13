@@ -37,7 +37,7 @@ def test_start_worker_success(mocker, mock_create_celery_app, mock_register_cele
     mock_import_module.assert_called_once_with("test_package")
     mock_register_celery_tasks.assert_called_once_with(mock_create_celery_app.return_value, mock_provider)
     mock_celery_app.worker_main.assert_called_once_with(
-        argv=["worker", "--loglevel=info", "--queues=example"]
+        argv=["worker", "-E", "--loglevel=info", "--queues=example"]
     )
 
 
@@ -47,7 +47,9 @@ def test_start_core_worker_success(mock_create_celery_app, mock_register_celery_
     result = runner.invoke(app, ["start-worker"])
 
     assert result.exit_code == 0
-    mock_celery_app.worker_main.assert_called_once_with(argv=["worker", "--loglevel=info", "--queues=celery"])
+    mock_celery_app.worker_main.assert_called_once_with(
+        argv=["worker", "-E", "--loglevel=info", "--queues=celery"]
+    )
 
 
 def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_register_celery_tasks):
@@ -73,7 +75,7 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
 
     assert result.exit_code == 0, result.output
     mock_worker_main.worker_main.assert_called_once_with(
-        argv=["worker", "--loglevel=error", "--queues=example", "--extra-args", "--concurrency=2"]
+        argv=["worker", "-E", "--loglevel=error", "--queues=example", "--extra-args", "--concurrency=2"]
     )
 
 

@@ -20,7 +20,7 @@ from climate_ref.cli._utils import df_to_table, pretty_print_df
 from climate_ref.config import Config
 from climate_ref.models import Execution, ExecutionGroup
 from climate_ref.models.execution import get_execution_group_and_latest
-from climate_ref_core.executor import EXECUTION_LOG_FILENAME
+from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 
 app = typer.Typer(help=__doc__)
 console = Console()

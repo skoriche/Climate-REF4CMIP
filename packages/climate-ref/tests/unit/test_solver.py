@@ -24,8 +24,7 @@ from climate_ref_core.diagnostics import DataRequirement, FacetFilter
 def solver(db_seeded, config) -> ExecutionSolver:
     registry = ProviderRegistry(providers=[provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
-    with db_seeded.session.begin():
-        metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
+    metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
 
     return metric_solver

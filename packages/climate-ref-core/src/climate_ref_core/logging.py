@@ -1,7 +1,7 @@
 """
 Logging utilities
 
-The REF uses [loguru](https://loguru.readthedocs.io/en/stable/), a simple logging framework
+The REF uses [loguru](https://loguru.readthedocs.io/en/stable/), a simple logging framework.
 """
 
 import contextlib
@@ -16,7 +16,13 @@ from loguru import logger
 from rich.pretty import pretty_repr
 
 from climate_ref_core.diagnostics import ExecutionDefinition
-from climate_ref_core.executor import EXECUTION_LOG_FILENAME
+
+EXECUTION_LOG_FILENAME = "out.log"
+"""
+Filename for the execution log.
+
+This file is written via [climate_ref_core.logging.redirect_logs][].
+"""
 
 
 class _InterceptHandler(logging.Handler):
@@ -72,7 +78,7 @@ def add_log_handler(**kwargs: Any) -> None:
 
     # Track the current handler via custom attributes on the logger
     # This is a bit of a workaround because of loguru's super slim API that doesn't allow for
-    # modificiation of existing handlers.
+    # modification of existing handlers.
     logger.default_handler_id = handled_id  # type: ignore[attr-defined]
     logger.default_handler_kwargs = kwargs  # type: ignore[attr-defined]
 
@@ -148,4 +154,4 @@ def redirect_logs(definition: ExecutionDefinition, log_level: str) -> Generator[
             add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
 
 
-__all__ = ["add_log_handler", "capture_logging", "logger", "redirect_logs"]
+__all__ = ["EXECUTION_LOG_FILENAME", "add_log_handler", "capture_logging", "logger", "redirect_logs"]

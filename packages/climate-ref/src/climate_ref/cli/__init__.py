@@ -12,7 +12,7 @@ from loguru import logger
 from climate_ref import __version__
 from climate_ref.cli import config, datasets, executions, providers, solve
 from climate_ref.config import Config
-from climate_ref.constants import config_filename
+from climate_ref.constants import CONFIG_FILENAME
 from climate_ref.database import Database
 from climate_ref_core import __version__ as __core_version__
 from climate_ref_core.logging import add_log_handler
@@ -65,7 +65,7 @@ def _load_config(configuration_directory: Path | None = None) -> Config:
     """
     try:
         if configuration_directory:
-            config = Config.load(configuration_directory / config_filename, allow_missing=False)
+            config = Config.load(configuration_directory / CONFIG_FILENAME, allow_missing=False)
         else:
             config = Config.default()
     except FileNotFoundError:

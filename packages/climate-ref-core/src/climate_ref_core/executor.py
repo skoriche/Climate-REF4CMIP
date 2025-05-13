@@ -16,13 +16,6 @@ if TYPE_CHECKING:
     # TODO: break this import cycle and move it into the execution definition
     from climate_ref.models import Execution
 
-EXECUTION_LOG_FILENAME = "out.log"
-"""
-Filename for the execution log.
-
-This file is written via [climate_ref_core.logging.redirect_logs][].
-"""
-
 
 def execute_locally(
     definition: ExecutionDefinition,

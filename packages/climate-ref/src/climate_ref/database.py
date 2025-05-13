@@ -106,6 +106,7 @@ class Database:
         logger.info(f"Connecting to database at {url}")
         self.url = url
         self._engine = sqlalchemy.create_engine(self.url)
+        # TODO: Set autobegin=False
         self.session = Session(self._engine)
 
     def alembic_config(self, config: "Config") -> AlembicConfig:

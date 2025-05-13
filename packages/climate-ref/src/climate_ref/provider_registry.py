@@ -139,7 +139,7 @@ class ProviderRegistry:
             provider.configure(config)
             providers.append(provider)
 
-        with db.session.begin_nested():
+        with db.session.begin():
             for provider in providers:
                 _register_provider(db, provider)
 

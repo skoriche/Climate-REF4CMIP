@@ -289,8 +289,7 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     mock_build_solver.return_value = solver
 
     # Run with no solver specified
-    with db_seeded.session.begin():
-        solve_required_executions(db_seeded)
+    solve_required_executions(db_seeded)
 
     # Check that a result is created
     assert db_seeded.session.query(Execution).count() == 1
@@ -319,8 +318,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     mock_executor = mocker.patch.object(ExecutorConfig, "build")
     mock_build_solver = mocker.patch.object(ExecutionSolver, "build_from_db")
 
-    with db_seeded.session.begin():
-        solve_required_executions(db_seeded, dry_run=False, solver=solver)
+    solve_required_executions(db_seeded, dry_run=False, solver=solver)
 
     assert mock_build_solver.call_count == 0
 

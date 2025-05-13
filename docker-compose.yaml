@@ -14,13 +14,17 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: example
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
   flower:
-    image: mher/flower
+    image: mher/flower:2.0.1
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_ACCEPT_CONTENT=["json","pickle"]
     ports:
       - "5555:5555"
     depends_on:
@@ -38,7 +42,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
       - REF_DATABASE_URL=postgresql://postgres:example@postgres:5432/postgres
-    command: celery start-worker
+    command: celery start-worker --loglevel INFO
     volumes:
       - ./tests/test-data/sample-data:/ref/data
       - ref:/ref
@@ -48,18 +52,19 @@ services:
   climate-ref-esmvaltool:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_esmvaltool
+    command: celery start-worker --package climate_ref_esmvaltool --loglevel INFO
   # ILAMB worker
   climate-ref-ilamb:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_ilamb
+    command: celery start-worker --package climate_ref_ilamb --loglevel INFO
   # PMP worker
   climate-ref-pmp:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_pmp
+    command: celery start-worker --package climate_ref_pmp --loglevel INFO
 
 volumes:
   # This volume contains the database, scratch directories and the conda environments
   ref:
+  postgres-data:

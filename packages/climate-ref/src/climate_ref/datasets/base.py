@@ -156,6 +156,43 @@ class DatasetAdapter(Protocol):
             )
         return dataset
 
+    def _get_dataset_files(self, db: Database, limit: int | None = None) -> pd.DataFrame:
+        dataset_type = self.dataset_cls.__mapper_args__["polymorphic_identity"]
+
+        result = (
+            db.session.query(DatasetFile)
+            # The join is necessary to be able to order by the dataset columns
+            .join(DatasetFile.dataset)
+            .where(Dataset.dataset_type == dataset_type)
+            # The joinedload is necessary to avoid N+1 queries (one for each dataset)
+            # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
+            .options(joinedload(DatasetFile.dataset.of_type(self.dataset_cls)))
+            .order_by(Dataset.updated_at.desc())
+            .limit(limit)
+            .all()
+        )
+
+        return pd.DataFrame(
+            [
+                {
+                    **{k: getattr(file, k) for k in self.file_specific_metadata},
+                    **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
+                }
+                for file in result
+            ],
+            index=[file.dataset.id for file in result],
+        )
+
+    def _get_datasets(self, db: Database, limit: int | None = None) -> pd.DataFrame:
+        result_datasets = (
+            db.session.query(self.dataset_cls).order_by(Dataset.updated_at.desc()).limit(limit).all()
+        )
+
+        return pd.DataFrame(
+            [{k: getattr(dataset, k) for k in self.dataset_specific_metadata} for dataset in result_datasets],
+            index=[file.id for file in result_datasets],
+        )
+
     def load_catalog(
         self, db: Database, include_files: bool = True, limit: int | None = None
     ) -> pd.DataFrame:
@@ -173,42 +210,9 @@ class DatasetAdapter(Protocol):
         :
             Data catalog containing the metadata for the currently ingested datasets
         """
-        DatasetModel = self.dataset_cls
-        dataset_type = DatasetModel.__mapper_args__["polymorphic_identity"]
-        # TODO: Paginate this query to avoid loading all the data at once
-        if include_files:
-            result = (
-                db.session.query(DatasetFile)
-                # The join is necessary to be able to order by the dataset columns
-                .join(DatasetFile.dataset)
-                .where(Dataset.dataset_type == dataset_type)
-                # The joinedload is necessary to avoid N+1 queries (one for each dataset)
-                # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#the-zen-of-joined-eager-loading
-                .options(joinedload(DatasetFile.dataset.of_type(DatasetModel)))
-                .order_by(Dataset.updated_at.desc())
-                .limit(limit)
-                .all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {
-                        **{k: getattr(file, k) for k in self.file_specific_metadata},
-                        **{k: getattr(file.dataset, k) for k in self.dataset_specific_metadata},
-                    }
-                    for file in result
-                ],
-                index=[file.dataset.id for file in result],
-            )
-        else:
-            result_datasets = (
-                db.session.query(DatasetModel).order_by(Dataset.updated_at.desc()).limit(limit).all()
-            )
-
-            return pd.DataFrame(
-                [
-                    {k: getattr(dataset, k) for k in self.dataset_specific_metadata}
-                    for dataset in result_datasets
-                ],
-                index=[file.id for file in result_datasets],
-            )
+        with db.session.begin():
+            # TODO: Paginate this query to avoid loading all the data at once
+            if include_files:
+                return self._get_dataset_files(db, limit)
+            else:
+                return self._get_datasets(db, limit)

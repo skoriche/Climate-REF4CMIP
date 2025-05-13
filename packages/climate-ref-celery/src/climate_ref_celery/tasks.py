@@ -49,9 +49,8 @@ def _diagnostic_task_factory(
             with redirect_logs(definition, log_level):
                 return diagnostic.run(definition)
         except Exception:
-            logger.exception(f"Error running diagnostic {diagnostic.slug}:{definition.key}")
-            # TODO: This exception should be caught and a unsuccessful result returned.
-            raise
+            logger.exception(f"Error running diagnostic: {definition.execution_slug()!r}")
+            return ExecutionResult.build_from_failure(definition)
 
     return task
 
@@ -69,10 +68,10 @@ def register_celery_tasks(app: Celery, provider: DiagnosticProvider) -> None:
     provider
         The provider to register tasks for
     """
-    for metric in provider.diagnostics():
-        print(f"Registering task for diagnostic {metric.name}")
+    for diagnostic in provider.diagnostics():
+        print(f"Registering task for diagnostic {diagnostic.name}")
         app.task(  # type: ignore
-            _diagnostic_task_factory(metric),
-            name=generate_task_name(provider, metric),
+            _diagnostic_task_factory(diagnostic),
+            name=generate_task_name(provider, diagnostic),
             queue=provider.slug,
         )

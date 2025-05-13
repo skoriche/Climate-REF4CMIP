@@ -1,0 +1,88 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "region",
+      "model",
+      "metric",
+      "statistic"
+    ],
+    "region": {
+      "global": {
+        "LongName": "Global - Land",
+        "Description": "Global - Land",
+        "Generator": "GlobalLand.nc"
+      },
+      "tropical": {
+        "LongName": "Tropical climates",
+        "Description": "Tropical climates",
+        "Generator": "Koppen_coarse.nc"
+      }
+    },
+    "model": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
+        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
+      }
+    },
+    "metric": {
+      "cmip6_historical": {
+        "Name": "cmip6_historical",
+        "Abstract": "benchmark score",
+        "URI": [
+          "https://www.osti.gov/biblio/1330803",
+          "https://doi.org/10.1029/2018MS001354"
+        ],
+        "Contact": "forrest AT climatemodeling.org"
+      }
+    },
+    "statistic": {
+      "Period Mean [kg m-2 s-1]": {},
+      "Bias [kg m-2 s-1]": {},
+      "Bias Score [1]": {},
+      "RMSE [kg m-2 s-1]": {},
+      "RMSE Score [1]": {},
+      "Phase Shift [month]": {},
+      "Seasonal Cycle Score [1]": {},
+      "Normalized Standard Deviation [1]": {},
+      "Correlation [1]": {},
+      "Spatial Distribution Score [1]": {}
+    }
+  },
+  "RESULTS": {
+    "global": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [kg m-2 s-1]": 9.51656971117994e-6,
+          "Bias [kg m-2 s-1]": 3.08188200765451e-8,
+          "Bias Score [1]": 0.5069237546616158,
+          "RMSE [kg m-2 s-1]": 0.00001504276054065792,
+          "RMSE Score [1]": 0.2412309769469663,
+          "Phase Shift [month]": 0.2703245501089226,
+          "Seasonal Cycle Score [1]": 0.6963783846126549,
+          "Normalized Standard Deviation [1]": 0.8693147653802257,
+          "Correlation [1]": 0.6402939068296997,
+          "Spatial Distribution Score [1]": 0.8042686192823941
+        }
+      }
+    },
+    "tropical": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [kg m-2 s-1]": 0.000022191610566573176,
+          "Bias [kg m-2 s-1]": 4.863620766352261e-7,
+          "Bias Score [1]": 0.4459506304429574,
+          "RMSE [kg m-2 s-1]": 0.00003263199056908049,
+          "RMSE Score [1]": 0.2094635260471339,
+          "Phase Shift [month]": 0.3706292819346208,
+          "Seasonal Cycle Score [1]": 0.760601098269735,
+          "Normalized Standard Deviation [1]": 1.1722347145529946,
+          "Correlation [1]": 0.6112139143949029,
+          "Spatial Distribution Score [1]": 0.7856006216172268
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

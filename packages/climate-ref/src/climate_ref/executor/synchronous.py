@@ -2,9 +2,10 @@ from typing import Any
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref.executor.local import execute_locally, process_result
+from climate_ref.executor.local import process_result
 from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition
+from climate_ref_core.executor import execute_locally
 
 
 class SynchronousExecutor:

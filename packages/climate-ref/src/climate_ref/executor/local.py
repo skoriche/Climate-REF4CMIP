@@ -12,33 +12,9 @@ from climate_ref.database import Database
 from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
-from climate_ref_core.logging import redirect_logs
+from climate_ref_core.executor import execute_locally
 
 from .result_handling import handle_execution_result
-
-
-def execute_locally(
-    definition: ExecutionDefinition,
-    log_level: str,
-) -> ExecutionResult:
-    """
-    Run a diagnostic execution locally
-
-    Parameters
-    ----------
-    definition
-        A description of the information needed for this execution of the diagnostic
-    log_level
-        The log level to use for the execution
-    """
-    try:
-        definition.output_directory.mkdir(parents=True, exist_ok=True)
-        with redirect_logs(definition, log_level):
-            return definition.diagnostic.run(definition=definition)
-    except Exception:
-        # If the diagnostic fails, we want to log the error and return a failure result
-        logger.exception(f"Error running {definition.execution_slug()!r}")
-        return ExecutionResult.build_from_failure(definition)
 
 
 def process_result(

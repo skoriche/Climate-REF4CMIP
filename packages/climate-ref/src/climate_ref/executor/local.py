@@ -66,7 +66,22 @@ class ExecutionFuture:
 def _process_initialiser() -> None:
     # Setup the logging for the process
     # This replaces the loguru default handler
-    add_log_handler()
+    try:
+        add_log_handler()
+    except Exception as e:
+        logger.error(f"Failed to add log handler: {e}")
+
+        # Don't raise an exception here as that would kill the process pool
+
+
+def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
+    # This is a catch-all for any exceptions that occur in the process
+    try:
+        return execute_locally(definition=definition, log_level=log_level)
+    except Exception:
+        logger.exception("Error running diagnostic")
+        # This will kill the process pool
+        raise
 
 
 class LocalExecutor:
@@ -124,7 +139,7 @@ class LocalExecutor:
         # Submit the execution to the process pool
         # and track the future so we can wait for it to complete
         future = self.pool.submit(
-            execute_locally,
+            _process_run,
             definition=definition,
             log_level=self.config.log_level,
         )

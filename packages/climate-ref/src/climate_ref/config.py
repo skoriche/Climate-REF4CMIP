@@ -34,7 +34,7 @@ from climate_ref._config_helpers import (
     env_field,
     transform_error,
 )
-from climate_ref.constants import config_filename
+from climate_ref.constants import CONFIG_FILENAME
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor, import_executor_cls
@@ -404,7 +404,7 @@ class Config:
             The default configuration
         """
         root = env.path("REF_CONFIGURATION")
-        path_to_load = root / config_filename
+        path_to_load = root / CONFIG_FILENAME
 
         logger.debug(f"Loading default configuration from {path_to_load}")
         return cls.load(path_to_load)

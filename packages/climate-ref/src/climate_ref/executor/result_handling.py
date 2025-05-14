@@ -21,7 +21,7 @@ from climate_ref.models import ScalarMetricValue
 from climate_ref.models.execution import Execution, ExecutionOutput, ResultOutputType
 from climate_ref_core.diagnostics import ExecutionResult, ensure_relative_path
 from climate_ref_core.exceptions import ResultValidationError
-from climate_ref_core.executor import EXECUTION_LOG_FILENAME
+from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 from climate_ref_core.pycmec.controlled_vocabulary import CV
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput, OutputDict

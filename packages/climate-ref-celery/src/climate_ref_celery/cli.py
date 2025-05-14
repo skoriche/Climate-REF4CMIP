@@ -54,6 +54,7 @@ def import_provider(provider_package: str) -> DiagnosticProvider:
 
 @app.command()
 def start_worker(
+    ctx: typer.Context,
     loglevel: str = typer.Option("info", help="Log level for the worker"),
     package: str | None = typer.Option(help="Package to import tasks from", default=None),
     extra_args: list[str] = typer.Argument(None, help="Additional arguments for the worker"),
@@ -75,6 +76,10 @@ def start_worker(
         # Attempt to import the provider
         provider = import_provider(package)
 
+        if hasattr(ctx.obj, "config"):
+            # Configure the provider so that it knows where the conda environments are
+            provider.configure(ctx.obj.config)
+
         # Wrap each diagnostics in the provider with a celery tasks
         register_celery_tasks(celery_app, provider)
         queue = provider.slug
@@ -84,7 +89,7 @@ def start_worker(
 
         queue = "celery"
 
-    argv = ["worker", f"--loglevel={loglevel}", f"--queues={queue}", *(extra_args or [])]
+    argv = ["worker", "-E", f"--loglevel={loglevel}", f"--queues={queue}", *(extra_args or [])]
     celery_app.worker_main(argv=argv)
 
 

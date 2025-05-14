@@ -24,8 +24,7 @@ def list_(ctx: typer.Context) -> None:
     """
     config = ctx.obj.config
     db = ctx.obj.database
-    with db.session.begin():
-        provider_registry = ProviderRegistry.build_from_config(config, db)
+    provider_registry = ProviderRegistry.build_from_config(config, db)
 
     def get_env(provider: DiagnosticProvider) -> str:
         env = ""
@@ -61,8 +60,7 @@ def create_env(
     """
     config = ctx.obj.config
     db = ctx.obj.database
-    with db.session.begin():
-        providers = ProviderRegistry.build_from_config(config, db).providers
+    providers = ProviderRegistry.build_from_config(config, db).providers
 
     if provider is not None:
         available = ", ".join([f'"{p.slug}"' for p in providers])

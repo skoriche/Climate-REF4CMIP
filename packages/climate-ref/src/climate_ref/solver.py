@@ -331,7 +331,7 @@ def solve_required_executions(
 
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
-        with db.session.begin(nested=True):
+        with db.session.begin():
             diagnostic = (
                 db.session.query(DiagnosticModel)
                 .join(DiagnosticModel.provider)

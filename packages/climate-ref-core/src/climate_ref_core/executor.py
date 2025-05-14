@@ -3,23 +3,53 @@ Executor interface for running diagnostics
 """
 
 import importlib
+import shutil
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from loguru import logger
 
-from climate_ref_core.diagnostics import ExecutionDefinition
+from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import InvalidExecutorException
+from climate_ref_core.logging import redirect_logs
 
 if TYPE_CHECKING:
     # TODO: break this import cycle and move it into the execution definition
     from climate_ref.models import Execution
 
-EXECUTION_LOG_FILENAME = "out.log"
-"""
-Filename for the execution log.
 
-This file is written via [climate_ref_core.logging.redirect_logs][].
-"""
+def execute_locally(
+    definition: ExecutionDefinition,
+    log_level: str,
+) -> ExecutionResult:
+    """
+    Run a diagnostic execution
+
+    This is the chunk of work that should be executed by an executor.
+
+    Parameters
+    ----------
+    definition
+        A description of the information needed for this execution of the diagnostic
+    log_level
+        The log level to use for the execution
+    """
+    logger.exception(f"Executing {definition.execution_slug()!r}")
+
+    try:
+        if definition.output_directory.exists():
+            logger.warning(
+                f"Output directory {definition.output_directory} already exists. "
+                f"Removing the existing directory."
+            )
+            shutil.rmtree(definition.output_directory)
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+
+        with redirect_logs(definition, log_level):
+            return definition.diagnostic.run(definition=definition)
+    except Exception:
+        # If the diagnostic fails, we want to log the error and return a failure result
+        logger.exception(f"Error running {definition.execution_slug()!r}")
+        return ExecutionResult.build_from_failure(definition)
 
 
 @runtime_checkable

@@ -132,14 +132,15 @@ def ingest(  # noqa: PLR0913
 
     for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
         logger.info(f"Processing dataset {instance_id}")
-
-        if dry_run:
-            dataset = db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
-            if not dataset:
-                logger.info(f"Would save dataset {instance_id} to the database")
-                continue
-        else:
-            with db.session.begin():
+        with db.session.begin():
+            if dry_run:
+                dataset = (
+                    db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
+                )
+                if not dataset:
+                    logger.info(f"Would save dataset {instance_id} to the database")
+                    continue
+            else:
                 adapter.register_dataset(config, db, data_catalog_dataset)
 
     if solve:

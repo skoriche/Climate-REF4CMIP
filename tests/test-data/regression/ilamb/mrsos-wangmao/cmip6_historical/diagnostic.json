@@ -1,0 +1,88 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "region",
+      "model",
+      "metric",
+      "statistic"
+    ],
+    "region": {
+      "global": {
+        "LongName": "Global - Land",
+        "Description": "Global - Land",
+        "Generator": "GlobalLand.nc"
+      },
+      "tropical": {
+        "LongName": "Tropical climates",
+        "Description": "Tropical climates",
+        "Generator": "Koppen_coarse.nc"
+      }
+    },
+    "model": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
+        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
+      }
+    },
+    "metric": {
+      "cmip6_historical": {
+        "Name": "cmip6_historical",
+        "Abstract": "benchmark score",
+        "URI": [
+          "https://www.osti.gov/biblio/1330803",
+          "https://doi.org/10.1029/2018MS001354"
+        ],
+        "Contact": "forrest AT climatemodeling.org"
+      }
+    },
+    "statistic": {
+      "Period Mean [1]": {},
+      "Bias [1]": {},
+      "Bias Score [1]": {},
+      "RMSE [1]": {},
+      "RMSE Score [1]": {},
+      "Phase Shift [month]": {},
+      "Seasonal Cycle Score [1]": {},
+      "Normalized Standard Deviation [1]": {},
+      "Correlation [1]": {},
+      "Spatial Distribution Score [1]": {}
+    }
+  },
+  "RESULTS": {
+    "global": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [1]": 0.2180312890194566,
+          "Bias [1]": -0.0379863627777847,
+          "Bias Score [1]": 0.3147404265001105,
+          "RMSE [1]": 0.0711485636281721,
+          "RMSE Score [1]": 0.3190667455631819,
+          "Phase Shift [month]": -0.3230155989319585,
+          "Seasonal Cycle Score [1]": 0.6873592031503474,
+          "Normalized Standard Deviation [1]": 1.1183664946683256,
+          "Correlation [1]": 0.7679079852158294,
+          "Spatial Distribution Score [1]": 0.8729832158402739
+        }
+      }
+    },
+    "tropical": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [1]": 0.2018237617165186,
+          "Bias [1]": -0.0920625301322426,
+          "Bias Score [1]": 0.2019050640637886,
+          "RMSE [1]": 0.1055289774650645,
+          "RMSE Score [1]": 0.3939553674884776,
+          "Phase Shift [month]": -0.2936199209686796,
+          "Seasonal Cycle Score [1]": 0.7914215479925812,
+          "Normalized Standard Deviation [1]": 1.0190539658115845,
+          "Correlation [1]": 0.6034913595654092,
+          "Spatial Distribution Score [1]": 0.8014601218841966
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

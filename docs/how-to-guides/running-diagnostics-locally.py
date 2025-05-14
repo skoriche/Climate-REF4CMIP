@@ -35,6 +35,7 @@ import prettyprinter
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.datasets import get_dataset_adapter
+from climate_ref.executor import SynchronousExecutor
 from climate_ref.solver import solve_executions
 from climate_ref_core.datasets import SourceDatasetType
 
@@ -170,11 +171,15 @@ prettyprinter.pprint(direct_result)
 # if no other configuration is provided.
 
 # %%
-executor = config.executor.build(config=config, database=db)
+# In this example a [SynchronousExecutor][climate_ref.executor.SynchronousExecutor] is used to run
+# the diagnostic.
+# This executor runs the execution in the main process which can be useful for debugging purposes.
+
+# %%
+executor = SynchronousExecutor(config=config, database=db)
 diagnostic = provider.get("global-mean-timeseries")
 
 executor.run(definition)
-executor.join(timeout=30)
 
 # %%
 output_file = definition.to_output_path("output.json")

@@ -36,27 +36,48 @@
       }
     },
     "statistic": {
-      "Period Mean [g d-1 m-2] [g d-1 m-2]": {},
-      "Bias [g d-1 m-2] [g d-1 m-2]": {},
-      "Bias Score [1] [1]": {}
+      "Period Mean [g d-1 m-2]": {},
+      "Bias [g d-1 m-2]": {},
+      "Bias Score [1]": {},
+      "RMSE [g d-1 m-2]": {},
+      "RMSE Score [1]": {},
+      "Phase Shift [month]": {},
+      "Seasonal Cycle Score [1]": {},
+      "Normalized Standard Deviation [1]": {},
+      "Correlation [1]": {},
+      "Spatial Distribution Score [1]": {}
     }
   },
   "RESULTS": {
     "global": {
       "ACCESS-ESM1-5-r1i1p1f1-gn": {
         "cmip6_historical": {
-          "Period Mean [g d-1 m-2] [g d-1 m-2]": 2.2687100463058907,
-          "Bias [g d-1 m-2] [g d-1 m-2]": -1.028983073684895,
-          "Bias Score [1] [1]": 0.6050551017406941
+          "Period Mean [g d-1 m-2]": 2.2537843525789563,
+          "Bias [g d-1 m-2]": -1.028983073684895,
+          "Bias Score [1]": 0.6050551017406941,
+          "RMSE [g d-1 m-2]": 2.646171344752598,
+          "RMSE Score [1]": 0.4733365242375573,
+          "Phase Shift [month]": 0.4966887417218543,
+          "Seasonal Cycle Score [1]": 0.8443708609271523,
+          "Normalized Standard Deviation [1]": 0.7954249815181031,
+          "Correlation [1]": 0.4657813090598031,
+          "Spatial Distribution Score [1]": 0.6957999020358969
         }
       }
     },
     "tropical": {
       "ACCESS-ESM1-5-r1i1p1f1-gn": {
         "cmip6_historical": {
-          "Period Mean [g d-1 m-2] [g d-1 m-2]": 4.110798013458021,
-          "Bias [g d-1 m-2] [g d-1 m-2]": -3.323554342871441,
-          "Bias Score [1] [1]": 0.1344503906317
+          "Period Mean [g d-1 m-2]": 2.9924443867926165,
+          "Bias [g d-1 m-2]": -3.323554342871441,
+          "Bias Score [1]": 0.1344503906317,
+          "RMSE [g d-1 m-2]": 5.2969987728327625,
+          "RMSE Score [1]": 0.3549730360260335,
+          "Phase Shift [month]": 1.25,
+          "Seasonal Cycle Score [1]": 0.5416666666666667,
+          "Normalized Standard Deviation [1]": 0.988259346115719,
+          "Correlation [1]": -0.1781782415979246,
+          "Spatial Distribution Score [1]": 0.4108535711221559
         }
       }
     }

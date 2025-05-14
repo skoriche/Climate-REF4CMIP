@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from sqlalchemy import select
 
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.models import Dataset
@@ -56,6 +57,27 @@ class TestIngest:
         assert db.session.query(Dataset).count() == expected_dataset_count
         assert db.session.query(CMIP6Dataset).count() == expected_dataset_count
         assert db.session.query(DatasetFile).count() == expected_dataset_count
+
+    def test_ingest_multiple(self, sample_data_dir, db, invoke_cli):
+        invoke_cli(
+            [
+                "datasets",
+                "ingest",
+                str(sample_data_dir / "CMIP6/ScenarioMIP"),
+                str(sample_data_dir / "CMIP6/CMIP"),
+                "--source-type",
+                "cmip6",
+            ]
+        )
+        query_paths = select(DatasetFile.path)
+        dataset_file_paths = db.session.scalars(query_paths).all()
+        assert len(dataset_file_paths)
+
+        for dataset_file in dataset_file_paths:
+            assert Path(dataset_file).exists()
+            assert dataset_file.startswith(str(sample_data_dir / "CMIP6")) or dataset_file.startswith(
+                str(sample_data_dir / "CMIP6/ScenarioMIP")
+            )
 
     def test_ingest_and_solve(self, sample_data_dir, db, invoke_cli):
         result = invoke_cli(

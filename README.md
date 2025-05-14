@@ -86,9 +86,18 @@ ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
 These datasets can then be ingested into the REF and the metrics solved using:
 
 ```bash
-uv run ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
-uv run ref datasets ingest --source-type obs4mips datasets/obs4ref
-uv run ref solve
+ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
+ref datasets ingest --source-type obs4mips datasets/obs4ref
+ref solve
+```
+
+Ingesting a large set of datasets (e.g. the entire CMIP6 corpus) can take a long time.
+The ingest command accepts multiple directories via a glob pattern to limit the number of datasets that are ingested.
+For the AFT, we are only interested in monthly datasets (and the associated ancillary files).
+Note that the globs should be unquoted so that they are expanded by the shell as the cli command expects a list of directories.
+
+```bash
+ref datasets ingest --source-type cmip6 path_to_archive/CMIP6/*/*/*/*/*/*mon path_to_archive/CMIP6/*/*/*/*/*/*fx
 ```
 
 The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.

@@ -90,7 +90,7 @@ def list_columns(
 @app.command()
 def ingest(  # noqa: PLR0913
     ctx: typer.Context,
-    file_or_directory: Path,
+    file_or_directory: list[Path],
     source_type: Annotated[SourceDatasetType, typer.Option(help="Type of source dataset")],
     solve: Annotated[bool, typer.Option(help="Solve for new diagnostic executions after ingestion")] = False,
     dry_run: Annotated[bool, typer.Option(help="Do not ingest datasets into the database")] = False,
@@ -107,41 +107,44 @@ def ingest(  # noqa: PLR0913
     config = ctx.obj.config
     db = ctx.obj.database
 
-    file_or_directory = Path(file_or_directory).expanduser()
-    logger.info(f"ingesting {file_or_directory}")
-
     kwargs = {}
 
     if n_jobs is not None:
         kwargs["n_jobs"] = n_jobs
 
+    # Create a data catalog from the specified file or directory
     adapter = get_dataset_adapter(source_type.value, **kwargs)
 
-    # Create a data catalog from the specified file or directory
-    if not file_or_directory.exists():
-        logger.error(f"File or directory {file_or_directory} does not exist")
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_or_directory)
+    for _dir in file_or_directory:
+        _dir = Path(_dir).expanduser()
+        logger.info(f"Ingesting {_dir}")
 
-    data_catalog = adapter.find_local_datasets(file_or_directory)
-    data_catalog = adapter.validate_data_catalog(data_catalog, skip_invalid=skip_invalid)
+        if not _dir.exists():
+            logger.error(f"File or directory {_dir} does not exist")
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), _dir)
 
-    logger.info(
-        f"Found {len(data_catalog)} files for {len(data_catalog[adapter.slug_column].unique())} datasets"
-    )
-    pretty_print_df(adapter.pretty_subset(data_catalog), console=console)
+        data_catalog = adapter.find_local_datasets(_dir)
+        data_catalog = adapter.validate_data_catalog(data_catalog, skip_invalid=skip_invalid)
 
-    for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
-        logger.info(f"Processing dataset {instance_id}")
-        with db.session.begin():
-            if dry_run:
-                dataset = (
-                    db.session.query(Dataset).filter_by(slug=instance_id, dataset_type=source_type).first()
-                )
-                if not dataset:
-                    logger.info(f"Would save dataset {instance_id} to the database")
-                    continue
-            else:
-                adapter.register_dataset(config, db, data_catalog_dataset)
+        logger.info(
+            f"Found {len(data_catalog)} files for {len(data_catalog[adapter.slug_column].unique())} datasets"
+        )
+        pretty_print_df(adapter.pretty_subset(data_catalog), console=console)
+
+        for instance_id, data_catalog_dataset in data_catalog.groupby(adapter.slug_column):
+            logger.debug(f"Processing dataset {instance_id}")
+            with db.session.begin():
+                if dry_run:
+                    dataset = (
+                        db.session.query(Dataset)
+                        .filter_by(slug=instance_id, dataset_type=source_type)
+                        .first()
+                    )
+                    if not dataset:
+                        logger.info(f"Would save dataset {instance_id} to the database")
+                        continue
+                else:
+                    adapter.register_dataset(config, db, data_catalog_dataset)
 
     if solve:
         solve_required_executions(

@@ -52,7 +52,7 @@ class TestLocalExecutor:
         executor.run(metric_definition, None)
         assert len(executor._results) == 1
         assert executor._results[0].definition == metric_definition
-        assert executor._results[0].execution is None
+        assert executor._results[0].execution_id is None
 
         # This directory is created by the executor
         assert process_pool.submit.call_count == 1
@@ -60,7 +60,7 @@ class TestLocalExecutor:
     def test_join(self, metric_definition):
         executor = LocalExecutor(n=1)
         future = Future()
-        executor._results = [ExecutionFuture(future, definition=metric_definition, execution=None)]
+        executor._results = [ExecutionFuture(future, definition=metric_definition, execution_id=None)]
 
         # Future isn't done yet
         with pytest.raises(TimeoutError):
@@ -85,7 +85,7 @@ class TestLocalExecutor:
     def test_join_exception(self, metric_definition):
         executor = LocalExecutor(n=1)
         future = Future()
-        executor._results = [ExecutionFuture(future, definition=metric_definition, execution=None)]
+        executor._results = [ExecutionFuture(future, definition=metric_definition, execution_id=None)]
 
         future.set_exception(ValueError("Some thing bad went wrong"))
 

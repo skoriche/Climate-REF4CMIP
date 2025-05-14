@@ -60,13 +60,29 @@ class ExecutionFuture:
 
     future: Future[ExecutionResult]
     definition: ExecutionDefinition
-    execution: Execution | None = None
+    execution_id: int | None = None
 
 
 def _process_initialiser() -> None:
     # Setup the logging for the process
     # This replaces the loguru default handler
-    add_log_handler()
+    try:
+        add_log_handler()
+    except Exception as e:
+        # Don't raise an exception here as that would kill the process pool
+        # We want to log the error and continue
+        logger.error(f"Failed to add log handler: {e}")
+
+
+def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
+    # This is a catch-all for any exceptions that occur in the process
+    try:
+        return execute_locally(definition=definition, log_level=log_level)
+    except Exception:  # pragma: no cover
+        # This isn't expected but if it happens we want to log the error before the process exits
+        logger.exception("Error running diagnostic")
+        # This will kill the process pool
+        raise
 
 
 class LocalExecutor:
@@ -124,7 +140,7 @@ class LocalExecutor:
         # Submit the execution to the process pool
         # and track the future so we can wait for it to complete
         future = self.pool.submit(
-            execute_locally,
+            _process_run,
             definition=definition,
             log_level=self.config.log_level,
         )
@@ -132,7 +148,7 @@ class LocalExecutor:
             ExecutionFuture(
                 future=future,
                 definition=definition,
-                execution=execution,
+                execution_id=execution.id if execution else None,
             )
         )
 
@@ -179,7 +195,14 @@ class LocalExecutor:
                         )
 
                         # Process the result in the main process
-                        process_result(self.config, self.database, result.future.result(), result.execution)
+                        # The results should be committed after each execution
+                        with self.database.session.begin():
+                            execution = (
+                                self.database.session.get(Execution, result.execution_id)
+                                if result.execution_id
+                                else None
+                            )
+                            process_result(self.config, self.database, result.future.result(), execution)
                         logger.debug(f"Execution completed: {result}")
                         t.update(n=1)
                         results.remove(result)

@@ -45,6 +45,7 @@ def register_celery_tasks(app: Celery, provider: DiagnosticProvider) -> None:
 
         # The task function is the same for all diagnostics
         # The diagnostic is included in the definition
+        # The queue is important to ensure that the task is run in the correct worker
         app.task(  # type: ignore
             execute_locally,
             name=generate_task_name(provider, diagnostic),

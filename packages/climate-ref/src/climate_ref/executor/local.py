@@ -69,16 +69,17 @@ def _process_initialiser() -> None:
     try:
         add_log_handler()
     except Exception as e:
-        logger.error(f"Failed to add log handler: {e}")
-
         # Don't raise an exception here as that would kill the process pool
+        # We want to log the error and continue
+        logger.error(f"Failed to add log handler: {e}")
 
 
 def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
     # This is a catch-all for any exceptions that occur in the process
     try:
         return execute_locally(definition=definition, log_level=log_level)
-    except Exception:
+    except Exception:  # pragma: no cover
+        # This isn't expected but if it happens we want to log the error before the process exits
         logger.exception("Error running diagnostic")
         # This will kill the process pool
         raise

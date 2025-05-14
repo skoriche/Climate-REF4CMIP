@@ -60,7 +60,7 @@ class ExecutionFuture:
 
     future: Future[ExecutionResult]
     definition: ExecutionDefinition
-    execution: Execution | None = None
+    execution_id: int | None = None
 
 
 def _process_initialiser() -> None:
@@ -132,7 +132,7 @@ class LocalExecutor:
             ExecutionFuture(
                 future=future,
                 definition=definition,
-                execution=execution,
+                execution_id=execution.id if execution else None,
             )
         )
 
@@ -179,7 +179,14 @@ class LocalExecutor:
                         )
 
                         # Process the result in the main process
-                        process_result(self.config, self.database, result.future.result(), result.execution)
+                        # The results should be committed after each execution
+                        with self.database.session.begin():
+                            execution = (
+                                self.database.session.get(Execution, result.execution_id)
+                                if result.execution_id
+                                else None
+                            )
+                            process_result(self.config, self.database, result.future.result(), execution)
                         logger.debug(f"Execution completed: {result}")
                         t.update(n=1)
                         results.remove(result)

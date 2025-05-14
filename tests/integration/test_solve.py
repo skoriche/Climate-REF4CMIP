@@ -1,5 +1,22 @@
+import pytest
+
 from climate_ref.database import Database
 from climate_ref.models import Dataset, Execution, ExecutionGroup
+
+
+@pytest.fixture
+def config(config):
+    """
+    Overwrite the default test config to use the diagnostic providers for CMIP7 Assessment Fast Track
+    """
+    # Use the local executor to parallise the executions
+    config.executor.executor = "climate_ref.executor.LocalExecutor"
+
+    # Write the config to disk so it is used by the CLI
+    # This overwrites the default config
+    config.save()
+
+    return config
 
 
 def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):

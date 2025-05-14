@@ -9,8 +9,9 @@ def config(config):
     """
     Overwrite the default test config to use the diagnostic providers for CMIP7 Assessment Fast Track
     """
-    # Use the local executor to parallise the executions
+    # Use the local executor to parallelise the executions
     config.executor.executor = "climate_ref.executor.LocalExecutor"
+    config.executor.executor_config = {"n": 1}
 
     # Write the config to disk so it is used by the CLI
     # This overwrites the default config

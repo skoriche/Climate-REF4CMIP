@@ -11,7 +11,7 @@ def config(config):
     """
     # Use the local executor to parallelise the executions
     config.executor.executor = "climate_ref.executor.LocalExecutor"
-    config.executor.executor_config = {"n": 1}
+    config.executor.config = {"n": 1}
 
     # Write the config to disk so it is used by the CLI
     # This overwrites the default config

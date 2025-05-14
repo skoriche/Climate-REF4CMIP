@@ -10,32 +10,30 @@ $ uv run ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...
 
- ref: A CLI for the CMIP Rapid Evaluation Framework
+ climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework
 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --configuration-direc…          PATH                  Configuration          │
-│                                                       directory              │
-│                                                       [default: None]        │
-│ --verbose               -v                                                   │
-│ --log-level                     [WARNING|DEBUG|INFO]  [default: WARNING]     │
-│ --version                                                                    │
-│ --install-completion                                  Install completion for │
-│                                                       the current shell.     │
-│ --show-completion                                     Show completion for    │
-│                                                       the current shell, to  │
-│                                                       copy it or customize   │
-│                                                       the installation.      │
-│ --help                                                Show this message and  │
-│                                                       exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ solve        Solve for diagnostics that require recalculation                    │
-│ config       View and update the REF configuration                           │
-│ datasets     View and ingest input datasets                                  │
-│ executions   View diagnostic executions                                          │
-│ providers    Manage the REF providers.                                       │
-│ celery       Managing remote execution workers                               │
-╰──────────────────────────────────────────────────────────────────────────────╯
+ This CLI provides a number of commands for managing and executing diagnostics.
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --configuration-directory          PATH                        Configuration directory [default: None]               │
+│ --verbose                  -v                                  Set the log level to DEBUG                            │
+│ --quiet                    -q                                  Set the log level to WARNING                          │
+│ --log-level                        [ERROR|WARNING|DEBUG|INFO]  Set the level of logging information to display       │
+│                                                                [default: INFO]                                       │
+│ --version                                                      Print the version and exit                            │
+│ --install-completion                                           Install completion for the current shell.             │
+│ --show-completion                                              Show completion for the current shell, to copy it or  │
+│                                                                customize the installation.                           │
+│ --help                                                         Show this message and exit.                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ solve        Solve for executions that require recalculation                                                         │
+│ config       View and update the REF configuration                                                                   │
+│ datasets     View and ingest input datasets                                                                          │
+│ executions   View diagnostic executions                                                                              │
+│ providers    Manage the REF providers.                                                                               │
+│ celery       Managing remote execution workers                                                                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 This provides the ability to:

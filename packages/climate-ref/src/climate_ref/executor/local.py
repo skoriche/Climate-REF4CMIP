@@ -13,6 +13,7 @@ from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
+from climate_ref_core.logging import add_log_handler
 
 from .result_handling import handle_execution_result
 
@@ -62,6 +63,12 @@ class ExecutionFuture:
     execution: Execution | None = None
 
 
+def _process_initialiser() -> None:
+    # Setup the logging for the process
+    # This replaces the loguru default handler
+    add_log_handler()
+
+
 class LocalExecutor:
     """
     Run a diagnostic locally using a process pool.
@@ -95,7 +102,7 @@ class LocalExecutor:
         if pool is not None:
             self.pool = pool
         else:
-            self.pool = ProcessPoolExecutor(max_workers=n)
+            self.pool = ProcessPoolExecutor(max_workers=n, initializer=_process_initialiser)
         self._results: list[ExecutionFuture] = []
 
     def run(

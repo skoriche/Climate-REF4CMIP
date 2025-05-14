@@ -522,6 +522,10 @@ class CMECMetric(BaseModel):
         """
         dimensions = cast(list[str], self.DIMENSIONS[MetricCV.JSON_STRUCTURE.value])
 
+        if len(dimensions) == 0:
+            # There is no data to iterate over
+            return
+
         yield from _walk_results(dimensions, self.RESULTS, {})
 
 

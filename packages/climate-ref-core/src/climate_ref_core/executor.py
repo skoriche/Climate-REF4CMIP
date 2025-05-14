@@ -33,7 +33,7 @@ def execute_locally(
     log_level
         The log level to use for the execution
     """
-    logger.exception(f"Executing {definition.execution_slug()!r}")
+    logger.info(f"Executing {definition.execution_slug()!r}")
 
     try:
         if definition.output_directory.exists():

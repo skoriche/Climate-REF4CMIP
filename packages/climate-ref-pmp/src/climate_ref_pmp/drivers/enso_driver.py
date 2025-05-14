@@ -97,6 +97,76 @@ def save_metrics_to_json(args, dictDatasets, dict_metric, dict_dive, pattern):
         mod=mod,
         run=run,
     )
+    # Write an additional JSON file for the results for CMEC standard
+    json_file = os.path.join(args.output_directory, f"{pattern}.json")
+    write_CMEC_json(json_file)
+
+
+def write_CMEC_json(json_file):
+    """
+    Write the CMEC JSON file.
+
+    Parameters
+    ----------
+    json_file : str
+        Path to the input JSON file.
+    """
+    # Load the existing JSON file
+    with open(json_file) as f:
+        dict_data = json.load(f)
+
+    # -----------------------------------------
+    # Prepare components for the CMEC structure
+    # -----------------------------------------
+    metrics_dict = {}
+    ref_datasets = []
+
+    mod = next(iter(dict_data["RESULTS"]["model"].keys()))
+    run = next(iter(dict_data["RESULTS"]["model"][mod].keys()))
+
+    metrics = list(dict_data["RESULTS"]["model"][mod][run]["value"].keys())
+    for metric in metrics:
+        metrics_dict[metric] = {}
+        ref_datasets.extend(list(dict_data["RESULTS"]["model"][mod][run]["value"][metric]["metric"].keys()))
+
+    ref_datasets = list(set(ref_datasets))  # Remove duplicates
+
+    ref_datasets_dict = {ref: {} for ref in ref_datasets}
+
+    dimensions_dict = {
+        "json_structure": dict_data["json_structure"],
+        "model": {mod: {}},
+        "realization": {run: {}},
+        "data_type": {"value": {}},
+        "metrics": metrics_dict,
+        "reference_datasets": ref_datasets_dict,
+    }
+
+    results_dict = {}
+    results_dict[mod] = {}
+    results_dict[mod][run] = {}
+
+    for metric in metrics:
+        results_dict[mod][run][metric] = {}
+        ref_datasets = list(dict_data["RESULTS"]["model"][mod][run]["value"][metric]["metric"].keys())
+        for ref_dataset in ref_datasets:
+            results_dict[mod][run][metric][ref_dataset] = {}
+            results_dict[mod][run][metric][ref_dataset] = dict_data["RESULTS"]["model"][mod][run]["value"][
+                metric
+            ]["metric"][ref_dataset]["value"]
+
+    # -----------------------------------------------
+    # Create a new dictionary with the CMEC structure
+    # -----------------------------------------------
+    cmec_dict = {"RESULTS": results_dict, "DIMENSIONS": dimensions_dict}
+
+    # ---------------------------------------
+    # Write the new dictionary to a JSON file
+    # ---------------------------------------
+    json_cmec_file = json_file.replace(".json", "_cmec.json")
+
+    with open(json_cmec_file, "w") as f:
+        json.dump(cmec_dict, f, indent=4)
 
 
 def plot_results(args, pattern, mod, run):

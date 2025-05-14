@@ -23,7 +23,8 @@ class LogLevel(str, Enum):
     Log levels for the CLI
     """
 
-    Normal = "WARNING"
+    Error = "ERROR"
+    Warning = "WARNING"
     Debug = "DEBUG"
     Info = "INFO"
 
@@ -109,19 +110,28 @@ app = build_app()
 
 
 @app.callback()
-def main(
+def main(  # noqa: PLR0913
     ctx: typer.Context,
     configuration_directory: Annotated[Path | None, typer.Option(help="Configuration directory")] = None,
-    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
-    log_level: Annotated[LogLevel, typer.Option(case_sensitive=False)] = LogLevel.Normal,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Set the log level to DEBUG")] = False,
+    quiet: Annotated[bool, typer.Option("--quiet", "-q", help="Set the log level to WARNING")] = False,
+    log_level: Annotated[
+        LogLevel, typer.Option(case_sensitive=False, help="Set the level of logging information to display")
+    ] = LogLevel.Info,
     version: Annotated[
         Optional[bool],
-        typer.Option("--version", callback=_version_callback, is_eager=True),
+        typer.Option(
+            "--version", callback=_version_callback, is_eager=True, help="Print the version and exit"
+        ),
     ] = None,
 ) -> None:
     """
-    climate_ref: A CLI for the CMIP Rapid Evaluation Framework
+    climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework
+
+    This CLI provides a number of commands for managing and executing diagnostics.
     """
+    if quiet:
+        log_level = LogLevel.Warning
     if verbose:
         log_level = LogLevel.Debug
 

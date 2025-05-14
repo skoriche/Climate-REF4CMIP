@@ -12,7 +12,7 @@ def test_without_subcommand(invoke_cli):
     result = invoke_cli([])
     assert "Usage:" in result.stdout
     assert "climate_ref [OPTIONS] COMMAND [ARGS]" in result.stdout
-    assert "climate_ref: A CLI for the CMIP Rapid Evaluation Framework" in result.stdout
+    assert "climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework" in result.stdout
 
 
 def test_version(invoke_cli):
@@ -32,6 +32,30 @@ def test_verbose(invoke_cli):
     )
     # Only info and higher messages logged
     assert not re.search(exp_log, result.stderr)
+
+
+@pytest.mark.parametrize(
+    "cmds, expected_log_level",
+    [
+        [["--log-level", "DEBUG"], "DEBUG"],
+        [["--log-level", "INFO"], "INFO"],
+        [["--log-level", "WARNING"], "WARNING"],
+        [["--log-level", "ERROR"], "ERROR"],
+        [["-v"], "DEBUG"],
+        [["-q"], "WARNING"],
+        # Verbose wins
+        [["-v", "-q"], "DEBUG"],
+        [["-q", "-v"], "DEBUG"],
+        # -q/-v wins over --log-level
+        [["-v", "--log-level", "ERROR"], "DEBUG"],
+        [["-q", "--log-level", "INFO"], "WARNING"],
+    ],
+)
+def test_log_level(invoke_cli, cmds, expected_log_level):
+    result = invoke_cli(
+        [*cmds, "config", "list"],
+    )
+    assert f'log_level = "{expected_log_level}"' in result.stdout
 
 
 def test_config_directory_custom(config, invoke_cli):

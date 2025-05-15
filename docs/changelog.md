@@ -21,6 +21,17 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.2 (2025-05-15)
+
+### Bug Fixes
+
+- Fix missing dependency in migrations ([#297](https://github.com/Climate-REF/climate-ref/pulls/297))
+
+### Improved Documentation
+
+- Added documentation for configuration options ([#296](https://github.com/Climate-REF/climate-ref/pulls/296))
+
+
 ## climate-ref 0.5.1 (2025-05-14)
 
 ### Features

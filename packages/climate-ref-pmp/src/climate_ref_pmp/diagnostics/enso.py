@@ -198,7 +198,10 @@ class ENSO(CommandLineDiagnostic):
         mc_name = self.metrics_collection
         pattern = f"{mc_name}_{source_id}_{experiment_id}_{member_id}"
 
-        results_files = list(definition.output_directory.glob(f"{pattern}.json"))
+        # Find the results files
+        results_files = list(definition.output_directory.glob(f"{pattern}_cmec.json"))
+        logger.debug(f"Results files: {results_files}")
+
         if len(results_files) != 1:  # pragma: no cover
             logger.warning(f"A single cmec output file not found: {results_files}")
             return ExecutionResult.build_from_failure(definition)

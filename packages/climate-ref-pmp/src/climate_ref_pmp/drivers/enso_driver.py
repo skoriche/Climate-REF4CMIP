@@ -134,7 +134,7 @@ def write_CMEC_json(json_file):
     ref_datasets_dict = {ref: {} for ref in ref_datasets}
 
     dimensions_dict = {
-        "json_structure": ["model", "realization", "data_type", "metrics", "reference_datasets"],
+        "json_structure": ["model", "realization", "metrics", "reference_datasets"],
         "model": {mod: {}},
         "realization": {run: {}},
         "metrics": metrics_dict,
@@ -149,10 +149,8 @@ def write_CMEC_json(json_file):
         results_dict[mod][run][metric] = {}
         ref_datasets = list(dict_data["RESULTS"]["model"][mod][run]["value"][metric]["metric"].keys())
         for ref_dataset in ref_datasets:
-            results_dict[mod][run][metric][ref_dataset] = {}
-            results_dict[mod][run][metric][ref_dataset] = dict_data["RESULTS"]["model"][mod][run]["value"][
-                metric
-            ]["metric"][ref_dataset]["value"]
+            value = dict_data["RESULTS"]["model"][mod][run]["value"][metric]["metric"][ref_dataset]["value"]
+            results_dict[mod][run][metric][ref_dataset] = value
 
     # -----------------------------------------------
     # Create a new dictionary with the CMEC structure

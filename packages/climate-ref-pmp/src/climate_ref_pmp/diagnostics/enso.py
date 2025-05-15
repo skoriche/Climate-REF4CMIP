@@ -36,13 +36,13 @@ class ENSO(CommandLineDiagnostic):
         ) -> tuple[DataRequirement, DataRequirement]:
             if metrics_collection == "ENSO_perf":
                 model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
-                obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT")
+                obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT", "ERA-5")
             elif metrics_collection == "ENSO_tel":
                 model_variables = ("pr", "ts")
-                obs_sources = ("GPCP-2-3", "ERA-INT")
+                obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5")
             elif metrics_collection == "ENSO_proc":
                 model_variables = ("ts", "taux", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
-                obs_sources = ("GPCP-2-3", "ERA-INT", "TropFlux")
+                obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux")
             else:
                 raise ValueError(
                     f"Unknown metrics collection: {metrics_collection}. "

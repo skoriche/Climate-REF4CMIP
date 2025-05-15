@@ -368,9 +368,12 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                 observation_name_mapping = {
                     "GPCP-2-3": "GPCPv2.3",
                     "ERA-INT": "ERA-Interim",
+                    "ERA-5": "ERA5",
                     "AVISO-1-0": "AVISO",
                     "TropFlux-1-0": "TropFlux",
+                    "HadISST-1-0": "HadISST",
                     "HadISST-1-1": "HadISST",
+                    "HadISST-2-0": "HadISST",
                 }
                 # Get the new name if it exists in the mapping, otherwise keep the original name
                 dataset_name_key = observation_name_mapping.get(dataset, dataset)

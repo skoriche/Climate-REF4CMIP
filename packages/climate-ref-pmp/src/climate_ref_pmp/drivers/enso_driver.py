@@ -152,10 +152,27 @@ def write_CMEC_json(json_file):
             value = dict_data["RESULTS"]["model"][mod][run]["value"][metric]["metric"][ref_dataset]["value"]
             results_dict[mod][run][metric][ref_dataset] = value
 
+    # Check if the dimensions are in the JSON file
+    if "provenance" in dict_data:
+        provenance_dict = dict_data["provenance"]
+    else:
+        provenance_dict = {}
+
+    # Check if the reference datasets are in the JSON file
+    if "obs" in dict_data["RESULTS"]:
+        ref_dict = dict_data["RESULTS"]["obs"]
+    else:
+        ref_dict = {}
+
     # -----------------------------------------------
     # Create a new dictionary with the CMEC structure
     # -----------------------------------------------
-    cmec_dict = {"RESULTS": results_dict, "DIMENSIONS": dimensions_dict, "provenance": {}}
+    cmec_dict = {
+        "RESULTS": results_dict,
+        "DIMENSIONS": dimensions_dict,
+        "REF": ref_dict,
+        "provenance": provenance_dict,
+    }
 
     # ---------------------------------------
     # Write the new dictionary to a JSON file

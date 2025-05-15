@@ -142,7 +142,7 @@ class DatasetRegistryManager:
             This defaults to the value of `name` if not provided.
         """
         if cache_name is None:
-            cache_name = "ref"
+            cache_name = "climate_ref"
 
         registry = pooch.create(
             path=pooch.os_cache(cache_name),

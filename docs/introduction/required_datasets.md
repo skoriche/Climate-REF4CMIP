@@ -19,7 +19,7 @@ This is an on-going process and the REF will be updated to include these dataset
 ## Obtaining the AFT REF reference datasets
 
 These datasets may require 10s of GB of disk space so may need to be stored on a scratch filesystem.
-The location of the download cache for these data can be controlled via the [REF_DATASET_CACHE_DIR][#ref_dataset_cache_dir] environment variable.
+The location of the download cache for these data can be controlled via the [REF_DATASET_CACHE_DIR](../configuration.md#ref_dataset_cache_dir) environment variable.
 
 ### Obs4REF
 

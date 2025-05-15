@@ -30,7 +30,7 @@ the REF is hosting some of the observation datasets until they are made availabl
 These datasets can be fetched and copied to the `datasets/obs4ref` directory and then ingested using the following command:
 
 ```bash
-ref datasets fetch-data --registry obs4ref ---output-directory datasets/obs4ref
+ref datasets fetch-data --registry obs4ref --output-directory datasets/obs4ref
 ref datasets ingest --source-type obs4mips datasets/obs4ref
 ```
 
@@ -40,7 +40,7 @@ The PMP climatology datasets are different from the datasets above as they are i
 and used in diagnostics data requirements.
 
 ```bash
-ref datasets fetch-data --registry pmp-climatology ---output-directory datasets/pmp-climatology
+ref datasets fetch-data --registry pmp-climatology --output-directory datasets/pmp-climatology
 ref datasets ingest --source-type pmp-climatology datasets/pmp-climatology
 ```
 

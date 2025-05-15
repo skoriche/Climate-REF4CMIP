@@ -61,25 +61,17 @@ The REF is designed to enable Modelling Centers to quickly evaluate their data a
 The data under test here may not be published to ESGF yet,
 but the REF can still be used to evaluate it.
 
-The REF requires some reference data to be available to run the diagnostics.
-Some of the reference datasets needed by the REF are available on ESGF yet.
-The following command will download the reference datasets needed by the REF and store them in a local directory (`datasets/obs4ref`) as well as some sample CMIP6 datasets that we used in our test suite:
+The first step is after installation is to configure the REF.
+The REF can be configured using a configuration file or environment variables.
+See the [configuration documentation](https://climate-ref.readthedocs.io/en/latest/configuration/) for more information.
 
-```bash
-ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
-ref datasets fetch-data --registry pmp-climatology --output-dir datasets/pmp-climatology
-ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
-```
+Before we can run the REF, we need to fetch some reference datasets used by the diagnostics.
+These datasets can be fetched using the REF CLI tool. See the [required datasets](https://climate-ref.readthedocs.io/en/latest/introduction/requery_datasets/) for more information.
 
-These datasets can then be ingested into the REF and the metrics solved using:
-
-```bash
-ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
-ref datasets ingest --source-type obs4mips datasets/obs4ref
-ref datasets ingest --source-type pmp-climatology datasets/pmp-climatology
-
-ref solve
-```
+The next step is to ingest the local datasets into the REF.
+These datasets must be CMOR-compliant, follow the CMIP6 data structure and expected attributes.
+CMIP7-compliant datasets will be added once we have some example datasets to test against.
+We don't validate any of the controlled vocabularies so non-published datasets and custom `source_ids` are allowed.
 
 Ingesting a large set of datasets (e.g. the entire CMIP6 corpus) can take a long time.
 The ingest command accepts multiple directories via a glob pattern to limit the number of datasets that are ingested.
@@ -88,7 +80,14 @@ For the AFT, we are only interested in monthly datasets (and the associated anci
 Note that the globs should be unquoted so that they are expanded by the shell as the cli command expects a list of directories.
 
 ```bash
-ref datasets ingest --source-type cmip6 path_to_archive/CMIP6/*/*/*/*/*/*mon path_to_archive/CMIP6/*/*/*/*/*/*fx
+ref datasets ingest --source-type cmip6 path_to_archive/CMIP6/*/*/*/*/*/*mon path_to_archive/CMIP6/*/*/*/*/*/*fx --n-jobs 64
+```
+
+Finally, the REF can be run to solve for the unique executions that are required.
+This will also perform these executions resulting in the output being produced.
+
+```bash
+ref solve
 ```
 
 The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.

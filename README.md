@@ -67,7 +67,7 @@ The following command will download the reference datasets needed by the REF and
 
 ```bash
 ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
-ref datasets fetch-data --registry pmp-climatology --output directory data/pmp-climatology
+ref datasets fetch-data --registry pmp-climatology --output-dir datasets/pmp-climatology
 ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
 ```
 
@@ -76,7 +76,7 @@ These datasets can then be ingested into the REF and the metrics solved using:
 ```bash
 ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
 ref datasets ingest --source-type obs4mips datasets/obs4ref
-ref datasets ingest --source-type obs4mips datasets/pmp-climatology
+ref datasets ingest --source-type pmp-climatology datasets/pmp-climatology
 
 ref solve
 ```

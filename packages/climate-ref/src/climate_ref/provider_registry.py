@@ -34,9 +34,10 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
     provider_model, created = db.get_or_create(
         Provider,
         slug=provider.slug,
-        version=provider.version,
         defaults={
             "name": provider.name,
+            # TODO: Handle if this changes
+            "version": provider.version,
         },
     )
     if created:

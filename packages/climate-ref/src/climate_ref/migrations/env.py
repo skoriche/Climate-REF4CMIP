@@ -1,4 +1,3 @@
-import alembic_postgresql_enum  # noqa
 from alembic import context, op
 from loguru import logger
 from sqlalchemy import Connection, inspect
@@ -8,6 +7,11 @@ from climate_ref.database import Database
 from climate_ref.models import Base, MetricValue
 from climate_ref_core.logging import capture_logging
 from climate_ref_core.pycmec.controlled_vocabulary import CV
+
+try:
+    import alembic_postgresql_enum  # noqa
+except ImportError:
+    logger.warning("alembic_postgresql_enum not installed, skipping enum migration support")
 
 # Setup logging
 capture_logging()

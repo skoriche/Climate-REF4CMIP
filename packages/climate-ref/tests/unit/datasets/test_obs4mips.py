@@ -111,7 +111,6 @@ class Testobs4MIPsAdapter:
         # TODO: start_time has a different dtype from the database due to pandas dt coercion
         db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)
         db_data_catalog["end_time"] = db_data_catalog["end_time"].astype(object)
-        db_data_catalog["vertical_levels"] = db_data_catalog["vertical_levels"].astype(float)
         pd.testing.assert_frame_equal(local_data_catalog, db_data_catalog, check_like=True)
 
     def test_load_local_datasets(self, sample_data_dir, catalog_regression):

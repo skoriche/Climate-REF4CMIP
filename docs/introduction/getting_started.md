@@ -3,7 +3,7 @@
 The REF is designed to be run in a variety of environments, including local execution, cloud-based execution, and execution on HPC systems.
 The REF can be run as a standalone application, as a set of services, or as a set of docker containers.
 
-After [installation](./installation.md), you can start using the REF via the CLI tool:
+After [installation](../installation.md), you can start using the REF via the CLI tool:
 
 ```bash
 $ uv run ref
@@ -41,6 +41,15 @@ This provides the ability to:
 * **Ingest** new input datasets
 * **Solve** for the unique metrics executions that are required
 * **Execute** the metrics either locally or remotely
+
+This CLI tool is the main interface to the REF and is used to manage the REF.
+
+Before running the REF, you will need to [configure the REF](../configuration.md#configuration).
+The REF can be configured using a configuration file or environment variables.
+
+For HPC users, it is recommended to set the `REF_CONFIGURATION` and `REF_DATASET_CACHE_DIR` environment variables
+to point to a location where the REF can store its outputs and cache any downloaded datasets.
+These directories may be large, so it is recommended to set them to a scratch filesystem rather than a home filesystem.
 
 
 ---8<--- "README.md:getting-started"

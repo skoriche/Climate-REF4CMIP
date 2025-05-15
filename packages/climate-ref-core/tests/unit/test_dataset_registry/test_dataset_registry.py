@@ -80,7 +80,9 @@ class TestDatasetRegistry:
 
         assert retrieved_registry == mock_pooch_instance
 
-    @pytest.mark.parametrize("cache_name, expected", [(None, "ref"), ("custom_cache", "custom_cache")])
+    @pytest.mark.parametrize(
+        "cache_name, expected", [(None, "climate_ref"), ("custom_cache", "custom_cache")]
+    )
     def test_with_cache_name(self, mocker, fake_registry_file, cache_name, expected):
         registry = DatasetRegistryManager()
         name = "test_registry"

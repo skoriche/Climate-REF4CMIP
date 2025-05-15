@@ -578,17 +578,22 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-celery = [
-    { name = "climate-ref-celery" },
-]
-metrics = [
+aft-providers = [
     { name = "climate-ref-esmvaltool" },
     { name = "climate-ref-ilamb" },
     { name = "climate-ref-pmp" },
 ]
+celery = [
+    { name = "climate-ref-celery" },
+]
 postgres = [
     { name = "alembic-postgresql-enum" },
     { name = "psycopg2-binary" },
+]
+providers = [
+    { name = "climate-ref-esmvaltool" },
+    { name = "climate-ref-ilamb" },
+    { name = "climate-ref-pmp" },
 ]
 
 [package.metadata]
@@ -599,9 +604,12 @@ requires-dist = [
     { name = "cattrs", specifier = ">=24.1.2" },
     { name = "climate-ref-celery", marker = "extra == 'celery'", editable = "packages/climate-ref-celery" },
     { name = "climate-ref-core", editable = "packages/climate-ref-core" },
-    { name = "climate-ref-esmvaltool", marker = "extra == 'metrics'", editable = "packages/climate-ref-esmvaltool" },
-    { name = "climate-ref-ilamb", marker = "extra == 'metrics'", editable = "packages/climate-ref-ilamb" },
-    { name = "climate-ref-pmp", marker = "extra == 'metrics'", editable = "packages/climate-ref-pmp" },
+    { name = "climate-ref-esmvaltool", marker = "extra == 'aft-providers'", editable = "packages/climate-ref-esmvaltool" },
+    { name = "climate-ref-esmvaltool", marker = "extra == 'providers'", editable = "packages/climate-ref-esmvaltool" },
+    { name = "climate-ref-ilamb", marker = "extra == 'aft-providers'", editable = "packages/climate-ref-ilamb" },
+    { name = "climate-ref-ilamb", marker = "extra == 'providers'", editable = "packages/climate-ref-ilamb" },
+    { name = "climate-ref-pmp", marker = "extra == 'aft-providers'", editable = "packages/climate-ref-pmp" },
+    { name = "climate-ref-pmp", marker = "extra == 'providers'", editable = "packages/climate-ref-pmp" },
     { name = "ecgtools", specifier = ">=2024.7.31" },
     { name = "environs", specifier = ">=11.0.0" },
     { name = "loguru", specifier = ">=0.7.2" },

@@ -44,31 +44,18 @@ The REF is agnostic to what types of data and metrics are to be performed.
 
 <!--- --8<-- [start:installation] -->
 
-CMIP Rapid Evaluation Framework can be installed with pip, mamba or conda
+CMIP Rapid Evaluation Framework can be installed with pip,
+alongside the providers selected for the Assessment Fast Track.
 (mamba and conda releases are not yet implemented):
 
-
 ```bash
-pip install climate-ref[metrics]
-mamba install -c conda-forge climate-ref
-conda install -c conda-forge climate-ref
+pip install climate-ref[aft-providers]
 ```
 
 <!--- --8<-- [end:installation] -->
 
 ## Getting started
 <!--- --8<-- [start:getting-started] -->
-
-### As a diagnostics provider
-
-Diagnostic providers are the core of the REF.
-They define the diagnostics that will be calculated and the data that will be used to calculate them,
-by providing a consistent interface for the REF to interact with.
-
-These diagnostic providers can be run as standalone applications or as part of the REF.
-This allows them to be used in other packages or applications that may not be using the REF compute engine.
-
-### As a modelling center
 
 The REF is designed to enable Modelling Centers to quickly evaluate their data against a set of reference data.
 The data under test here may not be published to ESGF yet,
@@ -80,6 +67,7 @@ The following command will download the reference datasets needed by the REF and
 
 ```bash
 ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
+ref datasets fetch-data --registry pmp-climatology --output directory data/pmp-climatology
 ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
 ```
 
@@ -88,11 +76,14 @@ These datasets can then be ingested into the REF and the metrics solved using:
 ```bash
 ref datasets ingest --source-type cmip6 datasets/sample-data/CMIP6/
 ref datasets ingest --source-type obs4mips datasets/obs4ref
+ref datasets ingest --source-type obs4mips datasets/pmp-climatology
+
 ref solve
 ```
 
 Ingesting a large set of datasets (e.g. the entire CMIP6 corpus) can take a long time.
 The ingest command accepts multiple directories via a glob pattern to limit the number of datasets that are ingested.
+
 For the AFT, we are only interested in monthly datasets (and the associated ancillary files).
 Note that the globs should be unquoted so that they are expanded by the shell as the cli command expects a list of directories.
 
@@ -101,67 +92,7 @@ ref datasets ingest --source-type cmip6 path_to_archive/CMIP6/*/*/*/*/*/*mon pat
 ```
 
 The executed metrics can then be viewed using the `ref executions list-groups` and `ref executions inspect` commands.
-
-### As a devops engineer
-
-The REF is designed to be run as a set of services that can be deployed to any cloud provider.
-Each of these services can be run as a separate docker container.
-This allows for easy scaling and deployment of each of these services.
-
-An example docker-compose file is provided in the repository for the CMIP7 AFT deployment of the REF using the [Celery][climate_ref_celery.executor.CeleryExecutor] executor.
-This stack contains the following services:
-* `climate-ref`: The compute engine service that orchestrates the execution of the diagnostics.
-* `redis`: The message broker that manages the communication between the REF and the task queue.
-* `postgres`: The database that stores the results of the diagnostics and the metadata about the datasets.
-* `climate-ref-pmp`, `climate-ref-esmvaltool` and `climate-ref-ilamb`: The diagnostic providers that run the diagnostics.
-
-One limitation of running the REF via docker is that all the containers must use the same paths to refer to datasets and the scratch space where outputs are written.
-In practise this is achieved by sharing a set of mounts for all containers.
-
-The REF docker compose stack requires some bootstrapping to be done before it can be run.
-This bootstrapping migrates the database and builds the conda environments for PMP and ESMValTool.
-
-```
-bash scripts/initialise-docker.sh
-```
-
-An example docker-compose file is provided in the repository for the CMIP7 AFT deployment of the REF,
-using the Celery executor and Redis as the message broker.
-This can be run with:
-
-```
-docker-compose up
-```
-
-This will start the services and allow you to view the logs in the terminal.
-This can be run in the background with:
-
-```
-docker-compose up -d
-```
-
-The docker-compose file also mounts the sample data directory to the `/ref/data` directory in the container.
-These data can be ingested into the REF using the following commands (note that `/ref/data/CMIP6` refers to a directory inside the docker container, not on your local filesystem).
-
-```bash
-docker-compose run --rm climate-ref datasets ingest --source-type cmip6 /ref/data/CMIP6
-docker-compose run --rm climate-ref datasets ingest --source-type obs4mips /ref/data/obs4ref
-```
-
-After the data has been ingested, the REF can be run using the following command.
-
-```bash
-docker-compose run --rm climate-ref solve
-```
-
-This stack and its associated data volumes can be cleaned up with the following command.
-
-```bash
-docker-compose down -v --remove-orphans
-```
-
-This is remove the database, any results that have been generated by the REF and remove any orphaned containers.
-All data will be lost, so be careful with this command.
+This will show the metrics that have been executed and the results that have been produced.
 
 <!--- --8<-- [end:getting-started] -->
 

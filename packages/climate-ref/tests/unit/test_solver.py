@@ -529,7 +529,7 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_diagnostic, provid
     mock_diagnostic.data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.obs4MIPs,
-            filters=(FacetFilter(facets={"variable_id": "ts"}),),
+            filters=(FacetFilter(facets={"variable_id": "ts", "source_id": "HadISST-1-1"}),),
             group_by=("variable_id", "source_id"),
         ),
         DataRequirement(

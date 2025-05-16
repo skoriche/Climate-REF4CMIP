@@ -144,6 +144,9 @@ def build_pmp_command(
     The output consists of a JSON file that contains the executions of the PMP diagnostics,
     and a set of PNG and data files that are produced by the diagnostics.
 
+    The PMP driver scripts are installed in the PMP conda environment,
+    but absolute paths should be used for non-PMP scripts.
+
     Parameters
     ----------
     driver_file
@@ -154,13 +157,18 @@ def build_pmp_command(
         Additional arguments to pass to the driver script
     """
     # Note this uses the driver script from the REF env *not* the PMP conda env
-    _driver_script = _get_resource("pcmdi_metrics", driver_file, use_resources=False)
     _parameter_file = _get_resource("climate_ref_pmp.params", parameter_file, use_resources=True)
+
+    # This is a workaround for a fatal error in internal_Finalize of MPICH
+    # when running in a conda environment on MacOS.
+    # It is not clear if this is a bug in MPICH or a problem with the conda environment.
+    if "FI_PROVIDER" not in os.environ:  # pragma: no branch
+        logger.debug("Setting env variable 'FI_PROVIDER=tcp'")
+        os.environ["FI_PROVIDER"] = "tcp"
 
     # Run the driver script inside the PMP conda environment
     cmd = [
-        "python",
-        _driver_script,
+        driver_file,
         "-p",
         _parameter_file,
     ]

@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-pmp"
-version = "0.5.0"
+version = "0.5.2"
 description = "PMP diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -21,11 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "climate-ref-core",
-    "pcmdi_metrics",
 ]
-
-[tool.uv.sources]
-pcmdi_metrics = { git = "https://github.com/PCMDI/pcmdi_metrics", rev="v3.9.1" }
 
 [project.license]
 text = "Apache-2.0"

@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.4
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -35,6 +35,7 @@ import prettyprinter
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.datasets import get_dataset_adapter
+from climate_ref.executor import SynchronousExecutor
 from climate_ref.solver import solve_executions
 from climate_ref_core.datasets import SourceDatasetType
 
@@ -130,7 +131,7 @@ executions[0].datasets["cmip6"]
 # and which datasets should be used for the diagnostic calculation.
 
 # %%
-output_directory = Path("./out")
+output_directory = Path("../out")
 definition = executions[0].build_execution_definition(output_directory)
 prettyprinter.pprint(definition)
 
@@ -158,21 +159,27 @@ prettyprinter.pprint(direct_result)
 # which provides an abstraction to enable diagnostics to be run in multiple different ways.
 # These executors can run diagnostics locally, on a cluster, or on a remote service
 #
-# The simplest executor is the
-# [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor).
-# This executor runs a given diagnostic synchronously in the current process.
+# The default executor is the
+# [LocalExecutor][climate_ref.executor.LocalExecutor]
+# This executor runs executions in parallel using a process pool.
+# Another option is the [SynchronousExecutor][climate_ref.executor.SynchronousExecutor].
+# This executor runs the execution in the main process which can be useful for debugging purposes.
 #
 # The executor can be specified in the configuration, or
 # using the `REF_EXECUTOR` environment variable which takes precedence.
-# The [LocalExecutor](../../api/climate_ref/executor/local/#climate_ref.executor.local.LocalExecutor)
-# is the default executor,
+# The [LocalExecutor][climate_ref.executor.LocalExecutor] is the default executor,
 # if no other configuration is provided.
 
 # %%
-executor = config.executor.build(config=config, database=db)
+# In this example a [SynchronousExecutor][climate_ref.executor.SynchronousExecutor] is used to run
+# the diagnostic.
+# This executor runs the execution in the main process which can be useful for debugging purposes.
+
+# %%
+executor = SynchronousExecutor(config=config, database=db)
 diagnostic = provider.get("global-mean-timeseries")
 
-executor.run(provider, diagnostic, definition=definition)
+executor.run(definition)
 
 # %%
 output_file = definition.to_output_path("output.json")

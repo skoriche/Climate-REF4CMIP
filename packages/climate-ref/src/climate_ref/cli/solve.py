@@ -19,5 +19,4 @@ def solve(
     """
     config = ctx.obj.config
     db = ctx.obj.database
-    with ctx.obj.database.session.begin():
-        solve_required_executions(config=config, db=db, dry_run=dry_run, timeout=timeout)
+    solve_required_executions(config=config, db=db, dry_run=dry_run, timeout=timeout)

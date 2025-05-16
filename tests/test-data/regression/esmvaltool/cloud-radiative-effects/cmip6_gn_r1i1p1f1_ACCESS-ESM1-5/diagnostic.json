@@ -1,11 +1,6 @@
 {
   "DIMENSIONS": {
-    "json_structure": [
-      "model",
-      "metric"
-    ],
-    "model": {},
-    "metric": {}
+    "json_structure": []
   },
   "RESULTS": {},
   "PROVENANCE": null,

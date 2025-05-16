@@ -37,6 +37,7 @@ from pydantic_core import CoreSchema
 from typing_extensions import Self
 
 from climate_ref_core.env import env
+from climate_ref_core.metric_values import ScalarMetricValue
 
 ALLOW_EXTRA_KEYS = env.bool("ALLOW_EXTRA_KEYS", default=True)
 
@@ -65,9 +66,7 @@ class MetricDimensions(RootModel[Any]):
 
     root: dict[str, Any] = Field(
         default={
-            MetricCV.JSON_STRUCTURE.value: ["model", "metric"],
-            "model": {},
-            "metric": {},
+            MetricCV.JSON_STRUCTURE.value: [],
         }
     )
 
@@ -216,7 +215,11 @@ class MetricResults(RootModel[Any]):
             # executions = rlt.root
             results = rlt
             metdims = info.context.root
-            cls._check_nested_dict_keys(results, metdims, level=0)
+            if len(metdims[MetricCV.JSON_STRUCTURE.value]) == 0:
+                if rlt != {}:
+                    raise ValueError("Expected an empty dictionary for the metric bundle")
+            else:
+                cls._check_nested_dict_keys(results, metdims, level=0)
 
         return rlt
 
@@ -226,18 +229,6 @@ class StrNumDict(RootModel[Any]):
 
     model_config = ConfigDict(strict=True)
     root: dict[str, float | int]
-
-
-class MetricValue(BaseModel):
-    """
-    A flattened representation of a diagnostic value
-
-    This includes the dimensions and the value of the diagnostic
-    """
-
-    dimensions: dict[str, str]
-    value: float | int
-    attributes: dict[str, str | float | int] | None = None
 
 
 def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[str]) -> dict[str, Any]:
@@ -518,7 +509,7 @@ class CMECMetric(BaseModel):
             MetricCV.NOTES.value: None,
         }
 
-    def iter_results(self) -> Generator[MetricValue]:
+    def iter_results(self) -> Generator[ScalarMetricValue]:
         """
         Iterate over the executions in the diagnostic bundle
 
@@ -531,12 +522,16 @@ class CMECMetric(BaseModel):
         """
         dimensions = cast(list[str], self.DIMENSIONS[MetricCV.JSON_STRUCTURE.value])
 
+        if len(dimensions) == 0:
+            # There is no data to iterate over
+            return
+
         yield from _walk_results(dimensions, self.RESULTS, {})
 
 
 def _walk_results(
     dimensions: list[str], results: dict[str, Any], metadata: dict[str, str]
-) -> Generator[MetricValue]:
+) -> Generator[ScalarMetricValue]:
     assert len(dimensions), "Not enough dimensions"
     dimension = dimensions[0]
     for key, value in results.items():
@@ -544,7 +539,7 @@ def _walk_results(
             continue
         metadata[dimension] = key
         if isinstance(value, float | int):
-            yield MetricValue(
+            yield ScalarMetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )
         else:

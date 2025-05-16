@@ -122,7 +122,7 @@ An [executor][climate_ref_core.executor.Executor] is responsible for executing a
 The REF supports multiple executors,
 each of which is responsible for running a metric calculation in a different way.
 
-* [Local][climate_ref.executor.local.LocalExecutor] - Runs the metric calculation locally
+* [Local][climate_ref.executor.LocalExecutor] - Runs the metric calculation locally
 * [Celery][climate_ref_celery.executor.CeleryExecutor] - Runs the metric calculation using Celery
 
 One of the outcomes of this Hackathon will be to add support for running metrics on HPC systems.

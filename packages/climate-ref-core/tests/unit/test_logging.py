@@ -11,7 +11,7 @@ from climate_ref_core.logging import capture_logging, redirect_logs
 def definition(mocker, tmp_path):
     d = mocker.MagicMock(spec=ExecutionDefinition)
     d.output_directory = tmp_path / "output"
-    from climate_ref_core.executor import EXECUTION_LOG_FILENAME
+    from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 
     return d, d.output_directory / EXECUTION_LOG_FILENAME
 

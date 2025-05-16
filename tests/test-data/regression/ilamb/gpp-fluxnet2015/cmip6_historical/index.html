@@ -85,8 +85,8 @@ body {
 </style>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
 <script>
-  var atypes = ['Bias'];
-  var tableData = [{'source': 'Reference', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 3.37420020621596, 'id': 0}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.2687100463058907, 'id': 1}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': -1.028983073684895, 'id': 2}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.6050551017406941, 'id': 3}, {'source': 'Reference', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 5.453779971985349, 'id': 4}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 4.110798013458021, 'id': 5}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': -3.323554342871441, 'id': 6}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.13445039063170006, 'id': 7}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.6050551017406941, 'id': 8}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.13445039063170006, 'id': 9}];
+  var atypes = ['Bias', 'RMSE', 'Annual Cycle', 'Spatial Distribution'];
+  var tableData = [{'source': 'Reference', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 3.37420020621596, 'id': 0}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.2537843525789563, 'id': 1}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': -1.028983073684895, 'id': 2}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.6050551017406941, 'id': 3}, {'source': 'Reference', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 5.453779971985349, 'id': 4}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.9924443867926165, 'id': 5}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': -3.323554342871441, 'id': 6}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.13445039063170006, 'id': 7}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'RMSE', 'name': 'RMSE [g d-1 m-2]', 'type': 'scalar', 'value': 2.646171344752598, 'id': 8}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'RMSE', 'name': 'RMSE Score [1]', 'type': 'score', 'value': 0.4733365242375573, 'id': 9}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'RMSE', 'name': 'RMSE [g d-1 m-2]', 'type': 'scalar', 'value': 5.2969987728327625, 'id': 10}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'RMSE', 'name': 'RMSE Score [1]', 'type': 'score', 'value': 0.3549730360260335, 'id': 11}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Annual Cycle', 'name': 'Phase Shift [month]', 'type': 'scalar', 'value': 0.4966887417218543, 'id': 12}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Annual Cycle', 'name': 'Seasonal Cycle Score [1]', 'type': 'score', 'value': 0.8443708609271523, 'id': 13}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Annual Cycle', 'name': 'Phase Shift [month]', 'type': 'scalar', 'value': 1.25, 'id': 14}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Annual Cycle', 'name': 'Seasonal Cycle Score [1]', 'type': 'score', 'value': 0.5416666666666667, 'id': 15}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Normalized Standard Deviation [1]', 'type': 'scalar', 'value': 0.7954249815181031, 'id': 16}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Correlation [1]', 'type': 'scalar', 'value': 0.4657813090598031, 'id': 17}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Spatial Distribution Score [1]', 'type': 'score', 'value': 0.6957999020358969, 'id': 18}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Normalized Standard Deviation [1]', 'type': 'scalar', 'value': 0.988259346115719, 'id': 19}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Correlation [1]', 'type': 'scalar', 'value': -0.17817824159792464, 'id': 20}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Spatial Distribution Score [1]', 'type': 'score', 'value': 0.4108535711221559, 'id': 21}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.6546405972353251, 'id': 22}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.36048591611163905, 'id': 23}];
   function updateImages() {
     var rsel  = document.getElementById("SelectRegion");
     var RNAME = rsel.options[rsel.selectedIndex].value;
@@ -99,8 +99,17 @@ body {
     document.getElementById("mean_Model").src = "MNAME_RNAME_mean.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("bias_Model").src = "MNAME_RNAME_bias.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("biasscore_Model").src = "MNAME_RNAME_biasscore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("rmse_Model").src = "MNAME_RNAME_rmse.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("rmsescore_Model").src = "MNAME_RNAME_rmsescore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("trace_Model").src = "MNAME_RNAME_trace.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("tmax_Reference").src = "Reference_RNAME_tmax.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("tmax_Model").src = "MNAME_RNAME_tmax.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("shift_Model").src = "MNAME_RNAME_shift.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("cyclescore_Model").src = "MNAME_RNAME_cyclescore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("cycle_Model").src = "MNAME_RNAME_cycle.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("taylor_None").src = "None_RNAME_taylor.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     var model_names = ['ACCESS-ESM1-5-r1i1p1f1-gn'];
-    var ref_plots = ['mean'];
+    var ref_plots = ['mean', 'tmax'];
     if (ref_plots.includes(PNAME)) {
       model_names.unshift("Reference");
       document.getElementById("divReference").style.opacity = 100;
@@ -289,6 +298,18 @@ All
 <a class="nav-link" id="Bias" href="#" onclick="clickAnalysis('Bias')">Bias</a>
 </li>
 
+<li class="nav-item">
+<a class="nav-link" id="RMSE" href="#" onclick="clickAnalysis('RMSE')">RMSE</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" id="Annual Cycle" href="#" onclick="clickAnalysis('Annual Cycle')">Annual Cycle</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" id="Spatial Distribution" href="#" onclick="clickAnalysis('Spatial Distribution')">Spatial Distribution</a>
+</li>
+
 </ul>
 
 <!--- Data Information -->
@@ -301,13 +322,6 @@ All
 <a class="nav-link">
 <div class="fw-bold">Title</div>
 Fluxnet2015
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link">
-<div class="fw-bold">Institutions</div>
-The Fluxnet Community
 </a>
 </li>
 
@@ -346,6 +360,39 @@ The Fluxnet Community
 
 </div>
 
+<div id="divRMSE">
+<br><h2>RMSE</h2>
+
+<img id="rmse_Model" src="MNAME_RNAME_rmse.png" width="49%">
+
+<img id="rmsescore_Model" src="MNAME_RNAME_rmsescore.png" width="49%">
+
+<img id="trace_Model" src="MNAME_RNAME_trace.png" width="49%">
+
+</div>
+
+<div id="divAnnual Cycle">
+<br><h2>Annual Cycle</h2>
+
+<img id="tmax_Reference" src="Reference_RNAME_tmax.png" width="49%">
+
+<img id="tmax_Model" src="MNAME_RNAME_tmax.png" width="49%">
+
+<img id="shift_Model" src="MNAME_RNAME_shift.png" width="49%">
+
+<img id="cyclescore_Model" src="MNAME_RNAME_cyclescore.png" width="49%">
+
+<img id="cycle_Model" src="MNAME_RNAME_cycle.png" width="49%">
+
+</div>
+
+<div id="divSpatial Distribution">
+<br><h2>Spatial Distribution</h2>
+
+<img id="taylor_None" src="None_RNAME_taylor.png" width="49%">
+
+</div>
+
 
 <!--- All models mode -->
 <div id="divAllModels">
@@ -356,7 +403,21 @@ The Fluxnet Community
 
     <option value="biasscore">biasscore</option>
 
+    <option value="cycle">cycle</option>
+
+    <option value="cyclescore">cyclescore</option>
+
     <option value="mean">mean</option>
+
+    <option value="rmse">rmse</option>
+
+    <option value="rmsescore">rmsescore</option>
+
+    <option value="shift">shift</option>
+
+    <option value="tmax">tmax</option>
+
+    <option value="trace">trace</option>
 
   </select>
   <img id="divReference" src="Reference_None_mean.png" width="32%">

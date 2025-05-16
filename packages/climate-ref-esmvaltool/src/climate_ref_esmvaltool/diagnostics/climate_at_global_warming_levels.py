@@ -62,7 +62,7 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
             ),
         ),
     )
-    facets = ("model", "metric")
+    facets = ()
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:

@@ -21,6 +21,65 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.2 (2025-05-15)
+
+### Bug Fixes
+
+- Fix missing dependency in migrations ([#297](https://github.com/Climate-REF/climate-ref/pulls/297))
+
+### Improved Documentation
+
+- Added documentation for configuration options ([#296](https://github.com/Climate-REF/climate-ref/pulls/296))
+
+
+## climate-ref 0.5.1 (2025-05-14)
+
+### Features
+
+- Added an ESMValTool metric to compute climatologies and zonal mean profiles of
+  cloud radiative effects. ([#241](https://github.com/Climate-REF/climate-ref/pulls/241))
+- Add additional dimensions to the metrics produced by PMP.
+  Added `climate_ref_core.pycmec.metric.CMECMetric.prepend_dimensions` ([#275](https://github.com/Climate-REF/climate-ref/pulls/275))
+- Ensure that selectors are always alphabetically sorted ([#276](https://github.com/Climate-REF/climate-ref/pulls/276))
+- Add data model for supporting series of metric values.
+  This allows diagnostic providers to supply a collection of [climate_ref_core.metric_values.SeriesMetricValue][]
+  extracted from an execution. ([#278](https://github.com/Climate-REF/climate-ref/pulls/278))
+- The default executor ([climate_ref.executor.LocalExecutor][]) uses a process pool to enable parallelism.
+  An alternative [climate_ref.executor.SynchronousExecutor][] is available for debugging purposes,
+  which runs tasks synchronously in the main thread. ([#286](https://github.com/Climate-REF/climate-ref/pulls/286))
+
+### Improvements
+
+- Bumps the ilamb3 version to now contain all analysis modules and reformats its CMEC output bundle. ([#262](https://github.com/Climate-REF/climate-ref/pulls/262))
+- Adds the ability to capture the output of an execution for regression testing. ([#274](https://github.com/Climate-REF/climate-ref/pulls/274))
+- Update to v0.5.1 of the sample data. ([#279](https://github.com/Climate-REF/climate-ref/pulls/279))
+- Update to v0.5.2 of the sample data. ([#282](https://github.com/Climate-REF/climate-ref/pulls/282))
+- Add a CITATION.cff to the repository to make it easier to cite. ([#283](https://github.com/Climate-REF/climate-ref/pulls/283))
+- Added the Assessment Fast Track-related services to the `docker-compose` stack alongside improved documentation for how to use the REF via docker containers. ([#287](https://github.com/Climate-REF/climate-ref/pulls/287))
+- Added support for ingesting multiple directories at once.
+  This is useful for ingesting large datasets that are split into multiple directories or via glob patterns.
+  An example of this is importing the monthly and fx datasets from an archive of CMIP6 data:
+
+  ```bash
+  ref datasets ingest --source-type cmip6 path_to_archive/CMIP6/*/*/*/*/*/*mon path_to_archive/CMIP6/*/*/*/*/*/fx
+  ``` ([#291](https://github.com/Climate-REF/climate-ref/pulls/291))
+- Update the default log level to INFO from WARNING.
+  Added the `-q` option to decrease the log level to WARNING. ([#292](https://github.com/Climate-REF/climate-ref/pulls/292))
+
+### Bug Fixes
+
+- Resolves an issue that was blocking some PMP executions from completing.
+  Any additional dimensions are now logged and ignored rather than causing the execution to fail. ([#274](https://github.com/Climate-REF/climate-ref/pulls/274))
+- Sets the environment variable `FI_PROVIDER=tcp` to use the TCP provider for libfabric (part of MPICH).
+  The defaults were causing MPICH errors on some systems (namely macOS).
+  This also removes the PMP provider's direct dependency on the source of `pcmdi_metric`. ([#281](https://github.com/Climate-REF/climate-ref/pulls/281))
+- Support the use of empty metric bundles ([#284](https://github.com/Climate-REF/climate-ref/pulls/284))
+- Reworked the lifetimes of the database transactions during the solve process.
+  This is a fix for out of process executors where the transaction was not being committed until the end of a solve. ([#288](https://github.com/Climate-REF/climate-ref/pulls/288))
+- Requery an Execution from the database when handling the result from the LocalExecutor.
+  This ensures that the execution isn't stale and that the result is still valid. ([#293](https://github.com/Climate-REF/climate-ref/pulls/293))
+
+
 ## climate-ref 0.5.0 (2025-05-03)
 
 ### Breaking Changes

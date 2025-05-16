@@ -31,26 +31,35 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-editable --no-dev
 
 # Runtime container
-# Copy the installed packages from the build stage to decrease the size of the final image
 FROM python:3.11-slim AS runtime
 
 LABEL maintainer="Jared Lewis <jared.lewis@climate-resource.com>"
-LABEL description="Docker image for the REF compute engine"
+LABEL description="Base Docker image for the REF compute engine"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN useradd -m -u 1000 app
 
 # Allow celery to run as root
-ENV C_FORCE_ROOT=false
 ENV PATH="/app/.venv/bin:${PATH}"
+ENV VIRTUAL_ENV=/app/.venv
 
 # Copy the installed packages from the build stage
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /app/.venv/bin/
 COPY --from=build --chown=app:app /app/.venv /app/.venv
 COPY --from=build --chown=app:app /app/scripts /app/scripts
 
 # Location of the REF configuration files
 ENV REF_CONFIGURATION=/ref
-ENV REF_METRICS_ESMVALTOOL_DATA_DIR=/app/cache/esmvaltool
 
-#RUN ref datasets fetch-data --registry ilamb
-#RUN ref datasets fetch-data --registry iomb
+# Create necessary directories with proper permissions
+RUN mkdir -p /ref /app/cache && chown -R app:app /ref /app/cache
+
+# Switch to non-root user
+USER app
 
 # Run the REF CLI tool by default
 ENTRYPOINT ["/app/.venv/bin/ref"]

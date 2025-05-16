@@ -20,12 +20,10 @@ def execution_dataset(cmip6_data_catalog) -> ExecutionDatasetCollection:
 
 
 def test_example_metric(mocker, tmp_path, execution_dataset, cmip6_data_catalog, definition_factory):
-    provider = climate_ref_esmvaltool.provider
-
-    metric = next(metric for metric in provider.diagnostics() if metric.slug == "global-mean-timeseries")
+    diagnostic = climate_ref_esmvaltool.provider.get("global-mean-timeseries")
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
 
-    definition = definition_factory(cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
     definition.output_directory.mkdir(parents=True)
 
     result_dir = definition.output_directory / "executions" / "recipe_test_a"
@@ -36,14 +34,14 @@ def test_example_metric(mocker, tmp_path, execution_dataset, cmip6_data_catalog,
         result.touch()
 
     mock_run = mocker.patch.object(
-        provider,
+        climate_ref_esmvaltool.provider,
         "run",
         autospec=True,
         spec_set=True,
         side_effect=mock_run_fn,
     )
 
-    result = metric.run(definition)
+    result = diagnostic.run(definition)
 
     mock_run.assert_called_with(
         [

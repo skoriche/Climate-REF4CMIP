@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref"
-version = "0.5.0"
+version = "0.5.2"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -38,16 +38,23 @@ dependencies = [
     "ecgtools>=2024.7.31",
     "platformdirs>=4.3.6",
     "setuptools>=75.8.0",
+    "tqdm>=4.67.1"
 ]
 
 [project.optional-dependencies]
 postgres = [
     "psycopg2-binary>=2.9.2",
+    "alembic-postgresql-enum>=1.7.0",
 ]
 celery = [
     "climate-ref-celery>=0.5.0",
 ]
-metrics = [
+aft-providers = [
+    "climate-ref-esmvaltool>=0.5.0",
+    "climate-ref-pmp>=0.5.0",
+    "climate-ref-ilamb>=0.5.0",
+]
+providers = [
     "climate-ref-esmvaltool>=0.5.0",
     "climate-ref-pmp>=0.5.0",
     "climate-ref-ilamb>=0.5.0",

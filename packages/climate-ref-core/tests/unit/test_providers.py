@@ -77,7 +77,7 @@ def test_import_provider_missing():
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "climate_ref.constants.config_filename"
+    fqn = "climate_ref.__version__"
     match = f"Invalid provider: '{fqn}'\n Expected DiagnosticProvider, got <class 'str'>"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)

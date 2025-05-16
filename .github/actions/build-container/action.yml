@@ -1,0 +1,39 @@
+name: "Build container"
+description: "Builds the container for the project, and attests it"
+inputs:
+  container-name:
+    description: "The name of the container to build"
+    required: true
+  dockerfile:
+    description: "The Dockerfile to use for the build"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: docker/metadata-action@v5
+      id: metadata
+      with:
+        images: ghcr.io/${{ github.repository_owner }}/${{ inputs.container-name }}
+        tags: |
+          type=ref,event=pr
+          type=ref,event=tag
+          # set latest tag for default branch
+          type=raw,value=main,enable={{is_default_branch}}
+    - uses: docker/build-push-action@v4
+      id: push
+      with:
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        context: .
+        file: ${{ inputs.dockerfile }}
+        push: ${{ ! github.event.pull_request.head.repo.fork }}
+        sbom: true
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+    - name: Attest to REF image
+      uses: actions/attest-build-provenance@v2
+      if: ${{ ! github.event.pull_request.head.repo.fork }}
+      with:
+        subject-name: ghcr.io/${{ github.repository_owner }}/${{ inputs.container-name }}
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true

@@ -14,43 +14,57 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: example
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
   flower:
-    image: mher/flower
+    image: mher/flower:2.0.1
     restart: always
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_ACCEPT_CONTENT=["json","pickle"]
     ports:
       - "5555:5555"
     depends_on:
       - redis
-  # Worker to track the executions of async tasks
-  ref:
-    image: ref
+
+  # Base worker to track the executions of async tasks
+  climate-ref:
+    image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
+    depends_on:
+      - postgres
+      - redis
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - REF_EXECUTOR=climate_ref_celery.executor.CeleryExecutor
-      - REF_DIAGNOSTIC_PROVIDERS=climate_ref_example
-    build:
-      context: .
-      dockerfile: packages/climate-ref/Dockerfile
-      platforms:
-        - linux/amd64
-    command: ref celery start-worker
+      - REF_DATABASE_URL=postgresql://postgres:example@postgres:5432/postgres
+    command: celery start-worker --loglevel INFO
     volumes:
       - ./tests/test-data/sample-data:/ref/data
       - ref:/ref
-  # Worker to run the example diagnostics
-  metrics-example:
-    image: ref
-    restart: always
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/1
-    command: ref celery start-worker --package climate_ref_example
-    volumes:
-      - ./tests/test-data/sample-data:/ref/data
-      - ref:/ref
+
+  # Diagnostic workers - one per diagnostic package based on the climate-ref service
+  # ESMValTool worker
+  climate-ref-esmvaltool:
+    extends:
+      service: climate-ref
+    command: celery start-worker --package climate_ref_esmvaltool --loglevel INFO
+  # ILAMB worker
+  climate-ref-ilamb:
+    extends:
+      service: climate-ref
+    command: celery start-worker --package climate_ref_ilamb --loglevel INFO
+  # PMP worker
+  climate-ref-pmp:
+    extends:
+      service: climate-ref
+    command: celery start-worker --package climate_ref_pmp --loglevel INFO
+
 volumes:
+  # This volume contains the database, scratch directories and the conda environments
   ref:
+  postgres-data:

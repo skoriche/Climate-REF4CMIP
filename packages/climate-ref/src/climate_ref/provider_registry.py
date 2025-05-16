@@ -34,9 +34,10 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
     provider_model, created = db.get_or_create(
         Provider,
         slug=provider.slug,
-        version=provider.version,
         defaults={
             "name": provider.name,
+            # TODO: Handle if this changes
+            "version": provider.version,
         },
     )
     if created:
@@ -139,7 +140,7 @@ class ProviderRegistry:
             provider.configure(config)
             providers.append(provider)
 
-        with db.session.begin_nested():
+        with db.session.begin():
             for provider in providers:
                 _register_provider(db, provider)
 

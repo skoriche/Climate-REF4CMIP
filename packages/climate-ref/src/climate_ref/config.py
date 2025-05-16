@@ -34,11 +34,10 @@ from climate_ref._config_helpers import (
     env_field,
     transform_error,
 )
-from climate_ref.constants import config_filename
-from climate_ref.executor import import_executor_cls
+from climate_ref.constants import CONFIG_FILENAME
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
-from climate_ref_core.executor import Executor
+from climate_ref_core.executor import Executor, import_executor_cls
 
 if TYPE_CHECKING:
     from climate_ref.database import Database
@@ -75,11 +74,13 @@ class PathConfig:
     /// admonition | Warning
         type: warning
 
-    These paths must be common across all systems that the REF is being run
+    These paths must be common across all systems that the REF is being run.
+    Generally, this means that they should be mounted in the same location on all systems.
     ///
 
     If any of these paths are specified as relative paths,
     they will be resolved to absolute paths.
+    These absolute paths will be used for all operations in the REF.
     """
 
     log: Path = env_field(name="LOG_ROOT", converter=ensure_absolute_path)
@@ -156,14 +157,14 @@ class ExecutorConfig:
     Configuration to define the executor to use for running diagnostics
     """
 
-    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.local.LocalExecutor")
+    executor: str = env_field(name="EXECUTOR", default="climate_ref.executor.LocalExecutor")
     """
-    Executor to use for running diagnostics
+    Executor class to use for running diagnostics
 
     This should be the fully qualified name of the executor class
-    (e.g. `climate_ref.executor.local.LocalExecutor`).
-    The default is to use the local executor.
-    The environment variable `REF_EXECUTOR` takes precedence over this configuration value.
+    (e.g. `climate_ref.executor.LocalExecutor`).
+    The default is to use the local executor which runs the executions locally, in-parallel
+    using a process pool.
 
     This class will be used for all executions of diagnostics.
     """
@@ -173,6 +174,7 @@ class ExecutorConfig:
     Additional configuration for the executor.
 
     See the documentation for the executor for the available configuration options.
+    These options will be passed to the executor class when it is created.
     """
 
     def build(self, config: "Config", database: "Database") -> Executor:
@@ -200,7 +202,30 @@ class ExecutorConfig:
 @define
 class DiagnosticProviderConfig:
     """
-    Configuration for the diagnostic providers
+    Defining the diagnostic providers used by the REF.
+
+    Each diagnostic provider is a package that contains the logic for running a specific
+    set of diagnostics.
+    This configuration determines which diagnostic providers are loaded and used when solving.
+
+    Multiple diagnostic providers can be specified as shown in the example below.
+
+    ```toml
+    [[diagnostic_providers]]
+    provider = "climate_ref_esmvaltool.provider"
+
+    [diagnostic_providers.config]
+
+    [[diagnostic_providers]]
+    provider = "climate_ref_ilamb.provider"
+
+    [diagnostic_providers.config]
+
+    [[diagnostic_providers]]
+    provider = "climate_ref_pmp.provider"
+
+    [diagnostic_providers.config]
+    ```
     """
 
     provider: str
@@ -225,21 +250,29 @@ class DbConfig:
     """
     Database configuration
 
-    We currently only plan to support SQLite and PostgreSQL databases,
-    although only SQLite is currently implemented and tested.
+    We support SQLite and PostgreSQL databases.
+    The default is to use SQLite, which is a file-based database that is stored in the
+    `REF_CONFIGURATION` directory.
+    This is a good option for testing and development, but not recommended for production use.
+
+    For production use, we recommend using PostgreSQL.
     """
 
     database_url: str = env_field(name="DATABASE_URL")
     """
     Database URL that describes the connection to the database.
 
-    Defaults to sqlite:///{config.paths.db}/climate_ref.db".
+    Defaults to `sqlite:///{config.paths.db}/climate_ref.db`.
     This configuration value will be overridden by the `REF_DATABASE_URL` environment variable.
 
-    ## Schemas
+    **Schemas**
 
+    The following schemas are supported:
+    ```
     postgresql://USER:PASSWORD@HOST:PORT/NAME
+
     sqlite:///RELATIVE_PATH or sqlite:////ABS_PATH or sqlite:///:memory:
+    ```
     """
     run_migrations: bool = field(default=True)
 
@@ -286,12 +319,10 @@ def _load_config(config_file: str | Path, doc: dict[str, Any]) -> "Config":
     return _converter_defaults_relaxed.structure(doc, Config)
 
 
-@define
+@define(auto_attribs=True)
 class Config:
     """
-    REF configuration
-
-    This class is used to store the configuration of the REF application.
+    Configuration that is used by the REF
     """
 
     log_level: str = field(default="INFO")
@@ -405,7 +436,7 @@ class Config:
             The default configuration
         """
         root = env.path("REF_CONFIGURATION")
-        path_to_load = root / config_filename
+        path_to_load = root / CONFIG_FILENAME
 
         logger.debug(f"Loading default configuration from {path_to_load}")
         return cls.load(path_to_load)

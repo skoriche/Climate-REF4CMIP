@@ -85,8 +85,8 @@ body {
 </style>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
 <script>
-  var atypes = ['Bias', 'Relationship pr', 'Relationship tas'];
-  var tableData = [{'source': 'Reference', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.4315549668703933, 'id': 0}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.1024021549781216, 'id': 1}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': 0.08646575326407957, 'id': 2}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.4676109048415688, 'id': 3}, {'source': 'Reference', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 5.124267497652835, 'id': 4}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 4.880223654215761, 'id': 5}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': 0.2906089675036236, 'id': 6}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.36006243056298964, 'id': 7}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Relationship pr', 'name': 'Relationship Score pr [1]', 'type': 'score', 'value': 0.4648701436860109, 'id': 8}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Relationship pr', 'name': 'Relationship Score pr [1]', 'type': 'score', 'value': 0.4842782825391371, 'id': 9}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Relationship tas', 'name': 'Relationship Score tas [1]', 'type': 'score', 'value': 0.5961174687755966, 'id': 10}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Relationship tas', 'name': 'Relationship Score tas [1]', 'type': 'score', 'value': 0.4321457150215198, 'id': 11}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.5095328391010587, 'id': 12}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.4254954760412155, 'id': 13}];
+  var atypes = ['Bias', 'RMSE', 'Annual Cycle', 'Spatial Distribution', 'Relationship pr', 'Relationship tas'];
+  var tableData = [{'source': 'Reference', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.4315549668703933, 'id': 0}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 2.1024021549781216, 'id': 1}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': 0.08646575326407957, 'id': 2}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.4676109048415688, 'id': 3}, {'source': 'Reference', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 5.124267497652835, 'id': 4}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Period Mean [g d-1 m-2]', 'type': 'scalar', 'value': 4.880223654215761, 'id': 5}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias [g d-1 m-2]', 'type': 'scalar', 'value': 0.2906089675036236, 'id': 6}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Bias', 'name': 'Bias Score [1]', 'type': 'score', 'value': 0.36006243056298964, 'id': 7}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'RMSE', 'name': 'RMSE [g d-1 m-2]', 'type': 'scalar', 'value': 1.6552676976411937, 'id': 8}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'RMSE', 'name': 'RMSE Score [1]', 'type': 'score', 'value': 0.4274016614067758, 'id': 9}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'RMSE', 'name': 'RMSE [g d-1 m-2]', 'type': 'scalar', 'value': 2.8095335768502725, 'id': 10}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'RMSE', 'name': 'RMSE Score [1]', 'type': 'score', 'value': 0.3714562972753612, 'id': 11}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Annual Cycle', 'name': 'Phase Shift [month]', 'type': 'scalar', 'value': 0.3460071505100462, 'id': 12}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Annual Cycle', 'name': 'Seasonal Cycle Score [1]', 'type': 'score', 'value': 0.7302961501719643, 'id': 13}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Annual Cycle', 'name': 'Phase Shift [month]', 'type': 'scalar', 'value': 0.8985700662469462, 'id': 14}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Annual Cycle', 'name': 'Seasonal Cycle Score [1]', 'type': 'score', 'value': 0.6585526247077628, 'id': 15}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Normalized Standard Deviation [1]', 'type': 'scalar', 'value': 1.2191835212182183, 'id': 16}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Correlation [1]', 'type': 'scalar', 'value': 0.7954204310685823, 'id': 17}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Spatial Distribution', 'name': 'Spatial Distribution Score [1]', 'type': 'score', 'value': 0.8633549384785634, 'id': 18}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Normalized Standard Deviation [1]', 'type': 'scalar', 'value': 2.1002205009486556, 'id': 19}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Correlation [1]', 'type': 'scalar', 'value': 0.506508637302237, 'id': 20}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Spatial Distribution', 'name': 'Spatial Distribution Score [1]', 'type': 'score', 'value': 0.453929277719741, 'id': 21}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Relationship pr', 'name': 'Relationship Score pr [1]', 'type': 'score', 'value': 0.4648701436860109, 'id': 22}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Relationship pr', 'name': 'Relationship Score pr [1]', 'type': 'score', 'value': 0.4842782825391371, 'id': 23}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': 'Relationship tas', 'name': 'Relationship Score tas [1]', 'type': 'score', 'value': 0.5961174687755966, 'id': 24}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': 'Relationship tas', 'name': 'Relationship Score tas [1]', 'type': 'score', 'value': 0.4321457150215198, 'id': 25}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'global', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.5916085445600799, 'id': 26}, {'source': 'ACCESS-ESM1-5-r1i1p1f1-gn', 'region': 'tropical', 'analysis': NaN, 'name': 'Overall Score [1]', 'type': 'score', 'value': 0.4600707713044186, 'id': 27}];
   function updateImages() {
     var rsel  = document.getElementById("SelectRegion");
     var RNAME = rsel.options[rsel.selectedIndex].value;
@@ -99,6 +99,15 @@ body {
     document.getElementById("mean_Model").src = "MNAME_RNAME_mean.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("bias_Model").src = "MNAME_RNAME_bias.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("biasscore_Model").src = "MNAME_RNAME_biasscore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("rmse_Model").src = "MNAME_RNAME_rmse.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("rmsescore_Model").src = "MNAME_RNAME_rmsescore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("trace_Model").src = "MNAME_RNAME_trace.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("tmax_Reference").src = "Reference_RNAME_tmax.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("tmax_Model").src = "MNAME_RNAME_tmax.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("shift_Model").src = "MNAME_RNAME_shift.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("cyclescore_Model").src = "MNAME_RNAME_cyclescore.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("cycle_Model").src = "MNAME_RNAME_cycle.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
+    document.getElementById("taylor_None").src = "None_RNAME_taylor.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("distribution_pr_Reference").src = "Reference_RNAME_distribution_pr.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("distribution_pr_Model").src = "MNAME_RNAME_distribution_pr.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("response_pr_Model").src = "MNAME_RNAME_response_pr.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
@@ -106,7 +115,7 @@ body {
     document.getElementById("distribution_tas_Model").src = "MNAME_RNAME_distribution_tas.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     document.getElementById("response_tas_Model").src = "MNAME_RNAME_response_tas.png".replace("MNAME",MNAME).replace("RNAME",RNAME);
     var model_names = ['ACCESS-ESM1-5-r1i1p1f1-gn'];
-    var ref_plots = ['mean', 'distribution_pr', 'distribution_tas'];
+    var ref_plots = ['mean', 'tmax', 'distribution_pr', 'distribution_tas'];
     if (ref_plots.includes(PNAME)) {
       model_names.unshift("Reference");
       document.getElementById("divReference").style.opacity = 100;
@@ -296,6 +305,18 @@ All
 </li>
 
 <li class="nav-item">
+<a class="nav-link" id="RMSE" href="#" onclick="clickAnalysis('RMSE')">RMSE</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" id="Annual Cycle" href="#" onclick="clickAnalysis('Annual Cycle')">Annual Cycle</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" id="Spatial Distribution" href="#" onclick="clickAnalysis('Spatial Distribution')">Spatial Distribution</a>
+</li>
+
+<li class="nav-item">
 <a class="nav-link" id="Relationship pr" href="#" onclick="clickAnalysis('Relationship pr')">Relationship pr</a>
 </li>
 
@@ -315,13 +336,6 @@ All
 <a class="nav-link">
 <div class="fw-bold">Title</div>
 Water, Energy, and Carbon with Artificial Neural Networks (WECANN)
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link">
-<div class="fw-bold">Institutions</div>
-Columbia University
 </a>
 </li>
 
@@ -360,6 +374,39 @@ Columbia University
 
 </div>
 
+<div id="divRMSE">
+<br><h2>RMSE</h2>
+
+<img id="rmse_Model" src="MNAME_RNAME_rmse.png" width="49%">
+
+<img id="rmsescore_Model" src="MNAME_RNAME_rmsescore.png" width="49%">
+
+<img id="trace_Model" src="MNAME_RNAME_trace.png" width="49%">
+
+</div>
+
+<div id="divAnnual Cycle">
+<br><h2>Annual Cycle</h2>
+
+<img id="tmax_Reference" src="Reference_RNAME_tmax.png" width="49%">
+
+<img id="tmax_Model" src="MNAME_RNAME_tmax.png" width="49%">
+
+<img id="shift_Model" src="MNAME_RNAME_shift.png" width="49%">
+
+<img id="cyclescore_Model" src="MNAME_RNAME_cyclescore.png" width="49%">
+
+<img id="cycle_Model" src="MNAME_RNAME_cycle.png" width="49%">
+
+</div>
+
+<div id="divSpatial Distribution">
+<br><h2>Spatial Distribution</h2>
+
+<img id="taylor_None" src="None_RNAME_taylor.png" width="49%">
+
+</div>
+
 <div id="divRelationship pr">
 <br><h2>Relationship pr</h2>
 
@@ -392,6 +439,10 @@ Columbia University
 
     <option value="biasscore">biasscore</option>
 
+    <option value="cycle">cycle</option>
+
+    <option value="cyclescore">cyclescore</option>
+
     <option value="distribution_pr">distribution_pr</option>
 
     <option value="distribution_tas">distribution_tas</option>
@@ -401,6 +452,16 @@ Columbia University
     <option value="response_pr">response_pr</option>
 
     <option value="response_tas">response_tas</option>
+
+    <option value="rmse">rmse</option>
+
+    <option value="rmsescore">rmsescore</option>
+
+    <option value="shift">shift</option>
+
+    <option value="tmax">tmax</option>
+
+    <option value="trace">trace</option>
 
   </select>
   <img id="divReference" src="Reference_None_mean.png" width="32%">

@@ -9,7 +9,11 @@ repo_url: https://github.com/Climate-REF/climate-ref
 nav:
   - Rapid Evaluation Framework: index.md
   - Installation: installation.md
-  - Getting Started: getting_started.md
+  - Introduction:
+    - introduction/index.md
+    - introduction/basic-concepts.md
+    - introduction/getting_started.md
+    - introduction/required_datasets.md
   - Configuration: configuration.md
   - Roadmap: roadmap.md
   - How-to guides:
@@ -17,6 +21,7 @@ nav:
     - how-to-guides/ingest-datasets.md
     - how-to-guides/dataset-selection.py
     - how-to-guides/running-diagnostics-locally.py
+    - how-to-guides/docker_deployment.md
   - Tutorials: tutorials.md
   - Further background:
     - Architecture: background/architecture.md
@@ -58,6 +63,7 @@ plugins:
   - gen-files:
       scripts:
         - docs/gen_doc_stubs.py
+        - docs/gen_config_stubs.py
   # Make the navigation easier to handle/auto-generate if we wish
   # https://oprypin.github.io/mkdocs-literate-nav/
   - literate-nav:
@@ -73,13 +79,13 @@ plugins:
       # Use filenames for titles
       ignore_h1_titles: True
       include: ["*.py"]
-      execute: true
+      execute: false
       # Toggle off for faster builds
       # execute: false
       allow_errors: false
       # theme: dark
       include_source: True
-      ignore: ["*.ipynb", "*.md", "docs/gen_doc_stubs.py"]
+      ignore: ["*.ipynb", "*.md", "docs/gen_*.py"]
       remove_tag_config:
         remove_cell_tags:
           - remove_cell

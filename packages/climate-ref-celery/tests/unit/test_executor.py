@@ -10,7 +10,7 @@ def test_run_metric(provider, config, mock_diagnostic, metric_definition, mocker
     mock_execution_result = mocker.MagicMock()
 
     if include_execution_result:
-        executor.run(provider, mock_diagnostic, metric_definition, mock_execution_result)
+        executor.run(metric_definition, mock_execution_result)
 
         mock_app.send_task.assert_called_once_with(
             "mock_provider.mock",
@@ -19,7 +19,7 @@ def test_run_metric(provider, config, mock_diagnostic, metric_definition, mocker
             queue="mock_provider",
         )
     else:
-        executor.run(provider, mock_diagnostic, metric_definition, None)
+        executor.run(metric_definition, None)
 
         mock_app.send_task.assert_called_once_with(
             "mock_provider.mock",

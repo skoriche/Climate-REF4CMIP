@@ -14,6 +14,7 @@ from attrs import field, frozen
 
 from climate_ref_core.constraints import GroupConstraint
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
+from climate_ref_core.metric_values import SeriesMetricValue
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput
 
@@ -61,6 +62,11 @@ class ExecutionDefinition:
     for a specific set of datasets fulfilling the requirements.
     """
 
+    diagnostic: Diagnostic
+    """
+    The diagnostic that is being executed
+    """
+
     key: str
     """
     The unique identifier for the datasets in the diagnostic execution group.
@@ -84,6 +90,12 @@ class ExecutionDefinition:
     """
     Root directory for storing the output of the diagnostic execution
     """
+
+    def execution_slug(self) -> str:
+        """
+        Get a slug for the execution
+        """
+        return f"{self.diagnostic.full_slug()}/{self.key}"
 
     def to_output_path(self, filename: pathlib.Path | str | None) -> pathlib.Path:
         """
@@ -170,7 +182,11 @@ class ExecutionResult:
     """
     Whether the diagnostic execution ran successfully.
     """
-    # Log info is in the output bundle file already, but is definitely useful
+
+    series: Sequence[SeriesMetricValue] = field(factory=tuple)
+    """
+    A collection of series metric values that were extracted from the execution.
+    """
 
     @staticmethod
     def build_from_output_bundle(
@@ -426,7 +442,7 @@ class AbstractDiagnostic(Protocol):
         """
         Run the diagnostic on the given configuration.
 
-        The implementation of this method method is left to the diagnostic providers.
+        The implementation of this method is left to the diagnostic providers.
 
 
         Parameters

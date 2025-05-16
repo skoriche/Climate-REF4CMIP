@@ -21,15 +21,15 @@ pip install climate-ref
 If you want to use the diagnostic providers for the Assessment Fast Track, you can install them with:
 
 ```bash
-pip install climate-ref[metrics]
+pip install climate-ref[aft-providers]
 ```
 
 ## Quick Start
 
 ```bash
 # Ingest some observation datasets
-ref datasets fetch-data --registry obs4ref --output-dir datasets/obs4ref
-ref datasets fetch-data --registry sample-data --output-dir datasets/sample-data
+ref datasets fetch-data --registry obs4ref ---output-directory datasets/obs4ref
+ref datasets fetch-data --registry sample-data ---output-directory datasets/sample-data
 
 # Run metrics against your climate data
 ref solve

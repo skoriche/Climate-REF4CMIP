@@ -76,7 +76,7 @@ test-core:  ## run the tests
 test-celery:  ## run the tests
 	uv run --package climate-ref-celery \
 		pytest packages/climate-ref-celery \
-		-r a -v --doctest-modules --cov=packages/climate-ref-celery/src
+		-r a -v --doctest-modules --cov=packages/climate-ref-celery/src --cov-report=term --cov-append
 
 .PHONY: test-diagnostic-example
 test-diagnostic-example:  ## run the tests

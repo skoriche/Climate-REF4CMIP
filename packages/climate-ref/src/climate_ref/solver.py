@@ -96,6 +96,7 @@ class DiagnosticExecution:
         fragment = pathlib.Path() / self.provider.slug / self.diagnostic.slug / self.datasets.hash
 
         return ExecutionDefinition(
+            diagnostic=self.diagnostic,
             root_directory=output_root,
             output_directory=output_root / fragment,
             key=self.dataset_key,
@@ -330,7 +331,7 @@ def solve_required_executions(
 
         # Use a transaction to make sure that the models
         # are created correctly before potentially executing out of process
-        with db.session.begin(nested=True):
+        with db.session.begin():
             diagnostic = (
                 db.session.query(DiagnosticModel)
                 .join(DiagnosticModel.provider)
@@ -375,8 +376,6 @@ def solve_required_executions(
                 execution.register_datasets(db, definition.datasets)
 
                 executor.run(
-                    provider=potential_execution.provider,
-                    diagnostic=potential_execution.diagnostic,
                     definition=definition,
                     execution=execution,
                 )

@@ -92,6 +92,8 @@ exclude_also = [
 omit = [
     # Skip alembic migration files
     "*/migrations/*",
+    # Skip the drivers as they can't be checked for coverage
+    "*/drivers/*",
 ]
 
 [tool.mypy]

@@ -1,8 +1,12 @@
+import re
+from datetime import datetime, timedelta
+from pathlib import Path
+
 import pytest
 import sqlalchemy
 from sqlalchemy import inspect
 
-from climate_ref.database import Database, validate_database_url
+from climate_ref.database import Database, _create_backup, validate_database_url
 from climate_ref.models import MetricValue
 from climate_ref.models.dataset import CMIP6Dataset, Dataset, Obs4MIPsDataset
 from climate_ref_core.datasets import SourceDatasetType
@@ -148,3 +152,105 @@ def test_database_cvs(config, mocker):
     existing_columns = [c["name"] for c in inspector.get_columns("metric_value")]
     for dimension in cv.dimensions:
         assert dimension.name in existing_columns
+
+
+def test_create_backup(tmp_path):
+    # Create a test database file
+    db_path = tmp_path / "test.db"
+    db_path.write_text("test data")
+
+    # Create a backup
+    backup_path = _create_backup(db_path, max_backups=3)
+
+    # Verify backup was created
+    assert backup_path.exists()
+    assert backup_path.read_text() == "test data"
+
+    # Verify backup is in backups directory
+    assert backup_path.parent == db_path.parent / "backups"
+
+    # Verify backup filename format
+    timestamp = re.search(r"test_(.*)\.db", backup_path.name).group(1)
+    datetime.strptime(timestamp, "%Y%m%d_%H%M%S")
+
+
+def test_create_backup_nonexistent_file(tmp_path):
+    # Try to backup a non-existent file
+    db_path = tmp_path / "nonexistent.db"
+    backup_path = _create_backup(db_path, max_backups=3)
+
+    # Should return the original path and not create any backups
+    assert backup_path == db_path
+    assert not (tmp_path / "backups").exists()
+
+
+def test_create_backup_cleanup_old_backups(tmp_path):
+    # Create a test database file
+    db_path = tmp_path / "test.db"
+    db_path.write_text("test data")
+
+    # Create some old backups
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+
+    # Create 5 old backups with timestamps
+    old_backups = []
+    for i in range(5):
+        timestamp = (datetime.now() - timedelta(hours=i)).strftime("%Y%m%d_%H%M%S")
+        backup_path = backup_dir / f"test_{timestamp}.db"
+        backup_path.write_text(f"old data {i}")
+        old_backups.append(backup_path)
+
+    # Create a new backup with max_backups=3
+    new_backup = _create_backup(db_path, max_backups=3)
+
+    # Verify only the 3 most recent backups exist
+    remaining_backups = sorted(backup_dir.glob("test_*.db"), reverse=True)
+    assert len(remaining_backups) == 3
+    assert new_backup in remaining_backups
+
+    # Verify the oldest backups were removed
+    for old_backup in old_backups[3:]:
+        assert not old_backup.exists()
+
+
+def test_migrate_creates_backup(tmp_path, config):
+    # Create a test database
+    db_path = tmp_path / "climate_ref.db"
+
+    # Configure the database URL to point to our test database
+    config.db.database_url = f"sqlite:///{db_path}"
+    config.db.max_backups = 2
+
+    # Create database instance and run migrations
+    Database.from_config(config, run_migrations=True)
+
+    # Verify backup was created
+    backup_dir = db_path.parent / "backups"
+    assert backup_dir.exists()
+    backups = list(backup_dir.glob("climate_ref_*.db"))
+    assert len(backups) == 1
+
+
+def test_migrate_no_backup_for_memory_db(config):
+    # Configure in-memory database
+    config.db.database_url = "sqlite:///:memory:"
+
+    # Create database instance and run migrations
+    Database.from_config(config, run_migrations=True)
+
+    # Verify no backup directory was created
+    assert not (Path("backups")).exists()
+
+
+def test_migrate_no_backup_for_postgres(config):
+    # Configure PostgreSQL database
+    config.db.database_url = "postgresql://localhost:5432/climate_ref"
+
+    # Create database instance and run migrations
+    # This will fail to connect, but that's okay - we just want to verify no backup is attempted
+    with pytest.raises(sqlalchemy.exc.OperationalError):
+        Database.from_config(config, run_migrations=True)
+
+    # Verify no backup directory was created
+    assert not (Path("backups")).exists()

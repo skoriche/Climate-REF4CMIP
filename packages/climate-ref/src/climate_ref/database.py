@@ -9,6 +9,8 @@ It provides a session object that can be used to interact with the database and 
 """
 
 import importlib.resources
+import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib import parse as urlparse
@@ -51,6 +53,44 @@ def _get_database_revision(connection: sqlalchemy.engine.Connection) -> str | No
     context = MigrationContext.configure(connection)
     current_rev = context.get_current_revision()
     return current_rev
+
+
+def _create_backup(db_path: Path, max_backups: int) -> Path:
+    """
+    Create a backup of the database file
+
+    Parameters
+    ----------
+    db_path
+        Path to the database file
+    max_backups
+        Maximum number of backups to keep
+
+    Returns
+    -------
+    :
+        Path to the backup file
+    """
+    if not db_path.exists():
+        logger.warning(f"Database file {db_path} does not exist, skipping backup")
+        return db_path
+
+    backup_dir = db_path.parent / "backups"
+    backup_dir.mkdir(exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = backup_dir / f"{db_path.stem}_{timestamp}{db_path.suffix}"
+
+    logger.info(f"Creating backup of database at {backup_path}")
+    shutil.copy2(db_path, backup_path)
+
+    # Clean up old backups
+    backups = sorted(backup_dir.glob(f"{db_path.stem}_*{db_path.suffix}"), reverse=True)
+    for old_backup in backups[max_backups:]:
+        logger.info(f"Removing old backup {old_backup}")
+        old_backup.unlink()
+
+    return backup_path
 
 
 def validate_database_url(database_url: str) -> str:
@@ -152,6 +192,12 @@ class Database:
                     f"https://github.com/Climate-REF/climate-ref/pull/271. "
                     "Please delete your database and start again."
                 )
+
+        # Create backup before running migrations
+        split_url = urlparse.urlsplit(self.url)
+        if split_url.scheme == "sqlite" and split_url.path != ":memory:":
+            db_path = Path(split_url.path[1:])
+            _create_backup(db_path, config.db.max_backups)
 
         alembic.command.upgrade(self.alembic_config(config), "heads")
 

@@ -159,7 +159,11 @@ filename = "sqlite://climate_ref.db"
                 "software": f"{default_path}/software",
                 "dimensions_cv": str(Path("pycmec") / "cv_cmip7_aft.yaml"),
             },
-            "db": {"database_url": "sqlite:///test/db/climate_ref.db", "run_migrations": True},
+            "db": {
+                "database_url": "sqlite:///test/db/climate_ref.db",
+                "max_backups": 5,
+                "run_migrations": True,
+            },
         }
 
     def test_from_env_variables(self, monkeypatch, config):

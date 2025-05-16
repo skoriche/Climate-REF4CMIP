@@ -115,11 +115,11 @@ class Testobs4MIPsAdapter:
         adapter = Obs4MIPsDatasetAdapter()
         local_data_catalog = (
             obs4mips_data_catalog.drop(columns=["time_range"])
-            .sort_values(["start_time"])
+            .sort_values(["instance_id"])
             .reset_index(drop=True)
         )
 
-        db_data_catalog = adapter.load_catalog(db_seeded).sort_values(["start_time"]).reset_index(drop=True)
+        db_data_catalog = adapter.load_catalog(db_seeded).sort_values(["instance_id"]).reset_index(drop=True)
 
         # TODO: start_time has a different dtype from the database due to pandas dt coercion
         db_data_catalog["start_time"] = db_data_catalog["start_time"].astype(object)

@@ -149,7 +149,7 @@ class ENSO(CommandLineDiagnostic):
                     }
 
         # Create input directory
-        dictDatasets = {
+        dict_datasets = {
             "model": dict_mod,
             "observations": dict_obs,
             "metricsCollection": mc_name,
@@ -161,7 +161,7 @@ class ENSO(CommandLineDiagnostic):
             definition.output_directory, f"input_{mc_name}_{source_id}_{experiment_id}_{member_id}.json"
         )
         with open(json_file, "w") as f:
-            json.dump(dictDatasets, f, indent=4)
+            json.dump(dict_datasets, f, indent=4)
         logger.debug(f"JSON file created: {json_file}")
 
         driver_file = _get_resource("climate_ref_pmp.drivers", "enso_driver.py", use_resources=True)

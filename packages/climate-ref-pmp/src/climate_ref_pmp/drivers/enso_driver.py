@@ -28,9 +28,9 @@ def main():
     print("### PMP ENSO: Compute the metric collection ###\n")
 
     args = parse_arguments()
-    dictDatasets, mod, run, pattern = prepare_datasets(args)
-    dict_metric, dict_dive = compute_metrics(args, dictDatasets, mod, run, pattern)
-    save_metrics_to_json(args, dictDatasets, dict_metric, dict_dive, pattern)
+    dict_datasets, mod, run, pattern = prepare_datasets(args)
+    dict_metric, dict_dive = compute_metrics(args, dict_datasets, mod, run, pattern)
+    save_metrics_to_json(args, dict_datasets, dict_metric, dict_dive, pattern)
     plot_results(args, pattern, mod, run)
 
 
@@ -48,17 +48,17 @@ def prepare_datasets(args):
     """Prepare datasets and update them with land-sea masks."""
     os.makedirs(args.output_directory, exist_ok=True)
     with open(args.input_json_path) as f:
-        dictDatasets = json.load(f)
-    mod_run = next(iter(dictDatasets["model"].keys()))
+        dict_datasets = json.load(f)
+    mod_run = next(iter(dict_datasets["model"].keys()))
     mod, run = mod_run.split("_")
     pattern = f"{args.metrics_collection}_{mod}_{args.experiment_id}_{run}"
-    dictDatasets = update_dict_datasets(dictDatasets, os.path.join(args.output_directory, "ref_landmask"))
-    # Write a JSON file for dictDatasets
+    dict_datasets = update_dict_datasets(dict_datasets, os.path.join(args.output_directory, "ref_landmask"))
+    # Write a JSON file for dict_datasets
     json_file = os.path.join(args.output_directory, f"input_{pattern}_processed.json")
     with open(json_file, "w") as f:
-        json.dump(dictDatasets, f, indent=4)
+        json.dump(dict_datasets, f, indent=4)
     print(f"JSON file created: {json_file}")
-    return dictDatasets, mod, run, pattern
+    return dict_datasets, mod, run, pattern
 
 
 def compute_metrics(args, dictDatasets, mod, run, pattern):
@@ -79,10 +79,10 @@ def compute_metrics(args, dictDatasets, mod, run, pattern):
     return dict_metric, dict_dive
 
 
-def save_metrics_to_json(args, dictDatasets, dict_metric, dict_dive, pattern):
+def save_metrics_to_json(args, dict_datasets, dict_metric, dict_dive, pattern):
     """Save metrics to a JSON file."""
     egg_pth = resources.resource_path()
-    dict_obs = dictDatasets["observations"]
+    dict_obs = dict_datasets["observations"]
     # pattern = f"{args.metrics_collection}_{mod}_{args.experiment_id}_{run}"
     mod = pattern.split("_")[-3]
     run = pattern.split("_")[-1]

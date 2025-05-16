@@ -38,3 +38,11 @@ dataset_registry_manager.register(
     package="climate_ref_pmp.dataset_registry",
     resource="pmp_climatology.txt",
 )
+
+
+dataset_registry_manager.register(
+    "pmp-obs4MIPs",
+    "https://pcmdiweb.llnl.gov/pss/pmpdata/",
+    package="climate_ref_pmp.dataset_registry",
+    resource="pmp_obs4MIPs.txt",
+)

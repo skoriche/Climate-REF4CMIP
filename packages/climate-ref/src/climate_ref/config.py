@@ -276,6 +276,16 @@ class DbConfig:
     """
     run_migrations: bool = field(default=True)
 
+    max_backups: int = env_field(name="MAX_BACKUPS", default=5)
+    """
+    Maximum number of database backups to keep.
+
+
+    When running migrations for on-disk SQLite databases, a backup of the database is created.
+    This setting controls how many of these backups are retained.
+    The oldest backups are automatically removed when this limit is exceeded.
+    """
+
     @database_url.default
     def _connection_url_factory(self) -> str:
         filename = env.path("REF_CONFIGURATION") / "db" / "climate_ref.db"

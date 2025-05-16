@@ -21,35 +21,48 @@ def test_empty_dir():
     "file_fragment, exp",
     (
         (
-            Path("obs4MIPs")
-            / "NASA-JPL"
-            / "AIRS-2-1"
-            / "ta"
+            Path("obs4REF")
+            / "obs4REF"
+            / "MOHC"
+            / "HadISST-1-1"
+            / "mon"
+            / "ts"
             / "gn"
-            / "v20201110"
-            / "ta_AIRS-2-1_gn_200209-201609.nc",
+            / "v20210727"
+            / "ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc",
             {
                 "activity_id": "obs4MIPs",
+                "end_time": "2019-07-16 12:00:00",
                 "frequency": "mon",
-                "grid": "1x1 degree latxlon grid",
+                "grid": "1x1 degree latitude x longitude",
                 "grid_label": "gn",
-                "institution_id": "JPL",
-                "nominal_resolution": "1x1 degree",
+                "institution_id": "MOHC",
+                "long_name": "Surface Temperature",
+                "nominal_resolution": "250 km",
                 "product": "observations",
                 "realm": "atmos",
-                "source_id": "AIRS-obs4MIPs-ta-v2.1",
+                "source_id": "HadISST-1-1",
                 "source_type": "satellite_blended",
-                "variable_id": "ta",
-                "variant_label": "BE",
-                "long_name": "Temperature",
+                "source_version_number": "v20210727",
+                "start_time": "1870-01-16 11:59:59.464417",
+                "time_range": "1870-01-16 11:59:59.464417-2019-07-16 12:00:00",
                 "units": "K",
-                "vertical_levels": 17,
-                "start_time": "2002-09-16 00:00:00",
-                "end_time": "2016-09-16 00:00:00",
-                "time_range": "2002-09-16 00:00:00-2016-09-16 00:00:00",
-                "path": str(TEST_DATA_DIR)
-                + "/sample-data/obs4MIPs/NASA-JPL/AIRS-2-1/ta/gn/v20201110/ta_AIRS-2-1_gn_200209-201609.nc",
-                "source_version_number": "v20201110",
+                "variable_id": "ts",
+                "variant_label": "PCMDI",
+                "vertical_levels": 1,
+                "path": str(
+                    TEST_DATA_DIR
+                    / "sample-data"
+                    / "obs4REF"
+                    / "obs4REF"
+                    / "MOHC"
+                    / "HadISST-1-1"
+                    / "mon"
+                    / "ts"
+                    / "gn"
+                    / "v20210727"
+                    / "ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+                ),
             },
         ),
         (
@@ -115,7 +128,7 @@ class Testobs4MIPsAdapter:
 
     def test_load_local_datasets(self, sample_data_dir, catalog_regression):
         adapter = Obs4MIPsDatasetAdapter()
-        data_catalog = adapter.find_local_datasets(str(sample_data_dir) + "/obs4MIPs")
+        data_catalog = adapter.find_local_datasets(str(sample_data_dir / "obs4REF"))
 
         # TODO: add time_range to the db?
         assert sorted(data_catalog.columns.tolist()) == sorted(

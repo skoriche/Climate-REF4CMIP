@@ -25,7 +25,7 @@ from climate_ref_ilamb.datasets import (
 
 def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
     """
-    Build a CMEC boundle from information in the dataframe.
+    Build a CMEC bundle from information in the dataframe.
 
     TODO: Migrate to use pycmec when ready.
     TODO: Add plots and html output.
@@ -197,6 +197,8 @@ class ILAMBStandard(Diagnostic):
         -------
             An execution result object
         """
+        _set_ilamb3_options(self.registry, self.registry_file)
+
         df = _load_csv_and_merge(definition.output_directory)
         metric_bundle, output_bundle = _form_bundles(definition.key, df)
 

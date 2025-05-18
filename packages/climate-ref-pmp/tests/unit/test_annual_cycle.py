@@ -206,13 +206,15 @@ def test_diagnostic_execute(mocker, provider):
     assert diagnostic.provider.run.call_count == 2
 
 
-def test_diagnostic_build_result(config, provider, execution_regression_dir, data_catalog):
+def test_diagnostic_build_result(config, provider, execution_regression, data_catalog):
     diagnostic = AnnualCycle()
     diagnostic.provider = pmp_provider
     diagnostic.provider.configure(config)
 
     key = "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_ts__pmp-climatology_ERA-5_ts"
-    output_directory = execution_regression_dir(diagnostic, key)
+    regression = execution_regression(diagnostic, key)
+
+    output_directory = regression.path()
 
     execution = next(
         solve_executions(

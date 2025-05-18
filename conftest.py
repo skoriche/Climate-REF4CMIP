@@ -15,6 +15,7 @@ from typing import cast
 import pandas as pd
 import pytest
 from _pytest.logging import LogCaptureFixture
+from attrs import define
 from click.testing import Result
 from loguru import logger
 from typer.testing import CliRunner
@@ -291,6 +292,37 @@ def metric_definition(definition_factory, cmip6_data_catalog, mock_diagnostic) -
     return definition_factory(diagnostic=mock_diagnostic, execution_dataset_collection=collection)
 
 
+@define
+class ExecutionRegression:
+    """
+    Copy the execution output from a diagnostic to the test-data directory
+
+    These data can then be used to test the parsing of the CMEC bundles without
+    having to run the entire diagnostic.
+
+    The data are only copied if the `--force-regen` pytest option is set.
+    """
+
+    diagnostic: Diagnostic
+    regression_data_dir: Path
+    request: pytest.FixtureRequest
+
+    def path(self, key: str) -> Path:
+        return self.regression_data_dir / self.diagnostic.provider.slug / self.diagnostic.slug / key
+
+    def check(self, key: str, output_directory: Path) -> None:
+        if not self.request.config.getoption("force_regen"):
+            logger.info("Not regenerating regression results")
+            return
+
+        logger.info(f"Regenerating regression output for {self.diagnostic.full_slug()}")
+        output_dir = self.path(key)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+
+        shutil.copytree(output_directory, output_dir)
+
+
 @pytest.fixture(scope="session")
 def execution_regression_dir(regression_data_dir):
     """
@@ -307,58 +339,78 @@ def execution_regression_dir(regression_data_dir):
 
 
 @pytest.fixture
-def execution_regression(request, execution_regression_dir):
-    def _regression(
-        diagnostic: Diagnostic,
-        output_directory: Path,
-        key: str,
-    ) -> None:
-        """
-        Copy the execution output from a diagnostic to the test-data directory
-
-        These data can then be used to test the parsing of the CMEC bundles without
-        having to run the entire diagnostic.
-
-        The data are only copied if the `--force-regen` pytest option is set.
-        """
-        if not request.config.getoption("force_regen"):
-            logger.info("Not regenerating regression results")
-            return
-
-        logger.info(f"Regenerating regression output for {diagnostic.full_slug()}")
-        output_dir = execution_regression_dir(diagnostic, key)
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-
-        shutil.copytree(output_directory, output_dir)
+def execution_regression(request, regression_data_dir):
+    def _regression(diagnostic: Diagnostic) -> ExecutionRegression:
+        return ExecutionRegression(
+            diagnostic=diagnostic, regression_data_dir=regression_data_dir, request=request
+        )
 
     return _regression
+
+
+@define
+class DiagnosticValidator:
+    config: Config
+    diagnostic: Diagnostic
+    data_catalog: dict[SourceDatasetType, pd.DataFrame]
+    execution_regression: ExecutionRegression
+
+    def get_definition(self) -> ExecutionDefinition:
+        execution = next(
+            solve_executions(
+                data_catalog=self.data_catalog,
+                diagnostic=self.diagnostic,
+                provider=self.diagnostic.provider,
+            )
+        )
+        return execution.build_execution_definition(output_root=self.config.paths.scratch)
+
+    def get_regression_definition(self) -> ExecutionDefinition:
+        """
+        Get the regression definition for the diagnostic
+        """
+        definition = self.get_definition()
+        regression_output_dir = self.execution_regression.path(definition.key)
+
+        # Copy the regression output directory to the execution output directory
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(regression_output_dir, definition.output_directory, dirs_exist_ok=True)
+
+        return definition
+
+    def execute(self, definition: ExecutionDefinition) -> None:
+        """
+        Validate the diagnostic by running it and checking the result
+        """
+        # Execute the diagnostic
+        definition.output_directory.mkdir(parents=True, exist_ok=True)
+        try:
+            self.diagnostic.execute(definition)
+        finally:
+            # Potentially save the result for regression testing
+            self.execution_regression.check(key=definition.key, output_directory=definition.output_directory)
+
+    def validate(self, definition: ExecutionDefinition) -> None:
+        result = self.diagnostic.build_execution_result(definition)
+
+        # Ensure the output log file exist
+        # This isn't tracked in the regression data
+        result.to_output_path("out.log").touch()
+        validate_result(self.diagnostic, self.config, result)
 
 
 @pytest.fixture
 def diagnostic_validation(config, mocker, provider, data_catalog, execution_regression):
     mocker.patch.object(Execution, "execution_group")
 
-    def _validate(diagnostic: Diagnostic) -> None:
+    def _create_validator(diagnostic: Diagnostic) -> DiagnosticValidator:
         diagnostic.provider.configure(config)
 
-        execution = next(
-            solve_executions(
-                data_catalog=data_catalog,
-                diagnostic=diagnostic,
-                provider=diagnostic.provider,
-            )
+        return DiagnosticValidator(
+            config=config,
+            diagnostic=diagnostic,
+            data_catalog=data_catalog,
+            execution_regression=execution_regression(diagnostic=diagnostic),  # type: ignore
         )
-        # Run the diagnostic
-        definition = execution.build_execution_definition(output_root=config.paths.scratch)
-        definition.output_directory.mkdir(parents=True, exist_ok=True)
-        try:
-            result = diagnostic.run(definition)
-        finally:
-            # Potentially save the result for regression testing
-            execution_regression(diagnostic, definition.output_directory, definition.key)
 
-        # Check the result
-        validate_result(diagnostic, config, result)
-
-    return _validate
+    return _create_validator

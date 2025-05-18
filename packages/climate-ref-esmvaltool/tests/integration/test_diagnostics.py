@@ -9,4 +9,16 @@ diagnostics = [pytest.param(diagnostic, id=diagnostic.slug) for diagnostic in pr
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_diagnostics(diagnostic: Diagnostic, diagnostic_validation):
-    diagnostic_validation(diagnostic)
+    validator = diagnostic_validation(diagnostic)
+
+    definition = validator.get_definition()
+    validator.execute(definition)
+    validator.validate(definition)
+
+
+@pytest.mark.parametrize("diagnostic", diagnostics)
+def test_build_results(diagnostic: Diagnostic, diagnostic_validation):
+    validator = diagnostic_validation(diagnostic)
+
+    definition = validator.get_regression_definition()
+    validator.validate(definition)

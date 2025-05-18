@@ -67,13 +67,13 @@ def prepare_datasets(args):
     return dict_datasets, mod, run, pattern
 
 
-def compute_metrics(args, dictDatasets, mod, run, pattern):
+def compute_metrics(args, dict_datasets, mod, run, pattern):
     """Compute the metric collection."""
     dict_metric = defaultdict(dict)
     dict_dive = defaultdict(dict)
     metrics, dive_results = ComputeCollection(
         args.metrics_collection,
-        dictDatasets,
+        dict_datasets,
         f"{mod}_{run}",
         netcdf=True,
         netcdf_name=os.path.join(args.output_directory, pattern),
@@ -140,10 +140,10 @@ def write_CMEC_json(json_file):
     ref_datasets_dict = {ref: {} for ref in ref_datasets}
 
     dimensions_dict = {
-        "json_structure": ["model", "realization", "metrics", "reference_datasets"],
+        "json_structure": ["model", "realization", "metric", "reference_datasets"],
         "model": {mod: {}},
         "realization": {run: {}},
-        "metrics": metrics_dict,
+        "metric": metrics_dict,
         "reference_datasets": ref_datasets_dict,
     }
 
@@ -291,13 +291,13 @@ def plot_enso(mc_name, mod_run, exp, path_work_dir, data_json):
             print(f"file not found: {filename_nc}")
 
 
-def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
+def update_dict_datasets(dict_datasets: dict, output_dir: str = ".") -> dict:
     """
     Update the dictDatasets to include the land-sea mask and remap observation names.
 
     Parameters
     ----------
-    dictDatasets : dict
+    dict_datasets : dict
         Dictionary containing datasets information.
     output_dir : str
         Directory where the land-sea mask will be saved.
@@ -315,24 +315,24 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
     NotImplementedError
         If multiple paths are found for a dataset or if the path is not a string.
     """
-    dictDatasets2 = copy.deepcopy(dictDatasets)
-    data_types = dictDatasets.keys()  # ["model", "observations"]
+    dict_datasets2 = copy.deepcopy(dict_datasets)
+    data_types = dict_datasets.keys()  # ["model", "observations"]
 
     # Select only model and observations datasets
     data_types = [data_type for data_type in data_types if data_type in ["model", "observations"]]
 
     for data_type in data_types:
-        datasets = dictDatasets[data_type].keys()
+        datasets = dict_datasets[data_type].keys()
         for dataset in datasets:
-            variables = dictDatasets[data_type][dataset].keys()
+            variables = dict_datasets[data_type][dataset].keys()
             for variable in variables:
-                path = dictDatasets[data_type][dataset][variable]["path + filename"]
+                path = dict_datasets[data_type][dataset][variable]["path + filename"]
 
                 # If path is a list and has one element, take it as a string,
                 # otherwise raise notImplementedError
                 if isinstance(path, list) and len(path) == 1:
                     path = copy.deepcopy(path[0])
-                    dictDatasets2[data_type][dataset][variable]["path + filename"] = path
+                    dict_datasets2[data_type][dataset][variable]["path + filename"] = path
                 elif isinstance(path, list) and len(path) > 1:
                     raise NotImplementedError(
                         f"Multiple paths found for {data_type} {dataset} {variable}: {path}"
@@ -342,30 +342,31 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                         f"Path is not a string for {data_type} {dataset} {variable}: {path}"
                     )
                 else:
-                    dictDatasets2[data_type][dataset][variable]["path + filename"] = path
+                    dict_datasets2[data_type][dataset][variable]["path + filename"] = path
 
                 # Check if the file exists
                 if not os.path.exists(path):
                     raise FileNotFoundError(f"File not found: {path}")
 
                 # Generate the landmask path for both observations and models.
-                if data_type == "model" and "sftlf" in dictDatasets[data_type][dataset]:
-                    path_landmask = dictDatasets[data_type][dataset]["sftlf"]["path + filename"]
-                else:
+                if data_type == "model" and (
+                    "path + filename_area" not in dict_datasets[data_type][dataset]
+                    or "path + filename_landmask" not in dict_datasets[data_type][dataset]
+                ):
                     # Generate it per variable as different variables may be on different grids.
                     path_landmask = generate_landmask_path(path, variable, output_dir=output_dir)
 
-                dictDatasets2[data_type][dataset][variable]["areaname"] = "areacella"
-                dictDatasets2[data_type][dataset][variable]["landmaskname"] = "sftlf"
-                dictDatasets2[data_type][dataset][variable]["path + filename_area"] = path_landmask
-                dictDatasets2[data_type][dataset][variable]["path + filename_landmask"] = path_landmask
+                    dict_datasets2[data_type][dataset][variable]["areaname"] = "areacella"
+                    dict_datasets2[data_type][dataset][variable]["landmaskname"] = "sftlf"
+                    dict_datasets2[data_type][dataset][variable]["path + filename_area"] = path_landmask
+                    dict_datasets2[data_type][dataset][variable]["path + filename_landmask"] = path_landmask
 
                 # Map variable names to ENSO package recognized names
                 var_name_mapping = {"ts": "sst", "tauu": "taux"}
                 var_name_key = var_name_mapping.get(variable, variable)
 
-                # Update the variable name in the dictDatasets
-                dictDatasets2[data_type][dataset][var_name_key] = dictDatasets2[data_type][dataset].pop(
+                # Update the variable name
+                dict_datasets2[data_type][dataset][var_name_key] = dict_datasets2[data_type][dataset].pop(
                     variable
                 )
 
@@ -382,12 +383,9 @@ def update_dict_datasets(dictDatasets: dict, output_dir: str = ".") -> dict:
                 # Get the new name if it exists in the mapping, otherwise keep the original name
                 dataset_name_key = observation_name_mapping.get(dataset, dataset)
                 # Update the dictDatasets with the new name
-                dictDatasets2[data_type][dataset_name_key] = dictDatasets2[data_type].pop(dataset)
-            # Remove sftlf from the dictDatasets
-            elif data_type == "model" and "sftlf" in dictDatasets2[data_type][dataset]:
-                dictDatasets2[data_type][dataset].pop("sftlf")
+                dict_datasets2[data_type][dataset_name_key] = dict_datasets2[data_type].pop(dataset)
 
-    return dictDatasets2
+    return dict_datasets2
 
 
 def generate_landmask_path(file_path, var_name, output_dir=".", output_filename=None):

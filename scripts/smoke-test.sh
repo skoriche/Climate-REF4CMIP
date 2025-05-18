@@ -34,7 +34,7 @@ echo "Initializing docker stack..."
 bash ./scripts/initialise-docker.sh
 
 # Fetch the test data
-make fetch-test-data
+docker compose exec climate-ref datasets fetch-data --registry sample-data --output-directory /ref/data
 
 # Start the stack
 echo "Starting docker stack..."

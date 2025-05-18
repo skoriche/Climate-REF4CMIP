@@ -294,7 +294,7 @@ def _transform_results(data: dict[str, Any]) -> dict[str, Any]:
     Parameters
     ----------
     data : dict
-        The original executions dictionary.
+        The original execution dictionary.
 
     Returns
     -------

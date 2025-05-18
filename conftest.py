@@ -307,13 +307,42 @@ class ExecutionRegression:
     regression_data_dir: Path
     request: pytest.FixtureRequest
 
+    sanitised_file_globs: tuple[str, ...] = ("**/*.json", "**/*.txt", "**/*.yaml", "**/*.html")
+
     def path(self, key: str) -> Path:
         return self.regression_data_dir / self.diagnostic.provider.slug / self.diagnostic.slug / key
+
+    def sanitise_output_directory(self, output_dir: Path):
+        """
+        Replace any references to local directories with a placeholder
+        """
+        for glob in self.sanitised_file_globs:
+            for file in output_dir.rglob(glob):
+                with open(file) as f:
+                    content = f.read()
+                content = content.replace(str(output_dir), "<OUTPUT_DIR>")
+                with open(file, "w") as f:
+                    f.write(content)
+
+    def hydrate_output_directory(self, output_dir: Path):
+        """
+        Replace any references to the placeholder with the actual output directory
+        """
+        for glob in ExecutionRegression.sanitised_file_globs:
+            for file in output_dir.rglob(glob):
+                with open(file) as f:
+                    content = f.read()
+                content = content.replace("<OUTPUT_DIR>", str(output_dir))
+                with open(file, "w") as f:
+                    f.write(content)
 
     def check(self, key: str, output_directory: Path) -> None:
         if not self.request.config.getoption("force_regen"):
             logger.info("Not regenerating regression results")
             return
+        # Replace any references to the output directory with a placeholder
+        # This should make the regresion data more portable and not tied to a specific machine
+        self.sanitise_output_directory(output_directory)
 
         logger.info(f"Regenerating regression output for {self.diagnostic.full_slug()}")
         output_dir = self.path(key)
@@ -321,21 +350,6 @@ class ExecutionRegression:
             shutil.rmtree(output_dir)
 
         shutil.copytree(output_directory, output_dir)
-
-
-@pytest.fixture(scope="session")
-def execution_regression_dir(regression_data_dir):
-    """
-    Directory where the regression data are stored
-    """
-
-    def _regression_dir(diagnostic: Diagnostic, key: str) -> Path:
-        """
-        Get the regression directory for a given diagnostic
-        """
-        return regression_data_dir / diagnostic.provider.slug / diagnostic.slug / key
-
-    return _regression_dir
 
 
 @pytest.fixture
@@ -370,11 +384,15 @@ class DiagnosticValidator:
         Get the regression definition for the diagnostic
         """
         definition = self.get_definition()
+
+        # TODO: Should this be a helper function on ExecutionRegression?
         regression_output_dir = self.execution_regression.path(definition.key)
 
         # Copy the regression output directory to the execution output directory
         definition.output_directory.mkdir(parents=True, exist_ok=True)
         shutil.copytree(regression_output_dir, definition.output_directory, dirs_exist_ok=True)
+
+        self.execution_regression.hydrate_output_directory(definition.output_directory)
 
         return definition
 

@@ -2,7 +2,6 @@ import datetime
 
 import pandas as pd
 import pytest
-from attr import evolve
 from climate_ref_pmp import AnnualCycle
 from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.pmp_driver import _get_resource
@@ -204,27 +203,3 @@ def test_diagnostic_execute(mocker, provider):
 
     diagnostic.build_cmds.assert_called_once_with("definition")
     assert diagnostic.provider.run.call_count == 2
-
-
-def test_diagnostic_build_result(config, provider, execution_regression, data_catalog):
-    diagnostic = AnnualCycle()
-    diagnostic.provider = pmp_provider
-    diagnostic.provider.configure(config)
-
-    key = "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_ts__pmp-climatology_ERA-5_ts"
-    regression = execution_regression(diagnostic, key)
-
-    output_directory = regression.path()
-
-    execution = next(
-        solve_executions(
-            data_catalog=data_catalog,
-            diagnostic=diagnostic,
-            provider=diagnostic.provider,
-        )
-    )
-    definition = execution.build_execution_definition(output_root=config.paths.scratch)
-    definition = evolve(definition, output_directory=output_directory)
-
-    result = diagnostic.build_execution_result(definition)
-    assert result.successful

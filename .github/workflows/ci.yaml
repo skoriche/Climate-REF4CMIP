@@ -131,6 +131,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run smoke test
         run: |
+          export DOCKER_USER="$(id -u):$(id -g)"
           bash scripts/smoke-test.sh
       - name: Cleanup
         if: always()

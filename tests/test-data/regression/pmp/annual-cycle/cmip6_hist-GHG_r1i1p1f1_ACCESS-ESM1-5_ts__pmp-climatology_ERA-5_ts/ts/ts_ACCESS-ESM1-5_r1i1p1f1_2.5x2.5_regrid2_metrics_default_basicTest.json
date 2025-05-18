@@ -3,12 +3,12 @@
         "platform": {
             "OS": "Darwin",
             "Version": "24.4.0",
-            "Name": "MacBookPro.localdomain"
+            "Name": "MacBookPro.home.lewelly.com"
         },
         "userId": "root",
         "osAccess": false,
-        "commandLine": "/Users/jared/code/Climate-REF/climate-ref/.venv/lib/python3.11/site-packages/pcmdi_metrics/mean_climate/mean_climate_driver.py -p /Users/jared/code/Climate-REF/climate-ref/packages/climate-ref-pmp/src/climate_ref_pmp/params/pmp_param_annualcycle_2-metrics.py --vars ts --custom_observations /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9/obs_dict.json --test_data_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --test_data_set ACCESS-ESM1-5 --realization r1i1p1f1 --filename_template ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250506.nc --metrics_output_path /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-113/popen-gw7/test_diagnostics_annual_cycle_0/climate_ref/packages.climate-ref-pmp.tests.integration.test_diagnostics/test_diagnostics_annual-cycle_/scratch/pmp/annual-cycle/773875895cfdc6e85b3de9dbc7ba5ebedb5a2de9 --cmec",
-        "date": "2025-05-06 11:31:47",
+        "commandLine": "/Users/jared/code/Climate-REF/climate-ref/.ref/software/conda/pmp-6a8eb4990766c2f2f68ae41699f0f5025acc0eed/bin/mean_climate_driver.py -p /Users/jared/code/Climate-REF/climate-ref/packages/climate-ref-pmp/src/climate_ref_pmp/params/pmp_param_annualcycle_2-metrics.py --vars ts --custom_observations <OUTPUT_DIR>/obs_dict.json --test_data_path <OUTPUT_DIR> --test_data_set ACCESS-ESM1-5 --realization r1i1p1f1 --filename_template ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250518.nc --metrics_output_path <OUTPUT_DIR> --cmec",
+        "date": "2025-05-18 16:59:39",
         "conda": {
             "Version": "24.11.3",
             "buildVersion": "not installed",
@@ -44,14 +44,14 @@
     },
     "References": {
         "default": {
-            "template": "/Users/jared/Library/Caches/ref/PMP_obs4MIPsClims/ts/gr/v20250224/ts_mon_ERA-5_PCMDI_gr_198101-200412_AC_v20250224_2.5x2.5.nc"
+            "template": "/Users/jared/Library/Caches/climate_ref/PMP_obs4MIPsClims/ts/gr/v20250224/ts_mon_ERA-5_PCMDI_gr_198101-200412_AC_v20250224_2.5x2.5.nc"
         }
     },
     "RESULTS": {
         "ACCESS-ESM1-5": {
             "default": {
                 "r1i1p1f1": {
-                    "InputClimatologyFileName": "ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250506.nc",
+                    "InputClimatologyFileName": "ts_ACCESS-ESM1-5_hist-GHG_r1i1p1f1_clims.198101-200512.AC.v20250518.nc",
                     "global": {
                         "bias_xy": {
                             "ann": "1.55238e+00",

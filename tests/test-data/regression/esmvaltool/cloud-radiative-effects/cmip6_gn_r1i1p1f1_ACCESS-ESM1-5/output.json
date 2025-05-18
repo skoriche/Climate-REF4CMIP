@@ -1,78 +1,78 @@
 {
-  "index": "/tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/executions/recipe_20250508_085102/index.html",
+  "index": "<OUTPUT_DIR>/executions/recipe_20250518_065933/index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
     "obsdata": {},
-    "log": "/tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/executions/recipe_20250508_085102/run/main_log_debug.txt"
+    "log": "<OUTPUT_DIR>/executions/recipe_20250518_065933/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250508_085102/work/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.nc",
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_bottom.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_bottom.nc",
+      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_left.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_left.nc",
+      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_right.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_right.nc",
+      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_bottom.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_bottom.nc",
+      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_left.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_left.nc",
+      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_right.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_right.nc",
+      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/work/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.nc",
       "long_name": "TOA Longwave Cloud Radiative Effect vs. latitude for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250508_085102/work/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.nc",
+    "executions/recipe_20250518_065933/work/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.nc": {
+      "filename": "executions/recipe_20250518_065933/work/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.nc",
       "long_name": "TOA Shortwave Cloud Radiative Effect vs. latitude for various datasets.",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_bottom.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_bottom.nc",
-      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_left.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_left.nc",
-      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_right.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon_top_right.nc",
-      "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_bottom.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_bottom.nc",
-      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_left.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_left.nc",
-      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_right.nc": {
-      "filename": "executions/recipe_20250508_085102/work/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon_top_right.nc",
-      "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250508_085102/plots/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.png": {
-      "filename": "executions/recipe_20250508_085102/plots/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.png",
-      "long_name": "TOA Longwave Cloud Radiative Effect vs. latitude for various datasets.",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/plots/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.png": {
-      "filename": "executions/recipe_20250508_085102/plots/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.png",
-      "long_name": "TOA Shortwave Cloud Radiative Effect vs. latitude for various datasets.",
-      "description": ""
-    },
-    "executions/recipe_20250508_085102/plots/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon.png": {
-      "filename": "executions/recipe_20250508_085102/plots/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon.png",
+    "executions/recipe_20250518_065933/plots/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon.png": {
+      "filename": "executions/recipe_20250518_065933/plots/plot_maps/plot/map_lwcre_ACCESS-ESM1-5_Amon.png",
       "long_name": "Map plot of TOA Longwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
       "description": ""
     },
-    "executions/recipe_20250508_085102/plots/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon.png": {
-      "filename": "executions/recipe_20250508_085102/plots/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon.png",
+    "executions/recipe_20250518_065933/plots/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon.png": {
+      "filename": "executions/recipe_20250518_065933/plots/plot_maps/plot/map_swcre_ACCESS-ESM1-5_Amon.png",
       "long_name": "Map plot of TOA Shortwave Cloud Radiative Effect of dataset CMIP6 including bias relative to OBS. The number in the top left corner corresponds to the spatial mean (weighted by grid cell areas).",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/plots/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.png": {
+      "filename": "executions/recipe_20250518_065933/plots/plot_profiles/plot/variable_vs_lat_lwcre_ambiguous_dataset_Amon.png",
+      "long_name": "TOA Longwave Cloud Radiative Effect vs. latitude for various datasets.",
+      "description": ""
+    },
+    "executions/recipe_20250518_065933/plots/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.png": {
+      "filename": "executions/recipe_20250518_065933/plots/plot_profiles/plot/variable_vs_lat_swcre_ambiguous_dataset_Amon.png",
+      "long_name": "TOA Shortwave Cloud Radiative Effect vs. latitude for various datasets.",
       "description": ""
     }
   },
   "html": {
-    "/tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/executions/recipe_20250508_085102/index.html": {
-      "filename": "/tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/executions/recipe_20250508_085102/index.html",
+    "<OUTPUT_DIR>/executions/recipe_20250518_065933/index.html": {
+      "filename": "<OUTPUT_DIR>/executions/recipe_20250518_065933/index.html",
       "long_name": "Results page",
       "description": "Page showing the executions of the ESMValTool run."
     }

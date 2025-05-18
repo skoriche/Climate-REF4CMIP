@@ -63,7 +63,7 @@
                 },
                 "period": "1900-2005",
                 "reference_eofs": 1,
-                "source": "/Users/jared/code/Climate-REF/climate-ref/tests/test-data/sample-data/obs4REF/obs4MIPs_PCMDI_monthly/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+                "source": "<TEST_DATA_DIR>/sample-data/obs4REF/obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
             }
         }
     },

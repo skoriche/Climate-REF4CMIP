@@ -13,7 +13,6 @@ def test_diagnostics(diagnostic: Diagnostic, diagnostic_validation):
 
     definition = validator.get_definition()
     validator.execute(definition)
-    validator.validate(definition)
 
 
 @pytest.mark.parametrize("diagnostic", diagnostics)

@@ -1,0 +1,63 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "region",
+      "model",
+      "metric",
+      "statistic"
+    ],
+    "region": {
+      "None": {
+        "LongName": "None",
+        "Description": "Reference data extents",
+        "Generator": "N/A"
+      }
+    },
+    "model": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
+        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
+      }
+    },
+    "metric": {
+      "cmip6_historical": {
+        "Name": "cmip6_historical",
+        "Abstract": "benchmark score",
+        "URI": [
+          "https://www.osti.gov/biblio/1330803",
+          "https://doi.org/10.1029/2018MS001354"
+        ],
+        "Contact": "forrest AT climatemodeling.org"
+      }
+    },
+    "statistic": {
+      "Period Mean [°C]": {},
+      "Bias [°C]": {},
+      "Bias Score [1]": {},
+      "Phase Shift [month]": {},
+      "Seasonal Cycle Score [1]": {},
+      "Normalized Standard Deviation [1]": {},
+      "Correlation [1]": {},
+      "Spatial Distribution Score [1]": {}
+    }
+  },
+  "RESULTS": {
+    "None": {
+      "ACCESS-ESM1-5-r1i1p1f1-gn": {
+        "cmip6_historical": {
+          "Period Mean [°C]": 19.187995959406056,
+          "Bias [°C]": 0.6876177565957186,
+          "Bias Score [1]": 0.4641750106921151,
+          "Phase Shift [month]": 0.2034027878303509,
+          "Seasonal Cycle Score [1]": 0.8508851108307254,
+          "Normalized Standard Deviation [1]": 0.977952635578868,
+          "Correlation [1]": 0.9894384715388715,
+          "Spatial Distribution Score [1]": 0.994224999990606
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

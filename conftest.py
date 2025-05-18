@@ -306,43 +306,55 @@ class ExecutionRegression:
     diagnostic: Diagnostic
     regression_data_dir: Path
     request: pytest.FixtureRequest
+    replacements: dict[str, str]
 
-    sanitised_file_globs: tuple[str, ...] = ("**/*.json", "**/*.txt", "**/*.yaml", "**/*.html")
+    sanitised_file_globs: tuple[str, ...] = (
+        "*.json",
+        "*.txt",
+        "*.yaml",
+        "*.yml",
+        "*.html",
+        "*.xml",
+    )
+
+    def _replace_file(self, file: Path, replacements: dict[str, str]):
+        with open(file) as f:
+            content = f.read()
+
+            for key, value in replacements.items():
+                content = content.replace(key, value)
+        with open(file, "w") as f:
+            f.write(content)
 
     def path(self, key: str) -> Path:
         return self.regression_data_dir / self.diagnostic.provider.slug / self.diagnostic.slug / key
 
-    def sanitise_output_directory(self, output_dir: Path):
+    def replace_references(self, output_dir: Path, replacements: dict[str, str]):
         """
         Replace any references to local directories with a placeholder
         """
         for glob in self.sanitised_file_globs:
             for file in output_dir.rglob(glob):
-                with open(file) as f:
-                    content = f.read()
-                content = content.replace(str(output_dir), "<OUTPUT_DIR>")
-                with open(file, "w") as f:
-                    f.write(content)
+                self._replace_file(file, replacements)
 
-    def hydrate_output_directory(self, output_dir: Path):
+    def hydrate_output_directory(self, output_dir: Path, replacements):
         """
         Replace any references to the placeholder with the actual output directory
         """
-        for glob in ExecutionRegression.sanitised_file_globs:
+        for glob in self.sanitised_file_globs:
             for file in output_dir.rglob(glob):
-                with open(file) as f:
-                    content = f.read()
-                content = content.replace("<OUTPUT_DIR>", str(output_dir))
-                with open(file, "w") as f:
-                    f.write(content)
+                self._replace_file(file, replacements)
 
     def check(self, key: str, output_directory: Path) -> None:
         if not self.request.config.getoption("force_regen"):
             logger.info("Not regenerating regression results")
             return
         # Replace any references to the output directory with a placeholder
-        # This should make the regresion data more portable and not tied to a specific machine
-        self.sanitise_output_directory(output_directory)
+        # This should make the regression data more portable and not tied to a specific machine
+        self.replace_references(
+            output_directory,
+            {str(output_directory): "<OUTPUT_DIR>", **self.replacements},
+        )
 
         logger.info(f"Regenerating regression output for {self.diagnostic.full_slug()}")
         output_dir = self.path(key)
@@ -353,10 +365,19 @@ class ExecutionRegression:
 
 
 @pytest.fixture
-def execution_regression(request, regression_data_dir):
+def execution_regression(
+    request,
+    regression_data_dir,
+    test_data_dir,
+):
     def _regression(diagnostic: Diagnostic) -> ExecutionRegression:
         return ExecutionRegression(
-            diagnostic=diagnostic, regression_data_dir=regression_data_dir, request=request
+            diagnostic=diagnostic,
+            regression_data_dir=regression_data_dir,
+            request=request,
+            replacements={
+                str(test_data_dir): "<TEST_DATA_DIR>",
+            },
         )
 
     return _regression
@@ -392,7 +413,13 @@ class DiagnosticValidator:
         definition.output_directory.mkdir(parents=True, exist_ok=True)
         shutil.copytree(regression_output_dir, definition.output_directory, dirs_exist_ok=True)
 
-        self.execution_regression.hydrate_output_directory(definition.output_directory)
+        self.execution_regression.replace_references(
+            definition.output_directory,
+            {
+                "<OUTPUT_DIR>": str(definition.output_directory),
+                **{value: key for key, value in self.execution_regression.replacements.items()},
+            },
+        )
 
         return definition
 
@@ -403,7 +430,7 @@ class DiagnosticValidator:
         # Execute the diagnostic
         definition.output_directory.mkdir(parents=True, exist_ok=True)
         try:
-            self.diagnostic.execute(definition)
+            self.diagnostic.run(definition)
         finally:
             # Potentially save the result for regression testing
             self.execution_regression.check(key=definition.key, output_directory=definition.output_directory)

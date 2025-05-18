@@ -1,28 +1,28 @@
 {
-  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/index.html",
+  "index": "<OUTPUT_DIR>/executions/recipe_20250518_065901/index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
     "obsdata": {},
-    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/run/main_log_debug.txt"
+    "log": "<OUTPUT_DIR>/executions/recipe_20250518_065901/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250506_010209/work/timeseries/script1/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc": {
-      "filename": "executions/recipe_20250506_010209/work/timeseries/script1/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc",
+    "executions/recipe_20250518_065901/work/timeseries/script1/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc": {
+      "filename": "executions/recipe_20250518_065901/work/timeseries/script1/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.nc",
       "long_name": "Annual global mean Near-Surface Air Temperature according to ACCESS-ESM1-5.",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250506_010209/plots/timeseries/script1/png/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.png": {
-      "filename": "executions/recipe_20250506_010209/plots/timeseries/script1/png/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.png",
+    "executions/recipe_20250518_065901/plots/timeseries/script1/png/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.png": {
+      "filename": "executions/recipe_20250518_065901/plots/timeseries/script1/png/CMIP6_ACCESS-ESM1-5_Amon_esm-1pct-brch-1000PgC_r1i1p1f1_tas_gn_01680116T120000-02681216T120000.png",
       "long_name": "Annual global mean Near-Surface Air Temperature according to ACCESS-ESM1-5.",
       "description": ""
     }
   },
   "html": {
-    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/index.html": {
-      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw2/test_diagnostics_global_mean_t0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_global-mean-timeseries_/scratch/esmvaltool/global-mean-timeseries/77829ce82d4d31d9417e2cbee0385f6c01e87e0f/executions/recipe_20250506_010209/index.html",
+    "<OUTPUT_DIR>/executions/recipe_20250518_065901/index.html": {
+      "filename": "<OUTPUT_DIR>/executions/recipe_20250518_065901/index.html",
       "long_name": "Results page",
       "description": "Page showing the executions of the ESMValTool run."
     }

@@ -1,0 +1,13 @@
+calculate_mmm: false
+recipe: recipe.yml
+version: 2.12.0
+script: ecs
+run_dir: <OUTPUT_DIR>/executions/recipe_20250518_065758/run/cmip6/ecs
+plot_dir: <OUTPUT_DIR>/executions/recipe_20250518_065758/plots/cmip6/ecs
+work_dir: <OUTPUT_DIR>/executions/recipe_20250518_065758/work/cmip6/ecs
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /Users/jared/auxiliary_data
+input_files:
+- <OUTPUT_DIR>/executions/recipe_20250518_065758/preproc/cmip6/tas/metadata.yml
+- <OUTPUT_DIR>/executions/recipe_20250518_065758/preproc/cmip6/rtnt/metadata.yml

@@ -1,5 +1,6 @@
 import os
 import shutil
+import warnings
 
 import pytest
 
@@ -34,10 +35,12 @@ class TestPMPClimatologyAdapter:
         )
 
     def test_load_local_CMIP6_datasets(self, sample_data_dir):
-        with pytest.raises(ValueError) as excinfo:
-            adapter = PMPClimatologyDatasetAdapter()
-            adapter.find_local_datasets(str(sample_data_dir) + "/CMIP6")
-        assert str(excinfo.value) == "No obs4MIPs-compliant datasets found"
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with pytest.raises(ValueError) as excinfo:
+                adapter = PMPClimatologyDatasetAdapter()
+                adapter.find_local_datasets(str(sample_data_dir) + "/CMIP6")
+            assert str(excinfo.value) == "No obs4MIPs-compliant datasets found"
 
     def test_empty_directory_exception(self, test_empty_dir):
         with pytest.raises(ValueError) as excinfo:

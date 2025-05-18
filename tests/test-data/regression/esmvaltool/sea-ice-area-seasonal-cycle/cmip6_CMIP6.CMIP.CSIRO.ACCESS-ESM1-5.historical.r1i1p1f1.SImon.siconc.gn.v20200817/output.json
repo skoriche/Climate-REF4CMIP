@@ -1,58 +1,58 @@
 {
-  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw3/test_diagnostics_sea_ice_area_0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_sea-ice-area-seasonal-cycle_/scratch/esmvaltool/sea-ice-area-seasonal-cycle/233a696dce8964d4f6979dcb71fd946551215082/executions/recipe_20250506_010209/index.html",
+  "index": "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
     "obsdata": {},
-    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw3/test_diagnostics_sea_ice_area_0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_sea-ice-area-seasonal-cycle_/scratch/esmvaltool/sea-ice-area-seasonal-cycle/233a696dce8964d4f6979dcb71fd946551215082/executions/recipe_20250506_010209/run/main_log_debug.txt"
+    "log": "<OUTPUT_DIR>/executions/recipe_20250518_065758/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250506_010209/work/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
-      "filename": "executions/recipe_20250506_010209/work/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
+    "executions/recipe_20250518_065758/work/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
+      "filename": "executions/recipe_20250518_065758/work/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
       "long_name": "Time series of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
-      "filename": "executions/recipe_20250506_010209/work/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
+    "executions/recipe_20250518_065758/work/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
+      "filename": "executions/recipe_20250518_065758/work/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
       "long_name": "Time series of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
-      "filename": "executions/recipe_20250506_010209/work/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
+    "executions/recipe_20250518_065758/work/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
+      "filename": "executions/recipe_20250518_065758/work/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
       "long_name": "Annual cycle of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
-      "filename": "executions/recipe_20250506_010209/work/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
+    "executions/recipe_20250518_065758/work/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc": {
+      "filename": "executions/recipe_20250518_065758/work/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.nc",
       "long_name": "Annual cycle of ambiguous_long_name for various datasets.",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250506_010209/plots/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
-      "filename": "executions/recipe_20250506_010209/plots/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
+    "executions/recipe_20250518_065758/plots/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
+      "filename": "executions/recipe_20250518_065758/plots/siarea_min/allplots/timeseries_sea_ice_area_nh_sep_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
       "long_name": "Time series of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/plots/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
-      "filename": "executions/recipe_20250506_010209/plots/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
+    "executions/recipe_20250518_065758/plots/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
+      "filename": "executions/recipe_20250518_065758/plots/siarea_min/allplots/timeseries_sea_ice_area_sh_feb_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
       "long_name": "Time series of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
-      "filename": "executions/recipe_20250506_010209/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
+    "executions/recipe_20250518_065758/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
+      "filename": "executions/recipe_20250518_065758/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_nh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
       "long_name": "Annual cycle of ambiguous_long_name for various datasets.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
-      "filename": "executions/recipe_20250506_010209/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
+    "executions/recipe_20250518_065758/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png": {
+      "filename": "executions/recipe_20250518_065758/plots/siarea_seas/allplots/annual_cycle_sea_ice_area_sh_ambiguous_dataset_ambiguous_mip_historical_r1i1p1f1.png",
       "long_name": "Annual cycle of ambiguous_long_name for various datasets.",
       "description": ""
     }
   },
   "html": {
-    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw3/test_diagnostics_sea_ice_area_0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_sea-ice-area-seasonal-cycle_/scratch/esmvaltool/sea-ice-area-seasonal-cycle/233a696dce8964d4f6979dcb71fd946551215082/executions/recipe_20250506_010209/index.html": {
-      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw3/test_diagnostics_sea_ice_area_0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_sea-ice-area-seasonal-cycle_/scratch/esmvaltool/sea-ice-area-seasonal-cycle/233a696dce8964d4f6979dcb71fd946551215082/executions/recipe_20250506_010209/index.html",
+    "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html": {
+      "filename": "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html",
       "long_name": "Results page",
       "description": "Page showing the executions of the ESMValTool run."
     }

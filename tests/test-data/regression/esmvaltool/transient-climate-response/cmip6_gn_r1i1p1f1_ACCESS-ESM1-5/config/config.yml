@@ -4,11 +4,11 @@ drs:
   OBS6: default
   native6: default
 output_dir: 
-  /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions
+  <OUTPUT_DIR>/executions
 rootpath:
   default: 
-    /private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/climate_data
-  OBS: /Users/jared/Library/Caches/ref/ESMValTool/OBS
-  OBS6: /Users/jared/Library/Caches/ref/ESMValTool/OBS6
-  native6: /Users/jared/Library/Caches/ref/ESMValTool/RAWOBS
+    <OUTPUT_DIR>/climate_data
+  OBS: /Users/jared/Library/Caches/climate_ref/ESMValTool/OBS
+  OBS6: /Users/jared/Library/Caches/climate_ref/ESMValTool/OBS6
+  native6: /Users/jared/Library/Caches/climate_ref/ESMValTool/RAWOBS
 search_esgf: never

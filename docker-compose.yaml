@@ -34,6 +34,7 @@ services:
   climate-ref:
     image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
+    user: "${UID}:${GID}"
     depends_on:
       - postgres
       - redis

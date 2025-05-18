@@ -66,8 +66,8 @@ docker compose ps
 # Log the available data
 docker compose exec climate-ref ls -alR /ref/data/CMIP6
 docker compose exec climate-ref ls -alR /ref/data/obs4REF
-docker compose exec climate-ref whoami
-chmod a+r tests/test-data/sample-data
+chmod -R a+r tests/test-data/sample-data
+chcon -Rt svirt_sandbox_file_t tests/test-data/sample-data
 
 # Ingest sample data
 echo "Ingesting sample data..."

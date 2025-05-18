@@ -66,6 +66,7 @@ docker compose ps
 # Log the available data
 docker compose exec climate-ref find /ref/data/CMIP6
 docker compose exec climate-ref find /ref/data/obs4REF
+chmod a+r tests/test-data/sample-data
 
 # Ingest sample data
 echo "Ingesting sample data..."

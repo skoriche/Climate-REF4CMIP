@@ -255,9 +255,6 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
             ).build(parsing_func=parse_cmip6)  # type: ignore
 
-        if len(builder.invalid_assets):  # type: ignore
-            # Remove the INVALID_ASSET column if it exists
-            logger.error(f"Failed assets: {builder.invalid_assets.to_dict()}")  # type: ignore
         datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)
 
         # Convert the start_time and end_time columns to datetime objects

@@ -1,10 +1,11 @@
 import json
 import os
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from typing import Any
 
 from loguru import logger
 
+from climate_ref_core.constraints import AddSupplementaryDataset
 from climate_ref_core.datasets import DatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
     CommandLineDiagnostic,
@@ -22,59 +23,61 @@ class ENSO(CommandLineDiagnostic):
 
     facets = ()
 
-    def __init__(self, metrics_collection: str) -> None:
+    def __init__(self, metrics_collection: str, experiments: Collection[str] = ("historical",)) -> None:
         self.name = metrics_collection
         self.slug = metrics_collection.lower()
         self.metrics_collection = metrics_collection
         self.parameter_file = "pmp_param_enso.py"
 
-        # TO DO: sftlf and areacell
-        # TO DO: Get the path to the files per variable
-        def _get_data_requirements(
-            metrics_collection: str,
-            extra_experiments: str | tuple[str, ...] | list[str] = (),
-        ) -> tuple[DataRequirement, DataRequirement]:
-            if metrics_collection == "ENSO_perf":
-                model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
-                obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "HadISST-1-1")
-            elif metrics_collection == "ENSO_tel":
-                model_variables = ("pr", "ts")
-                obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFluxHadISST-1-1")
-            elif metrics_collection == "ENSO_proc":
-                model_variables = ("ts", "taux", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
-                obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "CERES-EBAF-4-2", "HadISST-1-1")
-            else:
-                raise ValueError(
-                    f"Unknown metrics collection: {metrics_collection}. "
-                    "Valid options are: ENSO_perf, ENSO_tel, ENSO_proc"
-                )
-
-            obs_variables = model_variables
-
-            filters = [
-                FacetFilter(
-                    facets={
-                        "frequency": "mon",
-                        "experiment_id": ("historical", *extra_experiments),
-                        "variable_id": model_variables,
-                    }
-                )
-            ]
-
-            return (
-                DataRequirement(
-                    source_type=SourceDatasetType.obs4MIPs,
-                    filters=(FacetFilter(facets={"source_id": obs_sources, "variable_id": obs_variables}),),
-                    group_by=("activity_id",),
-                ),
-                DataRequirement(
-                    source_type=SourceDatasetType.CMIP6,
-                    filters=tuple(filters),
-                    group_by=("source_id", "experiment_id", "member_id"),
-                ),
+        if metrics_collection == "ENSO_perf":
+            self.model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
+            self.obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "HadISST-1-1")
+        elif metrics_collection == "ENSO_tel":
+            self.model_variables = ("pr", "ts")
+            self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFluxHadISST-1-1")
+        elif metrics_collection == "ENSO_proc":
+            self.model_variables = ("ts", "taux", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
+            self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "CERES-EBAF-4-2", "HadISST-1-1")
+        else:
+            raise ValueError(
+                f"Unknown metrics collection: {metrics_collection}. "
+                "Valid options are: ENSO_perf, ENSO_tel, ENSO_proc"
             )
 
-        self.data_requirements = _get_data_requirements(metrics_collection)
+        self.data_requirements = self._get_data_requirements(experiments)
+
+    def _get_data_requirements(
+        self,
+        experiments: Collection[str] = ("historical",),
+    ) -> tuple[DataRequirement, DataRequirement]:
+        filters = [
+            FacetFilter(
+                facets={
+                    "frequency": "mon",
+                    "experiment_id": tuple(experiments),
+                    "variable_id": self.model_variables,
+                }
+            )
+        ]
+
+        return (
+            DataRequirement(
+                source_type=SourceDatasetType.obs4MIPs,
+                filters=(
+                    FacetFilter(facets={"source_id": self.obs_sources, "variable_id": self.model_variables}),
+                ),
+                group_by=("activity_id",),
+            ),
+            DataRequirement(
+                source_type=SourceDatasetType.CMIP6,
+                filters=tuple(filters),
+                group_by=("source_id", "experiment_id", "member_id"),
+                constraints=(
+                    AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                    AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
+                ),
+            ),
+        )
 
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
@@ -96,14 +99,15 @@ class ENSO(CommandLineDiagnostic):
         # Get the input datasets information for the model
         # ------------------------------------------------
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
-        source_id = input_datasets["source_id"].unique()[0]
-        experiment_id = input_datasets["experiment_id"].unique()[0]
-        member_id = input_datasets["member_id"].unique()[0]
-        variable_ids = input_datasets["variable_id"].unique()
+        input_selectors = input_datasets.selector_dict()
+        source_id = input_selectors["source_id"]
+        member_id = input_selectors["member_id"]
+        experiment_id = input_selectors["experiment_id"]
+        variable_ids = set(input_datasets["variable_id"].unique()) - {"areacella", "sftlf"}
         mod_run = f"{source_id}_{member_id}"
 
-        dict_mod: dict[str, dict[str, Any]] = {}
-        dict_mod[mod_run] = {}
+        # We only need one entry for the model run
+        dict_mod: dict[str, dict[str, Any]] = {mod_run: {}}
 
         def extract_variable(dc: DatasetCollection, variable: str) -> list[str]:
             return dc.datasets[input_datasets["variable_id"] == variable]["path"].to_list()  # type: ignore

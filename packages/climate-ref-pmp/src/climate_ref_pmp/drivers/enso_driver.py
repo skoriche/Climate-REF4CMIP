@@ -1,3 +1,9 @@
+"""
+ENSO diagnostic driver
+
+This script runs inside the PMP conda environment due to the use of xcdat.
+"""
+
 import argparse
 import copy
 import json

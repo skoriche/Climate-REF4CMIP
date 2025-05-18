@@ -128,6 +128,7 @@ formats = "ipynb,py:percent"
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
+    "--ignore=climate_ref_pmp/drivers"
 ]
 filterwarnings = [
     # Need to update ecgtools/intake_esm to remove this warning

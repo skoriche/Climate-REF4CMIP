@@ -174,7 +174,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
             ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
-        if builder.invalid_assets:  # type: ignore
+        if len(builder.invalid_assets):  # type: ignore
             # Remove the INVALID_ASSET column if it exists
             logger.error(f"Failed assets: {builder.invalid_assets.to_dict()}")  # type: ignore
         datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)

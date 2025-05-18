@@ -106,18 +106,16 @@ def format_cmec_metric_bundle(dataset: xr.Dataset) -> dict[str, Any]:
     cmec_metric = {
         "DIMENSIONS": {
             "json_structure": [
-                "model",
                 "region",
                 "metric",
                 "statistic",
             ],
-            "model": {dataset.attrs["source_id"]: {}},
             "region": {"global": {}},
             "metric": {"tas": {}, "pr": {}},
             "statistic": {"rmse": {}, "mb": {}},
         },
         "RESULTS": {
-            dataset.attrs["source_id"]: {"global": {"tas": {"rmse": 0, "mb": 0}, "pr": {"rmse": 0, "mb": 0}}},
+            "global": {"tas": {"rmse": 0, "mb": 0}, "pr": {"rmse": 0, "mb": 0}},
         },
     }
 
@@ -153,9 +151,9 @@ class GlobalMeanTimeseries(Diagnostic):
             ),
         ),
     )
-    facets = ("model", "region", "metric")
+    facets = ("region", "metric", "statistic")
 
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def execute(self, definition: ExecutionDefinition) -> None:
         """
         Run a diagnostic
 
@@ -175,12 +173,18 @@ class GlobalMeanTimeseries(Diagnostic):
 
         input_datasets = definition.datasets[SourceDatasetType.CMIP6]
 
-        annual_mean_global_mean_timeseries = calculate_annual_mean_timeseries(
-            input_files=input_datasets.path.to_list()
+        calculate_annual_mean_timeseries(input_files=input_datasets.path.to_list()).to_netcdf(
+            definition.output_directory / "annual_mean_global_mean_timeseries.nc"
         )
+
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
+        """
+        Create a result object from the output of the diagnostic
+        """
+        ds = xr.open_dataset(definition.output_directory / "annual_mean_global_mean_timeseries.nc")
 
         return ExecutionResult.build_from_output_bundle(
             definition,
-            cmec_output_bundle=format_cmec_output_bundle(annual_mean_global_mean_timeseries),
-            cmec_metric_bundle=format_cmec_metric_bundle(annual_mean_global_mean_timeseries),
+            cmec_output_bundle=format_cmec_output_bundle(ds),
+            cmec_metric_bundle=format_cmec_metric_bundle(ds),
         )

@@ -186,7 +186,7 @@ def test_annual_cycle_diagnostic(
     ]
 
 
-def test_diagnostic_run(mocker, provider):
+def test_diagnostic_execute(mocker, provider):
     diagnostic = AnnualCycle()
     diagnostic.provider = provider
 
@@ -200,17 +200,10 @@ def test_diagnostic_run(mocker, provider):
     diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
     diagnostic.build_execution_result = mocker.MagicMock()
 
-    diagnostic.run("definition")
+    diagnostic.execute("definition")
 
     diagnostic.build_cmds.assert_called_once_with("definition")
     assert diagnostic.provider.run.call_count == 2
-    diagnostic.build_execution_result.assert_called_once_with("definition")
-
-
-def test_build_cmd_raises():
-    diagnostic = AnnualCycle()
-    with pytest.raises(NotImplementedError):
-        diagnostic.build_cmd("definition")
 
 
 def test_diagnostic_build_result(config, provider, execution_regression_dir, data_catalog):

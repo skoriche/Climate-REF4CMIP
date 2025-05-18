@@ -169,7 +169,7 @@ class ILAMBStandard(Diagnostic):
             dataset_registry_manager[self.registry_file],
         )
 
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def execute(self, definition: ExecutionDefinition) -> None:
         """
         Run the ILAMB standard analysis.
         """
@@ -183,8 +183,23 @@ class ILAMBStandard(Diagnostic):
             definition.output_directory,
             **self.ilamb_kwargs,
         )
+
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
+        """
+        Build the diagnostic result after running ILAMB.
+
+        Parameters
+        ----------
+        definition
+            The definition of the diagnostic execution
+
+        Returns
+        -------
+            An execution result object
+        """
         df = _load_csv_and_merge(definition.output_directory)
         metric_bundle, output_bundle = _form_bundles(definition.key, df)
+
         return ExecutionResult.build_from_output_bundle(
             definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
         )

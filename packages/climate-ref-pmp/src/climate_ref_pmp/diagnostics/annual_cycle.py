@@ -1,6 +1,5 @@
 import datetime
 import json
-from collections.abc import Iterable
 from typing import Any
 
 from loguru import logger
@@ -81,21 +80,6 @@ class AnnualCycle(CommandLineDiagnostic):
     def __init__(self) -> None:
         self.parameter_file_1 = "pmp_param_annualcycle_1-clims.py"
         self.parameter_file_2 = "pmp_param_annualcycle_2-metrics.py"
-
-    def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
-        """
-        Build the command to run the diagnostic
-
-        Parameters
-        ----------
-        definition
-            Definition of the diagnostic execution
-
-        Returns
-        -------
-            Command arguments to execute in the PMP environment
-        """
-        raise NotImplementedError("Function not required")
 
     def build_cmds(self, definition: ExecutionDefinition) -> list[list[str]]:
         """
@@ -283,7 +267,7 @@ class AnnualCycle(CommandLineDiagnostic):
             cmec_metric_bundle=cmec_metric_bundle,
         )
 
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def execute(self, definition: ExecutionDefinition) -> None:
         """
         Run the diagnostic on the given configuration.
 
@@ -301,8 +285,6 @@ class AnnualCycle(CommandLineDiagnostic):
 
         runs = [self.provider.run(cmd) for cmd in cmds]
         logger.debug(f"runs: {runs}")
-
-        return self.build_execution_result(definition)
 
 
 def _transform_results(data: dict[str, Any]) -> dict[str, Any]:

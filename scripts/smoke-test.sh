@@ -68,8 +68,8 @@ docker compose exec climate-ref find /ref/data/CMIP6
 docker compose exec climate-ref find /ref/data/obs4REF
 
 # Ingest sample data
-echo "📥 Ingesting sample data..."
-if docker compose run --rm climate-ref datasets ingest --source-type cmip6 /ref/data/CMIP6; then
+echo "Ingesting sample data..."
+if docker compose run --rm climate-ref -v datasets ingest --source-type cmip6 /ref/data/CMIP6; then
     echo -e "${GREEN}✓ CMIP6 data ingestion successful${NC}"
 else
     echo -e "${RED}✗ CMIP6 data ingestion failed${NC}"

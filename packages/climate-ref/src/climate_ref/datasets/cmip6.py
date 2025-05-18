@@ -8,6 +8,7 @@ from typing import Any
 import ecgtools.parsers
 import pandas as pd
 from ecgtools import Builder
+from loguru import logger
 
 from climate_ref.datasets.base import DatasetAdapter
 from climate_ref.models.dataset import CMIP6Dataset
@@ -173,6 +174,9 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
             ).build(parsing_func=ecgtools.parsers.parse_cmip6)
 
+        if builder.invalid_assets:  # type: ignore
+            # Remove the INVALID_ASSET column if it exists
+            logger.error(f"Failed assets: {builder.invalid_assets.to_dict()}")  # type: ignore
         datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)
 
         # Convert the start_time and end_time columns to datetime objects

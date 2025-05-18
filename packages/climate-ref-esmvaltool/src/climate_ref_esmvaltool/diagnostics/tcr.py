@@ -11,7 +11,8 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
-from climate_ref_core.pycmec.metric import MetricCV
+from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
+from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
@@ -50,7 +51,7 @@ class TransientClimateResponse(ESMValToolDiagnostic):
             ),
         ),
     )
-    facets = ("source_id", "region", "metric")
+    facets = ("grid_label", "member_id", "source_id", "region", "metric")
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
@@ -100,31 +101,24 @@ class TransientClimateResponse(ESMValToolDiagnostic):
         execution_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
-    ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
+    ) -> tuple[CMECMetric, CMECOutput]:
         """Format the result."""
-        input_files = next(c.datasets for _, c in execution_dataset.items())
-        source_id = input_files.iloc[0].source_id
-
         tcr_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "tcr" / "tcr.nc")
         tcr = float(tcr_ds["tcr"].values[0])
 
         # Update the diagnostic bundle arguments with the computed diagnostics.
         metric_args[MetricCV.DIMENSIONS.value] = {
             "json_structure": [
-                "source_id",
                 "region",
                 "metric",
             ],
-            "source_id": {source_id: {}},
             "region": {"global": {}},
             "metric": {"tcr": {}},
         }
         metric_args[MetricCV.RESULTS.value] = {
-            source_id: {
-                "global": {
-                    "tcr": tcr,
-                },
+            "global": {
+                "tcr": tcr,
             },
         }
 
-        return metric_args, output_args
+        return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)

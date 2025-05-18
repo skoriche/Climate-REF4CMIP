@@ -14,7 +14,7 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
-from climate_ref_core.pycmec.metric import CMECMetric
+from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_esmvaltool.recipe import load_recipe, prepare_climate_data
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
@@ -48,7 +48,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         execution_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
-    ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
+    ) -> tuple[CMECMetric, CMECOutput]:
         """
         Update the arguments needed to create a CMEC diagnostic and output bundle.
 
@@ -67,7 +67,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         -------
             The arguments needed to create a CMEC diagnostic and output bundle.
         """
-        return metric_args, output_args
+        return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)
 
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
@@ -198,15 +198,20 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         output_args[OutputCV.PROVENANCE.value][OutputCV.LOG.value] = f"{result_dir}/run/main_log_debug.txt"
 
         # Update the diagnostic and output bundle with diagnostic specific executions.
-        metric_args, output_args = self.format_result(
+        metric_bundle, output_bundle = self.format_result(
             result_dir=result_dir,
             execution_dataset=definition.datasets,
             metric_args=metric_args,
             output_args=output_args,
         )
 
+        # Add the extra information from the groupby operations
+        if len(metric_bundle.DIMENSIONS[MetricCV.JSON_STRUCTURE.value]):
+            input_selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
+            metric_bundle = metric_bundle.prepend_dimensions(input_selectors)
+
         return ExecutionResult.build_from_output_bundle(
             definition,
-            cmec_output_bundle=output_args,
-            cmec_metric_bundle=metric_args,
+            cmec_output_bundle=output_bundle,
+            cmec_metric_bundle=metric_bundle,
         )

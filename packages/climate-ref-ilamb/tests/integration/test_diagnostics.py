@@ -6,7 +6,6 @@ from climate_ref_core.diagnostics import Diagnostic
 skipped_diagnostics = [
     "csoil-hwsd2",  # Incorrect time spans
     "nbp-hoffman",  # Incorrect time spans
-    "thetao-woa2023-surface",  # No reference data
 ]
 
 diagnostics = [

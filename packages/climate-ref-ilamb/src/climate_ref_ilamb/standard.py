@@ -33,7 +33,7 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
     ilamb_regions = ilr.Regions()
     bundle = {
         "DIMENSIONS": {
-            "json_structure": ["region", "model", "metric", "statistic"],
+            "json_structure": ["model", "region", "metric", "statistic"],
             "region": {
                 r: {
                     "LongName": "None" if r == "None" else ilamb_regions.get_name(r),
@@ -57,8 +57,8 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
             "statistic": {s: {} for s in df["name"].unique()},
         },
         "RESULTS": {
-            r: {
-                m: {
+            m: {
+                r: {
                     name: {
                         s: float(
                             df[(df["source"] == m) & (df["region"] == r) & (df["name"] == s)].iloc[0]["value"]
@@ -66,10 +66,10 @@ def _build_cmec_bundle(name: str, df: pd.DataFrame) -> dict[str, Any]:
                         for s in df["name"].unique()
                     }
                 }
-                for m in df["source"].unique()
-                if m != "Reference"
+                for r in df["region"].unique()
             }
-            for r in df["region"].unique()
+            for m in df["source"].unique()
+            if m != "Reference"
         },
     }
     return bundle
@@ -160,7 +160,7 @@ class ILAMBStandard(Diagnostic):
                 group_by=("experiment_id",),
             ),
         )
-        self.facets = ("region", "model", "metric", "statistic")
+        self.facets = ("model", "region", "metric", "statistic")
 
         # Setup ILAMB data and options
         self.registry_file = registry_file

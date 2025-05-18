@@ -34,7 +34,7 @@ echo "Initializing docker stack..."
 bash ./scripts/initialise-docker.sh
 
 # Fetch the test data
-docker compose run --rm climate-ref datasets fetch-data --registry sample-data --output-directory /ref/data
+docker compose run --rm climate-ref datasets fetch-data --registry sample-data --output-directory /ref/sample-data
 
 # Start the stack
 echo "Starting docker stack..."
@@ -64,19 +64,19 @@ docker compose ps
 #fi
 
 # Log the available data
-docker compose exec climate-ref ls -alR /ref/data/CMIP6
-docker compose exec climate-ref ls -alR /ref/data/obs4REF
+docker compose exec climate-ref ls -alR /ref/sample-data/CMIP6
+docker compose exec climate-ref ls -alR /ref/sample-data/obs4REF
 
 # Ingest sample data
 echo "Ingesting sample data..."
-if docker compose run --rm climate-ref -v datasets ingest --source-type cmip6 /ref/data/CMIP6; then
+if docker compose run --rm climate-ref -v datasets ingest --source-type cmip6 /ref/sample-data/CMIP6; then
     echo -e "${GREEN}✓ CMIP6 data ingestion successful${NC}"
 else
     echo -e "${RED}✗ CMIP6 data ingestion failed${NC}"
     exit 1
 fi
 
-if docker compose run --rm climate-ref datasets ingest --source-type obs4mips /ref/data/obs4REF; then
+if docker compose run --rm climate-ref datasets ingest --source-type obs4mips /ref/sample-data/obs4REF; then
     echo -e "${GREEN}✓ Obs4MIPs data ingestion successful${NC}"
 else
     echo -e "${RED}✗ Obs4MIPs data ingestion failed${NC}"

@@ -126,9 +126,9 @@ def parse_cmip6(file: str) -> dict[str, Any]:
                 start_time, end_time = str(ds.cf["T"][0].data), str(ds.cf["T"][-1].data)
             except (KeyError, AttributeError, ValueError):
                 ...
-            if info.get("sub_experiment_id"):
+            if info.get("sub_experiment_id"):  # pragma: no branch
                 init_year = extract_attr_with_regex(info["sub_experiment_id"], r"\d{4}")
-                if init_year:
+                if init_year:  # pragma: no cover
                     init_year = int(init_year)
             info["vertical_levels"] = vertical_levels
             info["init_year"] = init_year

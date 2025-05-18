@@ -34,7 +34,6 @@ services:
   climate-ref:
     image: ghcr.io/climate-ref/climate-ref:latest
     restart: always
-    user: $DOCKER_USER
     depends_on:
       - postgres
       - redis

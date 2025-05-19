@@ -39,7 +39,8 @@ def calculate_annual_mean_timeseries(input_files: list[Path]) -> xr.Dataset:
     xr_ds = xr.open_mfdataset(input_files, combine="by_coords", chunks=None, decode_times=time_coder)
 
     annual_mean = xr_ds.resample(time="YS").mean()
-    return annual_mean.weighted(xr_ds.areacella).mean(dim=["lat", "lon"], keep_attrs=True)
+
+    return annual_mean.weighted(xr_ds.areacella.fillna(0)).mean(dim=["lat", "lon"], keep_attrs=True)
 
 
 def format_cmec_output_bundle(dataset: xr.Dataset) -> dict[str, Any]:
@@ -181,7 +182,10 @@ class GlobalMeanTimeseries(Diagnostic):
         """
         Create a result object from the output of the diagnostic
         """
-        ds = xr.open_dataset(definition.output_directory / "annual_mean_global_mean_timeseries.nc")
+        time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+        ds = xr.open_dataset(
+            definition.output_directory / "annual_mean_global_mean_timeseries.nc", decode_times=time_coder
+        )
 
         return ExecutionResult.build_from_output_bundle(
             definition,

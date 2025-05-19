@@ -125,6 +125,7 @@ _RECIPES = pooch.create(
     # version=_ESMVALTOOL_VERSION,
     base_url=f"https://raw.githubusercontent.com/ESMValGroup/ESMValTool/{_ESMVALTOOL_COMMIT}/esmvaltool/recipes/",
     env="REF_METRICS_ESMVALTOOL_DATA_DIR",
+    retry_if_failed=10,
 )
 with importlib.resources.files("climate_ref_esmvaltool").joinpath("recipes.txt").open("rb") as _buffer:
     _RECIPES.load_registry(_buffer)

@@ -31,6 +31,16 @@ def test_update_recipe(metric_dataset):
     assert len(recipe["datasets"]) == 2
     assert len(recipe["diagnostics"]) == 1
     assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas", "rtnt"}
+    undesired_keys = [
+        "CMIP5_RTMT",
+        "CMIP6_RTMT",
+        "CMIP5_RTNT",
+        "CMIP6_RTNT",
+        "ECS_SCRIPT",
+        "SCATTERPLOT",
+    ]
+    for key in undesired_keys:
+        assert key not in recipe
 
 
 def test_format_output(tmp_path, metric_dataset):

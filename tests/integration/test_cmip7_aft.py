@@ -62,15 +62,28 @@ def test_solve_cmip7_aft(
 
     db = Database.from_config(config_cmip7_aft)
 
+    invoke_cli(
+        [
+            "datasets",
+            "fetch-data",
+            "--registry",
+            "pmp-climatology",
+            "--output-directory",
+            str(sample_data_dir / "pmp-climatology"),
+        ]
+    )
+
     # Ingest the sample data
     invoke_cli(["datasets", "ingest", "--source-type", "cmip6", str(sample_data_dir / "CMIP6")])
-    invoke_cli(["datasets", "ingest", "--source-type", "obs4mips", str(sample_data_dir / "obs4MIPs")])
     invoke_cli(["datasets", "ingest", "--source-type", "obs4mips", str(sample_data_dir / "obs4REF")])
+    invoke_cli(
+        ["datasets", "ingest", "--source-type", "pmp-climatology", str(sample_data_dir / "pmp-climatology")]
+    )
 
     # Solve
     # This will also create conda environments for the diagnostic providers
     # We always log the std out and stderr from the command as it is useful for debugging
-    invoke_cli(["--verbose", "solve", "--timeout", f"{60 * 60}"], always_log=True)
+    invoke_cli(["--verbose", "solve", "--one-per-diagnostic", "--timeout", f"{60 * 60}"], always_log=True)
 
     execution_groups = db.session.query(ExecutionGroup).all()
     df = create_execution_dataframe(execution_groups)
@@ -79,8 +92,13 @@ def test_solve_cmip7_aft(
     # Check that all 3 diagnostic providers have been used
     assert set(df["provider"].unique()) == {"esmvaltool", "ilamb", "pmp"}
 
-    # TODO: Ignore the PMP diagnostics for now
-    df = df[df["provider"] != "pmp"]
+    expected_failures = [
+        "csoil-hwsd2",  # Incorrect time spans
+        "nbp-hoffman",  # Incorrect time spans
+    ]
+    df[df["diagnostic"].isin(expected_failures)].all()
+
+    df_successful = df[~df["diagnostic"].isin(expected_failures)]
 
     # Check that all diagnostics have been successful
-    assert df["successful"].all(), df[["diagnostic", "successful"]]
+    assert df_successful["successful"].all(), df_successful[["diagnostic", "successful"]]

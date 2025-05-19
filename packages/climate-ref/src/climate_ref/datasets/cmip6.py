@@ -69,37 +69,40 @@ def _clean_branch_time(branch_time: pd.Series[str]) -> pd.Series[float]:
 
 
 def parse_cmip6(file: str) -> dict[str, Any]:
-    """Parser for CMIP6"""
+    """
+    Parser for CMIP6
+
+    This function parses the CMIP6 dataset and returns a dictionary with the metadata.
+    This was copied from the ecgtools package, but we want to log the exception when it fails.
+    """
     keys = sorted(
-        list(
-            {
-                "activity_id",
-                "branch_method",
-                "branch_time_in_child",
-                "branch_time_in_parent",
-                "experiment",
-                "experiment_id",
-                "frequency",
-                "grid",
-                "grid_label",
-                "institution_id",
-                "nominal_resolution",
-                "parent_activity_id",
-                "parent_experiment_id",
-                "parent_source_id",
-                "parent_time_units",
-                "parent_variant_label",
-                "realm",
-                "product",
-                "source_id",
-                "source_type",
-                "sub_experiment",
-                "sub_experiment_id",
-                "table_id",
-                "variable_id",
-                "variant_label",
-            }
-        )
+        {
+            "activity_id",
+            "branch_method",
+            "branch_time_in_child",
+            "branch_time_in_parent",
+            "experiment",
+            "experiment_id",
+            "frequency",
+            "grid",
+            "grid_label",
+            "institution_id",
+            "nominal_resolution",
+            "parent_activity_id",
+            "parent_experiment_id",
+            "parent_source_id",
+            "parent_time_units",
+            "parent_variant_label",
+            "realm",
+            "product",
+            "source_id",
+            "source_type",
+            "sub_experiment",
+            "sub_experiment_id",
+            "table_id",
+            "variable_id",
+            "variant_label",
+        }
     )
 
     try:
@@ -108,7 +111,7 @@ def parse_cmip6(file: str) -> dict[str, Any]:
             info["member_id"] = info["variant_label"]
 
             variable_id = info["variable_id"]
-            if variable_id:
+            if variable_id:  # pragma: no branch
                 attrs = ds[variable_id].attrs
                 for attr in ["standard_name", "long_name", "units"]:
                     info[attr] = attrs.get(attr)

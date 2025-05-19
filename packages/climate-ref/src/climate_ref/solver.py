@@ -49,6 +49,12 @@ class DiagnosticExecution:
     diagnostic: Diagnostic
     datasets: ExecutionDatasetCollection
 
+    def execution_slug(self) -> str:
+        """
+        Get a slug for the execution
+        """
+        return f"{self.diagnostic.full_slug()}/{self.dataset_key}"
+
     @property
     def dataset_key(self) -> str:
         """
@@ -362,30 +368,24 @@ def solve_required_executions(  # noqa: PLR0913
                 diagnostic_count[diagnostic.full_slug()] = 0
 
             if created:
-                logger.info(
-                    f"Created new execution group: "
-                    f"{definition.key!r}  for {potential_execution.diagnostic.full_slug()}"
-                )
+                logger.info(f"Created new execution group: {potential_execution.execution_slug()}")
                 db.session.flush()
 
             # Check if we should run given the one_per_provider or one_per_diagnostic flags
-            one_of_check = (one_per_provider and provider_count.get(diagnostic.provider.slug, 0) > 0) or (
-                one_per_diagnostic and diagnostic_count.get(diagnostic.full_slug(), 0) > 0
-            )
+            one_of_check_failed = (
+                one_per_provider and provider_count.get(diagnostic.provider.slug, 0) > 0
+            ) or (one_per_diagnostic and diagnostic_count.get(diagnostic.full_slug(), 0) > 0)
 
             logger.debug(
-                f"Execution group {definition.key!r} for {potential_execution.diagnostic.full_slug()} "
-                f"has been created, dirty={execution_group.dirty}, "
                 f"one_per_provider={one_per_provider}, one_per_diagnostic={one_per_diagnostic}, "
-                f"one_of_check={one_of_check}, diagnostic_count={diagnostic_count}, "
+                f"one_of_check_failed={one_of_check_failed}, diagnostic_count={diagnostic_count}, "
                 f"provider_count={provider_count}"
             )
 
             if execution_group.should_run(definition.datasets.hash):
-                if (one_per_provider or one_per_diagnostic) and one_of_check:
+                if (one_per_provider or one_per_diagnostic) and one_of_check_failed:
                     logger.info(
-                        f"Skipping execution for execution group: "
-                        f"{definition.key!r} for {potential_execution.diagnostic.full_slug()}"
+                        f"Skipping execution for execution group: {potential_execution.execution_slug()}"
                     )
                     continue
 

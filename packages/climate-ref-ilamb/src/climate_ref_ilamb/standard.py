@@ -135,7 +135,7 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
         if region == "None":
             region_info["LongName"] = "None"
             region_info["Description"] = "Reference data extents"
-            region_info["Generator"] = "None"
+            region_info["Generator"] = "N/A"
         else:
             region_info["LongName"] = ilamb_regions.get_name(region)
             region_info["Description"] = ilamb_regions.get_name(region)

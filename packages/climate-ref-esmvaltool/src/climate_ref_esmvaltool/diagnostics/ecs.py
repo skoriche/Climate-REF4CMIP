@@ -64,7 +64,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         """Update the recipe."""
         # Only run the diagnostic that computes ECS for a single model.
         recipe["diagnostics"] = {
-            "cmip6": {
+            "ecs": {
                 "description": "Calculate ECS.",
                 "variables": {
                     "tas": {
@@ -76,7 +76,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
                     },
                 },
                 "scripts": {
-                    "ecs": {
+                    "calculate": {
                         "script": "climate_metrics/ecs.py",
                         "calculate_mmm": False,
                     },
@@ -128,9 +128,9 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         input_files = next(c.datasets for _, c in execution_dataset.items())
         source_id = input_files.iloc[0].source_id
 
-        ecs_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "ecs.nc")
+        ecs_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "ecs.nc")
         ecs = float(ecs_ds["ecs"].values[0])
-        lambda_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "lambda.nc")
+        lambda_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "lambda.nc")
         lambda_ = float(lambda_ds["lambda"].values[0])
 
         # Update the diagnostic bundle arguments with the computed diagnostics.

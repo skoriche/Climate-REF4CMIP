@@ -30,7 +30,7 @@ def test_update_recipe(metric_dataset):
     EquilibriumClimateSensitivity().update_recipe(recipe, input_files)
     assert len(recipe["datasets"]) == 2
     assert len(recipe["diagnostics"]) == 1
-    assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas", "rtnt"}
+    assert set(recipe["diagnostics"]["ecs"]["variables"]) == {"tas", "rtnt"}
     undesired_keys = [
         "CMIP5_RTMT",
         "CMIP6_RTMT",
@@ -45,7 +45,7 @@ def test_update_recipe(metric_dataset):
 
 def test_format_output(tmp_path, metric_dataset):
     result_dir = tmp_path
-    subdir = result_dir / "work" / "cmip6" / "ecs"
+    subdir = result_dir / "work" / "ecs" / "calculate"
     subdir.mkdir(parents=True)
     ecs = xr.Dataset(
         data_vars={

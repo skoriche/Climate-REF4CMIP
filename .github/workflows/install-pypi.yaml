@@ -84,6 +84,8 @@ jobs:
     - name: Install
       run: |
         pip install --upgrade pip wheel
+        # Additional core dep to run the script
+        pip install --upgrade typer
         pip install "${{ matrix.install-target }}" 2>stderr.txt
     - name: Check no warnings
       if: matrix.os != 'windows-latest'

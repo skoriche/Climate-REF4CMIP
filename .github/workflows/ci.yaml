@@ -60,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.11", "3.12",  "3.13" ]
+        python-version: [ "3.11",  "3.13" ]
     runs-on: "${{ matrix.os }}"
     steps:
       - name: Check out repository
@@ -69,7 +69,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run --package climate_ref_core python scripts/test-install.py
+        run: |
+          uv run --package climate_ref scripts/test-install.py climate_ref
+          uv run --package climate_ref_core scripts/test-install.py climate_ref_core
+          uv run --package climate_ref_celery scripts/test-install.py climate_ref_celery
+          uv run --package climate_ref_ilamb scripts/test-install.py climate_ref_ilamb
+          uv run --package climate_ref_esmvaltool scripts/test-install.py climate_ref_esmvaltool
+          uv run --package climate_ref_pmp python scripts/test-install.py climate_ref_pmp
 
   check-build:
     runs-on: ubuntu-latest

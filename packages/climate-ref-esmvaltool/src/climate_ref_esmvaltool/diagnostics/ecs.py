@@ -65,7 +65,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         """Update the recipe."""
         # Only run the diagnostic that computes ECS for a single model.
         recipe["diagnostics"] = {
-            "cmip6": {
+            "ecs": {
                 "description": "Calculate ECS.",
                 "variables": {
                     "tas": {
@@ -77,7 +77,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
                     },
                 },
                 "scripts": {
-                    "ecs": {
+                    "calculate": {
                         "script": "climate_metrics/ecs.py",
                         "calculate_mmm": False,
                     },
@@ -104,6 +104,18 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         for dataset in datasets:
             dataset["timerange"] = timerange
 
+        # Remove keys from the recipe that are only used for YAML anchors
+        keys_to_remove = [
+            "CMIP5_RTMT",
+            "CMIP6_RTMT",
+            "CMIP5_RTNT",
+            "CMIP6_RTNT",
+            "ECS_SCRIPT",
+            "SCATTERPLOT",
+        ]
+        for key in keys_to_remove:
+            recipe.pop(key, None)
+
         recipe["datasets"] = datasets
 
     @staticmethod
@@ -114,9 +126,9 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         output_args: OutputBundleArgs,
     ) -> tuple[CMECMetric, CMECOutput]:
         """Format the result."""
-        ecs_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "ecs.nc")
+        ecs_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "ecs.nc")
         ecs = float(ecs_ds["ecs"].values[0])
-        lambda_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "lambda.nc")
+        lambda_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "lambda.nc")
         lambda_ = float(lambda_ds["lambda"].values[0])
 
         # Update the diagnostic bundle arguments with the computed diagnostics.

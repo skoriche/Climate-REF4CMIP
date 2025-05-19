@@ -1,24 +1,36 @@
 {
   "DIMENSIONS": {
     "json_structure": [
+      "grid_label",
+      "member_id",
       "source_id",
       "region",
       "metric"
     ],
-    "source_id": {
-      "ACCESS-ESM1-5": {}
-    },
     "region": {
       "global": {}
     },
     "metric": {
       "zec": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "source_id": {
+      "ACCESS-ESM1-5": {}
     }
   },
   "RESULTS": {
-    "ACCESS-ESM1-5": {
-      "global": {
-        "zec": 0.005867405794560909
+    "gn": {
+      "r1i1p1f1": {
+        "ACCESS-ESM1-5": {
+          "global": {
+            "zec": 0.005867405794560909
+          }
+        }
       }
     }
   },

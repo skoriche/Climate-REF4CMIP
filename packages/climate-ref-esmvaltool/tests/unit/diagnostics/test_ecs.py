@@ -68,6 +68,6 @@ def test_format_output(tmp_path, metric_dataset):
     )
 
     CMECMetric.model_validate(metric_args)
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["ecs"] == 1.0
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["lambda"] == 2.0
+    assert metric_args.RESULTS["global"]["ecs"] == 1.0
+    assert metric_args.RESULTS["global"]["lambda"] == 2.0
     CMECOutput.model_validate(output_args)

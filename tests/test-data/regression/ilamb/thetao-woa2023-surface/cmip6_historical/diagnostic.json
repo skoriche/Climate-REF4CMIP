@@ -1,58 +1,95 @@
 {
   "DIMENSIONS": {
     "json_structure": [
+      "experiment_id",
+      "source_id",
+      "member_id",
+      "grid_label",
       "region",
-      "model",
       "metric",
       "statistic"
     ],
+    "experiment_id": {
+      "historical": {}
+    },
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
     "region": {
       "None": {
         "LongName": "None",
         "Description": "Reference data extents",
-        "Generator": "N/A"
-      }
-    },
-    "model": {
-      "ACCESS-ESM1-5-r1i1p1f1-gn": {
-        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
-        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
+        "Generator": "None"
       }
     },
     "metric": {
-      "cmip6_historical": {
-        "Name": "cmip6_historical",
-        "Abstract": "benchmark score",
-        "URI": [
-          "https://www.osti.gov/biblio/1330803",
-          "https://doi.org/10.1029/2018MS001354"
-        ],
-        "Contact": "forrest AT climatemodeling.org"
-      }
+      "Bias": {},
+      "Annual Cycle": {},
+      "Spatial Distribution": {}
     },
     "statistic": {
-      "Period Mean [°C]": {},
-      "Bias [°C]": {},
-      "Bias Score [1]": {},
-      "Phase Shift [month]": {},
-      "Seasonal Cycle Score [1]": {},
-      "Normalized Standard Deviation [1]": {},
-      "Correlation [1]": {},
-      "Spatial Distribution Score [1]": {}
+      "Period Mean": {
+        "type": "scalar",
+        "units": "°C"
+      },
+      "Bias": {
+        "type": "scalar",
+        "units": "°C"
+      },
+      "Bias Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Phase Shift": {
+        "type": "scalar",
+        "units": "month"
+      },
+      "Seasonal Cycle Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Normalized Standard Deviation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Correlation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Spatial Distribution Score": {
+        "type": "score",
+        "units": "1"
+      }
     }
   },
   "RESULTS": {
-    "None": {
-      "ACCESS-ESM1-5-r1i1p1f1-gn": {
-        "cmip6_historical": {
-          "Period Mean [°C]": 19.187995959406056,
-          "Bias [°C]": 0.6876177565957186,
-          "Bias Score [1]": 0.4641750106921151,
-          "Phase Shift [month]": 0.2034027878303509,
-          "Seasonal Cycle Score [1]": 0.8508851108307254,
-          "Normalized Standard Deviation [1]": 0.977952635578868,
-          "Correlation [1]": 0.9894384715388715,
-          "Spatial Distribution Score [1]": 0.994224999990606
+    "historical": {
+      "ACCESS-ESM1-5": {
+        "r1i1p1f1": {
+          "gn": {
+            "None": {
+              "Annual Cycle": {
+                "Phase Shift": 0.2034027878303509,
+                "Seasonal Cycle Score": 0.8508851108307254
+              },
+              "Bias": {
+                "Bias": 0.6876177565957186,
+                "Bias Score": 0.4641750106921151,
+                "Period Mean": 19.187995959406056
+              },
+              "Spatial Distribution": {
+                "Correlation": 0.9894384715388715,
+                "Normalized Standard Deviation": 0.977952635578868,
+                "Spatial Distribution Score": 0.994224999990606
+              }
+            }
+          }
         }
       }
     }

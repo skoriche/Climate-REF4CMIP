@@ -7,8 +7,6 @@ import pooch
 
 from climate_ref_core.datasets import DatasetCollection
 
-ILAMB_DATA_VERSION = "0.1"  # we don't really have data versions for the collection :/
-
 
 def registry_to_collection(registry: pooch.Pooch) -> DatasetCollection:
     """

@@ -160,8 +160,8 @@ def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
     ilamb3.conf.reset()
     ilamb_regions = ilr.Regions()
     if registry_file == "ilamb":
-        ilamb_regions.add_netcdf(registry.fetch("regions/GlobalLand.nc"))
-        ilamb_regions.add_netcdf(registry.fetch("regions/Koppen_coarse.nc"))
+        ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))
+        ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/Koppen_coarse.nc"))
         ilamb3.conf.set(regions=["global", "tropical"])
 
 

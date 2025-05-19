@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-celery"
-version = "0.5.2"
+version = "0.5.4"
 description = "Celery app for mananging tasks and workers"
 readme = "README.md"
 authors = [
@@ -23,7 +23,7 @@ dependencies = [
     "cmip-ref-core",
     "celery[redis]>=5.4.0",
     "typer>=0.12.0",
-    "environs>=9",
+    "environs>=11",
     "loguru>=0.7.2",
     "tqdm>=4.67.1",
 ]

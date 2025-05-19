@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-ilamb"
-version = "0.5.2"
+version = "0.5.4"
 description = "ILAMB diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [{ name = "Nathan Collier", email = "nathaniel.collier@gmail.com" }]

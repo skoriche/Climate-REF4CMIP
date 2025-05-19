@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-core"
-version = "0.5.2"
+version = "0.5.4"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -31,6 +31,10 @@ dependencies = [
     "typing_extensions",
     "requests",
     "rich",
+    "loguru>=0.7.0",
+    "pooch>=1.8.0,<2",
+    "ruamel.yaml>=0.18",
+    "environs>=11",
 
     # SPEC 0000 constraints
     # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)

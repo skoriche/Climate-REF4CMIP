@@ -10,7 +10,7 @@ import importlib.resources
 
 import yaml
 
-from climate_ref_core.dataset_registry import dataset_registry_manager
+from climate_ref_core.dataset_registry import DATASET_URL, dataset_registry_manager
 from climate_ref_core.providers import DiagnosticProvider
 from climate_ref_ilamb.standard import ILAMBStandard
 
@@ -21,19 +21,19 @@ provider = DiagnosticProvider("ILAMB", __version__)
 # Register some datasets
 dataset_registry_manager.register(
     "ilamb-test",
-    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
+    base_url=DATASET_URL,
     package="climate_ref_ilamb.dataset_registry",
     resource="test.txt",
 )
 dataset_registry_manager.register(
     "ilamb",
-    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
+    base_url=DATASET_URL,
     package="climate_ref_ilamb.dataset_registry",
     resource="ilamb.txt",
 )
 dataset_registry_manager.register(
     "iomb",
-    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
+    base_url=DATASET_URL,
     package="climate_ref_ilamb.dataset_registry",
     resource="iomb.txt",
 )

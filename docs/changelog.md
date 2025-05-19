@@ -21,6 +21,13 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.4 (2025-05-19)
+
+### Bug Fixes
+
+- Add additional dependencies to the `climate-ref-core` so that it is self-contained ([#307](https://github.com/Climate-REF/climate-ref/pulls/307))
+
+
 ## climate-ref 0.5.3 (2025-05-19)
 
 ### Features

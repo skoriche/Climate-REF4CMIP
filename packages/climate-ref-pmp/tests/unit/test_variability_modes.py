@@ -2,8 +2,6 @@ import shutil
 
 import pandas as pd
 import pytest
-from attr import evolve
-from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.diagnostics import ExtratropicalModesOfVariability
 from climate_ref_pmp.pmp_driver import _get_resource
 
@@ -118,31 +116,3 @@ def test_mode_id_invalid():
     with pytest.raises(ValueError) as excinfo:
         ExtratropicalModesOfVariability("INVALID")
     assert "Unknown mode_id 'INVALID'" in str(excinfo.value)
-
-
-@pytest.mark.parametrize(
-    "mode",
-    sorted(
-        set(ExtratropicalModesOfVariability.psl_modes + ExtratropicalModesOfVariability.ts_modes) - {"AMO"}
-    ),
-)
-def test_diagnostic_build_result(mode, config, provider, execution_regression_dir, data_catalog):
-    diagnostic = ExtratropicalModesOfVariability(mode)
-    diagnostic.provider = pmp_provider
-    diagnostic.provider.configure(config)
-
-    execution = next(
-        solve_executions(
-            data_catalog=data_catalog,
-            diagnostic=diagnostic,
-            provider=diagnostic.provider,
-        )
-    )
-    definition = execution.build_execution_definition(output_root=config.paths.scratch)
-    output_directory = execution_regression_dir(diagnostic, definition.key)
-    assert output_directory.exists()
-
-    definition = evolve(definition, output_directory=output_directory)
-
-    result = diagnostic.build_execution_result(definition)
-    assert result.successful

@@ -30,7 +30,7 @@
                 },
                 "period": "1950-2005",
                 "reference_eofs": 1,
-                "source": "/Users/jared/code/Climate-REF/climate-ref/tests/test-data/sample-data/obs4REF/obs4MIPs_PCMDI_monthly/NOAA-ESRL-PSD/20CR/mon/psl/gn/v20210727/psl_mon_20CR_PCMDI_gn_187101-201212.nc"
+                "source": "<TEST_DATA_DIR>/sample-data/obs4REF/obs4REF/NOAA-ESRL-PSD/20CR/mon/psl/gn/v20210727/psl_mon_20CR_PCMDI_gn_187101-201212.nc"
             }
         }
     },

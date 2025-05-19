@@ -32,6 +32,7 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
     )
 
     def __init__(self, mode_id: str):
+        super().__init__()
         self.mode_id = mode_id.upper()
         self.name = f"Extratropical modes of variability: {mode_id}"
         self.slug = f"extratropical-modes-of-variability-{mode_id.lower()}"

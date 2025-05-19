@@ -1,38 +1,38 @@
 {
-  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/index.html",
+  "index": "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
     "obsdata": {},
-    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/run/main_log_debug.txt"
+    "log": "<OUTPUT_DIR>/executions/recipe_20250518_065758/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250506_010209/work/cmip6/ecs/ecs.nc": {
-      "filename": "executions/recipe_20250506_010209/work/cmip6/ecs/ecs.nc",
+    "executions/recipe_20250518_065758/work/cmip6/ecs/ecs.nc": {
+      "filename": "executions/recipe_20250518_065758/work/cmip6/ecs/ecs.nc",
       "long_name": "Equilibrium Climate Sensitivity (Gregory method) for multiple climate models.",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/cmip6/ecs/ecs_regression_ACCESS-ESM1-5.nc": {
-      "filename": "executions/recipe_20250506_010209/work/cmip6/ecs/ecs_regression_ACCESS-ESM1-5.nc",
+    "executions/recipe_20250518_065758/work/cmip6/ecs/ecs_regression_ACCESS-ESM1-5.nc": {
+      "filename": "executions/recipe_20250518_065758/work/cmip6/ecs/ecs_regression_ACCESS-ESM1-5.nc",
       "long_name": "Scatterplot between TOA radiance and global mean surface temperature anomaly for 150 years of the abrupt 4x CO2 experiment including linear regression to calculate ECS for ACCESS-ESM1-5 (CMIP6).",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/cmip6/ecs/lambda.nc": {
-      "filename": "executions/recipe_20250506_010209/work/cmip6/ecs/lambda.nc",
+    "executions/recipe_20250518_065758/work/cmip6/ecs/lambda.nc": {
+      "filename": "executions/recipe_20250518_065758/work/cmip6/ecs/lambda.nc",
       "long_name": "Climate Feedback Parameter for multiple climate models.",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250506_010209/plots/cmip6/ecs/ACCESS-ESM1-5.png": {
-      "filename": "executions/recipe_20250506_010209/plots/cmip6/ecs/ACCESS-ESM1-5.png",
+    "executions/recipe_20250518_065758/plots/cmip6/ecs/ACCESS-ESM1-5.png": {
+      "filename": "executions/recipe_20250518_065758/plots/cmip6/ecs/ACCESS-ESM1-5.png",
       "long_name": "Scatterplot between TOA radiance and global mean surface temperature anomaly for 150 years of the abrupt 4x CO2 experiment including linear regression to calculate ECS for ACCESS-ESM1-5 (CMIP6).",
       "description": ""
     }
   },
   "html": {
-    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/index.html": {
-      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw1/test_diagnostics_equilibrium_c0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_equilibrium-climate-sensitivity_/scratch/esmvaltool/equilibrium-climate-sensitivity/d166ff17b9edd4cc953fc79085e7cb1cbe12f7cb/executions/recipe_20250506_010209/index.html",
+    "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html": {
+      "filename": "<OUTPUT_DIR>/executions/recipe_20250518_065758/index.html",
       "long_name": "Results page",
       "description": "Page showing the executions of the ESMValTool run."
     }

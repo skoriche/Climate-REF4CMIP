@@ -5,7 +5,6 @@ Diagnostic interface
 from __future__ import annotations
 
 import pathlib
-from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
@@ -438,12 +437,28 @@ class AbstractDiagnostic(Protocol):
     The provider that provides the diagnostic.
     """
 
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def execute(self, definition: ExecutionDefinition) -> None:
         """
-        Run the diagnostic on the given configuration.
+        Execute the diagnostic on the given configuration.
 
         The implementation of this method is left to the diagnostic providers.
+        The results should be written to the output directory of the execution definition.
+        These are later used to build the output bundle and the diagnostic bundle.
 
+        This may occur in a separate process (or python environment in the case of a `CommandLineDiagnostic`).
+
+        Parameters
+        ----------
+        definition
+            The configuration to run the diagnostic on.
+        """
+        ...
+
+    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
+        """
+        Build the result from running the diagnostic on the given configuration.
+
+        This can be replayed later to build the result from the output execution.
 
         Parameters
         ----------
@@ -455,6 +470,7 @@ class AbstractDiagnostic(Protocol):
         :
             The result of running the diagnostic.
         """
+        ...
 
 
 class Diagnostic(AbstractDiagnostic):
@@ -506,6 +522,24 @@ class Diagnostic(AbstractDiagnostic):
     def provider(self, value: DiagnosticProvider) -> None:
         self._provider = value
 
+    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+        """
+        Run the diagnostic on the given configuration.
+
+        This executes the diagnostic and builds the result from the output bundle.
+
+        Parameters
+        ----------
+        definition
+            The configuration to run the diagnostic on.
+        """
+        # Execute the diagnostic
+        # This may be run in a separate process (or python environment)
+        self.execute(definition)
+
+        # Build the result from the output bundle
+        return self.build_execution_result(definition)
+
 
 class CommandLineDiagnostic(Diagnostic):
     """
@@ -514,7 +548,6 @@ class CommandLineDiagnostic(Diagnostic):
 
     provider: CommandLineDiagnosticProvider
 
-    @abstractmethod
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run the diagnostic on the given configuration.
@@ -529,24 +562,9 @@ class CommandLineDiagnostic(Diagnostic):
         :
             A command that can be run with :func:`subprocess.run`.
         """
+        return []
 
-    @abstractmethod
-    def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
-        """
-        Build the result from running the diagnostic on the given configuration.
-
-        Parameters
-        ----------
-        definition
-            The configuration to run the diagnostic on.
-
-        Returns
-        -------
-        :
-            The result of running the diagnostic.
-        """
-
-    def run(self, definition: ExecutionDefinition) -> ExecutionResult:
+    def execute(self, definition: ExecutionDefinition) -> None:
         """
         Run the diagnostic on the given configuration.
 
@@ -562,4 +580,3 @@ class CommandLineDiagnostic(Diagnostic):
         """
         cmd = self.build_cmd(definition)
         self.provider.run(cmd)
-        return self.build_execution_result(definition)

@@ -15,6 +15,9 @@ on:
     # see https://crontab.guru/#0_0_*_*_3
     - cron:  '0 3 * * 3'
 
+  # Temporary for testing
+  pull_request:
+
 jobs:
   test-pypi-install:
     name: Test PyPI install ${{ matrix.install-target }} (${{ matrix.python-version }}, ${{ matrix.os }})

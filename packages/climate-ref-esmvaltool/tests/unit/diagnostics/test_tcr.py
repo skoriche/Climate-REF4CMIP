@@ -52,5 +52,5 @@ def test_format_output(tmp_path, metric_dataset):
     )
 
     CMECMetric.model_validate(metric_args)
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["tcr"] == 1.0
+    assert metric_args.RESULTS["global"]["tcr"] == 1.0
     CMECOutput.model_validate(output_args)

@@ -58,7 +58,7 @@ class TransientClimateResponse(ESMValToolDiagnostic):
         """Update the recipe."""
         # Only run the diagnostic that computes TCR for a single model.
         recipe["diagnostics"] = {
-            "cmip6": {
+            "tcr": {
                 "description": "Calculate TCR.",
                 "variables": {
                     "tas": {
@@ -66,7 +66,7 @@ class TransientClimateResponse(ESMValToolDiagnostic):
                     },
                 },
                 "scripts": {
-                    "tcr": {
+                    "calculate": {
                         "script": "climate_metrics/tcr.py",
                         "calculate_mmm": False,
                     },
@@ -93,6 +93,15 @@ class TransientClimateResponse(ESMValToolDiagnostic):
         for dataset in datasets:
             dataset["timerange"] = timerange
 
+        # Remove keys from the recipe that are only used for YAML anchors
+        keys_to_remove = [
+            "TCR",
+            "SCATTERPLOT",
+            "VAR_SETTING",
+        ]
+        for key in keys_to_remove:
+            recipe.pop(key, None)
+
         recipe["datasets"] = datasets
 
     @staticmethod
@@ -103,7 +112,7 @@ class TransientClimateResponse(ESMValToolDiagnostic):
         output_args: OutputBundleArgs,
     ) -> tuple[CMECMetric, CMECOutput]:
         """Format the result."""
-        tcr_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "tcr" / "tcr.nc")
+        tcr_ds = xarray.open_dataset(result_dir / "work" / "tcr" / "calculate" / "tcr.nc")
         tcr = float(tcr_ds["tcr"].values[0])
 
         # Update the diagnostic bundle arguments with the computed diagnostics.

@@ -43,6 +43,7 @@ jobs:
           make virtual-environment
           make fetch-test-data
           uv run ref datasets fetch-data --registry ilamb
+          uv run ref datasets fetch-data --registry iomb
           uv run ref datasets fetch-data --registry esmvaltool
           make test
       # Upload the scratch and executions directories as artifacts

@@ -1,11 +1,26 @@
 {
   "DIMENSIONS": {
     "json_structure": [
+      "experiment_id",
+      "source_id",
+      "member_id",
+      "grid_label",
       "region",
-      "model",
       "metric",
       "statistic"
     ],
+    "experiment_id": {
+      "historical": {}
+    },
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
     "region": {
       "global": {
         "LongName": "Global - Land",
@@ -18,72 +33,123 @@
         "Generator": "Koppen_coarse.nc"
       }
     },
-    "model": {
-      "ACCESS-ESM1-5-r1i1p1f1-gn": {
-        "Description": "ACCESS-ESM1-5-r1i1p1f1-gn",
-        "Source": "ACCESS-ESM1-5-r1i1p1f1-gn"
-      }
-    },
     "metric": {
-      "cmip6_historical": {
-        "Name": "cmip6_historical",
-        "Abstract": "benchmark score",
-        "URI": [
-          "https://www.osti.gov/biblio/1330803",
-          "https://doi.org/10.1029/2018MS001354"
-        ],
-        "Contact": "forrest AT climatemodeling.org"
-      }
+      "Bias": {},
+      "RMSE": {},
+      "Annual Cycle": {},
+      "Spatial Distribution": {},
+      "Relationship pr": {},
+      "Relationship tas": {}
     },
     "statistic": {
-      "Period Mean [g d-1 m-2]": {},
-      "Bias [g d-1 m-2]": {},
-      "Bias Score [1]": {},
-      "RMSE [g d-1 m-2]": {},
-      "RMSE Score [1]": {},
-      "Phase Shift [month]": {},
-      "Seasonal Cycle Score [1]": {},
-      "Normalized Standard Deviation [1]": {},
-      "Correlation [1]": {},
-      "Spatial Distribution Score [1]": {},
-      "Relationship Score pr [1]": {},
-      "Relationship Score tas [1]": {}
+      "Period Mean": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "Bias": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "Bias Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "RMSE": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "RMSE Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Phase Shift": {
+        "type": "scalar",
+        "units": "month"
+      },
+      "Seasonal Cycle Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Normalized Standard Deviation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Correlation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Spatial Distribution Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Relationship Score pr": {
+        "type": "score",
+        "units": "1"
+      },
+      "Relationship Score tas": {
+        "type": "score",
+        "units": "1"
+      }
     }
   },
   "RESULTS": {
-    "global": {
-      "ACCESS-ESM1-5-r1i1p1f1-gn": {
-        "cmip6_historical": {
-          "Period Mean [g d-1 m-2]": 2.1024021549781216,
-          "Bias [g d-1 m-2]": 0.0864657532640795,
-          "Bias Score [1]": 0.4676109048415688,
-          "RMSE [g d-1 m-2]": 1.6552676976411935,
-          "RMSE Score [1]": 0.4274016614067758,
-          "Phase Shift [month]": 0.3460071505100462,
-          "Seasonal Cycle Score [1]": 0.7302961501719643,
-          "Normalized Standard Deviation [1]": 1.2191835212182185,
-          "Correlation [1]": 0.7954204310685823,
-          "Spatial Distribution Score [1]": 0.8633549384785634,
-          "Relationship Score pr [1]": 0.4648701436860109,
-          "Relationship Score tas [1]": 0.5961174687755966
-        }
-      }
-    },
-    "tropical": {
-      "ACCESS-ESM1-5-r1i1p1f1-gn": {
-        "cmip6_historical": {
-          "Period Mean [g d-1 m-2]": 4.880223654215761,
-          "Bias [g d-1 m-2]": 0.2906089675036236,
-          "Bias Score [1]": 0.3600624305629896,
-          "RMSE [g d-1 m-2]": 2.8095335768502725,
-          "RMSE Score [1]": 0.3714562972753612,
-          "Phase Shift [month]": 0.8985700662469462,
-          "Seasonal Cycle Score [1]": 0.6585526247077628,
-          "Normalized Standard Deviation [1]": 2.1002205009486556,
-          "Correlation [1]": 0.506508637302237,
-          "Spatial Distribution Score [1]": 0.453929277719741,
-          "Relationship Score pr [1]": 0.4842782825391371,
-          "Relationship Score tas [1]": 0.4321457150215198
+    "historical": {
+      "ACCESS-ESM1-5": {
+        "r1i1p1f1": {
+          "gn": {
+            "global": {
+              "Annual Cycle": {
+                "Phase Shift": 0.3460071505100462,
+                "Seasonal Cycle Score": 0.7302961501719643
+              },
+              "Bias": {
+                "Bias": 0.0864657532640795,
+                "Bias Score": 0.4676109048415688,
+                "Period Mean": 2.1024021549781216
+              },
+              "RMSE": {
+                "RMSE": 1.6552676976411935,
+                "RMSE Score": 0.4274016614067758
+              },
+              "Relationship pr": {
+                "Relationship Score pr": 0.4648701436860109
+              },
+              "Relationship tas": {
+                "Relationship Score tas": 0.5961174687755966
+              },
+              "Spatial Distribution": {
+                "Correlation": 0.7954204310685823,
+                "Normalized Standard Deviation": 1.2191835212182185,
+                "Spatial Distribution Score": 0.8633549384785634
+              }
+            },
+            "tropical": {
+              "Annual Cycle": {
+                "Phase Shift": 0.8985700662469462,
+                "Seasonal Cycle Score": 0.6585526247077628
+              },
+              "Bias": {
+                "Bias": 0.2906089675036236,
+                "Bias Score": 0.3600624305629896,
+                "Period Mean": 4.880223654215761
+              },
+              "RMSE": {
+                "RMSE": 2.8095335768502725,
+                "RMSE Score": 0.3714562972753612
+              },
+              "Relationship pr": {
+                "Relationship Score pr": 0.4842782825391371
+              },
+              "Relationship tas": {
+                "Relationship Score tas": 0.4321457150215198
+              },
+              "Spatial Distribution": {
+                "Correlation": 0.506508637302237,
+                "Normalized Standard Deviation": 2.1002205009486556,
+                "Spatial Distribution Score": 0.453929277719741
+              }
+            }
+          }
         }
       }
     }

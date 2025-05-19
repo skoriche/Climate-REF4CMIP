@@ -1,24 +1,36 @@
 {
   "DIMENSIONS": {
     "json_structure": [
+      "grid_label",
+      "member_id",
       "source_id",
       "region",
       "metric"
     ],
-    "source_id": {
-      "MPI-ESM1-2-LR": {}
-    },
     "region": {
       "global": {}
     },
     "metric": {
       "tcre": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "source_id": {
+      "MPI-ESM1-2-LR": {}
     }
   },
   "RESULTS": {
-    "MPI-ESM1-2-LR": {
-      "global": {
-        "tcre": 46.46865463256836
+    "gn": {
+      "r1i1p1f1": {
+        "MPI-ESM1-2-LR": {
+          "global": {
+            "tcre": 46.46865463256836
+          }
+        }
       }
     }
   },

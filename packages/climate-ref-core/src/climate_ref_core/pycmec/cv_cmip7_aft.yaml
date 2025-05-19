@@ -24,6 +24,11 @@ dimensions:
   description: "Variable ID for the reference dataset (e.g., tas, pr, etc.)"
   allow_extra_values: true
   required: false
+- name: grid_label
+  long_name: Grid Label
+  description: "The grid label of the output (e.g gn)"
+  allow_extra_values: true
+  required: false
 - name: member_id
   long_name: Member ID
   description: "Unique identifier for each ensemble member, includes the variant label and sub-experiment if present"

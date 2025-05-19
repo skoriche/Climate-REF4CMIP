@@ -19,7 +19,10 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
         .first()
     )
 
-    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(
+        diagnostic=diagnostic,
+        cmip6=DatasetCollection(ds, "instance_id", selector=(("experiment_id", "historical"),)),
+    )
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
     result = diagnostic.run(definition)
@@ -54,7 +57,10 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
     ].groupby(["source_id", "member_id", "grid_label"])
     _, ds = next(iter(grp))
 
-    definition = definition_factory(diagnostic=diagnostic, cmip6=DatasetCollection(ds, "instance_id"))
+    definition = definition_factory(
+        diagnostic=diagnostic,
+        cmip6=DatasetCollection(ds, "instance_id", selector=(("experiment_id", "historical"),)),
+    )
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
     result = diagnostic.run(definition)

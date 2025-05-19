@@ -6,7 +6,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-echo "🚀 Starting smoke test for climate-ref docker stack..."
+echo "Starting smoke test for climate-ref docker stack..."
 
 # Function to check if a service is healthy
 check_service() {
@@ -70,27 +70,27 @@ docker compose exec climate-ref ls -alR /ref/sample-data/obs4REF
 # Ingest sample data
 echo "Ingesting sample data..."
 if docker compose run --rm climate-ref -v datasets ingest --source-type cmip6 /ref/sample-data/CMIP6; then
-    echo -e "${GREEN}✓ CMIP6 data ingestion successful${NC}"
+    echo -e "${GREEN} CMIP6 data ingestion successful${NC}"
 else
-    echo -e "${RED}✗ CMIP6 data ingestion failed${NC}"
+    echo -e "${RED} CMIP6 data ingestion failed${NC}"
     exit 1
 fi
 
 if docker compose run --rm climate-ref datasets ingest --source-type obs4mips /ref/sample-data/obs4REF; then
-    echo -e "${GREEN}✓ Obs4MIPs data ingestion successful${NC}"
+    echo -e "${GREEN} Obs4MIPs data ingestion successful${NC}"
 else
-    echo -e "${RED}✗ Obs4MIPs data ingestion failed${NC}"
+    echo -e "${RED} Obs4MIPs data ingestion failed${NC}"
     exit 1
 fi
 
 
 # Run a simple solve
 if docker compose run --rm climate-ref -v solve --timeout 180 --one-per-provider; then
-    echo -e "${GREEN}✓ Solving completed before timeout${NC}"
+    echo -e "${GREEN} Solving completed before timeout${NC}"
 else
-    echo -e "${RED}✗ Solving failed${NC}"
+    echo -e "${RED} Solving failed${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ All smoke tests passed!${NC}"
+echo -e "${GREEN} All smoke tests passed!${NC}"
 echo "The docker stack is healthy and ready for use."

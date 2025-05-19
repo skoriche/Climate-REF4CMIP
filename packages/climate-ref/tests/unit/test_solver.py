@@ -611,7 +611,7 @@ def test_solve_with_one_per_provider(
     with caplog.at_level("INFO"):
         solve_required_executions(db_seeded, solver=solver, one_per_provider=True)
 
-    assert "Skipping execution for execution group" in caplog.text
+    assert "Skipping execution due to one-of check" in caplog.text
 
     # Check that only one result is created
     assert db_seeded.session.query(Execution).count() == 1
@@ -634,7 +634,7 @@ def test_solve_with_one_per_diagnostic(
     with caplog.at_level("INFO"):
         solve_required_executions(db_seeded, solver=solver, one_per_diagnostic=True)
 
-    assert "Skipping execution for execution group" in caplog.text
+    assert "Skipping execution due to one-of check" in caplog.text
 
     # Check that a result is created
     assert db_seeded.session.query(Execution).count() == 1

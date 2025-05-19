@@ -29,16 +29,17 @@ def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):
     assert db.session.query(Dataset).count() == num_expected_datasets
 
     result = invoke_cli(["--verbose", "solve"])
-    expected_execution_group_key = "cmip6_ssp126_ACCESS-ESM1-5_rsut_r1i1p1f1"
-    assert f"Created new execution group: {expected_execution_group_key!r}" in result.stderr
-    assert f"Running new execution for execution group: {expected_execution_group_key!r}" in result.stderr
+    key = "cmip6_ssp126_ACCESS-ESM1-5_rsut_r1i1p1f1"
+    expected_execution_slug = f"example/global-mean-timeseries/{key}"
+    assert f"Created new execution group: {expected_execution_slug!r}" in result.stderr
+    assert f"Running new execution for execution group: {expected_execution_slug!r}" in result.stderr
     assert db.session.query(ExecutionGroup).count() == num_expected_metrics
 
     # Running solve again should not trigger any new diagnostic executions
     result = invoke_cli(["--verbose", "solve"])
-    assert f"Created new execution group {expected_execution_group_key!r}" not in result.stderr
+    assert f"Created new execution group {expected_execution_slug!r}" not in result.stderr
     assert db.session.query(ExecutionGroup).count() == num_expected_metrics
-    execution = db.session.query(ExecutionGroup).filter_by(key=expected_execution_group_key).one()
+    execution = db.session.query(ExecutionGroup).filter_by(key=key).one()
 
     assert len(execution.executions[0].datasets) == 2
     assert (

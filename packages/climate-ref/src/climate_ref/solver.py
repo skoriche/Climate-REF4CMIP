@@ -368,7 +368,7 @@ def solve_required_executions(  # noqa: PLR0913
                 diagnostic_count[diagnostic.full_slug()] = 0
 
             if created:
-                logger.info(f"Created new execution group: {potential_execution.execution_slug()}")
+                logger.info(f"Created new execution group: {potential_execution.execution_slug()!r}")
                 db.session.flush()
 
             # Check if we should run given the one_per_provider or one_per_diagnostic flags
@@ -385,13 +385,12 @@ def solve_required_executions(  # noqa: PLR0913
             if execution_group.should_run(definition.datasets.hash):
                 if (one_per_provider or one_per_diagnostic) and one_of_check_failed:
                     logger.info(
-                        f"Skipping execution for execution group: {potential_execution.execution_slug()}"
+                        f"Skipping execution due to one-of check: {potential_execution.execution_slug()!r}"
                     )
                     continue
 
                 logger.info(
-                    f"Running new execution for execution group: "
-                    f"{definition.key!r} for {potential_execution.diagnostic.full_slug()}"
+                    f"Running new execution for execution group: {potential_execution.execution_slug()!r}"
                 )
                 execution = Execution(
                     execution_group=execution_group,

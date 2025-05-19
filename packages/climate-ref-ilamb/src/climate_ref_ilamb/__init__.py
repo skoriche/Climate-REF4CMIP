@@ -12,7 +12,6 @@ import yaml
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.providers import DiagnosticProvider
-from climate_ref_ilamb.datasets import ILAMB_DATA_VERSION
 from climate_ref_ilamb.standard import ILAMBStandard
 
 __version__ = importlib.metadata.version("climate-ref-ilamb")
@@ -22,27 +21,21 @@ provider = DiagnosticProvider("ILAMB", __version__)
 # Register some datasets
 dataset_registry_manager.register(
     "ilamb-test",
-    base_url="https://www.ilamb.org/ILAMB-Data/DATA",
+    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
     package="climate_ref_ilamb.dataset_registry",
     resource="test.txt",
-    cache_name="ilamb3",
-    version=ILAMB_DATA_VERSION,
 )
 dataset_registry_manager.register(
     "ilamb",
-    base_url="https://www.ilamb.org/ILAMB-Data/DATA",
+    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
     package="climate_ref_ilamb.dataset_registry",
     resource="ilamb.txt",
-    cache_name="ilamb3",
-    version=ILAMB_DATA_VERSION,
 )
 dataset_registry_manager.register(
     "iomb",
-    base_url="https://www.ilamb.org/ilamb3-data/",
+    base_url="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/ilamb",
     package="climate_ref_ilamb.dataset_registry",
     resource="iomb.txt",
-    cache_name="ilamb3",
-    version=ILAMB_DATA_VERSION,
 )
 
 # Dynamically register ILAMB diagnostics

@@ -38,7 +38,6 @@ from climate_ref_core.logging import add_log_handler, remove_log_handler
 from climate_ref_core.providers import DiagnosticProvider
 
 pytest_plugins = ("celery.contrib.pytest",)
-pytest.register_assert_rewrite("climate_ref.testing")
 
 
 def pytest_configure(config):

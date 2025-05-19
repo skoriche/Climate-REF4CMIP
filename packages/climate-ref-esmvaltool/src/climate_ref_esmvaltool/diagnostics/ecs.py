@@ -103,6 +103,18 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         for dataset in datasets:
             dataset["timerange"] = timerange
 
+        # Remove keys from the recipe that are only used for YAML anchors
+        keys_to_remove = [
+            "CMIP5_RTMT",
+            "CMIP6_RTMT",
+            "CMIP5_RTNT",
+            "CMIP6_RTNT",
+            "ECS_SCRIPT",
+            "SCATTERPLOT",
+        ]
+        for key in keys_to_remove:
+            recipe.pop(key, None)
+
         recipe["datasets"] = datasets
 
     @staticmethod

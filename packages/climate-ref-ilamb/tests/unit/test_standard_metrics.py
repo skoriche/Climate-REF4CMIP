@@ -8,7 +8,7 @@ from climate_ref_core.datasets import DatasetCollection
 
 def test_standard_site(cmip6_data_catalog, definition_factory):
     diagnostic = ILAMBStandard(
-        registry_file="ilamb-test", metric_name="test-site-tas", sources={"tas": "test/Site/tas.nc"}
+        registry_file="ilamb-test", metric_name="test-site-tas", sources={"tas": "ilamb/test/Site/tas.nc"}
     )
     ds = (
         cmip6_data_catalog[
@@ -45,8 +45,8 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
     diagnostic = ILAMBStandard(
         registry_file="ilamb-test",
         metric_name="test-grid-gpp",
-        sources={"gpp": "test/Grid/gpp.nc"},
-        relationships={"pr": "test/Grid/pr.nc"},
+        sources={"gpp": "ilamb/test/Grid/gpp.nc"},
+        relationships={"pr": "ilamb/test/Grid/pr.nc"},
     )
     grp = cmip6_data_catalog[
         (cmip6_data_catalog["experiment_id"] == "historical")
@@ -81,7 +81,7 @@ def test_standard_fail():
         ILAMBStandard(
             registry_file="ilamb-test",
             metric_name="test-fail",
-            sources={"gpp": "test/Grid/gpp.nc", "pr": "test/Grid/pr.nc"},
+            sources={"gpp": "ilamb/test/Grid/gpp.nc", "pr": "ilamb/test/Grid/pr.nc"},
         )
 
 

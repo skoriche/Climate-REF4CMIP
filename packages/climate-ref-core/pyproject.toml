@@ -48,8 +48,8 @@ dependencies = [
 [project.license]
 text = "Apache-2.0"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "types-requests",
 ]
 

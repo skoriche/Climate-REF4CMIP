@@ -34,8 +34,8 @@ dependencies = [
 ref-celery = "climate_ref_celery.cli:app"
 
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "celery-types>=0.23.0",
     "types-tqdm>=4.67.0.20250301",
 ]

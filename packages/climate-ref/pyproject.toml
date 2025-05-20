@@ -38,7 +38,6 @@ dependencies = [
     "loguru>=0.7.2",
     "ecgtools>=2024.7.31",
     "platformdirs>=4.3.6",
-    "setuptools>=75.8.0",
     "tqdm>=4.67.1"
 ]
 
@@ -66,9 +65,8 @@ text = "Apache-2.0"
 [project.scripts]
 ref = "climate_ref.cli:app"
 
-[tool.uv]
-dev-dependencies = [
-]
+[dependency-groups]
+dev = []
 
 [build-system]
 requires = ["hatchling"]

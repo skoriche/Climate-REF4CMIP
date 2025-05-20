@@ -570,7 +570,6 @@ dependencies = [
     { name = "environs" },
     { name = "loguru" },
     { name = "platformdirs" },
-    { name = "setuptools" },
     { name = "sqlalchemy" },
     { name = "tomlkit" },
     { name = "tqdm" },
@@ -615,7 +614,6 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "platformdirs", specifier = ">=4.3.6" },
     { name = "psycopg2-binary", marker = "extra == 'postgres'", specifier = ">=2.9.2" },
-    { name = "setuptools", specifier = ">=75.8.0" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
     { name = "tomlkit", specifier = ">=0.13.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
@@ -753,6 +751,10 @@ source = { editable = "packages/climate-ref-ilamb" }
 dependencies = [
     { name = "climate-ref-core" },
     { name = "ilamb3" },
+]
+
+[package.dev-dependencies]
+dev = [
     { name = "types-pyyaml" },
 ]
 
@@ -760,11 +762,10 @@ dependencies = [
 requires-dist = [
     { name = "climate-ref-core", editable = "packages/climate-ref-core" },
     { name = "ilamb3", specifier = ">=2025.4.28" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
 ]
 
 [package.metadata.requires-dev]
-dev = []
+dev = [{ name = "types-pyyaml", specifier = ">=6.0.12" }]
 
 [[package]]
 name = "climate-ref-pmp"
@@ -827,6 +828,7 @@ dev = [
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "towncrier" },
+    { name = "types-pyyaml" },
     { name = "types-tqdm" },
 ]
 
@@ -862,7 +864,7 @@ dev = [
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.25.0" },
     { name = "mypy", specifier = ">=1.11.0" },
     { name = "notebook", specifier = ">=7" },
-    { name = "pandas-stubs", specifier = ">=2.2.3.241009" },
+    { name = "pandas-stubs", specifier = ">=2.2.3" },
     { name = "pip", specifier = ">=24.3.1" },
     { name = "pre-commit", specifier = ">=3.3.1" },
     { name = "prettyprinter", specifier = ">=0.18.0" },
@@ -874,7 +876,8 @@ dev = [
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "ruff", specifier = ">=0.11.7" },
     { name = "towncrier", specifier = ">=24.8.0" },
-    { name = "types-tqdm", specifier = ">=4.67.0.20250301" },
+    { name = "types-pyyaml", specifier = ">=6.0.12" },
+    { name = "types-tqdm", specifier = ">=4.67" },
 ]
 
 [[package]]

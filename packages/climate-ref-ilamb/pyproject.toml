@@ -21,14 +21,15 @@ classifiers = [
 dependencies = [
     "climate-ref-core",
     "ilamb3>=2025.4.28",
-    "types-pyyaml>=6.0.12.20241230",
 ]
 
 [project.license]
 text = "Apache-2.0"
 
-[tool.uv]
-dev-dependencies = []
+[dependency-groups]
+dev = [
+  "types-pyyaml>=6.0.12",
+]
 
 [build-system]
 requires = ["hatchling"]

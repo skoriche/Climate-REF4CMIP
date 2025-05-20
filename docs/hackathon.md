@@ -45,66 +45,11 @@ The metrics that are currently available in the REF are relatively limited so no
 It is recommended to read through the [developer documentation](development.md) to get an understanding of the REF and how we collaborate.
 
 For those interested in learning more about the REF,
-we recommend reading the [Architecture design document](background/architecture.md).
+we recommend reading the [Introduction section](introduction/index.md) [Architecture design document](background/architecture.md).
 This outlines the design of the REF and provides some background about the project.
 
-## Brief technical overview of the REF
 
-The REF is a Python package that provides a framework for running benchmarking climate models. It is designed to be flexible and extensible, allowing users to define their own metrics and ingest their own climate datasets.
-
-The REF consists of 4 main steps, which are shown in the diagram below:
-
-```mermaid
-flowchart LR
-    Ingest --> Solve
-    Solve --> Execute
-    Execute --> Visualise
-```
-
-* **Ingest** Ingesting datasets that can be used for analysis into a local database. This includes support for CMIP6, Obs4MIPs, and other observational datasets.
-* **Solve** Using the ingested datasets and the data requirements from the metrics, the REF determines which metrics need to be executed.
-* **Execute** The metrics are executed and the results collated. We support multiple different ways of running metrics that may be useful for different use cases.
-* **Visualise** The results of the metrics are visualised. This can be in the form of plots, tables, or other outputs.
-
-### Diagnostics
-At the core of the REF is the [Diagnostic][climate_ref_core.diagnostics.Diagnostic] protocol.
-This protocol defines the common interface that all metrics must implement.
-A diagnostic defines the different datasets that a metric requires (see [dataset-selection](how-to-guides/dataset-selection.py)), and how to calculate a number of metric value from them.
-These metric values can be either scalar or timeseries data.
-How a metric is actually calculated depends on which metrics provider the metric comes from.
-
-The rest of the complexity that comes from figuring out which datasets to use, how to run the diagnostic, and how to visualise the results is handled by the REF.
-
-### Diagnostic Providers
-Diagnostics are grouped into packages, one for each of the diagnostic providers selected for the CMIP7 AFT.
-These diagnostic packages (ESMValTool, ILAMB and PMP) each have different ways of calculating diagnostics.
-
-For some diagnostic providers (ILAMB and ESMValTool),
-an additional conda environment will be required
-to run the metrics locally.
-This is still a work in progress ([#117](https://github.com/Climate-REF/climate-ref/pull/117))
-and is expected to be available to use by the time of the hackathon.
-
-### Ouput
-
-The output of a diagnostic execution can be a range of different outcomes:
-
-* Scalar values
-* Timeseries
-* Plots
-* Tables
-* HTML reports
-
-To support the capture of these different outputs in a standardised way,
-the REF uses the [Earth System Metrics and Diagnostics Standards (EMDS)](https://github.com/Earth-System-Diagnostics-Standards/EMDS).
-A REF-specific extension to this format will be developed as
-part of this process.
-
-These outputs will be ingested into a database
-and made available through an API/web interface or CLI tool.
-This is still early work so input into how we can expose the results in a meaningful way is welcome.
-
-### Compute Engine
+## Deployment environments
 
 The REF is designed to be run on a local machine,
 but we are also working on support for running the REF on cloud-based systems and HPC systems.

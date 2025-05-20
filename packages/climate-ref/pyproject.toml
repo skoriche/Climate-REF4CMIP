@@ -14,9 +14,9 @@ authors = [
 ]
 requires-python = ">=3.11"
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Operating System :: OS Independent",
-    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
     "climate-ref-core",
@@ -37,7 +38,6 @@ dependencies = [
     "loguru>=0.7.2",
     "ecgtools>=2024.7.31",
     "platformdirs>=4.3.6",
-    "setuptools>=75.8.0",
     "tqdm>=4.67.1"
 ]
 
@@ -65,9 +65,8 @@ text = "Apache-2.0"
 [project.scripts]
 ref = "climate_ref.cli:app"
 
-[tool.uv]
-dev-dependencies = [
-]
+[dependency-groups]
+dev = []
 
 [build-system]
 requires = ["hatchling"]

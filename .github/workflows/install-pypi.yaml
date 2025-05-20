@@ -61,6 +61,9 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ env.INSTALLED_VERSION }}
+        # Windows can't clone the entire directory due to filename length
+        sparse-checkout: |
+          scripts
     - name: Test installation
       run: |
         which python
@@ -112,6 +115,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ env.INSTALLED_VERSION }}
+        sparse-checkout: |
+          scripts
     - name: Test installation
       run: |
         which python

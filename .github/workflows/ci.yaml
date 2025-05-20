@@ -70,12 +70,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
         run: |
-          uv run --package climate_ref scripts/test-install.py climate_ref
-          uv run --package climate_ref_core scripts/test-install.py climate_ref_core
-          uv run --package climate_ref_celery scripts/test-install.py climate_ref_celery
-          uv run --package climate_ref_ilamb scripts/test-install.py climate_ref_ilamb
-          uv run --package climate_ref_esmvaltool scripts/test-install.py climate_ref_esmvaltool
-          uv run --package climate_ref_pmp python scripts/test-install.py climate_ref_pmp
+          uv run --isolated --with-editable packages/climate-ref --with typer --no-project scripts/test-install.py climate_ref
+          uv run --isolated --with-editable packages/climate-ref-core --with typer --no-project scripts/test-install.py climate_ref_core
+          uv run --isolated --with-editable packages/climate-ref-celery --with typer --no-project scripts/test-install.py climate_ref_celery
+          uv run --isolated --with-editable packages/climate-ref-ilamb --with typer --no-project scripts/test-install.py climate_ref_ilamb
+          uv run --isolated --with-editable packages/climate-ref-esmvaltool --with typer --no-project scripts/test-install.py climate_ref_esmvaltool
+          uv run --isolated --with-editable packages/climate-ref-pmp --with typer --no-project scripts/test-install.py climate_ref_pmp
 
   check-build:
     runs-on: ubuntu-latest

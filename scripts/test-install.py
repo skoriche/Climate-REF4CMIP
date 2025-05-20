@@ -9,7 +9,8 @@ Thanks https://stackoverflow.com/a/25562415/10473080
 import importlib
 import pkgutil
 
-import cmip_ref_core
+import typer
+from loguru import logger
 
 
 def import_submodules(package_name):
@@ -20,11 +21,22 @@ def import_submodules(package_name):
 
     for _, name, is_pkg in pkgutil.walk_packages(package.__path__):
         full_name = package.__name__ + "." + name
+        logger.info(f"Importing {full_name}")
         importlib.import_module(full_name)
         if is_pkg:
             import_submodules(full_name)
 
 
-# TODO: Make this agnostic to the package name
-import_submodules("cmip_ref_core")
-print(cmip_ref_core.__version__)
+def main(package: str = typer.Argument(..., help="List of package names to test import for")):
+    try:
+        import_submodules(package)
+        pkg = importlib.import_module(package)
+        version = getattr(pkg, "__version__", "<no __version__>")
+        print(f"{package} version: {version}")
+    except Exception as e:
+        print(f"Failed to import {package}: {e}")
+        raise typer.Abort()
+
+
+if __name__ == "__main__":
+    typer.run(main)

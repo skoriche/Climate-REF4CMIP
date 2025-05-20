@@ -1,0 +1,55 @@
+"""
+Custom exceptions
+"""
+
+from typing import Any
+
+
+class RefException(Exception):
+    """Base class for exceptions related to REF operations"""
+
+    pass
+
+
+class InvalidExecutorException(RefException):
+    """Exception raised when an invalid executor is used"""
+
+    def __init__(self, executor: Any, message: str) -> None:
+        message = f"Invalid executor: '{executor}'\n {message}"
+
+        super().__init__(message)
+
+
+class InvalidProviderException(RefException):
+    """Exception raised when an invalid diagnostic is registered"""
+
+    def __init__(self, provider: Any, message: str) -> None:
+        message = f"Invalid provider: '{provider}'\n {message}"
+
+        super().__init__(message)
+
+
+class InvalidDiagnosticException(RefException):
+    """Exception raised when an invalid diagnostic is registered"""
+
+    def __init__(self, metric: Any, message: str) -> None:
+        message = f"Invalid diagnostic: '{metric}'\n {message}"
+
+        super().__init__(message)
+
+
+class ConstraintNotSatisfied(RefException):
+    """Exception raised when a constraint is violated"""
+
+    # TODO: implement when we have agreed on using constraints
+
+
+class ResultValidationError(RefException):
+    """Exception raised when the executions from a diagnostic are invalid"""
+
+
+class ExecutionError(RefException):
+    """Exception raised when an execution fails"""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)

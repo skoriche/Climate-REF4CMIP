@@ -127,13 +127,12 @@ def write_module_page(
     return PackageInfo(package_full_name, package_name, summary)
 
 
-write_module_page("cmip_ref")
-write_module_page("cmip_ref_core")
-write_module_page("cmip_ref_celery")
-write_module_page("cmip_ref_metrics_example")
-write_module_page("cmip_ref_metrics_esmvaltool")
-write_module_page("cmip_ref_metrics_ilamb")
-write_module_page("cmip_ref_metrics_pmp")
+write_module_page("climate_ref")
+write_module_page("climate_ref_core")
+write_module_page("climate_ref_celery")
+write_module_page("climate_ref_esmvaltool")
+write_module_page("climate_ref_ilamb")
+write_module_page("climate_ref_pmp")
 
 with mkdocs_gen_files.open(ROOT_DIR / "NAVIGATION.md", "w") as fh:
     fh.writelines(nav.build_literate_nav())

@@ -1,6 +1,6 @@
 site_name: Climate REF
 site_description: The Rapid Evaluation Framework for near-real time evaluation of climate models
-site_url: https://cmip-ref.readthedocs.io
+site_url: https://climate-ref.readthedocs.io
 edit_uri: blob/master/docs/
 
 repo_name: Climate-REF/climate-ref
@@ -9,14 +9,19 @@ repo_url: https://github.com/Climate-REF/climate-ref
 nav:
   - Rapid Evaluation Framework: index.md
   - Installation: installation.md
-  - Getting Started: getting_started.md
+  - Introduction:
+    - introduction/index.md
+    - introduction/basic-concepts.md
+    - introduction/getting_started.md
+    - introduction/required_datasets.md
   - Configuration: configuration.md
   - Roadmap: roadmap.md
   - How-to guides:
     - how-to-guides/index.md
     - how-to-guides/ingest-datasets.md
-    - how-to-guides/metric-dataset-selection.py
-    - how-to-guides/running-metrics-locally.py
+    - how-to-guides/dataset-selection.py
+    - how-to-guides/running-diagnostics-locally.py
+    - how-to-guides/docker_deployment.md
   - Tutorials: tutorials.md
   - Further background:
     - Architecture: background/architecture.md
@@ -58,6 +63,7 @@ plugins:
   - gen-files:
       scripts:
         - docs/gen_doc_stubs.py
+        - docs/gen_config_stubs.py
   # Make the navigation easier to handle/auto-generate if we wish
   # https://oprypin.github.io/mkdocs-literate-nav/
   - literate-nav:
@@ -79,7 +85,7 @@ plugins:
       allow_errors: false
       # theme: dark
       include_source: True
-      ignore: ["*.ipynb", "*.md", "docs/gen_doc_stubs.py"]
+      ignore: ["*.ipynb", "*.md", "docs/gen_*.py"]
       remove_tag_config:
         remove_cell_tags:
           - remove_cell
@@ -96,7 +102,7 @@ plugins:
         python:
           paths: [packages]
           import:
-            # Cross-cmip_ref helpers (lots included here, remove what you don't want)
+            # Cross-climate_ref helpers (lots included here, remove what you don't want)
             - https://www.attrs.org/en/stable/objects.inv
             - https://catt.rs/en/stable/objects.inv
             - https://unidata.github.io/cftime/objects.inv

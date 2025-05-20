@@ -1,0 +1,100 @@
+dimensions:
+- name: source_id
+  long_name: Source ID
+  description: "Source ID (e.g., GFDL-CM4)"
+  allow_extra_values: true
+  required: false
+- name: reference_source_id
+  long_name: Reference Source ID
+  description: "Source ID of the reference dataset(e.g., HadISST)"
+  allow_extra_values: true
+  required: false
+- name: experiment_id
+  long_name: Experiment ID
+  description: "Experiment ID (e.g., historical, ssp585)"
+  allow_extra_values: true
+  required: false
+- name: variable_id
+  long_name: Variable
+  description: "Variable ID (e.g., tas, pr, etc.)"
+  allow_extra_values: true
+  required: false
+- name: reference_variable_id
+  long_name: Reference Variable
+  description: "Variable ID for the reference dataset (e.g., tas, pr, etc.)"
+  allow_extra_values: true
+  required: false
+- name: grid_label
+  long_name: Grid Label
+  description: "The grid label of the output (e.g gn)"
+  allow_extra_values: true
+  required: false
+- name: member_id
+  long_name: Member ID
+  description: "Unique identifier for each ensemble member, includes the variant label and sub-experiment if present"
+  allow_extra_values: true
+  required: false
+- name: variant_label
+  long_name: Variant Label
+  description: "Ensemble member (construct from realization, initialization, physics, and forcing indices)"
+  allow_extra_values: true
+  required: false
+- name: metric
+  long_name: Metric
+  description: ""
+  required: true
+  allow_extra_values: true
+- name: region
+  long_name: Region
+  description: "Part of the world from which the metric values are calculated. "
+  required: true
+  allow_extra_values: true
+  values:
+    - name: global
+      long_name: Global
+      description: "Global aggregate"
+      units: dimensionless
+- name: season
+  long_name: Season
+  description: "Parts of the year from which the metric values are calculated"
+  required: true
+  allow_extra_values: true
+  values:
+    - name: ann
+      long_name: Annual
+      description: ""
+      units: dimensionless
+    - name: djf
+      long_name: Dec,Jan,Feb
+      description: "December, January, February"
+      units: dimensionless
+    - name: mam
+      long_name: Mar,Apr,May
+      description: "March, April, May"
+      units: dimensionless
+    - name: jja
+      long_name: Jun,Jul,Aug
+      description: "June, July, August"
+      units: dimensionless
+    - name: son
+      long_name: Sep,Oct,Nov
+      description: "September, October, November"
+      units: dimensionless
+- name: statistic
+  long_name: Statistic
+  description: ""
+  required: true
+  allow_extra_values: true
+  values:
+    - name: rmse
+      long_name: Root Mean Square Error
+      description: ""
+      units: dimensionless
+    - name: overall score
+      long_name: Overall Score
+      description: ""
+      units: dimensionless
+    - name: bias
+      long_name: Bias
+      description: ""
+      units: dimensionless

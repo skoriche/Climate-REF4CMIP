@@ -15,7 +15,7 @@ jobs:
   tests-slow:
     env:
       REF_TEST_OUTPUT: "test-outputs"
-      REF_METRICS_DATA_DIR: "data"
+      REF_DATASET_CACHE_DIR: "data"
       PYTEST_ADDOPTS: "--slow"
     strategy:
       fail-fast: false
@@ -36,16 +36,17 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.REF_METRICS_DATA_DIR }}
+            ${{ env.REF_DATASET_CACHE_DIR }}
           key: reference-datasets
       - name: Run tests
         run: |
           make virtual-environment
           make fetch-test-data
           uv run ref datasets fetch-data --registry ilamb
+          uv run ref datasets fetch-data --registry iomb
           uv run ref datasets fetch-data --registry esmvaltool
           make test
-      # Upload the scratch and results directories as artifacts
+      # Upload the scratch and executions directories as artifacts
       - name: Upload scratch artifacts
         uses: actions/upload-artifact@v4
         if: always()

@@ -34,11 +34,6 @@ make virtual-environment
 mkdir $PWD/.ref
 uv run ref config list > $PWD/.ref/ref.toml
 export REF_CONFIGURATION=$PWD/.ref
-
-# Download some test data and ingest the sample datasets.
-make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
-uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4MIPs/
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing
@@ -55,17 +50,46 @@ If there are any issues, the messages from the `Makefile` should guide you
 through. If not, please raise an issue in the
 [issue tracker](https://github.com/Climate-REF/climate-ref/issues).
 
-### Running your first `solve`
+### Ingesting datasets
 
-If you want to run the sample data through the whole pipeline, you need to download
-reference data, but note that the reference data is several Gigabytes in size.
+The REF requires datasets, both reference and model, to be ingested into the database.
+These ingested datasets are then used to solve for what executions are available and require running.
 
-```shell
-# Download reference data which is not (yet) included in obs4mips
-make fetch-ref-data
+We have a consistent set of decimated sample data that is used for testing.
+These can be ingested using the following command:
+
+```bash
+make fetch-test-data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4REF/
 ```
 
-After that, you can let the REF calculate all included metrics for the sample data.
+Additional reference datasets can be fetched by following the instructions [here](introduction/required_datasets.md).
+The Obs4REF step is not required as we have already ingested these datasets above.
+
+### Creating provider environments
+
+The REF uses a number of different providers to run the diagnostics.
+Some of these providers may require an additional conda environment to be created before running.
+
+```bash
+uv run ref providers create-env
+```
+
+The created environments and their locations can be viewed using the command:
+
+```bash
+uv run ref providers list
+```
+
+### Running your first `solve`
+
+Once you have ingested some sample data and created any required environments,
+you can run your first `solve` command.
+
+A `solve` will take the ingested datasets and the providers declared in the configuration, and determine
+which new executions are required.
+
 Note that this will take a while to run.
 
 ```shell
@@ -74,7 +98,8 @@ uv run ref solve
 
 Afterwards, you can check the output of `uv run ref executions list-groups` to see if metrics
 were evaluated successfully, and if they were, you find the results in the
-`.ref/results` folder. Don't worry too much if some executions are failing for you,
+`$PWD/.ref/results` folder.
+Don't worry too much if some executions are failing for you,
 things are still in active development at the moment.
 
 ### Pip editable installation
@@ -83,7 +108,7 @@ If you would like to install the REF into an existing (conda) environment
 without using `uv`, run the command
 
 ```bash
-for package in packages/cmip_ref_core packages/cmip_ref packages/cmip_ref_metrics-*; do
+for package in packages/climate-ref*; do
      pip install -e $package;
 done
 ```
@@ -104,14 +129,17 @@ Some metric providers can use their own conda environments.
 The REF can manage these for you,
 using a bundled version of [micromamba](https://github.com/mamba-org/micromamba-releases).
 
-A new environment for a metric provider can be created with the following command:
+The conda environments for the registered providers can be created with the following command:
 
 ```bash
-ref --log-level=info providers create-env --provider esmvaltool
+ref --log-level=info providers create-env
 ```
 
 A new environment will be created automatically for each conda-based metric provider when it is first used,
 if one does not already exist.
+This can cause issues if the environment is created on a node that doesn't have internet access,
+or if a race condition occurs when multiple processes try to create the environment at the same time.
+
 
 /// admonition | Note
 
@@ -130,8 +158,8 @@ MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
 To update a conda-lock file, run for example:
 
 ```bash
-uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/environment.yml
-mv conda-lock.yml packages/ref-metrics-esmvaltool/src/cmip_ref_metrics_esmvaltool/requirements/conda-lock.yml
+uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
+mv conda-lock.yml packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/conda-lock.yml
 ```
 
 ## Tests and code quality
@@ -153,6 +181,17 @@ make mypy
 make test
 ```
 
+If you require executing a specific diagnostic, you manually invoke `pytest` as follows for `ilamb's `gpp-fluxnet2015` diagnostic:
+
+```bash
+pytest --slow -k gpp-fluxnet2015
+```
+
+Some diagnostics may require additional filtering to limit the pytest's scope to a directory or test name.
+Adding `--collect-only` to this will describe which tests will be executed which is useful as some of these test may take 30s to minutes to run.
+
+When adding a new diagnostic to a provider, you should run the above command with `--force-regen` attribute to capture the output from the execution.
+
 ### Sample data
 
 We use sample data  from [ref-sample-data](https://github.com/Climate-REF/ref-sample-data)
@@ -171,7 +210,7 @@ Updating the sample data can be done by running the following command:
 # Fetch the latest registry from the sample data repository
 make update-sample-data-registry
 
-# Manually edit the `SAMPLE_VERSION` in `packages/ref/src/cmip_ref/testing.py`
+# Manually edit the `SAMPLE_VERSION` in `packages/climate-ref/src/climate_ref/testing.py`
 
 # Regenerate any failing regression tests that depend on the sample data catalog
 export PYTEST_ADDOPTS="--force-regen"
@@ -195,7 +234,7 @@ a service for which we are very grateful.
 The RtD configuration can be found in the `.readthedocs.yaml` file
 in the root of this repository.
 The docs are automatically deployed at
-[cmip-ref.readthedocs.io](https://cmip-ref.readthedocs.io/en/latest/).
+[climate-ref.readthedocs.io](https://climate-ref.readthedocs.io/en/latest/).
 
 ## Workflows
 
@@ -258,11 +297,11 @@ The REF uses a local Sqlite database to store state information.
 We use [alembic](https://alembic.sqlalchemy.org/en/latest/) to manage our database migrations
 as the schema of this database changes.
 
-When making changes to the database models (`cmip_ref.models`),
+When making changes to the database models (`climate_ref.models`),
 a migration must also be added (see below).
 
 The migration definitions (and the alembic configuration file)
-are included in the `cmip_ref` package (`packages/ref/src/cmip_ref/migrations`)
+are included in the `climate_ref` package (`packages/climate-ref/src/climate_ref/migrations`)
 to enable users to apply these migrations transparently.
 Any new migrations are performed automatically when using the `ref` command line tool.
 
@@ -294,7 +333,7 @@ Alembic can autogenerate these migrations for you,
 but they will need to be reviewed to ensure they are correct.
 
 ```
-uv run alembic -c packages/ref/src/cmip_ref/alembic.ini \
+uv run alembic -c packages/climate-ref/src/climate_ref/alembic.ini \
    revision --autogenerate --message "your_migration_message"
 ```
 

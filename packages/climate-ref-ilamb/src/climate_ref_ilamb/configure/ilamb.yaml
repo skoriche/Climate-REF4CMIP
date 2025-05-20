@@ -1,0 +1,45 @@
+registry: ilamb
+
+gpp-WECANN:
+  sources:
+    gpp: ilamb/gpp/WECANN/gpp.nc
+  relationships:
+    pr: ilamb/pr/GPCPv2.3/pr.nc
+    tas: ilamb/tas/CRU4.02/tas.nc
+  variable_cmap: Greens
+
+gpp-FLUXNET2015:
+  sources:
+    gpp: ilamb/gpp/FLUXNET2015/gpp.nc
+  variable_cmap: Greens
+
+mrro-LORA:
+  sources:
+    mrro: ilamb/mrro/LORA/LORA.nc
+  variable_cmap: Blues
+
+mrsos-WangMao:
+  sources:
+    mrsol: ilamb/mrsol/WangMao/mrsol_olc.nc
+  alternate_vars:
+  - mrsos
+  depth: 0.0
+  transform:
+  - soil_moisture_to_vol_fraction
+  variable_cmap: Blues
+
+cSoil-HWSD2:
+  sources:
+    cSoil: ilamb/cSoil/HWSD2/hwsd2_cSoil.nc
+  variable_cmap: viridis
+
+lai-AVH15C1:
+  sources:
+    lai: ilamb/lai/AVH15C1/lai.nc
+  variable_cmap: Greens
+
+nbp-Hoffman:
+  analyses:
+  - nbp
+  sources:
+    nbp: ilamb/nbp/HOFFMAN/nbp_1850-2010.nc

@@ -18,10 +18,10 @@ from mypy.plugins.attrs import (
 )
 
 # This works just like `attr.s`.
-attr_class_makers.add("cmip_ref._config_helpers.config")
+attr_class_makers.add("climate_ref._config_helpers.config")
 
 # These are our `attr.ib` makers.
-attr_attrib_makers.add("cmip_ref._config_helpers.env_field")
+attr_attrib_makers.add("climate_ref._config_helpers.env_field")
 
 
 class MyPlugin(Plugin):  # noqa

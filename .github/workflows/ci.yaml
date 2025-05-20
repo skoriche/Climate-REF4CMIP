@@ -60,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.11", "3.12",  "3.13" ]
+        python-version: [ "3.11",  "3.13" ]
     runs-on: "${{ matrix.os }}"
     steps:
       - name: Check out repository
@@ -69,7 +69,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Check importable without extras
-        run: uv run --package cmip_ref_core python scripts/test-install.py
+        run: |
+          uv run --isolated --with-editable packages/climate-ref --with typer --no-project scripts/test-install.py climate_ref
+          uv run --isolated --with-editable packages/climate-ref-core --with typer --no-project scripts/test-install.py climate_ref_core
+          uv run --isolated --with-editable packages/climate-ref-celery --with typer --no-project scripts/test-install.py climate_ref_celery
+          uv run --isolated --with-editable packages/climate-ref-ilamb --with typer --no-project scripts/test-install.py climate_ref_ilamb
+          uv run --isolated --with-editable packages/climate-ref-esmvaltool --with typer --no-project scripts/test-install.py climate_ref_esmvaltool
+          uv run --isolated --with-editable packages/climate-ref-pmp --with typer --no-project scripts/test-install.py climate_ref_pmp
 
   check-build:
     runs-on: ubuntu-latest
@@ -80,13 +86,13 @@ jobs:
       - name: Check build
         run: |
           make build
-          tar -tvf dist/cmip_ref-*.tar.gz --wildcards '*ref/py.typed' '*/LICENCE' '*/NOTICE'
-          tar -tvf dist/cmip_ref_core-*.tar.gz --wildcards '*ref_core/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate_ref-*.tar.gz --wildcards '*climate_ref/py.typed' '*/LICENCE' '*/NOTICE'
+          tar -tvf dist/climate_ref_core-*.tar.gz --wildcards '*climate_ref_core/py.typed' '*/LICENCE' '*/NOTICE'
       - name: Check installable
         run: |
           uv pip install dist/*.whl
           uv pip freeze
-          uv run --no-sync python -c "import cmip_ref; print(cmip_ref.__version__)"
+          uv run --no-sync python -c "import climate_ref; print(climate_ref.__version__)"
           uv run --no-sync ref config list
 
   # Check if a changelog message was added to the PR
@@ -116,3 +122,23 @@ jobs:
         run: |
           echo "No changelog present."
           exit 1
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v1
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run smoke test
+        run: |
+          bash scripts/smoke-test.sh
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose down -v

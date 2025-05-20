@@ -1,0 +1,8 @@
+drs:
+  CMIP6: ESGF
+output_dir: 
+  <OUTPUT_DIR>/executions
+rootpath:
+  default: 
+    <OUTPUT_DIR>/climate_data
+search_esgf: never

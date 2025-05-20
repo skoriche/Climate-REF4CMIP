@@ -11,7 +11,8 @@ Each of these provider-specific environments are decoupled to allow for potentia
 This uses a bundled version of the [micromamba](https://github.com/mamba-org/micromamba-releases)
 to create and manage the environment so no additional dependencies are required.
 
-## PyPI
+## Installing `climate-ref`
+### PyPI
 
 You can install `climate-ref` using `pip`:
 
@@ -42,7 +43,7 @@ The actual execution occurs within a provider-specific conda environment.
 
 
 
-## Conda
+### Conda
 
 /// admonition | conda-forge
     type: warning
@@ -62,7 +63,7 @@ A modern alternative to using `conda` as package a manager is [Pixi](https://pix
 Pixi uses the same packages as `conda` but is faster and can create reproducible environments out of the box.
 
 
-## Docker
+### Docker
 
 For production use, we recommend using the `climate-ref` Docker image to provide a consistent environment for running the REF.
 Not all users may support docker directly, instead requiring the use of [Apptainer](https://apptainer.org/docs/user/latest/) to provide some additional isolation.
@@ -93,7 +94,7 @@ bash scripts/initialise-docker.sh
 docker-compose up
 ```
 
-## From Source
+### From Source
 
 To install `climate-ref` from the source code, clone the repository and install it:
 
@@ -104,3 +105,50 @@ make virtual-environment
 ```
 
 See the [development documentation](development.md) for more information on how to contribute to the project.
+
+
+## Installing metric provider dependencies
+
+/// admonition | Windows support
+   type: warning
+
+Window's doesn't support some of the packages required by the metrics providers,
+so we only support MacOS and Linux.
+Windows users are recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
+or a Linux VM if they wish to use the REF.
+
+///
+
+Some metric providers can use their own conda environments.
+The REF can manage these for you,
+using a bundled version of [micromamba](https://github.com/mamba-org/micromamba-releases).
+
+The conda environments for the registered providers can be created with the following command:
+
+```bash
+ref --log-level=info providers create-env
+```
+
+A new environment will be created automatically for each conda-based metric provider when it is first used,
+if one does not already exist.
+This can cause issues if the environment is created on a node that doesn't have internet access,
+or if a race condition occurs when multiple processes try to create the environment at the same time.
+
+
+/// admonition | Note
+
+The PMP conda environment is not yet available for arm-based MacOS users,
+so the automatic installation process will fail.
+
+Arm-based MacOS users can use the following command to create the conda environment manually:
+
+```bash
+MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
+```
+
+///
+
+The created environments and their locations can be viewed using the command:
+
+```bash
+uv run ref providers list

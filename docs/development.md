@@ -34,11 +34,6 @@ make virtual-environment
 mkdir $PWD/.ref
 uv run ref config list > $PWD/.ref/ref.toml
 export REF_CONFIGURATION=$PWD/.ref
-
-# Download some test data and ingest the sample datasets.
-make fetch-test-data
-uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
-uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4MIPs/
 ```
 
 `uv` will create a virtual Python environment in the directory `.venv` containing
@@ -55,17 +50,46 @@ If there are any issues, the messages from the `Makefile` should guide you
 through. If not, please raise an issue in the
 [issue tracker](https://github.com/Climate-REF/climate-ref/issues).
 
-### Running your first `solve`
+### Ingesting datasets
 
-If you want to run the sample data through the whole pipeline, you need to download
-reference data, but note that the reference data is several Gigabytes in size.
+The REF requires datasets, both reference and model, to be ingested into the database.
+These ingested datasets are then used to solve for what executions are available and require running.
 
-```shell
-# Download reference data which is not (yet) included in obs4mips
-make fetch-ref-data
+We have a consistent set of decimated sample data that is used for testing.
+These can be ingested using the following command:
+
+```bash
+make fetch-test-data
+uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/CMIP6/
+uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4REF/
 ```
 
-After that, you can let the REF calculate all included metrics for the sample data.
+Additional reference datasets can be fetched by following the instructions [here](introduction/required_datasets.md).
+The Obs4REF step is not required as we have already ingested these datasets above.
+
+### Creating provider environments
+
+The REF uses a number of different providers to run the diagnostics.
+Some of these providers may require an additional conda environment to be created before running.
+
+```bash
+uv run ref providers create-env
+```
+
+The created environments and their locations can be viewed using the command:
+
+```bash
+uv run ref providers list
+```
+
+### Running your first `solve`
+
+Once you have ingested some sample data and created any required environments,
+you can run your first `solve` command.
+
+A `solve` will take the ingested datasets and the providers declared in the configuration, and determine
+which new executions are required.
+
 Note that this will take a while to run.
 
 ```shell
@@ -74,7 +98,8 @@ uv run ref solve
 
 Afterwards, you can check the output of `uv run ref executions list-groups` to see if metrics
 were evaluated successfully, and if they were, you find the results in the
-`.ref/results` folder. Don't worry too much if some executions are failing for you,
+`$PWD/.ref/results` folder.
+Don't worry too much if some executions are failing for you,
 things are still in active development at the moment.
 
 ### Pip editable installation
@@ -104,14 +129,17 @@ Some metric providers can use their own conda environments.
 The REF can manage these for you,
 using a bundled version of [micromamba](https://github.com/mamba-org/micromamba-releases).
 
-A new environment for a metric provider can be created with the following command:
+The conda environments for the registered providers can be created with the following command:
 
 ```bash
-ref --log-level=info providers create-env --provider esmvaltool
+ref --log-level=info providers create-env
 ```
 
 A new environment will be created automatically for each conda-based metric provider when it is first used,
 if one does not already exist.
+This can cause issues if the environment is created on a node that doesn't have internet access,
+or if a race condition occurs when multiple processes try to create the environment at the same time.
+
 
 /// admonition | Note
 

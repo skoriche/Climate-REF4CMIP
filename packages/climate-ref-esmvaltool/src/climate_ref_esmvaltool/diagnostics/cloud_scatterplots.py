@@ -70,6 +70,7 @@ class CloudScatterplotCltSwcre(ESMValToolDiagnostic):
     name = "Scatterplots of two cloud-relevant variables (clt vs swcre)"
     slug = "cloud-scatterplots-clt-swcre"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
+    facets = ()
     data_requirements = get_cmip6_data_requirements(("clt", "rsut", "rsutcs"))
     update_recipe = partial(update_recipe, var_x="clt", var_y="swcre")
 
@@ -82,6 +83,7 @@ class CloudScatterplotClwviPr(ESMValToolDiagnostic):
     name = "Scatterplots of two cloud-relevant variables (clwvi vs pr)"
     slug = "cloud-scatterplots-clwvi-pr"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
+    facets = ()
     data_requirements = get_cmip6_data_requirements(("clwvi", "pr"))
     update_recipe = partial(update_recipe, var_x="clwvi", var_y="pr")
 
@@ -94,6 +96,7 @@ class CloudScatterplotCliviLwcre(ESMValToolDiagnostic):
     name = "Scatterplots of two cloud-relevant variables (clivi vs lwcre)"
     slug = "cloud-scatterplots-clivi-lwcre"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
+    facets = ()
     data_requirements = get_cmip6_data_requirements(("clivi", "rlut", "rlutcs"))
     update_recipe = partial(update_recipe, var_x="clivi", var_y="lwcre")
 
@@ -106,6 +109,7 @@ class CloudScatterplotCliTa(ESMValToolDiagnostic):
     name = "Scatterplots of two cloud-relevant variables (cli vs ta)"
     slug = "cloud-scatterplots-cli-ta"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
+    facets = ()
     data_requirements = get_cmip6_data_requirements(("cli", "ta"))
     update_recipe = partial(update_recipe, var_x="cli", var_y="ta")
 
@@ -118,6 +122,7 @@ class CloudScatterplotsReference(ESMValToolDiagnostic):
     name = "Reference scatterplots of two cloud-relevant variables"
     slug = "cloud-scatterplots-reference"
     base_recipe = "ref/recipe_ref_scatterplot.yml"
+    facets = ()
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.obs4MIPs,

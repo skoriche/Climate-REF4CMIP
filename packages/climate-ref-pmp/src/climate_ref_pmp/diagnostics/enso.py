@@ -36,7 +36,7 @@ class ENSO(CommandLineDiagnostic):
             self.model_variables = ("pr", "ts")
             self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFluxHadISST-1-1")
         elif metrics_collection == "ENSO_proc":
-            self.model_variables = ("ts", "taux", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
+            self.model_variables = ("ts", "tauu", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
             self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "CERES-EBAF-4-2", "HadISST-1-1")
         else:
             raise ValueError(

@@ -8,10 +8,12 @@ from climate_ref_esmvaltool.diagnostics.sea_ice_area_seasonal_cycle import SeaIc
 from climate_ref_esmvaltool.diagnostics.tcr import TransientClimateResponse
 from climate_ref_esmvaltool.diagnostics.tcre import TransientClimateResponseEmissions
 from climate_ref_esmvaltool.diagnostics.zec import ZeroEmissionCommitment
+from climate_ref_esmvaltool.diagnostics.enso_basic_climatology import ENSOBasicClimatology
 
 __all__ = [
     "ClimateAtGlobalWarmingLevels",
     "CloudRadiativeEffects",
+    "ENSOBasicClimatology",
     "EquilibriumClimateSensitivity",
     "GlobalMeanTimeseries",
     "SeaIceAreaSeasonalCycle",

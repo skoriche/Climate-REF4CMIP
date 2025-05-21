@@ -1,13 +1,24 @@
-"""This is HPC-based Executor to use job schedulers.
+"""
+HPC-based Executor to use job schedulers.
 
-  If you want to 
-     - run REF under the HPC workflows
-     - run REF in multiple nodes
+If you want to
+- run REF under the HPC workflows
+- run REF in multiple nodes
 
 """
-# mypy: disable-error-code="import-untyped"
+
+import os
+import time
 from typing import Any
+
+import parsl
 from loguru import logger
+from parsl import python_app
+from parsl.config import Config as ParslConfig
+from parsl.executors import HighThroughputExecutor
+from parsl.launchers import SrunLauncher
+from parsl.providers import SlurmProvider
+from tqdm import tqdm
 
 from climate_ref.config import Config
 from climate_ref.database import Database
@@ -15,16 +26,9 @@ from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
-from climate_ref_core.logging import add_log_handler
 from climate_ref_core.slurm import SlurmChecker
-import parsl
 
-from parsl.config import Config as ParslConfig
-from parsl.providers import SlurmProvider
-from parsl.launchers import SrunLauncher
-from parsl.executors import HighThroughputExecutor
-from parsl.addresses import address_by_interface
-from parsl import python_app
+from .local import ExecutionFuture, process_result
 
 
 @python_app
@@ -38,6 +42,29 @@ def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionRe
         # This will kill the process pool
         raise
 
+
+def _to_float(x: Any) -> float | None:
+    if x is None:
+        return None
+    if isinstance(x, int | float):
+        return float(x)
+    try:
+        return float(x)
+    except (ValueError, TypeError):
+        return None
+
+
+def _to_int(x: Any) -> int | None:
+    if x is None:
+        return None
+    if isinstance(x, int):
+        return x
+    try:
+        return int(float(x))  # Handles both "123" and "123.0"
+    except (ValueError, TypeError):
+        return None
+
+
 class HPCExecutor:
     """
     Run diagnostics by submitting a job script
@@ -46,110 +73,133 @@ class HPCExecutor:
 
     name = "hpc"
 
-    def __init__( 
+    def __init__(
         self,
-        *, 
+        *,
         database: Database | None = None,
         config: Config | None = None,
-        scheduler: str = "slurm", 
-        account: str,
-        partition: str | None,
-        qos: str | None, 
-        nodes: int, 
-        walltime: str, 
-        log_dir: str = "slurm.log",
+        executor_config: dict[str, Any],
     ) -> None:
-
-        if config is None:
-            config = Config.default()
-        if database is None:
-            database = Database.from_config(config, run_migrations=False)
+        config = config or Config.default()
+        database = database or Database.from_config(config, run_migrations=False)
 
         self.config = config
         self.database = database
 
-        self.scheduler = scheduler
-        self.account = account
-        self.partition = partition
-        self.qos = qos
-        self.nodes = nodes
-        self.walltime = walltime
-        self.log_dir = log_dir
+        self.scheduler = executor_config.get("scheduler", "slurm")
+        self.account = executor_config.get("account", os.environ.get("USER"))
+        self.username = executor_config.get("username", os.environ.get("USER"))
+        self.partition = executor_config.get("partition")
+        self.qos = executor_config.get("qos")
+        self.req_nodes = int(executor_config.get("req_nodes", 1))
+        self.walltime = executor_config.get("walltime", "00:10:00")
+        self.log_dir = executor_config.get("log_dir", "runinfo")
 
-   
+        self.cores_per_worker = _to_int(executor_config.get("cores_per_worker"))
+        self.mem_per_worker = _to_float(executor_config.get("mem_per_worker"))
 
-        # pyslurm to check the node configurations
+        self._validate_slurm_params()
+        self._initialize_parsl()
 
+        self.parsl_results: list[ExecutionFuture] = []
+
+    def _validate_slurm_params(self) -> None:
+        """Validate the Slurm configuration using SlurmChecker.
+
+        Raises
+        ------
+            ValueError: If account, partition or QOS are invalid or inaccessible.
+        """
         slurm_checker = SlurmChecker()
-        if not slurm_checker.get_account_info(self.account):
+        if self.account and not slurm_checker.get_account_info(self.account):
             raise ValueError(f"Account: {self.account} not valid")
 
-        if partition is not None:
-            if not slurm_checker.get_partition_info(partition):
-                raise ValueError(f"Partition: {partition} not valid")
-              
-            if not slurm_checker.can_account_use_partition(
-                account, 
-                partition):
-                raise ValueError(f"Account: {account} cannot access partiton: {partition}")
-            partition_limits = slurm_checker.get_partition_limits(partition)
-            node_info =  slurm_checker.get_node_from_partition(partition)
-        else:
-            partition_limits = None
-            node_info = None
+        partition_limits = None
+        node_info = None
 
-        if qos is not None:
-            if not slurm_checker.get_partition_info(qos):
-                raise ValueError(f"QOS: {qos} not valid")
+        if self.partition:
+            if not slurm_checker.get_partition_info(self.partition):
+                raise ValueError(f"Partition: {self.partition} not valid")
 
-            if not slurm_checker.can_account_use_qos(
-                account, 
-                qos):
-                raise ValueError(f"Account: {account} cannot access qos: {qos}")
-            qos_limits =  slurm_checker.get_qos_limits(qos)
-        else:
-            qos_limits = None
+            if not slurm_checker.can_account_use_partition(self.account, self.partition):
+                raise ValueError(f"Account: {self.account} cannot access partiton: {self.partition}")
 
+            partition_limits = slurm_checker.get_partition_limits(self.partition)
+            node_info = slurm_checker.get_node_from_partition(self.partition)
 
+        qos_limits = None
+        if self.qos:
+            if not slurm_checker.get_qos_info(self.qos):
+                raise ValueError(f"QOS: {self.qos} not valid")
 
-        max_cores_per_node = float(node_info["cpus"]) if node_info else 64
+            if not slurm_checker.can_account_use_qos(self.account, self.qos):
+                raise ValueError(f"Account: {self.account} cannot access qos: {self.qos}")
 
-        max_walltime_partition = partition_limits["max_time_minutes"] if partition_limits else walltime
-        max_walltime_qos = qos_limits["max_time_minutes"] if qos_limits else walltime
+            qos_limits = slurm_checker.get_qos_limits(self.qos)
 
-        max_walltime_minutes  = min(max_walltime_partition, max_walltime_qos)
-
-        hours, minutes, seconds = map(int, walltime.split(':'))
+        hours, minutes, seconds = map(int, self.walltime.split(":"))
         total_minutes = hours * 60 + minutes + seconds / 60
 
-        if total_minutes > float(max_walltime_minutes):
-            raise ValueError(f"walltime: {walltime} exceed the maximum time " + 
-                             f"{max_walltime_minutes} allowed by {partition} and {qos}")
+        self.total_minutes = total_minutes
 
-
-        slurm_config = ParslConfig(
-            executors=[
-                HighThroughputExecutor(
-                    label = 'ref_hpc_executor',
-                    cores_per_worker = max_cores_per_node,
-                    provider=SlurmProvider(
-                        account = self.account, 
-                        partition = self.partition,
-                        qos = self.qos,
-                        nodes_per_block = self.nodes,
-                        scheduler_options = '#SBATCH -C cpu',
-                        worker_init='uv .venv/bin/activate',
-                        launcher=SrunLauncher(),
-                        walltime=self.walltime,
-                        cmd_timeout=120,
-                    ),
+        max_cores_per_node = int(node_info["cpus"]) if node_info else None
+        if max_cores_per_node and self.cores_per_worker:
+            if self.cores_per_worker > max_cores_per_node:
+                raise ValueError(
+                    f"cores_per_work:{self.cores_per_worker}"
+                    f"larger than the maximum in a node {max_cores_per_node}"
                 )
-            ]
-        )
-        parsl.load(slurm_config)
-   
-        self.parsl_results: list[Any] = []
 
+        max_mem_per_node = float(node_info["mem"]) if node_info else None
+        if max_mem_per_node and self.mem_per_worker:
+            if self.mem_per_worker > max_mem_per_node:
+                raise ValueError(
+                    f"mem_per_work:{self.mem_per_worker}"
+                    f"larger than the maximum mem in a node {max_mem_per_node}"
+                )
+
+        max_walltime_partition = partition_limits["max_time_minutes"] if partition_limits else total_minutes
+        max_walltime_qos = qos_limits["max_time_minutes"] if qos_limits else total_minutes
+
+        max_walltime_minutes = min(float(max_walltime_partition), float(max_walltime_qos))
+
+        if total_minutes > float(max_walltime_minutes):
+            raise ValueError(
+                f"Walltime: {self.walltime} exceed the maximum time "
+                f"{max_walltime_minutes} allowed by {self.partition} and {self.qos}"
+            )
+
+    def _initialize_parsl(self) -> None:
+        executor_config = self.config.executor.config
+
+        provider = SlurmProvider(
+            account=self.account,
+            partition=self.partition,
+            qos=self.qos,
+            nodes_per_block=self.req_nodes,
+            scheduler_options=executor_config.get("scheduler_options", "#SBATCH -C cpu"),
+            worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),
+            launcher=SrunLauncher(
+                debug=True,
+                overrides=executor_config.get("overrides", ""),
+            ),
+            walltime=self.walltime,
+            cmd_timeout=int(executor_config.get("cmd_timeout", 120)),
+        )
+        executor = HighThroughputExecutor(
+            label="ref_hpc_executor",
+            cores_per_worker=self.cores_per_worker if self.cores_per_worker else 2,
+            mem_per_worker=self.mem_per_worker,
+            max_workers_per_node=_to_int(executor_config.get("max_workers_per_node")),
+            cpu_affinity=str(executor_config.get("cpu_affinity")),
+            provider=provider,
+        )
+
+        hpc_config = ParslConfig(
+            run_dir=self.log_dir,
+            executors=[executor],
+        )
+        parsl.load(hpc_config)
 
     def run(
         self,
@@ -169,10 +219,85 @@ class HPCExecutor:
         """
         # Submit the execution to the process pool
         # and track the future so we can wait for it to complete
-        result = _process_run(
+        future = _process_run(
             definition=definition,
             log_level=self.config.log_level,
         )
 
-    def join(self) -> None:
-        pass
+        self.parsl_results.append(
+            ExecutionFuture(
+                future=future,
+                definition=definition,
+                execution_id=execution.id if execution else None,
+            )
+        )
+
+    def join(self, timeout: float) -> None:
+        """
+        Wait for all diagnostics to finish
+
+        This will block until all diagnostics have completed or the timeout is reached.
+        If the timeout is reached, the method will return and raise an exception.
+
+        Parameters
+        ----------
+        timeout
+            Timeout in seconds
+
+        Raises
+        ------
+        TimeoutError
+            If the timeout is reached
+        """
+        start_time = time.time()
+        refresh_time = 1
+
+        results = self.parsl_results
+        t = tqdm(total=len(results), desc="Waiting for executions to complete", unit="execution")
+
+        try:
+            while results:
+                # Iterate over a copy of the list and remove finished tasks
+                for result in results[:]:
+                    if result.future.done():
+                        try:
+                            execution_result = result.future.result(timeout=0)
+                        except Exception as e:
+                            # Something went wrong when attempting to run the execution
+                            # This is likely a failure in the execution itself not the diagnostic
+                            raise ExecutionError(
+                                f"Failed to execute {result.definition.execution_slug()!r}"
+                            ) from e
+
+                        assert execution_result is not None, "Execution result should not be None"
+                        assert isinstance(execution_result, ExecutionResult), (
+                            "Execution result should be of type ExecutionResult"
+                        )
+
+                        # Process the result in the main process
+                        # The results should be committed after each execution
+                        with self.database.session.begin():
+                            execution = (
+                                self.database.session.get(Execution, result.execution_id)
+                                if result.execution_id
+                                else None
+                            )
+                            process_result(self.config, self.database, result.future.result(), execution)
+                        logger.debug(f"Execution completed: {result}")
+                        t.update(n=1)
+                        results.remove(result)
+
+                # Break early to avoid waiting for one more sleep cycle
+                if len(results) == 0:
+                    break
+
+                elapsed_time = time.time() - start_time
+
+                # if elapsed_time > timeout or elapsed_time > self.total_minutes * 60:
+                if elapsed_time > self.total_minutes * 60:
+                    raise TimeoutError("Not all tasks completed within the specified timeout")
+
+                # Wait for a short time before checking for completed executions
+                time.sleep(refresh_time)
+        finally:
+            t.close()

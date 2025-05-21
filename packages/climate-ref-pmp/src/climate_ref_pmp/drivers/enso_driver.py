@@ -348,8 +348,8 @@ def update_dict_datasets(dict_datasets: dict, output_dir: str = ".") -> dict:
                 if not os.path.exists(path):
                     raise FileNotFoundError(f"File not found: {path}")
 
-                # Generate the landmask path for both observations and models.
-                if data_type == "model" and (
+                # Generate the landmask path regardless data_type is observation or model.
+                if (
                     "path + filename_area" not in dict_datasets[data_type][dataset]
                     or "path + filename_landmask" not in dict_datasets[data_type][dataset]
                 ):

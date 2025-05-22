@@ -58,6 +58,7 @@ def create_mock_association():
         defaults.update(kwargs)
 
         # Create the mock association
+        # mock_assoc = MagicMock(spec=['account', 'partition'])
         mock_assoc = MagicMock()
 
         # Set attributes on the mock
@@ -139,6 +140,11 @@ def create_mock_partition():
         # Set attributes on the mock
         for key, value in defaults.items():
             setattr(mock_part, key, value)
+
+        def mock_to_dict():
+            return defaults
+
+        mock_part.to_dict.side_effect = mock_to_dict
 
         return mock_part
 
@@ -294,7 +300,9 @@ def test_slurm_checker(
 
     partitions = {
         "normal": create_mock_partition(name="nomral"),
+        "cpu": create_mock_partition(name="cpu"),
         "batch": create_mock_partition(name="batch"),
+        "gpu": create_mock_partition(name="gpu"),
     }
 
     qoss = {
@@ -305,9 +313,14 @@ def test_slurm_checker(
     }
 
     # Patch the Slurm dependencies
-    mocker.patch("pyslurm.db.Associations.load", return_value=associations)
-    mocker.patch("pyslurm.Partitions.load", return_value=partitions)
-    mocker.patch("pyslurm.Nodes.load", return_value=nodes)
+    mock_assoc = mocker.patch("pyslurm.db.Associations")
+    mock_assoc.load.return_value = associations
+
+    mock_part = mocker.patch("pyslurm.Partitions", autospec=True)
+    mock_part.load.return_value = partitions
+
+    mock_node = mocker.patch("pyslurm.Nodes", autospec=True)
+    mock_node.load.return_value = nodes
 
     mocker.patch("pyslurm.qos")  # First mock the qos class
     mock_qos_instance = MagicMock()
@@ -317,7 +330,24 @@ def test_slurm_checker(
     # Create and test the checker
     checker = SlurmChecker()
 
-    print(checker.can_account_use_partition("climate_ref1", "cpu"), "xxxx")
     assert checker.can_account_use_partition("climate_ref1", "cpu") is True
     assert checker.can_account_use_partition("climate_ref2", "gpu") is True
     assert checker.can_account_use_partition("climate", "nonexistent") is False
+
+    assert checker.can_account_use_qos("climate_ref1", "normal") is True
+    assert checker.can_account_use_qos("climate_ref3", "normal") is False
+
+    assert checker.get_partition_limits("cpu") == {
+        "max_time_minutes": 7200,
+        "default_time_minutes": 720,
+        "max_nodes": 1,
+        "total_nodes": 138,
+        "total_cpus": 17664,
+    }
+    assert checker.check_account_partition_access_with_limits("climate_ref2", "gpu") == {
+        "account_exists": True,
+        "partition_exists": True,
+        "has_access": True,
+        "time_limits": 7200,
+        "error": "none",
+    }

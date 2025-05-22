@@ -38,7 +38,8 @@ dependencies = [
     "ecgtools>=2024.7.31",
     "platformdirs>=4.3.6",
     "setuptools>=75.8.0",
-    "tqdm>=4.67.1"
+    "tqdm>=4.67.1",
+    "parsl>=2025.5.19"
 ]
 
 [project.optional-dependencies]

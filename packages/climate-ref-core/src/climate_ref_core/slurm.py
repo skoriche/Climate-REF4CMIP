@@ -38,6 +38,7 @@ class SlurmChecker:
             return False
 
         partition_info = self.get_partition_info(partition_name)
+
         if not partition_info:
             return False
 
@@ -57,13 +58,10 @@ class SlurmChecker:
         """
         account_info = self.get_account_info(account_name)
 
-        print("xxx", account_info, account_info[0].qos, account_info[0].to_dict())
-
         if not account_info:
             return False
 
         qos_info = self.get_qos_info(qos_name)
-        print("yyy", qos_info)
         if not qos_info:
             return False
 
@@ -72,8 +70,6 @@ class SlurmChecker:
             if acc.user == "minxu":
                 sample_acc = acc
                 break
-
-        print("zzz", sample_acc.to_dict())
 
         allowed_qoss = sample_acc.qos
         if allowed_qoss is None:
@@ -157,18 +153,18 @@ class SlurmChecker:
         Returns dictionary with all relevant information.
         """
         result = {
-            "account_exists": self.get_account_info(account_name),
-            "partition_exists": self.get_partition_info(partition_name),
+            "account_exists": True if self.get_account_info(account_name) else False,
+            "partition_exists": True if self.get_partition_info(partition_name) else False,
             "has_access": False,
             "time_limits": None,
-            "error": None,
+            "error": "none",
         }
 
         try:
             if result["account_exists"] and result["partition_exists"]:
                 result["has_access"] = self.can_account_use_partition(account_name, partition_name)
                 if result["has_access"]:
-                    result["time_limits"] = self.get_partition_info(partition_name)
+                    result["time_limits"] = self.get_partition_info(partition_name).to_dict().get("max_time")
         except Exception as e:
             result["error"] = str(e)
 

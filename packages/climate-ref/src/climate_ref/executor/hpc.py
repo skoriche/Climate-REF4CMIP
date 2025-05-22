@@ -78,7 +78,7 @@ class HPCExecutor:
         *,
         database: Database | None = None,
         config: Config | None = None,
-        executor_config: dict[str, Any],
+        **executor_config: str | float | int,
     ) -> None:
         config = config or Config.default()
         database = database or Database.from_config(config, run_migrations=False)
@@ -87,13 +87,13 @@ class HPCExecutor:
         self.database = database
 
         self.scheduler = executor_config.get("scheduler", "slurm")
-        self.account = executor_config.get("account", os.environ.get("USER"))
+        self.account = str(executor_config.get("account", os.environ.get("USER")))
         self.username = executor_config.get("username", os.environ.get("USER"))
-        self.partition = executor_config.get("partition")
-        self.qos = executor_config.get("qos")
+        self.partition = str(executor_config.get("partition")) if executor_config.get("partition") else None
+        self.qos = str(executor_config.get("qos")) if executor_config.get("qos") else None
         self.req_nodes = int(executor_config.get("req_nodes", 1))
-        self.walltime = executor_config.get("walltime", "00:10:00")
-        self.log_dir = executor_config.get("log_dir", "runinfo")
+        self.walltime = str(executor_config.get("walltime", "00:10:00"))
+        self.log_dir = str(executor_config.get("log_dir", "runinfo"))
 
         self.cores_per_worker = _to_int(executor_config.get("cores_per_worker"))
         self.mem_per_worker = _to_float(executor_config.get("mem_per_worker"))
@@ -150,7 +150,7 @@ class HPCExecutor:
                     f"larger than the maximum in a node {max_cores_per_node}"
                 )
 
-        max_mem_per_node = float(node_info["mem"]) if node_info else None
+        max_mem_per_node = float(node_info["real_memory"]) if node_info else None
         if max_mem_per_node and self.mem_per_worker:
             if self.mem_per_worker > max_mem_per_node:
                 raise ValueError(
@@ -177,6 +177,7 @@ class HPCExecutor:
             partition=self.partition,
             qos=self.qos,
             nodes_per_block=self.req_nodes,
+            max_blocks=int(executor_config.get("max_blocks", 1)),
             scheduler_options=executor_config.get("scheduler_options", "#SBATCH -C cpu"),
             worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),
             launcher=SrunLauncher(
@@ -301,3 +302,4 @@ class HPCExecutor:
                 time.sleep(refresh_time)
         finally:
             t.close()
+            parsl.dfk().cleanup()

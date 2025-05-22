@@ -4,11 +4,11 @@ drs:
   OBS6: default
   native6: default
 output_dir: 
-  /tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/executions
+  <OUTPUT_DIR>/executions
 rootpath:
   default: 
-    /tmp/pytest-of-bandela/pytest-7/test_diagnostics_cloud_radiati0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_cloud-radiative-effects_/scratch/esmvaltool/cloud-radiative-effects/3991a8f5d3b72d7aabc5f890b4dec9f43939895e/climate_data
-  OBS: /home/bandela/.cache/ref/ESMValTool/OBS
-  OBS6: /home/bandela/.cache/ref/ESMValTool/OBS6
-  native6: /home/bandela/.cache/ref/ESMValTool/RAWOBS
+    <OUTPUT_DIR>/climate_data
+  OBS: /Users/jared/Library/Caches/climate_ref/ESMValTool/OBS
+  OBS6: /Users/jared/Library/Caches/climate_ref/ESMValTool/OBS6
+  native6: /Users/jared/Library/Caches/climate_ref/ESMValTool/RAWOBS
 search_esgf: never

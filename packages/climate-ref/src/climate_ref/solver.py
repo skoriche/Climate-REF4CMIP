@@ -49,6 +49,12 @@ class DiagnosticExecution:
     diagnostic: Diagnostic
     datasets: ExecutionDatasetCollection
 
+    def execution_slug(self) -> str:
+        """
+        Get a slug for the execution
+        """
+        return f"{self.diagnostic.full_slug()}/{self.dataset_key}"
+
     @property
     def dataset_key(self) -> str:
         """
@@ -290,12 +296,14 @@ class ExecutionSolver:
                 yield from solve_executions(self.data_catalog, diagnostic, provider)
 
 
-def solve_required_executions(
+def solve_required_executions(  # noqa: PLR0913
     db: Database,
     dry_run: bool = False,
     solver: ExecutionSolver | None = None,
     config: Config | None = None,
     timeout: int = 60,
+    one_per_provider: bool = False,
+    one_per_diagnostic: bool = False,
 ) -> None:
     """
     Solve for executions that require recalculation
@@ -317,6 +325,9 @@ def solve_required_executions(
 
     executor = config.executor.build(config, db)
 
+    diagnostic_count = {}
+    provider_count = {}
+
     for potential_execution in solver.solve():
         # The diagnostic output is first written to the scratch directory
         definition = potential_execution.build_execution_definition(output_root=config.paths.scratch)
@@ -337,7 +348,6 @@ def solve_required_executions(
                 .join(DiagnosticModel.provider)
                 .filter(
                     ProviderModel.slug == potential_execution.provider.slug,
-                    ProviderModel.version == potential_execution.provider.version,
                     DiagnosticModel.slug == potential_execution.diagnostic.slug,
                 )
                 .one()
@@ -352,17 +362,35 @@ def solve_required_executions(
                 },
             )
 
+            if diagnostic.provider.slug not in provider_count:
+                provider_count[diagnostic.provider.slug] = 0
+            if diagnostic.full_slug() not in diagnostic_count:
+                diagnostic_count[diagnostic.full_slug()] = 0
+
             if created:
-                logger.info(
-                    f"Created new execution group: "
-                    f"{definition.key!r}  for {potential_execution.diagnostic.full_slug()}"
-                )
+                logger.info(f"Created new execution group: {potential_execution.execution_slug()!r}")
                 db.session.flush()
 
+            # Check if we should run given the one_per_provider or one_per_diagnostic flags
+            one_of_check_failed = (
+                one_per_provider and provider_count.get(diagnostic.provider.slug, 0) > 0
+            ) or (one_per_diagnostic and diagnostic_count.get(diagnostic.full_slug(), 0) > 0)
+
+            logger.debug(
+                f"one_per_provider={one_per_provider}, one_per_diagnostic={one_per_diagnostic}, "
+                f"one_of_check_failed={one_of_check_failed}, diagnostic_count={diagnostic_count}, "
+                f"provider_count={provider_count}"
+            )
+
             if execution_group.should_run(definition.datasets.hash):
+                if (one_per_provider or one_per_diagnostic) and one_of_check_failed:
+                    logger.info(
+                        f"Skipping execution due to one-of check: {potential_execution.execution_slug()!r}"
+                    )
+                    continue
+
                 logger.info(
-                    f"Running new execution for execution group: "
-                    f"{definition.key!r} for {potential_execution.diagnostic.full_slug()}"
+                    f"Running new execution for execution group: {potential_execution.execution_slug()!r}"
                 )
                 execution = Execution(
                     execution_group=execution_group,
@@ -379,5 +407,8 @@ def solve_required_executions(
                     definition=definition,
                     execution=execution,
                 )
+
+                provider_count[diagnostic.provider.slug] += 1
+                diagnostic_count[diagnostic.full_slug()] += 1
     if timeout > 0:
         executor.join(timeout=timeout)

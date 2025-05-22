@@ -3,7 +3,13 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter, _apply_fixes, _clean_branch_time, _parse_datetime
+from climate_ref.datasets.cmip6 import (
+    CMIP6DatasetAdapter,
+    _apply_fixes,
+    _clean_branch_time,
+    _parse_datetime,
+    parse_cmip6,
+)
 
 
 def test_parse_datetime():
@@ -14,6 +20,13 @@ def test_parse_datetime():
             dtype="object",
         ),
     )
+
+
+def test_parse_exception():
+    result = parse_cmip6("missing_file")
+
+    assert result["INVALID_ASSET"] == "missing_file"
+    assert "TRACEBACK" in result
 
 
 def test_clean_branch_time():

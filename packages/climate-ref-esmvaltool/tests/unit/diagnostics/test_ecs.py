@@ -30,12 +30,22 @@ def test_update_recipe(metric_dataset):
     EquilibriumClimateSensitivity().update_recipe(recipe, input_files)
     assert len(recipe["datasets"]) == 2
     assert len(recipe["diagnostics"]) == 1
-    assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas", "rtnt"}
+    assert set(recipe["diagnostics"]["ecs"]["variables"]) == {"tas", "rtnt"}
+    undesired_keys = [
+        "CMIP5_RTMT",
+        "CMIP6_RTMT",
+        "CMIP5_RTNT",
+        "CMIP6_RTNT",
+        "ECS_SCRIPT",
+        "SCATTERPLOT",
+    ]
+    for key in undesired_keys:
+        assert key not in recipe
 
 
 def test_format_output(tmp_path, metric_dataset):
     result_dir = tmp_path
-    subdir = result_dir / "work" / "cmip6" / "ecs"
+    subdir = result_dir / "work" / "ecs" / "calculate"
     subdir.mkdir(parents=True)
     ecs = xr.Dataset(
         data_vars={
@@ -58,6 +68,6 @@ def test_format_output(tmp_path, metric_dataset):
     )
 
     CMECMetric.model_validate(metric_args)
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["ecs"] == 1.0
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["lambda"] == 2.0
+    assert metric_args.RESULTS["global"]["ecs"] == 1.0
+    assert metric_args.RESULTS["global"]["lambda"] == 2.0
     CMECOutput.model_validate(output_args)

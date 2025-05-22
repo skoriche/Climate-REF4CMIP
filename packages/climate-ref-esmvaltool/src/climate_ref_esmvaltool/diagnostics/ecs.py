@@ -11,7 +11,8 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
-from climate_ref_core.pycmec.metric import MetricCV
+from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
+from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
@@ -57,14 +58,14 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
             ),
         ),
     )
-    facets = ("source_id", "region", "metric")
+    facets = ("grid_label", "member_id", "source_id", "region", "metric")
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
         """Update the recipe."""
         # Only run the diagnostic that computes ECS for a single model.
         recipe["diagnostics"] = {
-            "cmip6": {
+            "ecs": {
                 "description": "Calculate ECS.",
                 "variables": {
                     "tas": {
@@ -76,7 +77,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
                     },
                 },
                 "scripts": {
-                    "ecs": {
+                    "calculate": {
                         "script": "climate_metrics/ecs.py",
                         "calculate_mmm": False,
                     },
@@ -103,6 +104,18 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         for dataset in datasets:
             dataset["timerange"] = timerange
 
+        # Remove keys from the recipe that are only used for YAML anchors
+        keys_to_remove = [
+            "CMIP5_RTMT",
+            "CMIP6_RTMT",
+            "CMIP5_RTNT",
+            "CMIP6_RTNT",
+            "ECS_SCRIPT",
+            "SCATTERPLOT",
+        ]
+        for key in keys_to_remove:
+            recipe.pop(key, None)
+
         recipe["datasets"] = datasets
 
     @staticmethod
@@ -111,34 +124,27 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         execution_dataset: ExecutionDatasetCollection,
         metric_args: MetricBundleArgs,
         output_args: OutputBundleArgs,
-    ) -> tuple[MetricBundleArgs, OutputBundleArgs]:
+    ) -> tuple[CMECMetric, CMECOutput]:
         """Format the result."""
-        input_files = next(c.datasets for _, c in execution_dataset.items())
-        source_id = input_files.iloc[0].source_id
-
-        ecs_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "ecs.nc")
+        ecs_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "ecs.nc")
         ecs = float(ecs_ds["ecs"].values[0])
-        lambda_ds = xarray.open_dataset(result_dir / "work" / "cmip6" / "ecs" / "lambda.nc")
+        lambda_ds = xarray.open_dataset(result_dir / "work" / "ecs" / "calculate" / "lambda.nc")
         lambda_ = float(lambda_ds["lambda"].values[0])
 
         # Update the diagnostic bundle arguments with the computed diagnostics.
         metric_args[MetricCV.DIMENSIONS.value] = {
             MetricCV.JSON_STRUCTURE.value: [
-                "source_id",
                 "region",
                 "metric",
             ],
-            "source_id": {source_id: {}},
             "region": {"global": {}},
             "metric": {"ecs": {}, "lambda": {}},
         }
         metric_args[MetricCV.RESULTS.value] = {
-            source_id: {
-                "global": {
-                    "ecs": ecs,
-                    "lambda": lambda_,
-                },
+            "global": {
+                "ecs": ecs,
+                "lambda": lambda_,
             },
         }
 
-        return metric_args, output_args
+        return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)

@@ -5,7 +5,7 @@ Dataset management and filtering
 import enum
 import functools
 import hashlib
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from typing import Any, Self
 
 import pandas as pd
@@ -48,19 +48,17 @@ class SourceDatasetType(enum.Enum):
         return sorted(cls, key=lambda x: x.value)
 
 
-def _clean_facets(raw_values: dict[str, str | tuple[str, ...] | list[str]]) -> dict[str, tuple[str, ...]]:
+def _clean_facets(raw_values: dict[str, str | Collection[str]]) -> dict[str, tuple[str, ...]]:
     """
     Clean the value of a facet filter to a tuple of strings
     """
-    result = {}
+    result: dict[str, tuple[str, ...]] = {}
 
     for key, value in raw_values.items():
-        if isinstance(value, list):
-            result[key] = tuple(value)
-        elif isinstance(value, str):
+        if isinstance(value, str):
             result[key] = (value,)
-        elif isinstance(value, tuple):
-            result[key] = value
+        else:
+            result[key] = tuple(value)
     return result
 
 

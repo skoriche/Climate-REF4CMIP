@@ -172,6 +172,7 @@ fetch-test-data:  ## Download any data needed by the test suite
 
 .PHONY: fetch-ref-data
 fetch-ref-data:  ## Download reference data needed by providers and (temporarily) not in obs4mips
+	uv run ref datasets fetch-data --registry esmvaltool
 	uv run ref datasets fetch-data --registry ilamb
 	uv run ref datasets fetch-data --registry iomb
 

@@ -4,7 +4,7 @@ Rapid evaluating CMIP data
 
 import importlib.metadata
 
-from climate_ref_core.dataset_registry import dataset_registry_manager
+from climate_ref_core.dataset_registry import DATASET_URL, dataset_registry_manager
 from climate_ref_core.providers import CondaDiagnosticProvider
 from climate_ref_pmp.diagnostics import ENSO, AnnualCycle, ExtratropicalModesOfVariability
 
@@ -34,7 +34,7 @@ provider.register(ExtratropicalModesOfVariability("SAM"))
 
 dataset_registry_manager.register(
     "pmp-climatology",
-    "https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev/",
+    base_url=DATASET_URL,
     package="climate_ref_pmp.dataset_registry",
     resource="pmp_climatology.txt",
 )

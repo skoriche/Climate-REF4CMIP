@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-core"
-version = "0.5.2"
+version = "0.5.5"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -14,24 +14,29 @@ authors = [
 ]
 requires-python = ">=3.11"
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
     "attrs>=23.2.0",
+    "cattrs>=24.1",
     "pydantic>=2.10.6",
     "typing_extensions",
     "requests",
     "rich",
-    "ruamel.yaml",
+    "loguru>=0.7.0",
+    "pooch>=1.8.0,<2",
+    "ruamel.yaml>=0.18",
+    "environs>=11",
 
     # SPEC 0000 constraints
     # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)
@@ -43,8 +48,8 @@ dependencies = [
 [project.license]
 text = "Apache-2.0"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "types-requests",
 ]
 

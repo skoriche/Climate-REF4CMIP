@@ -18,7 +18,7 @@ provider = CondaDiagnosticProvider("PMP", __version__)
 provider.register(AnnualCycle())
 
 # ENSO diagnostics and metrics
-# provider.register(ENSO("ENSO_perf"))  # Assigned to ESMValTool
+provider.register(ENSO("ENSO_perf"))  # Assigned to ESMValTool
 provider.register(ENSO("ENSO_tel"))
 provider.register(ENSO("ENSO_proc"))
 

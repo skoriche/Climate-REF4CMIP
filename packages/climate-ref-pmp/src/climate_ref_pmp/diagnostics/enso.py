@@ -28,16 +28,18 @@ class ENSO(CommandLineDiagnostic):
         self.slug = metrics_collection.lower()
         self.metrics_collection = metrics_collection
         self.parameter_file = "pmp_param_enso.py"
+        self.obs_sources: tuple[str, ...]
+        self.model_variables: tuple[str, ...]
 
         if metrics_collection == "ENSO_perf":
-            self.model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
-            self.obs_sources: tuple[str, ...] = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
+            self.model_variables = ("pr", "ts", "tauu")
+            self.obs_sources = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
         elif metrics_collection == "ENSO_tel":
             self.model_variables = ("pr", "ts")
-            self.obs_sources: tuple[str, ...] = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
+            self.obs_sources = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
         elif metrics_collection == "ENSO_proc":
             self.model_variables = ("ts", "tauu", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
-            self.obs_sources: tuple[str, ...] = (
+            self.obs_sources = (
                 "GPCP-Monthly-3-2",
                 "TropFlux-1-0",
                 "HadISST-1-1",

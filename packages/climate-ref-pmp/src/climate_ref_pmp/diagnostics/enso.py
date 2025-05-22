@@ -31,16 +31,18 @@ class ENSO(CommandLineDiagnostic):
 
         if metrics_collection == "ENSO_perf":
             self.model_variables: tuple[str, ...] = ("pr", "ts", "tauu")
-            #self.obs_sources: tuple[str, ...] = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "HadISST-1-1")
             self.obs_sources: tuple[str, ...] = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
         elif metrics_collection == "ENSO_tel":
             self.model_variables = ("pr", "ts")
-            #self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "HadISST-1-1")
             self.obs_sources: tuple[str, ...] = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
         elif metrics_collection == "ENSO_proc":
             self.model_variables = ("ts", "tauu", "hfls", "hfss", "rlds", "rlus", "rsds", "rsus")
-            #self.obs_sources = ("GPCP-2-3", "ERA-INT", "ERA-5", "TropFlux", "CERES-EBAF-4-2", "HadISST-1-1")
-            self.obs_sources: tuple[str, ...] = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1", "CERES-EBAF-4-2")
+            self.obs_sources: tuple[str, ...] = (
+                "GPCP-Monthly-3-2",
+                "TropFlux-1-0",
+                "HadISST-1-1",
+                "CERES-EBAF-4-2",
+            )
         else:
             raise ValueError(
                 f"Unknown metrics collection: {metrics_collection}. "

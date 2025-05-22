@@ -377,7 +377,7 @@ def update_dict_datasets(dict_datasets: dict, output_dir: str = ".") -> dict:
                     "ERA-INT": "ERA-Interim",
                     "ERA-5": "ERA5",
                     "AVISO-1-0": "AVISO",
-                    "TropFlux-1-0": "TropFlux",
+                    "TropFlux-1-0": "Tropflux",
                     "HadISST-1-1": "HadISST",
                 }
                 # Get the new name if it exists in the mapping, otherwise keep the original name

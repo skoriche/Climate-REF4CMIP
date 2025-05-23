@@ -51,7 +51,7 @@ class AnnualCycle(CommandLineDiagnostic):
                         }
                     ),
                 ),
-                group_by=("variable_id", "source_id", "experiment_id", "member_id"),
+                group_by=("variable_id", "source_id", "experiment_id", "member_id", "grid_label"),
             ),
         ),
         # Precipitation
@@ -72,7 +72,7 @@ class AnnualCycle(CommandLineDiagnostic):
                         }
                     ),
                 ),
-                group_by=("variable_id", "source_id", "experiment_id", "member_id"),
+                group_by=("variable_id", "source_id", "experiment_id", "member_id", "grid_label"),
             ),
         ),
     )

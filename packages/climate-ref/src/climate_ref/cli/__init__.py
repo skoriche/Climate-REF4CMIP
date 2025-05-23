@@ -11,7 +11,7 @@ from loguru import logger
 
 from climate_ref import __version__
 from climate_ref.cli import config, datasets, executions, providers, solve
-from climate_ref.config import Config
+from climate_ref.config import VERBOSE_LOG_FORMAT, Config
 from climate_ref.constants import CONFIG_FILENAME
 from climate_ref.database import Database
 from climate_ref_core import __version__ as __core_version__
@@ -112,11 +112,21 @@ app = build_app()
 @app.callback()
 def main(  # noqa: PLR0913
     ctx: typer.Context,
-    configuration_directory: Annotated[Path | None, typer.Option(help="Configuration directory")] = None,
-    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Set the log level to DEBUG")] = False,
-    quiet: Annotated[bool, typer.Option("--quiet", "-q", help="Set the log level to WARNING")] = False,
+    configuration_directory: Annotated[
+        Path | None,
+        typer.Option(help="Configuration directory"),
+    ] = None,
+    verbose: Annotated[
+        bool,
+        typer.Option("--verbose", "-v", help="Set the log level to DEBUG"),
+    ] = False,
+    quiet: Annotated[
+        bool,
+        typer.Option("--quiet", "-q", help="Set the log level to WARNING"),
+    ] = False,
     log_level: Annotated[
-        LogLevel, typer.Option(case_sensitive=False, help="Set the level of logging information to display")
+        LogLevel,
+        typer.Option(case_sensitive=False, help="Set the level of logging information to display"),
     ] = LogLevel.Info,
     version: Annotated[
         Optional[bool],
@@ -130,16 +140,35 @@ def main(  # noqa: PLR0913
 
     This CLI provides a number of commands for managing and executing diagnostics.
     """
+    if version:
+        print(f"climate_ref: {__version__}")
+        print(f"climate_ref-core: {__core_version__}")
+        raise typer.Exit()
+
     if quiet:
         log_level = LogLevel.Warning
     if verbose:
         log_level = LogLevel.Debug
 
     logger.remove()
-    add_log_handler(level=log_level.value)
 
     config = _load_config(configuration_directory)
     config.log_level = log_level.value
+
+    log_format = config.log_format
+
+    add_log_handler(level=log_level.value, format=log_format, colorize=True)
+
+    # Write out debug logs to a file
+    config.paths.log.mkdir(parents=True, exist_ok=True)
+    logger.add(
+        sink=config.paths.log / "climate-ref_{time}.log",
+        retention=10,
+        level=LogLevel.Debug,
+        format=VERBOSE_LOG_FORMAT,
+        colorize=True,
+    )
+    logger.debug(f"Configuration loaded from: {config._config_file!s}")
 
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))
 

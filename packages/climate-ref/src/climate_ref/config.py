@@ -48,6 +48,28 @@ Prefix for the environment variables used by the REF
 """
 
 
+DEFAULT_LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z}</green> | <level>{level: <8}</level> | "
+    "<cyan>{name}</cyan> - <level>{message}</level>"
+)
+"""
+Default log format used by the REF
+"""
+VERBOSE_LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z} e{elapsed}s</green> | "
+    "<level>{level: <8}</level> | "
+    "{process.name}:{process.id} | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+    "<level>{message}</level>"
+)
+"""
+The verbose log format is used for debugging and development.
+
+This is the format that is used when writing the log messages to file for later debugging.
+It contains information about the process and function that the log message was generated in.
+"""
+
+
 def ensure_absolute_path(path: str | Path) -> Path:
     """
     Ensure that the path is absolute
@@ -337,10 +359,18 @@ class Config:
 
     log_level: str = field(default="INFO")
     """
-    Log level of messages that are displayed by the REF
+    Log level of messages that are displayed by the REF via the CLI
 
     This value is overridden if a value is specified via the CLI.
     """
+    log_format: str = env_field("LOG_FORMAT", default=DEFAULT_LOG_FORMAT)
+    """
+    Format of the log messages that are displayed by the REF via the CLI
+
+    Examples of the formatting options are available in the
+    [loguru documentation](https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger).
+    """
+
     paths: PathConfig = Factory(PathConfig)  # noqa
     db: DbConfig = Factory(DbConfig)  # noqa
     executor: ExecutorConfig = Factory(ExecutorConfig)  # noqa

@@ -2,6 +2,7 @@
 Logging utilities
 
 The REF uses [loguru](https://loguru.readthedocs.io/en/stable/), a simple logging framework.
+The log level and format are configured via the REF configuration file.
 """
 
 import contextlib
@@ -56,6 +57,7 @@ def capture_logging() -> None:
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
 
     # Disable some overly verbose logs
+    logger.disable("alembic.runtime.migration")
     logger.disable("matplotlib.colorbar")
     logger.disable("matplotlib.ticker")
     logger.disable("matplotlib.font_manager")

@@ -8,6 +8,11 @@ from climate_ref.cli import build_app
 from climate_ref_core import __version__ as __core_version__
 
 
+def escape_ansi(line):
+    ansi_escape = re.compile(r"(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", line)
+
+
 def test_without_subcommand(invoke_cli):
     result = invoke_cli([])
     assert "Usage:" in result.stdout
@@ -21,17 +26,17 @@ def test_version(invoke_cli):
 
 
 def test_verbose(invoke_cli):
-    exp_log = r"\| DEBUG    \| climate_ref\.config:default:\d+ - Loading default configuration from"
+    exp_log = r"\| DEBUG    \| climate_ref\.cli - Configuration loaded from"
     result = invoke_cli(
         ["--verbose", "config", "list"],
     )
-    assert re.search(exp_log, result.stderr)
+    assert re.search(exp_log, escape_ansi(result.stderr))
 
     result = invoke_cli(
         ["config", "list"],
     )
     # Only info and higher messages logged
-    assert not re.search(exp_log, result.stderr)
+    assert not re.search(exp_log, escape_ansi(result.stderr))
 
 
 @pytest.mark.parametrize(

@@ -38,6 +38,7 @@ from climate_ref.constants import CONFIG_FILENAME
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor, import_executor_cls
+from climate_ref_core.logging import DEFAULT_LOG_FORMAT
 
 if TYPE_CHECKING:
     from climate_ref.database import Database
@@ -337,10 +338,18 @@ class Config:
 
     log_level: str = field(default="INFO")
     """
-    Log level of messages that are displayed by the REF
+    Log level of messages that are displayed by the REF via the CLI
 
     This value is overridden if a value is specified via the CLI.
     """
+    log_format: str = env_field("LOG_FORMAT", default=DEFAULT_LOG_FORMAT)
+    """
+    Format of the log messages that are displayed by the REF via the CLI
+
+    Examples of the formatting options are available in the
+    [loguru documentation](https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger).
+    """
+
     paths: PathConfig = Factory(PathConfig)  # noqa
     db: DbConfig = Factory(DbConfig)  # noqa
     executor: ExecutorConfig = Factory(ExecutorConfig)  # noqa

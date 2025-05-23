@@ -6,7 +6,7 @@ import pytest
 from attr import evolve
 from cattrs import IterableValidationError
 
-from climate_ref.config import Config, PathConfig, transform_error
+from climate_ref.config import DEFAULT_LOG_FORMAT, Config, PathConfig, transform_error
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor
 
@@ -129,6 +129,7 @@ filename = "sqlite://climate_ref.db"
 
         assert without_defaults == {
             "log_level": "INFO",
+            "log_format": DEFAULT_LOG_FORMAT,
             "diagnostic_providers": [
                 {"provider": "climate_ref_esmvaltool.provider"},
                 {"provider": "climate_ref_ilamb.provider"},
@@ -137,6 +138,7 @@ filename = "sqlite://climate_ref.db"
         }
         assert with_defaults == {
             "log_level": "INFO",
+            "log_format": DEFAULT_LOG_FORMAT,
             "diagnostic_providers": [
                 {
                     "provider": "climate_ref_esmvaltool.provider",

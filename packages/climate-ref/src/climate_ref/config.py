@@ -38,6 +38,7 @@ from climate_ref.constants import CONFIG_FILENAME
 from climate_ref_core.env import env
 from climate_ref_core.exceptions import InvalidExecutorException
 from climate_ref_core.executor import Executor, import_executor_cls
+from climate_ref_core.logging import DEFAULT_LOG_FORMAT
 
 if TYPE_CHECKING:
     from climate_ref.database import Database
@@ -45,28 +46,6 @@ if TYPE_CHECKING:
 env_prefix = "REF"
 """
 Prefix for the environment variables used by the REF
-"""
-
-
-DEFAULT_LOG_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z}</green> | <level>{level: <8}</level> | "
-    "<cyan>{name}</cyan> - <level>{message}</level>"
-)
-"""
-Default log format used by the REF
-"""
-VERBOSE_LOG_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z} e{elapsed}s</green> | "
-    "<level>{level: <8}</level> | "
-    "{process.name}:{process.id} | "
-    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-    "<level>{message}</level>"
-)
-"""
-The verbose log format is used for debugging and development.
-
-This is the format that is used when writing the log messages to file for later debugging.
-It contains information about the process and function that the log message was generated in.
 """
 
 

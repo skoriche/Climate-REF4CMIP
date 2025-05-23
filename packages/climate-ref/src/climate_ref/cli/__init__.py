@@ -11,11 +11,11 @@ from loguru import logger
 
 from climate_ref import __version__
 from climate_ref.cli import config, datasets, executions, providers, solve
-from climate_ref.config import VERBOSE_LOG_FORMAT, Config
+from climate_ref.config import Config
 from climate_ref.constants import CONFIG_FILENAME
 from climate_ref.database import Database
 from climate_ref_core import __version__ as __core_version__
-from climate_ref_core.logging import add_log_handler
+from climate_ref_core.logging import initialise_logging
 
 
 class LogLevel(str, Enum):
@@ -156,18 +156,8 @@ def main(  # noqa: PLR0913
     config.log_level = log_level.value
 
     log_format = config.log_format
+    initialise_logging(level=config.log_level, format=log_format, log_directory=config.paths.log)
 
-    add_log_handler(level=log_level.value, format=log_format, colorize=True)
-
-    # Write out debug logs to a file
-    config.paths.log.mkdir(parents=True, exist_ok=True)
-    logger.add(
-        sink=config.paths.log / "climate-ref_{time}.log",
-        retention=10,
-        level=LogLevel.Debug,
-        format=VERBOSE_LOG_FORMAT,
-        colorize=True,
-    )
     logger.debug(f"Configuration loaded from: {config._config_file!s}")
 
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))

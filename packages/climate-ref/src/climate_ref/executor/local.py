@@ -13,7 +13,7 @@ from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
-from climate_ref_core.logging import add_log_handler
+from climate_ref_core.logging import initialise_logging
 
 from .result_handling import handle_execution_result
 
@@ -67,7 +67,12 @@ def _process_initialiser() -> None:
     # Setup the logging for the process
     # This replaces the loguru default handler
     try:
-        add_log_handler()
+        config = Config.default()
+        initialise_logging(
+            level=config.log_level,
+            format=config.log_format,
+            log_directory=config.paths.log,
+        )
     except Exception as e:
         # Don't raise an exception here as that would kill the process pool
         # We want to log the error and continue

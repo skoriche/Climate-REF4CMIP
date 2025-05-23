@@ -140,11 +140,6 @@ def main(  # noqa: PLR0913
 
     This CLI provides a number of commands for managing and executing diagnostics.
     """
-    if version:
-        print(f"climate_ref: {__version__}")
-        print(f"climate_ref-core: {__core_version__}")
-        raise typer.Exit()
-
     if quiet:
         log_level = LogLevel.Warning
     if verbose:

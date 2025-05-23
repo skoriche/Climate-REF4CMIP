@@ -63,7 +63,7 @@ class ExecutionFuture:
     execution_id: int | None = None
 
 
-def _process_initialiser() -> None:
+def _process_initialiser() -> None:  # pragma: no cover
     # Setup the logging for the process
     # This replaces the loguru default handler
     try:

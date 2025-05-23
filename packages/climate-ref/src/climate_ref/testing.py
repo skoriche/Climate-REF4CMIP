@@ -103,7 +103,7 @@ def validate_result(diagnostic: Diagnostic, config: Config, result: ExecutionRes
     # Validate bundles
     metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
     bundle_dimensions = tuple(metric_bundle.DIMENSIONS.root["json_structure"])
-    assert diagnostic.facets == bundle_dimensions, bundle_dimensions
+    assert diagnostic.facets == bundle_dimensions
     CMECOutput.load_from_json(result.to_output_path(result.output_bundle_filename))
 
     # Create a fake log file if one doesn't exist

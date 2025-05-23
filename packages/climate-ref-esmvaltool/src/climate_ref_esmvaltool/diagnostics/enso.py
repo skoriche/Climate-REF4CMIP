@@ -85,7 +85,7 @@ class ENSOCharacteristics(ESMValToolDiagnostic):
                     },
                 ),
             ),
-            group_by=("instance_id",),
+            group_by=("source_id", "member_id", "grid_label"),
             constraints=(
                 RequireFacets("variable_id", ("tos",)),
                 RequireContiguousTimerange(group_by=("instance_id",)),

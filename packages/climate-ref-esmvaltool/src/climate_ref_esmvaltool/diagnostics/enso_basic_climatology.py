@@ -19,7 +19,7 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
 
     name = "ENSO Basic Climatology"
     slug = "enso-basic-climatology"
-    base_recipe = "recipe_enso_basicclimatology.yml"
+    base_recipe = "ref/recipe_enso_basicclimatology.yml"
 
     variables = (
         "pr",
@@ -37,7 +37,7 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
                     },
                 ),
             ),
-            group_by=("instance_id",),
+            group_by=("source_id", "member_id", "grid_label"),
             constraints=(
                 RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
@@ -51,4 +51,9 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
         """Update the recipe."""
         recipe_variables = dataframe_to_recipe(input_files)
-        recipe["datasets"] = recipe_variables["pr"]["additional_datasets"]
+        recipe.pop("datasets")
+        for diagnostic in recipe["diagnostics"].values():
+            for variable in diagnostic["variables"].values():
+                variable["additional_datasets"].extend(
+                    recipe_variables[variable["short_name"]]["additional_datasets"]
+                )

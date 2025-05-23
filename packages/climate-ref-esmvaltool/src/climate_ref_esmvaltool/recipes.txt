@@ -6,3 +6,5 @@ recipe_tcre.yml            4668e357e00c515a8264ac75cb319ce558289689e10189e6f9e98
 recipe_zec.yml             b0af7f789b7610ab3f29a6617124aa40c40866ead958204fc199eaf82863de51
 ref/recipe_ref_cre.yml     4f35d9639f1008be3b5382a5bd8933a855cb5368ccf5d04a1c70227172e2e82c
 ref/recipe_ref_sea_ice_area_basic.yml 552e282a16ec355778b06f33897e1b8ba8388e5f8a5f814c4c42d91f63007457
+ref/recipe_enso_basicclimatology.yml 9ea7deb7ee668e39ac44618b96496d898bd82285c22dcee4fce4695e0c9fa82b
+ref/recipe_enso_characteristics.yml 34c2518b138068ac96d212910b979d54a8fcedee2c0089b5acd56a42c41dc3e4

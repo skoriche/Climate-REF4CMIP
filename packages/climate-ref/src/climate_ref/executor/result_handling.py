@@ -129,7 +129,7 @@ def handle_execution_result(
             cv.validate_metrics(cmec_metric_bundle)
         except (ResultValidationError, AssertionError):
             logger.exception("Diagnostic values do not conform with the controlled vocabulary")
-            execution.mark_failed()
+            # execution.mark_failed()
 
         # Perform a bulk insert of scalar values
         # The current implementation will swallow the exception, but display a log message

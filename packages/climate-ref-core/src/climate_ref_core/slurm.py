@@ -1,17 +1,29 @@
 # mypy: disable-error-code="import-untyped"
 from typing import Any
 
-import pyslurm
+try:
+    import pyslurm
+
+    HAS_REAL_SLURM = True
+except ImportError:
+    HAS_REAL_SLURM = False
+    print("Warning: pyslurm not found. Using skip HPCExecutor config validations")
 
 
 class SlurmChecker:
     """Check and get slurm settings."""
 
     def __init__(self) -> None:
-        self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
-        self.slurm_partition = pyslurm.Partitions.load()  # collection
-        self.slurm_qos = pyslurm.qos().get()  # dict
-        self.slurm_node = pyslurm.Nodes.load()  # dict
+        if HAS_REAL_SLURM:
+            self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
+            self.slurm_partition = pyslurm.Partitions.load()  # collection
+            self.slurm_qos = pyslurm.qos().get()  # dict
+            self.slurm_node = pyslurm.Nodes.load()  # dict
+        else:
+            self.slurm_association = None
+            self.slurm_partition = None
+            self.slurm_qos = None
+            self.slurm_node = None
 
     def get_partition_info(self, partition_name: str) -> Any:
         """Check if a partition exists in the Slurm configuration."""

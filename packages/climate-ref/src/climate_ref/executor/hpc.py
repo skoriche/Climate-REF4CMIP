@@ -26,7 +26,7 @@ from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
-from climate_ref_core.slurm import SlurmChecker
+from climate_ref_core.slurm import HAS_REAL_SLURM, SlurmChecker
 
 from .local import ExecutionFuture, process_result
 
@@ -98,7 +98,13 @@ class HPCExecutor:
         self.cores_per_worker = _to_int(executor_config.get("cores_per_worker"))
         self.mem_per_worker = _to_float(executor_config.get("mem_per_worker"))
 
-        self._validate_slurm_params()
+        hours, minutes, seconds = map(int, self.walltime.split(":"))
+        total_minutes = hours * 60 + minutes + seconds / 60
+        self.total_minutes = total_minutes
+
+        if executor_config.get("validation") and HAS_REAL_SLURM:
+            self._validate_slurm_params()
+
         self._initialize_parsl()
 
         self.parsl_results: list[ExecutionFuture] = []
@@ -137,11 +143,6 @@ class HPCExecutor:
 
             qos_limits = slurm_checker.get_qos_limits(self.qos)
 
-        hours, minutes, seconds = map(int, self.walltime.split(":"))
-        total_minutes = hours * 60 + minutes + seconds / 60
-
-        self.total_minutes = total_minutes
-
         max_cores_per_node = int(node_info["cpus"]) if node_info else None
         if max_cores_per_node and self.cores_per_worker:
             if self.cores_per_worker > max_cores_per_node:
@@ -158,12 +159,14 @@ class HPCExecutor:
                     f"larger than the maximum mem in a node {max_mem_per_node}"
                 )
 
-        max_walltime_partition = partition_limits["max_time_minutes"] if partition_limits else total_minutes
-        max_walltime_qos = qos_limits["max_time_minutes"] if qos_limits else total_minutes
+        max_walltime_partition = (
+            partition_limits["max_time_minutes"] if partition_limits else self.total_minutes
+        )
+        max_walltime_qos = qos_limits["max_time_minutes"] if qos_limits else self.total_minutes
 
         max_walltime_minutes = min(float(max_walltime_partition), float(max_walltime_qos))
 
-        if total_minutes > float(max_walltime_minutes):
+        if self.total_minutes > float(max_walltime_minutes):
             raise ValueError(
                 f"Walltime: {self.walltime} exceed the maximum time "
                 f"{max_walltime_minutes} allowed by {self.partition} and {self.qos}"
@@ -189,9 +192,9 @@ class HPCExecutor:
         )
         executor = HighThroughputExecutor(
             label="ref_hpc_executor",
-            cores_per_worker=self.cores_per_worker if self.cores_per_worker else 2,
+            cores_per_worker=self.cores_per_worker if self.cores_per_worker else 1,
             mem_per_worker=self.mem_per_worker,
-            max_workers_per_node=_to_int(executor_config.get("max_workers_per_node")),
+            max_workers_per_node=_to_int(executor_config.get("max_workers_per_node", 16)),
             cpu_affinity=str(executor_config.get("cpu_affinity")),
             provider=provider,
         )
@@ -251,7 +254,7 @@ class HPCExecutor:
             If the timeout is reached
         """
         start_time = time.time()
-        refresh_time = 1
+        refresh_time = 0.5
 
         results = self.parsl_results
         t = tqdm(total=len(results), desc="Waiting for executions to complete", unit="execution")
@@ -294,7 +297,6 @@ class HPCExecutor:
 
                 elapsed_time = time.time() - start_time
 
-                # if elapsed_time > timeout or elapsed_time > self.total_minutes * 60:
                 if elapsed_time > self.total_minutes * 60:
                     raise TimeoutError("Not all tasks completed within the specified timeout")
 
@@ -302,4 +304,5 @@ class HPCExecutor:
                 time.sleep(refresh_time)
         finally:
             t.close()
-            parsl.dfk().cleanup()
+            if parsl.dfk():
+                parsl.dfk().cleanup()

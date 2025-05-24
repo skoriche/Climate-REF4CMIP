@@ -27,7 +27,3 @@ username="minxu"
 partition="batch_ccsi"
 scheduler_options="#SBATCH -J 'test_ref_hpc'"
 overrides="--mpi=none"
-
-
-
-

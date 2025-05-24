@@ -10,18 +10,18 @@ export REF_INSTALLATION_DIR=/ccsopen/home/mfx/MyGit/climate-ref/
 export SSL_CERT_FILE=$(python -m certifi)
 
 # Default behavior: Run all steps if no args given
-RUN_CREATE_ENV=true
-RUN_PREFETCH=true
-RUN_INGEST=true
+RUN_CREATE_ENV=false
+RUN_PREFETCH=false
+RUN_INGEST=false
 
 # Parse command-line options
-while getopts "cpia" opt; do
+while getopts "cpiah" opt; do
   case $opt in
     c) RUN_CREATE_ENV=true;  RUN_PREFETCH=false; RUN_INGEST=false ;;
     p) RUN_CREATE_ENV=false; RUN_PREFETCH=true;  RUN_INGEST=false ;;
     i) RUN_CREATE_ENV=false; RUN_PREFETCH=false; RUN_INGEST=true ;;
     a) RUN_CREATE_ENV=true;  RUN_PREFETCH=true;  RUN_INGEST=true ;;
-    *) echo "Usage: $0 [-c (create-env only)] [-p (pre-fetch only)] [-i (ingest only)] [-a (do all)]"
+    h) echo "Usage: $0 [-c (create-env only)] [-p (pre-fetch only)] [-i (ingest only)] [-a (do all)]"
        exit 1 ;;
   esac
 done
@@ -35,20 +35,20 @@ fi
 # 2. Pre-fetch data (if enabled)
 if [ "$RUN_PREFETCH" = true ]; then
   echo "=== Pre-fetching datasets ==="
-  
+
   # PMP climatology
   ref datasets fetch-data --registry pmp-climatology \
     --output-directory "${REF_DATASET_CACHE_DIR}/datasets/pmp-climatology" || exit 1
-  
+
   # obs4mips
   ref datasets fetch-data --registry obs4ref \
     --output-directory "${REF_DATASET_CACHE_DIR}/datasets/obs4ref" || exit 1
-  
+
   # Diagnostic packages
   ref datasets fetch-data --registry ilamb || exit 1
   ref datasets fetch-data --registry iomb || exit 1
   ref datasets fetch-data --registry esmvaltool || exit 1
-  
+
   # Cartopy data
   python download-cartopy-data.py || exit 1
 fi

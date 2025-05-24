@@ -1,15 +1,16 @@
 import re
-
-import pytest
 from unittest.mock import MagicMock, patch
 
+import parsl
+import pytest
+from parsl.dataflow import futures
+
+from climate_ref.executor.hpc import HPCExecutor, execute_locally
 from climate_ref.executor.local import ExecutionFuture
 from climate_ref_core.diagnostics import ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import Executor
-from climate_ref.executor.hpc import HPCExecutor, execute_locally
-from parsl.dataflow import futures
-import parsl
+
 
 def test_execute_locally(definition_factory, mock_diagnostic):
     definition = definition_factory(diagnostic=mock_diagnostic)
@@ -42,16 +43,14 @@ class TestHPCExecutor:
         parsl.dfk().cleanup()
 
     def test_run_metric(self, metric_definition, provider, mock_diagnostic, mocker, caplog, tmp_path):
-
-
-        with patch.object(HPCExecutor, 'run', autospec=True) as mock_run:
+        with patch.object(HPCExecutor, "run", autospec=True) as mock_run:
             # Configure the mock to behave similarly to the original
             mock_run.side_effect = lambda self, definition, execution=None: (
                 self.parsl_results.append(
                     ExecutionFuture(
                         future=MagicMock(),  # Mock the future object
                         definition=definition,
-                        execution_id=execution.id if execution else None
+                        execution_id=execution.id if execution else None,
                     )
                 )
             )
@@ -72,7 +71,7 @@ class TestHPCExecutor:
         executor.parsl_results = [ExecutionFuture(future, definition=metric_definition, execution_id=None)]
 
         # Future isn't done yet
-        #executor.total_minutes = 0.0
+        # executor.total_minutes = 0.0
         with pytest.raises(TimeoutError):
             executor.join(0.1)
 

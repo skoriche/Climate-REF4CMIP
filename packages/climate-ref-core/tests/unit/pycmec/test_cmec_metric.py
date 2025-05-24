@@ -477,6 +477,15 @@ def test_remove():
     }
 
 
+def test_iter_results(cmec_metric):
+    assert list(cmec_metric.iter_results())
+
+
+def test_iter_results_empty(cmec_right_metric_dict):
+    cmec_metric = CMECMetric.model_validate(CMECMetric.create_template())
+    assert not list(cmec_metric.iter_results())
+
+
 @pytest.mark.xfail(reason="No need to currently support removing deeper dimensions")
 def test_remove_not_first(cmec_right_metric_dict):
     remove_dimensions(cmec_right_metric_dict, ["metric"])

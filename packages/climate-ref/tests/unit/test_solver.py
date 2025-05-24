@@ -1,13 +1,14 @@
+from copy import deepcopy
 from typing import Any
 from unittest import mock
 
 import pandas as pd
 import pytest
-from climate_ref_example import provider
+from climate_ref_example import provider as example_provider
 
 from climate_ref.config import ExecutorConfig
 from climate_ref.models import Execution
-from climate_ref.provider_registry import ProviderRegistry
+from climate_ref.provider_registry import ProviderRegistry, _register_provider
 from climate_ref.solver import (
     DiagnosticExecution,
     ExecutionSolver,
@@ -22,7 +23,7 @@ from climate_ref_core.diagnostics import DataRequirement, FacetFilter
 
 @pytest.fixture
 def solver(db_seeded, config) -> ExecutionSolver:
-    registry = ProviderRegistry(providers=[provider])
+    registry = ProviderRegistry(providers=[example_provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
     metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
@@ -31,7 +32,12 @@ def solver(db_seeded, config) -> ExecutionSolver:
 
 
 @pytest.fixture
-def mock_metric_execution(tmp_path, definition_factory, mock_diagnostic) -> DiagnosticExecution:
+def mock_metric_execution(
+    tmp_path, db_seeded, definition_factory, mock_diagnostic, provider
+) -> DiagnosticExecution:
+    with db_seeded.session.begin():
+        _register_provider(db_seeded, provider)
+
     mock_execution = mock.MagicMock(spec=DiagnosticExecution)
     mock_execution.provider = provider
     mock_execution.diagnostic = provider.diagnostics()[0]
@@ -43,6 +49,11 @@ def mock_metric_execution(tmp_path, definition_factory, mock_diagnostic) -> Diag
         diagnostic=mock_diagnostic, execution_dataset_collection=mock_dataset_collection
     )
     return mock_execution
+
+
+@pytest.fixture
+def mock_executor(mocker):
+    return mocker.patch.object(ExecutorConfig, "build")
 
 
 class TestMetricSolver:
@@ -278,8 +289,7 @@ def test_extract_no_groups():
         extract_covered_datasets(data_catalog, requirement)
 
 
-def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, solver):
-    mock_executor = mocker.patch.object(ExecutorConfig, "build")
+def test_solve_metrics_default_solver(mocker, mock_metric_execution, mock_executor, db_seeded, solver):
     mock_build_solver = mocker.patch.object(ExecutionSolver, "build_from_db")
 
     # Create a mock solver that "solves" to create a single execution
@@ -313,8 +323,7 @@ def test_solve_metrics_default_solver(mocker, mock_metric_execution, db_seeded, 
     )
 
 
-def test_solve_metrics(mocker, db_seeded, solver, data_regression):
-    mock_executor = mocker.patch.object(ExecutorConfig, "build")
+def test_solve_metrics(mocker, db_seeded, solver, data_regression, mock_executor):
     mock_build_solver = mocker.patch.object(ExecutionSolver, "build_from_db")
 
     solve_required_executions(db_seeded, dry_run=False, solver=solver)
@@ -335,9 +344,7 @@ def test_solve_metrics(mocker, db_seeded, solver, data_regression):
     data_regression.check(output)
 
 
-def test_solve_metrics_dry_run(mocker, db_seeded, config, solver):
-    mock_executor = mocker.patch.object(ExecutorConfig, "build")
-
+def test_solve_metrics_dry_run(db_seeded, config, solver, mock_executor):
     solve_required_executions(config=config, db=db_seeded, dry_run=True, solver=solver)
 
     assert mock_executor.return_value.run.call_count == 0
@@ -589,3 +596,69 @@ def test_solve_with_new_areacella(obs4mips_data_catalog, mock_diagnostic, provid
     )
     assert result_2.dataset_key == expected_dataset_key
     assert result_2.datasets.hash != result_1.datasets.hash
+
+
+def test_solve_with_one_per_provider(
+    db_seeded, mock_metric_execution, mock_diagnostic, caplog, mock_executor
+):
+    mock_execution_2 = deepcopy(mock_metric_execution)
+    mock_execution_2.diagnostic = mock_diagnostic.provider.get("failed")
+
+    # Create a mock solver that "solves" to create multiple executions with the same provider,
+    # but different diagnostics
+    solver = mock.MagicMock(spec=ExecutionSolver)
+    solver.solve.return_value = [mock_metric_execution, mock_execution_2]
+    with caplog.at_level("INFO"):
+        solve_required_executions(db_seeded, solver=solver, one_per_provider=True)
+
+    assert "Skipping execution due to one-of check" in caplog.text
+
+    # Check that only one result is created
+    assert db_seeded.session.query(Execution).count() == 1
+    execution_result = db_seeded.session.query(Execution).first()
+
+    # A single run would have been run
+    assert mock_executor.return_value.run.call_count == 1
+    mock_executor.return_value.run.assert_called_with(
+        definition=mock_metric_execution.build_execution_definition(),
+        execution=execution_result,
+    )
+
+
+def test_solve_with_one_per_diagnostic(
+    db_seeded, mock_metric_execution, mock_diagnostic, caplog, mock_executor
+):
+    # Create a mock solver that "solves" to create multiple executions with the same diagnostic
+    solver = mock.MagicMock(spec=ExecutionSolver)
+    solver.solve.return_value = [mock_metric_execution, mock_metric_execution]
+    with caplog.at_level("INFO"):
+        solve_required_executions(db_seeded, solver=solver, one_per_diagnostic=True)
+
+    assert "Skipping execution due to one-of check" in caplog.text
+
+    # Check that a result is created
+    assert db_seeded.session.query(Execution).count() == 1
+    execution_result = db_seeded.session.query(Execution).first()
+
+    # A single run would have been run
+    assert mock_executor.return_value.run.call_count == 1
+    mock_executor.return_value.run.assert_called_with(
+        definition=mock_metric_execution.build_execution_definition(),
+        execution=execution_result,
+    )
+
+
+def test_solve_with_one_per_diagnostic_different_diagnostics(
+    db_seeded, mock_metric_execution, mock_diagnostic, mock_executor
+):
+    mock_execution_2 = deepcopy(mock_metric_execution)
+    mock_execution_2.diagnostic = mock_diagnostic.provider.get("failed")
+
+    # Create a mock solver that "solves" to create multiple executions with the different diagnostics
+    solver = mock.MagicMock(spec=ExecutionSolver)
+    solver.solve.return_value = [mock_metric_execution, mock_execution_2]
+
+    solve_required_executions(db_seeded, solver=solver, one_per_diagnostic=True)
+
+    # Check that multiple diagnostics are created
+    assert db_seeded.session.query(Execution).count() == 2

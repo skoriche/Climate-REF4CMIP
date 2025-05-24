@@ -30,12 +30,19 @@ def test_update_recipe(metric_dataset):
     TransientClimateResponse().update_recipe(recipe, input_files)
     assert len(recipe["datasets"]) == 2
     assert len(recipe["diagnostics"]) == 1
-    assert set(recipe["diagnostics"]["cmip6"]["variables"]) == {"tas"}
+    assert set(recipe["diagnostics"]["tcr"]["variables"]) == {"tas"}
+    undesired_keys = [
+        "TCR",
+        "SCATTERPLOT",
+        "VAR_SETTING",
+    ]
+    for key in undesired_keys:
+        assert key not in recipe
 
 
 def test_format_output(tmp_path, metric_dataset):
     result_dir = tmp_path
-    subdir = result_dir / "work" / "cmip6" / "tcr"
+    subdir = result_dir / "work" / "tcr" / "calculate"
     subdir.mkdir(parents=True)
     tcr = xr.Dataset(
         data_vars={
@@ -52,5 +59,5 @@ def test_format_output(tmp_path, metric_dataset):
     )
 
     CMECMetric.model_validate(metric_args)
-    assert metric_args["RESULTS"]["ACCESS-ESM1-5"]["global"]["tcr"] == 1.0
+    assert metric_args.RESULTS["global"]["tcr"] == 1.0
     CMECOutput.model_validate(output_args)

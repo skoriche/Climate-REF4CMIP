@@ -25,7 +25,7 @@ class TestScalarMetricValue:
         db_seeded.session.add(item_orig)
         db_seeded.session.commit()
 
-        item = db_seeded.session.query(ScalarMetricValue).get(item_orig.id)
+        item = db_seeded.session.get(ScalarMetricValue, item_orig.id)
         assert item.attributes == attributes
         assert item.value == 1.0
 
@@ -85,7 +85,7 @@ class TestSeriesMetricValue:
         db_seeded.session.add(item)
         db_seeded.session.commit()
 
-        item = db_seeded.session.query(SeriesMetricValue).get(item.id)
+        item = db_seeded.session.get(SeriesMetricValue, item.id)
         assert item.values == [1.0, 2.0, 3.0]
         assert item.index == [0, 1, 2]
         assert item.index_name == "time"
@@ -117,7 +117,7 @@ class TestSeriesMetricValue:
         db_seeded.session.add(item)
         db_seeded.session.commit()
 
-        item = db_seeded.session.query(SeriesMetricValue).get(item.id)
+        item = db_seeded.session.get(SeriesMetricValue, item.id)
         item.values = [1.0, 2.0, 3.0]  # Make lengths mismatch
 
         with pytest.raises(ValueError, match=re.escape("Index length (2) must match values length (3)")):

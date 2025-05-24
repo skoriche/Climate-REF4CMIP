@@ -15,6 +15,10 @@ import pooch
 from loguru import logger
 from rich.progress import track
 
+from climate_ref_core.env import env
+
+DATASET_URL = env.str("REF_DATASET_URL", default="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev")
+
 
 def fetch_all_files(
     registry: pooch.Pooch,
@@ -148,7 +152,7 @@ class DatasetRegistryManager:
             path=pooch.os_cache(cache_name),
             base_url=base_url,
             version=version,
-            retry_if_failed=5,
+            retry_if_failed=10,
             env="REF_DATASET_CACHE_DIR",
         )
         registry.load_registry(str(importlib.resources.files(package) / resource))

@@ -1,33 +1,33 @@
 {
-  "index": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/index.html",
+  "index": "<OUTPUT_DIR>/executions/recipe_20250519_115953/index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
     "obsdata": {},
-    "log": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/run/main_log_debug.txt"
+    "log": "<OUTPUT_DIR>/executions/recipe_20250519_115953/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250506_010209/work/cmip6/tcr/ACCESS-ESM1-5.nc": {
-      "filename": "executions/recipe_20250506_010209/work/cmip6/tcr/ACCESS-ESM1-5.nc",
+    "executions/recipe_20250519_115953/work/tcr/calculate/ACCESS-ESM1-5.nc": {
+      "filename": "executions/recipe_20250519_115953/work/tcr/calculate/ACCESS-ESM1-5.nc",
       "long_name": "Time series of the global mean surface air temperature anomaly (relative to the linear fit of the pre-industrial control run) of ACCESS-ESM1-5 for the 1% CO2 increase per year experiment. The horizontal dashed line indicates the transient climate response (TCR) defined as the 20 year average temperature anomaly centered at the time of CO2 doubling (vertical dashed lines).",
       "description": ""
     },
-    "executions/recipe_20250506_010209/work/cmip6/tcr/tcr.nc": {
-      "filename": "executions/recipe_20250506_010209/work/cmip6/tcr/tcr.nc",
+    "executions/recipe_20250519_115953/work/tcr/calculate/tcr.nc": {
+      "filename": "executions/recipe_20250519_115953/work/tcr/calculate/tcr.nc",
       "long_name": "Transient Climate Response (TCR) for multiple climate models.",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250506_010209/plots/cmip6/tcr/ACCESS-ESM1-5.png": {
-      "filename": "executions/recipe_20250506_010209/plots/cmip6/tcr/ACCESS-ESM1-5.png",
+    "executions/recipe_20250519_115953/plots/tcr/calculate/ACCESS-ESM1-5.png": {
+      "filename": "executions/recipe_20250519_115953/plots/tcr/calculate/ACCESS-ESM1-5.png",
       "long_name": "Time series of the global mean surface air temperature anomaly (relative to the linear fit of the pre-industrial control run) of ACCESS-ESM1-5 for the 1% CO2 increase per year experiment. The horizontal dashed line indicates the transient climate response (TCR) defined as the 20 year average temperature anomaly centered at the time of CO2 doubling (vertical dashed lines).",
       "description": ""
     }
   },
   "html": {
-    "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/index.html": {
-      "filename": "/private/var/folders/kq/_m_fz0ld2y7_1q9mxcbthnfh0000gn/T/pytest-of-jared/pytest-108/popen-gw4/test_diagnostics_transient_cli0/climate_ref/packages.climate-ref-esmvaltool.tests.integration.test_diagnostics/test_diagnostics_transient-climate-response_/scratch/esmvaltool/transient-climate-response/133ba461d2fcb3c4f1774ff1f0b98ba1b68f702f/executions/recipe_20250506_010209/index.html",
+    "<OUTPUT_DIR>/executions/recipe_20250519_115953/index.html": {
+      "filename": "<OUTPUT_DIR>/executions/recipe_20250519_115953/index.html",
       "long_name": "Results page",
       "description": "Page showing the executions of the ESMValTool run."
     }

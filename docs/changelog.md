@@ -21,6 +21,51 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.5 (2025-05-21)
+
+### Improvements
+
+- Added additional dimensions to the ILAMB and ESMValTool metric values.
+  This includes additional information about the execution group that will be useful to end-users. ([#308](https://github.com/Climate-REF/climate-ref/pulls/308))
+- Move the ILAMB datasets to S3 ([#309](https://github.com/Climate-REF/climate-ref/pulls/309))
+- Clean ECS diagnostic (remove unused keys in ESMValTool recipes and avoid "cmip6" in diagnostic name) ([#310](https://github.com/Climate-REF/climate-ref/pulls/310))
+- Clean TCR diagnostic (remove unused keys in ESMValTool recipes and avoid "cmip6" in diagnostic name) ([#311](https://github.com/Climate-REF/climate-ref/pulls/311))
+
+### Improved Documentation
+
+- Updated documentation to include more information about concepts within the REF. ([#312](https://github.com/Climate-REF/climate-ref/pulls/312))
+
+
+## climate-ref 0.5.4 (2025-05-19)
+
+### Bug Fixes
+
+- Add additional dependencies to the `climate-ref-core` so that it is self-contained ([#307](https://github.com/Climate-REF/climate-ref/pulls/307))
+
+
+## climate-ref 0.5.3 (2025-05-19)
+
+### Features
+
+- Diagnostic's have been split into two phases, executing which generates any outputs and then building a result
+  object from the outputs.
+  This split makes it easier to make modifications to how the results are translated into the CMEC outputs. ([#303](https://github.com/Climate-REF/climate-ref/pulls/303))
+
+### Improvements
+
+- Added automatic backup of SQLite database files before running migrations.
+  Backups are stored in a `backups` directory adjacent to the database file and are named with timestamps.
+  The number of backups to retain can be configured via the `db.max_backups` setting in the database configuration,
+  with a default of 5 backups. ([#301](https://github.com/Climate-REF/climate-ref/pulls/301))
+- Update to v0.6.0 of the sample data. ([#302](https://github.com/Climate-REF/climate-ref/pulls/302))
+- Add a smoke test for the Celery deployment ([#304](https://github.com/Climate-REF/climate-ref/pulls/304))
+- Add tests that the pypi releases are installable ([#306](https://github.com/Climate-REF/climate-ref/pulls/306))
+
+### Improved Documentation
+
+- Added page describing the required reference datasets ([#298](https://github.com/Climate-REF/climate-ref/pulls/298))
+
+
 ## climate-ref 0.5.2 (2025-05-15)
 
 ### Bug Fixes

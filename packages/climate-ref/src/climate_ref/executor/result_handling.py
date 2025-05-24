@@ -129,28 +129,28 @@ def handle_execution_result(
             cv.validate_metrics(cmec_metric_bundle)
         except (ResultValidationError, AssertionError):
             logger.exception("Diagnostic values do not conform with the controlled vocabulary")
-            # TODO: Mark the diagnostic execution result as failed once the CV has stabilised
             # execution.mark_failed()
 
         # Perform a bulk insert of scalar values
-        # TODO: The section below will likely fail until we have agreed on a controlled vocabulary
         # The current implementation will swallow the exception, but display a log message
         try:
-            # Perform this in a nested transaction to (hopefully) gracefully rollback if something
-            # goes wrong
-            with database.session.begin_nested():
-                database.session.execute(
-                    insert(ScalarMetricValue),
-                    [
-                        {
-                            "execution_id": execution.id,
-                            "value": result.value,
-                            "attributes": result.attributes,
-                            **result.dimensions,
-                        }
-                        for result in cmec_metric_bundle.iter_results()
-                    ],
-                )
+            scalar_values = [
+                {
+                    "execution_id": execution.id,
+                    "value": result.value,
+                    "attributes": result.attributes,
+                    **result.dimensions,
+                }
+                for result in cmec_metric_bundle.iter_results()
+            ]
+            if scalar_values:
+                # Perform this in a nested transaction to rollback if something goes wrong
+                # We will lose the metric values for a given execution, but not the whole execution
+                with database.session.begin_nested():
+                    database.session.execute(
+                        insert(ScalarMetricValue),
+                        scalar_values,
+                    )
         except Exception:
             # TODO: Remove once we have settled on a controlled vocabulary
             logger.exception("Something went wrong when ingesting diagnostic values")

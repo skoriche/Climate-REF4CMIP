@@ -36,6 +36,7 @@ def test_bug_12():
  - OS: [e.g. Windows, Linux, macOS]
  - Python version [e.g. Python 3.11]
  - Please also upload your `uv.lock` file (first run `uv lock` to make sure the lock file is up-to-date)
+ - Debug log information (default location `$REF_CONFIGURATION/log`)
 
 ## Additional context
 <!--- Add any other context about the problem here. -->

@@ -2,13 +2,16 @@
 Logging utilities
 
 The REF uses [loguru](https://loguru.readthedocs.io/en/stable/), a simple logging framework.
+The log level and format are configured via the REF configuration file.
 """
 
 import contextlib
 import inspect
 import logging
+import multiprocessing
 import sys
 from collections.abc import Generator
+from pathlib import Path
 from typing import Any
 
 import pooch
@@ -22,6 +25,28 @@ EXECUTION_LOG_FILENAME = "out.log"
 Filename for the execution log.
 
 This file is written via [climate_ref_core.logging.redirect_logs][].
+"""
+
+DEFAULT_LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z}</green> | <level>{level: <8}</level> | "
+    "<cyan>{name}</cyan> - <level>{message}</level>"
+)
+"""
+Default log format used by the REF
+"""
+
+VERBOSE_LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z} e{elapsed}s</green> | "
+    "<level>{level: <8}</level> | "
+    "{process.name}:{process.id} | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+    "<level>{message}</level>"
+)
+"""
+The verbose log format is used for debugging and development.
+
+This is the format that is used when writing the log messages to file for later debugging.
+It contains information about the process and function that the log message was generated in.
 """
 
 
@@ -43,6 +68,35 @@ class _InterceptHandler(logging.Handler):
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
+def initialise_logging(level: int | str, format: str, log_directory: str | Path) -> None:  # noqa: A002 # pragma: no cover
+    """
+    Initialise the logging for the REF
+
+    This sets up the default log handler and configures the REF logger.
+    """
+    capture_logging()
+    log_directory = Path(log_directory)
+    process_name = multiprocessing.current_process().name
+
+    # Remove any existing handlers
+    logger.remove()
+
+    # Write out debug logs to a file
+    log_directory.mkdir(parents=True, exist_ok=True)
+    filename = f"climate-ref_{{time:YYYY-MM-DD_HH-mm}}_{process_name}.log"
+    logger.add(
+        sink=log_directory / filename,
+        retention=10,
+        level="DEBUG",
+        format=VERBOSE_LOG_FORMAT,
+        colorize=True,
+    )
+    logger.info("Starting REF logging")
+    logger.info(f"arguments: {sys.argv}")
+
+    add_log_handler(level=level, format=format, colorize=True)
+
+
 def capture_logging() -> None:
     """
     Capture logging from the standard library and redirect it to Loguru
@@ -56,6 +110,7 @@ def capture_logging() -> None:
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
 
     # Disable some overly verbose logs
+    logger.disable("alembic.runtime.migration")
     logger.disable("matplotlib.colorbar")
     logger.disable("matplotlib.ticker")
     logger.disable("matplotlib.font_manager")
@@ -154,4 +209,4 @@ def redirect_logs(definition: ExecutionDefinition, log_level: str) -> Generator[
             add_log_handler(**logger.default_handler_kwargs)  # type: ignore[attr-defined]
 
 
-__all__ = ["EXECUTION_LOG_FILENAME", "add_log_handler", "capture_logging", "logger", "redirect_logs"]
+__all__ = ["EXECUTION_LOG_FILENAME", "capture_logging", "initialise_logging", "redirect_logs"]

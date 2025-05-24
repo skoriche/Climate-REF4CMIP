@@ -11,7 +11,7 @@ from loguru import logger
 from rich.pretty import pretty_repr
 
 from climate_ref.config import Config
-from climate_ref_core.logging import add_log_handler, capture_logging
+from climate_ref_core.logging import initialise_logging
 
 os.environ.setdefault("CELERY_CONFIG_MODULE", "climate_ref_celery.celeryconf.dev")
 
@@ -33,16 +33,11 @@ def create_celery_app(name: str) -> Celery:
 @setup_logging.connect
 def setup_logging_handler(loglevel: int, **kwargs: Any) -> None:  # pragma: no cover
     """Set up logging for the Celery worker using the celery signal"""
-    capture_logging()
+    # We ignore the format passed by Celery instead using our own configuration
+    config = Config.default()
+    msg_format = config.log_format
 
-    # Include process name in celery logs
-    msg_format = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS Z}</green> | <level>{level: <8}</level> | {process.name} | "
-        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
-    )
-
-    logger.remove()
-    add_log_handler(level=loglevel, format=msg_format, colorize=True)
+    initialise_logging(level=loglevel, format=msg_format, log_directory=config.paths.log)
 
 
 @worker_ready.connect

@@ -2,7 +2,6 @@ import datetime
 
 import pandas as pd
 import pytest
-from attr import evolve
 from climate_ref_pmp import AnnualCycle
 from climate_ref_pmp import provider as pmp_provider
 from climate_ref_pmp.pmp_driver import _get_resource
@@ -26,12 +25,12 @@ def test_expected_executions():
     data_catalog = {
         SourceDatasetType.CMIP6: pd.DataFrame(
             [
-                ["ts", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon"],
-                ["ts", "ACCESS-ESM1-5", "ssp119", "r1i1p1f1", "mon"],
-                ["ts", "ACCESS-ESM1-5", "historical", "r2i1p1f1", "mon"],
-                ["pr", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon"],
+                ["ts", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon", "gn"],
+                ["ts", "ACCESS-ESM1-5", "ssp119", "r1i1p1f1", "mon", "gn"],
+                ["ts", "ACCESS-ESM1-5", "historical", "r2i1p1f1", "mon", "gn"],
+                ["pr", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon", "gn"],
             ],
-            columns=("variable_id", "source_id", "experiment_id", "member_id", "frequency"),
+            columns=("variable_id", "source_id", "experiment_id", "member_id", "frequency", "grid_label"),
         ),
         SourceDatasetType.PMPClimatology: pd.DataFrame(
             [["ERA-5", "ts"], ["ERA-5", "pr"], ["GPCP-Monthly-3-2", "pr"]],
@@ -44,6 +43,7 @@ def test_expected_executions():
     # ts
     assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (
         ("experiment_id", "historical"),
+        ("grid_label", "gn"),
         ("member_id", "r1i1p1f1"),
         ("source_id", "ACCESS-ESM1-5"),
         ("variable_id", "ts"),
@@ -56,6 +56,7 @@ def test_expected_executions():
     # ts with different member_id
     assert executions[1].datasets[SourceDatasetType.CMIP6].selector == (
         ("experiment_id", "historical"),
+        ("grid_label", "gn"),
         ("member_id", "r2i1p1f1"),
         ("source_id", "ACCESS-ESM1-5"),
         ("variable_id", "ts"),
@@ -68,6 +69,7 @@ def test_expected_executions():
     # pr
     assert executions[2].datasets[SourceDatasetType.CMIP6].selector == (
         ("experiment_id", "historical"),
+        ("grid_label", "gn"),
         ("member_id", "r1i1p1f1"),
         ("source_id", "ACCESS-ESM1-5"),
         ("variable_id", "pr"),
@@ -186,7 +188,7 @@ def test_annual_cycle_diagnostic(
     ]
 
 
-def test_diagnostic_run(mocker, provider):
+def test_diagnostic_execute(mocker, provider):
     diagnostic = AnnualCycle()
     diagnostic.provider = provider
 
@@ -200,36 +202,7 @@ def test_diagnostic_run(mocker, provider):
     diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
     diagnostic.build_execution_result = mocker.MagicMock()
 
-    diagnostic.run("definition")
+    diagnostic.execute("definition")
 
     diagnostic.build_cmds.assert_called_once_with("definition")
     assert diagnostic.provider.run.call_count == 2
-    diagnostic.build_execution_result.assert_called_once_with("definition")
-
-
-def test_build_cmd_raises():
-    diagnostic = AnnualCycle()
-    with pytest.raises(NotImplementedError):
-        diagnostic.build_cmd("definition")
-
-
-def test_diagnostic_build_result(config, provider, execution_regression_dir, data_catalog):
-    diagnostic = AnnualCycle()
-    diagnostic.provider = pmp_provider
-    diagnostic.provider.configure(config)
-
-    key = "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_ts__pmp-climatology_ERA-5_ts"
-    output_directory = execution_regression_dir(diagnostic, key)
-
-    execution = next(
-        solve_executions(
-            data_catalog=data_catalog,
-            diagnostic=diagnostic,
-            provider=diagnostic.provider,
-        )
-    )
-    definition = execution.build_execution_definition(output_root=config.paths.scratch)
-    definition = evolve(definition, output_directory=output_directory)
-
-    result = diagnostic.build_execution_result(definition)
-    assert result.successful

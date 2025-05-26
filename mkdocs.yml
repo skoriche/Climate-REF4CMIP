@@ -22,6 +22,7 @@ nav:
     - how-to-guides/dataset-selection.py
     - how-to-guides/running-diagnostics-locally.py
     - how-to-guides/docker_deployment.md
+    - how-to-guides/hpc_executor.md
   - Tutorials: tutorials.md
   - Further background:
     - Architecture: background/architecture.md

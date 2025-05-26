@@ -15,6 +15,44 @@ from climate_ref_core.pycmec.metric import remove_dimensions
 from climate_ref_pmp.pmp_driver import build_glob_pattern, build_pmp_command, process_json_result
 
 
+def make_data_requirement(variable_id: str, obs_source: str) -> tuple[DataRequirement, DataRequirement]:
+    """
+    Create a data requirement for the annual cycle diagnostic.
+
+    Parameters
+    ----------
+    variable_id : str
+        The variable ID to filter the data requirement.
+    obs_source : str
+        The observation source ID to filter the data requirement.
+
+    Returns
+    -------
+    DataRequirement
+        A DataRequirement object containing the necessary filters and groupings.
+    """
+    return (
+        DataRequirement(
+            source_type=SourceDatasetType.PMPClimatology,
+            filters=(FacetFilter(facets={"source_id": (obs_source,), "variable_id": (variable_id,)}),),
+            group_by=("variable_id", "source_id"),
+        ),
+        DataRequirement(
+            source_type=SourceDatasetType.CMIP6,
+            filters=(
+                FacetFilter(
+                    facets={
+                        "frequency": "mon",
+                        "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
+                        "variable_id": (variable_id,),
+                    }
+                ),
+            ),
+            group_by=("variable_id", "source_id", "experiment_id", "member_id", "grid_label"),
+        ),
+    )
+
+
 class AnnualCycle(CommandLineDiagnostic):
     """
     Calculate the annual cycle for a dataset
@@ -32,49 +70,20 @@ class AnnualCycle(CommandLineDiagnostic):
         "statistic",
         "season",
     )
+
     data_requirements = (
-        # Surface temperature
-        (
-            DataRequirement(
-                source_type=SourceDatasetType.PMPClimatology,
-                filters=(FacetFilter(facets={"source_id": ("ERA-5",), "variable_id": ("ts",)}),),
-                group_by=("variable_id", "source_id"),
-            ),
-            DataRequirement(
-                source_type=SourceDatasetType.CMIP6,
-                filters=(
-                    FacetFilter(
-                        facets={
-                            "frequency": "mon",
-                            "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                            "variable_id": ("ts",),
-                        }
-                    ),
-                ),
-                group_by=("variable_id", "source_id", "experiment_id", "member_id", "grid_label"),
-            ),
-        ),
-        # Precipitation
-        (
-            DataRequirement(
-                source_type=SourceDatasetType.PMPClimatology,
-                filters=(FacetFilter(facets={"source_id": ("GPCP-Monthly-3-2",), "variable_id": ("pr",)}),),
-                group_by=("variable_id", "source_id"),
-            ),
-            DataRequirement(
-                source_type=SourceDatasetType.CMIP6,
-                filters=(
-                    FacetFilter(
-                        facets={
-                            "frequency": "mon",
-                            "experiment_id": ("amip", "historical", "hist-GHG", "piControl"),
-                            "variable_id": ("pr",),
-                        }
-                    ),
-                ),
-                group_by=("variable_id", "source_id", "experiment_id", "member_id", "grid_label"),
-            ),
-        ),
+        make_data_requirement("pr", "GPCP-Monthly-3-2"),
+        make_data_requirement("psl", "ERA-5"),
+        make_data_requirement("rlds", "CERES-EBAF-4-2"),
+        make_data_requirement("rlus", "CERES-EBAF-4-2"),
+        make_data_requirement("rlut", "CERES-EBAF-4-2"),
+        make_data_requirement("rsds", "CERES-EBAF-4-2"),
+        make_data_requirement("rsdt", "CERES-EBAF-4-2"),
+        make_data_requirement("rsus", "CERES-EBAF-4-2"),
+        make_data_requirement("rsut", "CERES-EBAF-4-2"),
+        make_data_requirement("ts", "ERA-5"),
+        make_data_requirement("uas", "ERA-5"),
+        make_data_requirement("vas", "ERA-5"),
     )
 
     def __init__(self) -> None:

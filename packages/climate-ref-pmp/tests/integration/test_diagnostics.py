@@ -9,6 +9,9 @@ diagnostics = [pytest.param(diagnostic, id=diagnostic.slug) for diagnostic in pm
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_diagnostics(diagnostic: Diagnostic, diagnostic_validation):
+    if "enso" in diagnostic.slug:
+        pytest.skip("ENSO diagnostics do not support the sample data")
+
     validator = diagnostic_validation(diagnostic)
 
     definition = validator.get_definition()

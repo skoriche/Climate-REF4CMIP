@@ -9,7 +9,7 @@ from climate_ref_core.dataset_registry import (
     fetch_all_files,
 )
 
-NUM_OBS4REF_FILES = 58
+NUM_OBS4REF_FILES = 67
 
 
 @pytest.fixture

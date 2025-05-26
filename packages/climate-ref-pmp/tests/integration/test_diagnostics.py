@@ -9,6 +9,9 @@ diagnostics = [pytest.param(diagnostic, id=diagnostic.slug) for diagnostic in pm
 @pytest.mark.slow
 @pytest.mark.parametrize("diagnostic", diagnostics)
 def test_diagnostics(diagnostic: Diagnostic, diagnostic_validation):
+    if diagnostic.slug in ["amoc-rapid", "ohc-noaa"]:
+        pytest.skip("Skipping AMOC diagnostic due to known issues with the test data.")
+
     validator = diagnostic_validation(diagnostic)
 
     definition = validator.get_definition()

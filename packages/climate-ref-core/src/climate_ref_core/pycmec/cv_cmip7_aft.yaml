@@ -53,7 +53,15 @@ dimensions:
     - name: global
       long_name: Global
       description: "Global aggregate"
-      units: dimensionless
+    - name: NHEX
+      long_name: Northern Hemisphere Extra-tropics
+      description: "Northern Hemisphere Extra-tropics (30N-90N)"
+    - name: SHEX
+      long_name: Southern Hemisphere Extra-tropics
+      description: "Southern Hemisphere Extra-tropics (30S-90S)"
+    - name: Tropics
+      long_name: Tropics
+      description: "Tropics (30N-30S)"
 - name: season
   long_name: Season
   description: "Parts of the year from which the metric values are calculated"
@@ -63,23 +71,57 @@ dimensions:
     - name: ann
       long_name: Annual
       description: ""
-      units: dimensionless
     - name: djf
       long_name: Dec,Jan,Feb
       description: "December, January, February"
-      units: dimensionless
     - name: mam
       long_name: Mar,Apr,May
       description: "March, April, May"
-      units: dimensionless
     - name: jja
       long_name: Jun,Jul,Aug
       description: "June, July, August"
-      units: dimensionless
     - name: son
       long_name: Sep,Oct,Nov
       description: "September, October, November"
-      units: dimensionless
+- name: mode
+  long_name: Mode of variability
+  description: "Different modes of variability that can be calculated"
+  required: false
+  allow_extra_values: false
+  values:
+    - name: NAM
+      long_name: Northern Annular Mode
+      description: Northern Annular Mode
+    - name: NAO
+      long_name: North Atlantic Oscillation
+      description: North Atlantic Oscillation
+    - name: PNA
+      long_name: Pacific–North America pattern
+      description: Pacific–North America pattern
+    - name: SAM
+      long_name: Southern Annular Mode
+      description: Southern Annular Mode
+    - name: PDO
+      long_name: Pacific decadal oscillation
+      description: Pacific decadal oscillation
+    - name: NPO
+      long_name: North Pacific Oscillation
+      description: North Pacific Oscillation
+    - name: NPGO
+      long_name: North Pacific Gyre Oscillation
+      description: North Pacific Gyre Oscillation
+- name: method
+  long_name: EOF Method
+  description: "Method for calculating the EOFs in PMP's mode of variability diagnostic"
+  required: false
+  allow_extra_values: false
+  values:
+    - name: cbf
+      long_name: Common Basis Function
+      description: "A projection of the leading EOFs of the reference dataset onto the model data"
+    - name: eof1
+      long_name: EOF1
+      description: "The leading EOF of the reference dataset"
 - name: statistic
   long_name: Statistic
   description: ""

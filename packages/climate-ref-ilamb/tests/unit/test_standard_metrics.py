@@ -1,9 +1,12 @@
 import ilamb3
+import pandas as pd
 import pytest
 from climate_ref_ilamb.standard import ILAMBStandard, _set_ilamb3_options
+from climate_ref_pmp import provider as ilamb_provider
 
+from climate_ref.solver import solve_executions
 from climate_ref_core.dataset_registry import dataset_registry_manager
-from climate_ref_core.datasets import DatasetCollection
+from climate_ref_core.datasets import DatasetCollection, SourceDatasetType
 
 
 def test_standard_site(cmip6_data_catalog, definition_factory):
@@ -94,3 +97,49 @@ def test_standard_fail():
 def test_options():
     _set_ilamb3_options(dataset_registry_manager["ilamb"], "ilamb")
     assert set(["global", "tropical"]).issubset(ilamb3.conf["regions"])
+
+
+def test_expected_executions():
+    diagnostic = ILAMBStandard(
+        registry_file="ilamb",
+        metric_name="cSoil-HWSD2",
+        sources={"cSoil": "ilamb/cSoil/HWSD2/cSoil_fx_HWSD2_19600101-20220101.nc"},
+    )
+
+    # No Obs4MIPs datasets are used yet
+    data_catalog = {
+        SourceDatasetType.CMIP6: pd.DataFrame(
+            [
+                ["cSoil", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon", "gn", "Amon", "v20191115"],
+                ["cSoil", "ACCESS-ESM1-5", "ssp119", "r1i1p1f1", "mon", "gn", "Amon", "v20191115"],
+                ["cSoil", "ACCESS-ESM1-5", "historical", "r2i1p1f1", "mon", "gn", "Amon", "v20191115"],
+                ["ts", "ACCESS-ESM1-5", "historical", "r1i1p1f1", "mon", "gn", "Amon", "v20191115"],
+                ["areacella", "ACCESS-ESM1-5", "fx", "r1i1p1f1", "mon", "gn", "Amon", "v20191115"],
+            ],
+            columns=(
+                "variable_id",
+                "source_id",
+                "experiment_id",
+                "member_id",
+                "frequency",
+                "grid_label",
+                "table_id",
+                "version",
+            ),
+        ),
+    }
+    executions = list(solve_executions(data_catalog, diagnostic, provider=ilamb_provider))
+    assert len(executions) == 1
+
+    # ts
+    assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (("experiment_id", "historical"),)
+    assert executions[0].datasets[SourceDatasetType.CMIP6].datasets["variable_id"].tolist() == [
+        "cSoil",
+        "cSoil",
+        "areacella",
+    ]
+    assert executions[0].datasets[SourceDatasetType.CMIP6].datasets["member_id"].tolist() == [
+        "r1i1p1f1",
+        "r2i1p1f1",
+        "r1i1p1f1",
+    ]

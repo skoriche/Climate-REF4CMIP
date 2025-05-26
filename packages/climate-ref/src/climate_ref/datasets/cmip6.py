@@ -196,39 +196,20 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
     file_specific_metadata = ("start_time", "end_time", "path")
 
+    version_metadata = "version"
+    dataset_id_metadata = (
+        "activity_id",
+        "institution_id",
+        "source_id",
+        "experiment_id",
+        "member_id",
+        "table_id",
+        "variable_id",
+        "grid_label",
+    )
+
     def __init__(self, n_jobs: int = 1):
         self.n_jobs = n_jobs
-
-    def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
-        """
-        Get a subset of the data_catalog to pretty print
-
-        This is particularly useful for CMIP6 datasets, which have a lot of metadata columns.
-
-        Parameters
-        ----------
-        data_catalog
-            Data catalog to subset
-
-        Returns
-        -------
-        :
-            Subset of the data catalog to pretty print
-
-        """
-        return data_catalog[
-            [
-                "activity_id",
-                "institution_id",
-                "source_id",
-                "experiment_id",
-                "member_id",
-                "table_id",
-                "variable_id",
-                "grid_label",
-                "version",
-            ]
-        ]
 
     def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
@@ -266,15 +247,8 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         datasets["end_time"] = _parse_datetime(datasets["end_time"])
 
         drs_items = [
-            "activity_id",
-            "institution_id",
-            "source_id",
-            "experiment_id",
-            "member_id",
-            "table_id",
-            "variable_id",
-            "grid_label",
-            "version",
+            *self.dataset_id_metadata,
+            self.version_metadata,
         ]
         datasets["instance_id"] = datasets.apply(
             lambda row: "CMIP6." + ".".join([row[item] for item in drs_items]), axis=1

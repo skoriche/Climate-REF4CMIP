@@ -10,7 +10,7 @@ def pdo_example_dir(regression_data_dir) -> Path:
         regression_data_dir
         / "pmp"
         / "extratropical-modes-of-variability-pdo"
-        / "cmip6_hist-GHG_r1i1p1f1_ACCESS-ESM1-5_r1i1p1f1__obs4mips_HadISST-1-1_ts"
+        / "cmip6_hist-GHG_gn_r1i1p1f1_ACCESS-ESM1-5__obs4mips_HadISST-1-1_ts"
     )
 
 

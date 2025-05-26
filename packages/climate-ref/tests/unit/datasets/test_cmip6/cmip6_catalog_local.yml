@@ -1996,6 +1996,114 @@
   frequency: mon
   grid: native 0.9x1.25 finite volume grid (192x288 latxlon)
   grid_label: gn
+  instance_id: CMIP6.CMIP.NCAR.CESM2.historical.r1i1p1f1.ImonAnt.snc.gn.v20190308
+  institution_id: NCAR
+  long_name: Snow Area Percentage
+  member_id: r1i1p1f1
+  nominal_resolution: 100 km
+  parent_activity_id: CMIP
+  parent_experiment_id: piControl
+  parent_source_id: CESM2
+  parent_time_units: days since 0001-01-01 00:00:00
+  parent_variant_label: r1i1p1f1
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/ImonAnt/snc/gn/v20190308/snc_ImonAnt_CESM2_historical_r1i1p1f1_gn_200001-201412.nc'
+  product: model-output
+  realm: landIce land
+  source_id: CESM2
+  source_type: AOGCM BGC
+  standard_name: surface_snow_area_fraction
+  start_time: 2000-01-15 12:00:00
+  sub_experiment: none
+  sub_experiment_id: none
+  table_id: ImonAnt
+  time_range: 2000-01-15 12:00:00-2014-12-15 12:00:00
+  units: '%'
+  variable_id: snc
+  variant_label: r1i1p1f1
+  version: v20190308
+  vertical_levels: 1
+- activity_id: CMIP
+  branch_method: standard
+  branch_time_in_child: 674885.0
+  branch_time_in_parent: 219000.0
+  end_time: 2014-12-15 12:00:00
+  experiment: all-forcing simulation of the recent past
+  experiment_id: historical
+  frequency: mon
+  grid: native 0.9x1.25 finite volume grid (192x288 latxlon)
+  grid_label: gn
+  instance_id: CMIP6.CMIP.NCAR.CESM2.historical.r1i1p1f1.ImonGre.snc.gn.v20190308
+  institution_id: NCAR
+  long_name: Snow Area Percentage
+  member_id: r1i1p1f1
+  nominal_resolution: 100 km
+  parent_activity_id: CMIP
+  parent_experiment_id: piControl
+  parent_source_id: CESM2
+  parent_time_units: days since 0001-01-01 00:00:00
+  parent_variant_label: r1i1p1f1
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/ImonGre/snc/gn/v20190308/snc_ImonGre_CESM2_historical_r1i1p1f1_gn_200001-201412.nc'
+  product: model-output
+  realm: landIce land
+  source_id: CESM2
+  source_type: AOGCM BGC
+  standard_name: surface_snow_area_fraction
+  start_time: 2000-01-15 12:00:00
+  sub_experiment: none
+  sub_experiment_id: none
+  table_id: ImonGre
+  time_range: 2000-01-15 12:00:00-2014-12-15 12:00:00
+  units: '%'
+  variable_id: snc
+  variant_label: r1i1p1f1
+  version: v20190308
+  vertical_levels: 1
+- activity_id: CMIP
+  branch_method: standard
+  branch_time_in_child: 674885.0
+  branch_time_in_parent: 219000.0
+  end_time: 2014-12-15 12:00:00
+  experiment: all-forcing simulation of the recent past
+  experiment_id: historical
+  frequency: mon
+  grid: native 0.9x1.25 finite volume grid (192x288 latxlon)
+  grid_label: gn
+  instance_id: CMIP6.CMIP.NCAR.CESM2.historical.r1i1p1f1.LImon.snc.gn.v20190308
+  institution_id: NCAR
+  long_name: Snow Area Percentage
+  member_id: r1i1p1f1
+  nominal_resolution: 100 km
+  parent_activity_id: CMIP
+  parent_experiment_id: piControl
+  parent_source_id: CESM2
+  parent_time_units: days since 0001-01-01 00:00:00
+  parent_variant_label: r1i1p1f1
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/LImon/snc/gn/v20190308/snc_LImon_CESM2_historical_r1i1p1f1_gn_200001-201412.nc'
+  product: model-output
+  realm: landIce land
+  source_id: CESM2
+  source_type: AOGCM BGC
+  standard_name: surface_snow_area_fraction
+  start_time: 2000-01-15 12:00:00
+  sub_experiment: none
+  sub_experiment_id: none
+  table_id: LImon
+  time_range: 2000-01-15 12:00:00-2014-12-15 12:00:00
+  units: '%'
+  variable_id: snc
+  variant_label: r1i1p1f1
+  version: v20190308
+  vertical_levels: 1
+- activity_id: CMIP
+  branch_method: standard
+  branch_time_in_child: 674885.0
+  branch_time_in_parent: 219000.0
+  end_time: 2014-12-15 12:00:00
+  experiment: all-forcing simulation of the recent past
+  experiment_id: historical
+  frequency: mon
+  grid: native 0.9x1.25 finite volume grid (192x288 latxlon)
+  grid_label: gn
   instance_id: CMIP6.CMIP.NCAR.CESM2.historical.r1i1p1f1.Lmon.burntFractionAll.gn.v20190308
   institution_id: NCAR
   long_name: Percentage of Entire Grid cell  that is Covered by Burnt Vegetation (All

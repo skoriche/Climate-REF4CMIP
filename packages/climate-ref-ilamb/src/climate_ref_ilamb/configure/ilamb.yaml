@@ -50,3 +50,9 @@ nbp-Hoffman:
 snc-ESACCI:
   sources:
     snc: ilamb/snc/Snow-cci/snc_mon_Snow-cci_BE_gn_198201-201906.nc
+
+burntFractionAll-GFED:
+  sources:
+    burntArea: ilamb/burntFractionAll/GFED/burntArea.nc
+  alternate_vars:
+  - burntFractionAll

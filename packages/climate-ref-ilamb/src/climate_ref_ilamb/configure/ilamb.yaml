@@ -2,6 +2,7 @@ registry: ilamb
 
 gpp-WECANN:
   sources:
+    # TODO: Update to use the obs4REF equiv
     gpp: ilamb/gpp/WECANN/gpp.nc
   relationships:
     pr: ilamb/pr/GPCPv2.3/pr.nc
@@ -15,6 +16,7 @@ gpp-FLUXNET2015:
 
 mrro-LORA:
   sources:
+    # TODO: Update to use the obs4REF equiv
     mrro: ilamb/mrro/LORA/LORA.nc
   variable_cmap: Blues
 
@@ -42,6 +44,7 @@ nbp-Hoffman:
   analyses:
   - nbp
   sources:
+    # TODO: Update to use the obs4REF equiv
     nbp: ilamb/nbp/HOFFMAN/nbp_1850-2010.nc
 
 snc-ESACCI:

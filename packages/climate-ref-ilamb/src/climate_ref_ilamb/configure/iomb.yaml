@@ -2,6 +2,7 @@ registry: iomb
 
 thetao-WOA2023-surface:
   sources:
+    # TODO: Update to use the obs4REF equiv
     thetao: ilamb/WOA/thetao_mon_WOA_A5B4_gn_200501-201412.nc
   variable_cmap: Reds
   transform:
@@ -12,6 +13,7 @@ thetao-WOA2023-surface:
 
 so-WOA2023-surface:
   sources:
+    # TODO: Update to use the obs4REF equiv
     so: ilamb/WOA/so_mon_WOA_A5B4_gn_200501-201412.nc
   transform:
   - select_depth:
@@ -28,6 +30,7 @@ amoc-RAPID:
   transform:
   - msftmz_to_rapid
   sources:
+    # TODO: Update to use the obs4REF equiv
     amoc: ilamb/RAPID/amoc_mon_RAPID_BE_NA_200404-202302.nc
 
 ohc-NOAA:

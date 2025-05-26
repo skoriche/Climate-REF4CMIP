@@ -15,7 +15,7 @@ from climate_ref.config import Config
 from climate_ref.constants import CONFIG_FILENAME
 from climate_ref.database import Database
 from climate_ref_core import __version__ as __core_version__
-from climate_ref_core.logging import add_log_handler
+from climate_ref_core.logging import initialise_logging
 
 
 class LogLevel(str, Enum):
@@ -112,11 +112,21 @@ app = build_app()
 @app.callback()
 def main(  # noqa: PLR0913
     ctx: typer.Context,
-    configuration_directory: Annotated[Path | None, typer.Option(help="Configuration directory")] = None,
-    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Set the log level to DEBUG")] = False,
-    quiet: Annotated[bool, typer.Option("--quiet", "-q", help="Set the log level to WARNING")] = False,
+    configuration_directory: Annotated[
+        Path | None,
+        typer.Option(help="Configuration directory"),
+    ] = None,
+    verbose: Annotated[
+        bool,
+        typer.Option("--verbose", "-v", help="Set the log level to DEBUG"),
+    ] = False,
+    quiet: Annotated[
+        bool,
+        typer.Option("--quiet", "-q", help="Set the log level to WARNING"),
+    ] = False,
     log_level: Annotated[
-        LogLevel, typer.Option(case_sensitive=False, help="Set the level of logging information to display")
+        LogLevel,
+        typer.Option(case_sensitive=False, help="Set the level of logging information to display"),
     ] = LogLevel.Info,
     version: Annotated[
         Optional[bool],
@@ -136,10 +146,14 @@ def main(  # noqa: PLR0913
         log_level = LogLevel.Debug
 
     logger.remove()
-    add_log_handler(level=log_level.value)
 
     config = _load_config(configuration_directory)
     config.log_level = log_level.value
+
+    log_format = config.log_format
+    initialise_logging(level=config.log_level, format=log_format, log_directory=config.paths.log)
+
+    logger.debug(f"Configuration loaded from: {config._config_file!s}")
 
     ctx.obj = CLIContext(config=config, database=Database.from_config(config))
 

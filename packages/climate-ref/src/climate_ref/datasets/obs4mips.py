@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import traceback
 from pathlib import Path
 from typing import Any
@@ -8,30 +7,12 @@ from typing import Any
 import pandas as pd
 import xarray as xr
 from ecgtools import Builder
+from ecgtools.parsers.utilities import extract_attr_with_regex  # type: ignore
 from loguru import logger
 
 from climate_ref.datasets.base import DatasetAdapter
 from climate_ref.datasets.cmip6 import _parse_datetime
 from climate_ref.models.dataset import Dataset, Obs4MIPsDataset
-
-
-def extract_attr_with_regex(
-    input_str: str, regex: str, strip_chars: str | None, ignore_case: bool
-) -> list[Any] | None:
-    """
-    Extract version information from attribute with regular expressions.
-    """
-    if ignore_case:
-        pattern = re.compile(regex, re.IGNORECASE)
-    else:
-        pattern = re.compile(regex)
-    match = re.findall(pattern, input_str)
-    if match:
-        matchstr = max(match, key=len)
-        match = matchstr.strip(strip_chars) if strip_chars else matchstr.strip()
-        return match
-    else:
-        return None
 
 
 def parse_obs4mips(file: str) -> dict[str, Any | None]:
@@ -144,37 +125,17 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
     )
 
     file_specific_metadata = ("start_time", "end_time", "path")
+    version_metadata = "source_version_number"
+    dataset_id_metadata = (
+        "activity_id",
+        "institution_id",
+        "source_id",
+        "variable_id",
+        "grid_label",
+    )
 
     def __init__(self, n_jobs: int = 1):
         self.n_jobs = n_jobs
-
-    def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
-        """
-        Get a subset of the data_catalog to pretty print
-
-        This is particularly useful for obs4MIPs datasets, which have a lot of metadata columns.
-
-        Parameters
-        ----------
-        data_catalog
-            Data catalog to subset
-
-        Returns
-        -------
-        :
-            Subset of the data catalog to pretty print
-
-        """
-        return data_catalog[
-            [
-                "activity_id",
-                "institution_id",
-                "source_id",
-                "variable_id",
-                "grid_label",
-                "source_version_number",
-            ]
-        ]
 
     def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
@@ -211,12 +172,8 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
         datasets["end_time"] = _parse_datetime(datasets["end_time"])
 
         drs_items = [
-            "activity_id",
-            "institution_id",
-            "source_id",
-            "variable_id",
-            "grid_label",
-            "source_version_number",
+            *self.dataset_id_metadata,
+            self.version_metadata,
         ]
         datasets["instance_id"] = datasets.apply(
             lambda row: "obs4MIPs." + ".".join([row[item] for item in drs_items]), axis=1

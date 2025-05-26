@@ -70,17 +70,6 @@ class TestHPCExecutor:
         future = futures.AppFuture(1)
         executor.parsl_results = [ExecutionFuture(future, definition=metric_definition, execution_id=None)]
 
-        # Future isn't done yet
-        # executor.total_minutes = 0.0
-        with pytest.raises(TimeoutError):
-            executor.join(0.1)
-
-        # The executor should still have the future
-        assert len(executor.parsl_results) == 1
-
-        executor = HPCExecutor(log_dir=tmp_path / "parsl_runinfo")
-        executor.parsl_results = [ExecutionFuture(future, definition=metric_definition, execution_id=None)]
-
         future.set_result(
             ExecutionResult(
                 definition=metric_definition,

@@ -246,7 +246,7 @@ class HPCExecutor:
         Parameters
         ----------
         timeout
-            Timeout in seconds
+            Timeout in seconds (won't used in HPCExecutor)
 
         Raises
         ------
@@ -298,7 +298,7 @@ class HPCExecutor:
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > self.total_minutes * 60:
-                    raise TimeoutError("Not all tasks completed within the specified timeout")
+                    logger.debug(f"Time elasped {elapsed_time} for joining the results")
 
                 # Wait for a short time before checking for completed executions
                 time.sleep(refresh_time)

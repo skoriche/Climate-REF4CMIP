@@ -4,8 +4,8 @@ from climate_ref_ilamb import provider as ilamb_provider
 from climate_ref_core.diagnostics import Diagnostic
 
 skipped_diagnostics = [
-    "csoil-hwsd2",  # Incorrect time spans
-    "nbp-hoffman",  # Incorrect time spans
+    "mrsos-WangMao",  # profile data not supported yet
+    "ohc-noaa",  # Missing sample data
 ]
 
 diagnostics = [

@@ -121,6 +121,9 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
         }
     )
 
+    # Convert the value column to numeric, coercing errors to NaN
+    model_df["value"] = pd.to_numeric(model_df["value"], errors="coerce")
+
     dimensions = ["experiment_id", "source_id", "member_id", "grid_label", "region", "metric", "statistic"]
     attributes = ["type", "units"]
 
@@ -211,11 +214,14 @@ class ILAMBStandard(Diagnostic):
                                 self.variable_id,
                                 *ilamb_kwargs.get("relationships", {}).keys(),
                                 *ilamb_kwargs.get("alternate_vars", []),
+                                *ilamb_kwargs.get("related_vars", []),
                             )
                         }
                     ),
                     FacetFilter(facets={"frequency": ("mon",)}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
+                    # Exclude unneeded snc tables
+                    FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
                 ),
                 constraints=(
                     AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),

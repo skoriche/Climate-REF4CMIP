@@ -312,23 +312,29 @@ def test_slurm_checker(
         "node0001": create_mock_node(name="node0001"),
     }
 
-    # Patch the Slurm dependencies
-    mock_assoc = mocker.patch("pyslurm.db.Associations")
-    mock_assoc.load.return_value = associations
+    mock_pyslurm = MagicMock()
 
-    mock_part = mocker.patch("pyslurm.Partitions", autospec=True)
-    mock_part.load.return_value = partitions
+    # Set up the nested structure
+    mock_pyslurm.db = MagicMock()
+    mock_pyslurm.db.Associations = MagicMock()
+    mock_pyslurm.db.Associations.load.return_value = associations
 
-    mock_node = mocker.patch("pyslurm.Nodes", autospec=True)
-    mock_node.load.return_value = nodes
+    mock_pyslurm.Partitions = MagicMock()
+    mock_pyslurm.Partitions.load.return_value = partitions
 
-    mocker.patch("pyslurm.qos")  # First mock the qos class
+    mock_pyslurm.Nodes = MagicMock()
+    mock_pyslurm.Nodes.load.return_value = nodes
+
+    # Mock QoS
     mock_qos_instance = MagicMock()
-    mock_qos_instance.get.return_value = qoss  # Your mock qos dictionary
-    mocker.patch("pyslurm.qos", return_value=mock_qos_instance)
+    mock_qos_instance.get.return_value = qoss
+    mock_pyslurm.qos.return_value = mock_qos_instance
+
+    # Patch the module before import
+    mocker.patch.dict("sys.modules", {"pyslurm": mock_pyslurm})
 
     # Create and test the checker
-    checker = SlurmChecker()
+    checker = SlurmChecker(intest=True)
 
     assert checker.can_account_use_partition("climate_ref1", "cpu") is True
     assert checker.can_account_use_partition("climate_ref2", "gpu") is True

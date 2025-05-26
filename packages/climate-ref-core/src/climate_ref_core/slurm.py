@@ -1,25 +1,29 @@
-# mypy: disable-error-code="import-untyped"
+import importlib.util
 from typing import Any
 
-try:
-    import pyslurm
-
-    HAS_REAL_SLURM = True
-except ImportError:
-    HAS_REAL_SLURM = False
-    print("Warning: pyslurm not found. Using skip HPCExecutor config validations")
+HAS_REAL_SLURM = importlib.util.find_spec("pyslurm") is not None
 
 
 class SlurmChecker:
     """Check and get slurm settings."""
 
-    def __init__(self) -> None:
+    def __init__(self, intest: bool = False) -> None:
         if HAS_REAL_SLURM:
+            import pyslurm  # type: ignore
+
+            self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
+            self.slurm_partition = pyslurm.Partitions.load()  # collection
+            self.slurm_qos = pyslurm.qos().get()  # dict
+            self.slurm_node = pyslurm.Nodes.load()  # dict
+        elif intest:
+            import pyslurm
+
             self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
             self.slurm_partition = pyslurm.Partitions.load()  # collection
             self.slurm_qos = pyslurm.qos().get()  # dict
             self.slurm_node = pyslurm.Nodes.load()  # dict
         else:
+            print("Warning: pyslurm not found. Using skip HPCExecutor config validations")
             self.slurm_association = None
             self.slurm_partition = None
             self.slurm_qos = None

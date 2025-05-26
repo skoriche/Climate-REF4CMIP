@@ -10,3 +10,4 @@ ilamb/pr/GPCPv2.3/pr.nc sha1:e1b942863ec76a75aa972b6d75e2e08646741259
 ilamb/tas/CRU4.02/tas.nc sha1:2674da18a1a93483b50b1626e7a7ab741bf53d09
 ilamb/nbp/HOFFMAN/nbp_1850-2010.nc sha1:8350af00614d6afc6b70ad314aa499a9ece80ec2
 ilamb/snc/Snow-cci/snc_mon_Snow-cci_BE_gn_198201-201906.nc sha1:c0bfecd2f8b886e9301428d28bb6ff0507601be2
+ilamb/burntFractionAll/GFED/burntArea.nc sha1:cf9d73c6a8bfc594737c9ba6ca4df613df4a28ab

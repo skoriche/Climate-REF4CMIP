@@ -266,6 +266,10 @@ class DatasetAdapter(Protocol):
                 pd.DataFrame, dataset_catalog[dataset_catalog[self.version_metadata] == latest_version]
             )
 
+        # If there are no datasets, return an empty DataFrame
+        if catalog.empty:
+            return pd.DataFrame(columns=self.dataset_specific_metadata + self.file_specific_metadata)
+
         # Group by the dataset ID and get the latest version for each dataset
         return catalog.groupby(
             list(self.dataset_id_metadata), group_keys=False, as_index=False, sort=False

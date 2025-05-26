@@ -21,7 +21,7 @@ class ENSO(CommandLineDiagnostic):
     Calculate the ENSO performance metrics for a dataset
     """
 
-    facets = ()
+    facets = ("source_id", "member_id", "grid_label", "experiment_id", "metric", "reference_datasets")
 
     def __init__(self, metrics_collection: str, experiments: Collection[str] = ("historical",)) -> None:
         self.name = metrics_collection
@@ -78,7 +78,7 @@ class ENSO(CommandLineDiagnostic):
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
                 filters=tuple(filters),
-                group_by=("source_id", "experiment_id", "member_id"),
+                group_by=("source_id", "experiment_id", "member_id", "grid_label"),
                 constraints=(
                     AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
                     AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
@@ -223,8 +223,23 @@ class ENSO(CommandLineDiagnostic):
 
         cmec_output, cmec_metric = process_json_result(results_files[0], png_files, data_files)
 
+        input_selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
+        cmec_metric_bundle = cmec_metric.remove_dimensions(
+            [
+                "model",
+                "realization",
+            ],
+        ).prepend_dimensions(
+            {
+                "source_id": input_selectors["source_id"],
+                "member_id": input_selectors["member_id"],
+                "grid_label": input_selectors["grid_label"],
+                "experiment_id": input_selectors["experiment_id"],
+            }
+        )
+
         return ExecutionResult.build_from_output_bundle(
             definition,
             cmec_output_bundle=cmec_output,
-            cmec_metric_bundle=cmec_metric,
+            cmec_metric_bundle=cmec_metric_bundle,
         )

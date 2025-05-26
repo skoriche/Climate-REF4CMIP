@@ -67,6 +67,7 @@ def _process_initialiser() -> None:  # pragma: no cover
     # Setup the logging for the process
     # This replaces the loguru default handler
     try:
+        logger.remove()
         config = Config.default()
         initialise_logging(
             level=config.log_level,
@@ -219,9 +220,17 @@ class LocalExecutor:
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > timeout:
+                    for result in results:
+                        logger.warning(
+                            f"Execution {result.definition.execution_slug()} "
+                            f"did not complete within the timeout"
+                        )
+                    self.pool.shutdown(wait=False, cancel_futures=True)
                     raise TimeoutError("Not all tasks completed within the specified timeout")
 
                 # Wait for a short time before checking for completed executions
                 time.sleep(refresh_time)
         finally:
             t.close()
+
+        logger.info("All executions completed successfully")

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, cast
 
 import pandas as pd
 from loguru import logger
@@ -44,14 +44,49 @@ class DatasetAdapter(Protocol):
 
     dataset_cls: type[Dataset]
     slug_column: str
+    """
+    The column in the data catalog that contains the dataset slug.
+    The dataset slug is a unique identifier for the dataset that includes the version of the dataset.
+    This can be used to group files together that belong to the same dataset.
+    """
     dataset_specific_metadata: tuple[str, ...]
     file_specific_metadata: tuple[str, ...] = ()
+
+    version_metadata: str = "version"
+    """
+    The column in the data catalog that contains the version of the dataset.
+    """
+    dataset_id_metadata: tuple[str, ...] = ()
+    """
+    The group of metadata columns that are specific to the dataset excluding the version information.
+
+    Each unique dataset should have the same values for these columns.
+
+    This is generally the columns that describe the `slug` of a dataset,
+    excluding the version information.
+    """
 
     def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Get a subset of the data_catalog to pretty print
+
+        Parameters
+        ----------
+        data_catalog
+            Data catalog to subset
+
+        Returns
+        -------
+        :
+            Subset of the data catalog to pretty print
+
         """
-        ...
+        return data_catalog[
+            [
+                *self.dataset_id_metadata,
+                self.version_metadata,
+            ]
+        ]
 
     def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
@@ -202,6 +237,8 @@ class DatasetAdapter(Protocol):
         Iterating over different datasets within the data catalog can be done using a `groupby`
         operation for the `instance_id` column.
 
+        Only the latest version of each dataset is returned.
+
         The index of the data catalog is the primary key of the dataset.
         This should be maintained during any processing.
 
@@ -213,6 +250,27 @@ class DatasetAdapter(Protocol):
         with db.session.begin():
             # TODO: Paginate this query to avoid loading all the data at once
             if include_files:
-                return self._get_dataset_files(db, limit)
+                catalog = self._get_dataset_files(db, limit)
             else:
-                return self._get_datasets(db, limit)
+                catalog = self._get_datasets(db, limit)
+
+        def _get_latest_version(dataset_catalog: pd.DataFrame) -> pd.DataFrame:
+            """
+            Get the latest version of each dataset based on the version metadata.
+
+            This assumes that the version can be sorted lexicographically.
+            """
+            latest_version = dataset_catalog[self.version_metadata].max()
+
+            return cast(
+                pd.DataFrame, dataset_catalog[dataset_catalog[self.version_metadata] == latest_version]
+            )
+
+        # If there are no datasets, return an empty DataFrame
+        if catalog.empty:
+            return pd.DataFrame(columns=self.dataset_specific_metadata + self.file_specific_metadata)
+
+        # Group by the dataset ID and get the latest version for each dataset
+        return catalog.groupby(
+            list(self.dataset_id_metadata), group_keys=False, as_index=False, sort=False
+        ).apply(_get_latest_version)

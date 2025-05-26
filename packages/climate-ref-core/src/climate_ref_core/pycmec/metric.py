@@ -20,7 +20,6 @@ from copy import deepcopy
 from enum import Enum
 from typing import Any, cast
 
-from loguru import logger
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -190,7 +189,6 @@ class MetricResults(RootModel[Any]):
             expected_keys = set(metdims[dim_name].keys())
             if not (dict_keys.issubset(expected_keys)):
                 msg = f"Unknown dimension values: {dict_keys - expected_keys} for {dim_name}"
-                logger.error(msg)
                 if not ALLOW_EXTRA_KEYS:  # pragma: no cover
                     raise ValueError(f"{msg}\nExpected keys: {expected_keys}")
                 else:

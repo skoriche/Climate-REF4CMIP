@@ -8,6 +8,7 @@ import pandas as pd
 import pooch
 from ilamb3 import run
 
+from climate_ref_core.constraints import AddSupplementaryDataset
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
@@ -120,6 +121,9 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
         }
     )
 
+    # Convert the value column to numeric, coercing errors to NaN
+    model_df["value"] = pd.to_numeric(model_df["value"], errors="coerce")
+
     dimensions = ["experiment_id", "source_id", "member_id", "grid_label", "region", "metric", "statistic"]
     attributes = ["type", "units"]
 
@@ -163,15 +167,6 @@ def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/Koppen_coarse.nc"))
         ilamb3.conf.set(regions=["global", "tropical"])
-
-
-def _measure_facets(registry_file: str) -> list[str]:
-    """
-    Set options for ILAMB based on which registry file is being used.
-    """
-    if registry_file == "ilamb":
-        return ["areacella", "sftlf"]
-    return []
 
 
 def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
@@ -219,12 +214,23 @@ class ILAMBStandard(Diagnostic):
                                 self.variable_id,
                                 *ilamb_kwargs.get("relationships", {}).keys(),
                                 *ilamb_kwargs.get("alternate_vars", []),
-                                *_measure_facets(registry_file),
+                                *ilamb_kwargs.get("related_vars", []),
                             )
                         }
                     ),
-                    FacetFilter(facets={"frequency": ("mon", "fx")}),
+                    FacetFilter(facets={"frequency": ("mon",)}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
+                    # Exclude unneeded snc tables
+                    FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
+                ),
+                constraints=(
+                    AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                    AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
+                )
+                if registry_file == "ilamb"
+                else (
+                    AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                    AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
                 ),
                 group_by=("experiment_id",),
             ),

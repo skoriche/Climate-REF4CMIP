@@ -9,6 +9,8 @@ from climate_ref_core.dataset_registry import (
     fetch_all_files,
 )
 
+NUM_OBS4REF_FILES = 58
+
 
 @pytest.fixture
 def fake_registry_file():
@@ -107,7 +109,7 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     registry.fetch = mocker.MagicMock(return_value=downloaded_file)
 
     fetch_all_files(registry, "obs4ref", tmp_path, symlink=symlink)
-    assert registry.fetch.call_count == 59
+    assert registry.fetch.call_count == NUM_OBS4REF_FILES
 
     expected_file = (
         tmp_path / "obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
@@ -123,4 +125,4 @@ def test_fetch_all_files_no_output(mocker):
     registry.fetch = mocker.MagicMock()
 
     fetch_all_files(registry, "obs4ref", None)
-    assert registry.fetch.call_count == 59
+    assert registry.fetch.call_count == NUM_OBS4REF_FILES

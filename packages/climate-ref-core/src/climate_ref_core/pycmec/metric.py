@@ -20,7 +20,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import Any, cast
 
-from loguru import logger
+import numpy as np
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -190,7 +190,6 @@ class MetricResults(RootModel[Any]):
             expected_keys = set(metdims[dim_name].keys())
             if not (dict_keys.issubset(expected_keys)):
                 msg = f"Unknown dimension values: {dict_keys - expected_keys} for {dim_name}"
-                logger.error(msg)
                 if not ALLOW_EXTRA_KEYS:  # pragma: no cover
                     raise ValueError(f"{msg}\nExpected keys: {expected_keys}")
                 else:
@@ -228,7 +227,7 @@ class StrNumDict(RootModel[Any]):
     """A class contains string key and numeric value"""
 
     model_config = ConfigDict(strict=True)
-    root: dict[str, float | int]
+    root: dict[str, float | int | None]
 
 
 def remove_dimensions(raw_metric_bundle: dict[str, Any], dimensions: str | list[str]) -> dict[str, Any]:
@@ -541,6 +540,13 @@ def _walk_results(
         if isinstance(value, float | int):
             yield ScalarMetricValue(
                 dimensions=metadata, value=value, attributes=results.get(MetricCV.ATTRIBUTES.value)
+            )
+        elif value is None:
+            # Replace any None values with NaN
+            # This translates null values in JSON to Python NaN's
+            # Missing values are different from NaN values
+            yield ScalarMetricValue(
+                dimensions=metadata, value=np.nan, attributes=results.get(MetricCV.ATTRIBUTES.value)
             )
         else:
             yield from _walk_results(dimensions[1:], value, {**metadata})

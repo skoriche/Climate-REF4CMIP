@@ -13,7 +13,7 @@ from climate_ref.models import Execution
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
-from climate_ref_core.logging import add_log_handler
+from climate_ref_core.logging import initialise_logging
 
 from .result_handling import handle_execution_result
 
@@ -63,11 +63,17 @@ class ExecutionFuture:
     execution_id: int | None = None
 
 
-def _process_initialiser() -> None:
+def _process_initialiser() -> None:  # pragma: no cover
     # Setup the logging for the process
     # This replaces the loguru default handler
     try:
-        add_log_handler()
+        logger.remove()
+        config = Config.default()
+        initialise_logging(
+            level=config.log_level,
+            format=config.log_format,
+            log_directory=config.paths.log,
+        )
     except Exception as e:
         # Don't raise an exception here as that would kill the process pool
         # We want to log the error and continue
@@ -214,9 +220,17 @@ class LocalExecutor:
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > timeout:
+                    for result in results:
+                        logger.warning(
+                            f"Execution {result.definition.execution_slug()} "
+                            f"did not complete within the timeout"
+                        )
+                    self.pool.shutdown(wait=False, cancel_futures=True)
                     raise TimeoutError("Not all tasks completed within the specified timeout")
 
                 # Wait for a short time before checking for completed executions
                 time.sleep(refresh_time)
         finally:
             t.close()
+
+        logger.info("All executions completed successfully")

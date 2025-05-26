@@ -28,8 +28,8 @@ class DimensionValue:
 
     name: str
     long_name: str
-    description: str | None
-    units: str
+    description: str | None = None
+    units: str | None = None
 
 
 @frozen

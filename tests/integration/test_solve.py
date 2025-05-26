@@ -51,6 +51,6 @@ def test_solve(sample_data_dir, cmip6_data_catalog, config, invoke_cli):
         == "CMIP6.ScenarioMIP.CSIRO.ACCESS-ESM1-5.ssp126.r1i1p1f1.fx.areacella.gn.v20210318"
     )
 
-    results = db.session.query(Execution).all()
-    for result in results:
-        assert result.successful is True
+    executions = db.session.query(Execution).all()
+    for ex in executions:
+        assert ex.successful is True, ex

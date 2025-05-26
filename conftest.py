@@ -103,6 +103,9 @@ def regression_data_dir(test_data_dir) -> Path:
 
 @pytest.fixture(autouse=True, scope="session")
 def sample_data() -> None:
+    if os.environ.get("REF_TEST_DATA_DIR"):
+        logger.warning("Not fetching sample data. Using custom test data directory")
+        return
     # Downloads the sample data if it doesn't exist
     logger.disable("climate_ref_core.dataset_registry")
     fetch_sample_data(force_cleanup=False, symlink=False)
@@ -118,7 +121,7 @@ def cmip6_data_catalog(sample_data_dir) -> pd.DataFrame:
 @pytest.fixture(scope="session")
 def obs4mips_data_catalog(sample_data_dir) -> pd.DataFrame:
     adapter = Obs4MIPsDatasetAdapter()
-    return adapter.find_local_datasets(sample_data_dir / "obs4MIPs")
+    return adapter.find_local_datasets(sample_data_dir / "obs4REF")
 
 
 @pytest.fixture(scope="session")

@@ -21,6 +21,21 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.5.5 (2025-05-21)
+
+### Improvements
+
+- Added additional dimensions to the ILAMB and ESMValTool metric values.
+  This includes additional information about the execution group that will be useful to end-users. ([#308](https://github.com/Climate-REF/climate-ref/pulls/308))
+- Move the ILAMB datasets to S3 ([#309](https://github.com/Climate-REF/climate-ref/pulls/309))
+- Clean ECS diagnostic (remove unused keys in ESMValTool recipes and avoid "cmip6" in diagnostic name) ([#310](https://github.com/Climate-REF/climate-ref/pulls/310))
+- Clean TCR diagnostic (remove unused keys in ESMValTool recipes and avoid "cmip6" in diagnostic name) ([#311](https://github.com/Climate-REF/climate-ref/pulls/311))
+
+### Improved Documentation
+
+- Updated documentation to include more information about concepts within the REF. ([#312](https://github.com/Climate-REF/climate-ref/pulls/312))
+
+
 ## climate-ref 0.5.4 (2025-05-19)
 
 ### Bug Fixes

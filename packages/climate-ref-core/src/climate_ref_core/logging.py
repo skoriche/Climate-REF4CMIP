@@ -89,7 +89,7 @@ def initialise_logging(level: int | str, format: str, log_directory: str | Path)
         retention=10,
         level="DEBUG",
         format=VERBOSE_LOG_FORMAT,
-        colorize=True,
+        colorize=False,
     )
     logger.info("Starting REF logging")
     logger.info(f"arguments: {sys.argv}")

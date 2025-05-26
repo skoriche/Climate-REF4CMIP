@@ -31,7 +31,7 @@ class ENSO(CommandLineDiagnostic):
         self.obs_sources: tuple[str, ...]
         self.model_variables: tuple[str, ...]
 
-        if metrics_collection == "ENSO_perf":
+        if metrics_collection == "ENSO_perf":  # pragma: no cover
             self.model_variables = ("pr", "ts", "tauu")
             self.obs_sources = ("GPCP-Monthly-3-2", "TropFlux-1-0", "HadISST-1-1")
         elif metrics_collection == "ENSO_tel":

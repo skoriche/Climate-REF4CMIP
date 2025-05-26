@@ -4,20 +4,12 @@ import pandas as pd
 import pytest
 from climate_ref_pmp import AnnualCycle
 from climate_ref_pmp import provider as pmp_provider
+from climate_ref_pmp.diagnostics.annual_cycle import _transform_results
 from climate_ref_pmp.pmp_driver import _get_resource
 
-from climate_ref.solver import extract_covered_datasets, solve_executions
+from climate_ref.solver import solve_executions
 from climate_ref_core.datasets import DatasetCollection, SourceDatasetType
-from climate_ref_core.diagnostics import Diagnostic
-
-
-def get_first_match(data_catalog: pd.DataFrame, diagostic: Diagnostic) -> {pd.DataFrame}:
-    # obs4mips requirement is first
-    datasets = extract_covered_datasets(data_catalog, diagostic.data_requirements[1])
-    assert len(datasets) > 0
-    first_key = next(iter(datasets.keys()))
-
-    return datasets[first_key]
+from climate_ref_core.diagnostics import ExecutionDefinition
 
 
 def test_expected_executions():
@@ -192,17 +184,144 @@ def test_diagnostic_execute(mocker, provider):
     diagnostic = AnnualCycle()
     diagnostic.provider = provider
 
-    mocker.patch.object(
+    # Mock the 'run' method of the 'provider' object
+    mocked_provider_run = mocker.patch.object(
         provider,
         "run",
         autospec=True,
         spec_set=True,
     )
 
-    diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command"], ["mocked_command_2"]])
+    diagnostic.build_cmds = mocker.MagicMock(return_value=[["mocked_command1"], ["mocked_command2"]])
     diagnostic.build_execution_result = mocker.MagicMock()
 
-    diagnostic.execute("definition")
+    # Create a mock ExecutionDefinition
+    mock_definition = mocker.MagicMock(spec=ExecutionDefinition)
+    diagnostic.execute(mock_definition)
 
-    diagnostic.build_cmds.assert_called_once_with("definition")
-    assert diagnostic.provider.run.call_count == 2
+    diagnostic.build_cmds.assert_called_once_with(mock_definition)
+    assert mocked_provider_run.call_count == 2
+    mocked_provider_run.assert_any_call(["mocked_command1"])
+    mocked_provider_run.assert_any_call(["mocked_command2"])
+
+
+def test_build_cmds(diagnostic_validation):
+    diagnostic = AnnualCycle()
+    diagnostic.provider = pmp_provider
+    validator = diagnostic_validation(diagnostic)
+
+    definition = validator.get_definition()
+    definition.output_directory.mkdir(parents=True, exist_ok=True)
+
+    cmds = diagnostic.build_cmds(definition)
+
+    assert len(cmds) == 2
+
+    assert (definition.output_directory / "obs_dict.json").exists()
+
+
+def test_transform_results_removes_expected_keys():
+    input_data = {
+        "DIMENSIONS": {
+            "json_structure": ["model", "reference", "rip", "region", "statistic", "season"],
+            "model": {"ACCESS-ESM1-5": {}},
+            "reference": {"default": {}},
+            "rip": {"r1i1p1f1": {}},
+            "region": {"global": {}, "NHEX": {}, "SHEX": {}, "TROPICS": {}},
+            "statistic": {
+                "bias_xy": {},
+                "cor_xy": {},
+                "mae_xy": {},
+                "mean-obs_xy": {},
+                "mean_xy": {},
+                "rms_devzm": {},
+                "rms_xy": {},
+                "rms_xyt": {},
+                "rms_y": {},
+                "rmsc_xy": {},
+                "std-obs_xy": {},
+                "std-obs_xy_devzm": {},
+                "std-obs_xyt": {},
+                "std_xy": {},
+                "std_xy_devzm": {},
+                "std_xyt": {},
+            },
+            "season": {"ann": {}, "djf": {}, "mam": {}, "jja": {}, "son": {}, "CalendarMonths": {}},
+        },
+        "json_version": 3.0,
+        "RESULTS": {
+            "ACCESS-ESM1-5": {
+                "default": {
+                    "r1i1p1f1": {
+                        "global": {
+                            "bias_xy": {
+                                "ann": 1.55238,
+                                "djf": 1.66939,
+                                "mam": 1.47425,
+                                "jja": 1.47011,
+                                "son": 1.59322,
+                                "CalendarMonths": [
+                                    "1.66806e+00",
+                                    "1.62649e+00",
+                                    "1.54286e+00",
+                                    "1.40157e+00",
+                                    "1.48475e+00",
+                                    "1.55714e+00",
+                                    "1.48418e+00",
+                                    "1.36947e+00",
+                                    "1.39818e+00",
+                                    "1.57127e+00",
+                                    "1.80950e+00",
+                                    "1.71510e+00",
+                                ],
+                            },
+                        },
+                    },
+                    "attributes": {"source": "ERA-5"},
+                },
+                "attributes": {"units": ""},
+            }
+        },
+    }
+    expected_output = {
+        "DIMENSIONS": {
+            "json_structure": ["region", "statistic", "season"],
+            "region": {"NHEX": {}, "SHEX": {}, "TROPICS": {}, "global": {}},
+            "season": {"ann": {}, "djf": {}, "jja": {}, "mam": {}, "son": {}},
+            "statistic": {
+                "bias_xy": {},
+                "cor_xy": {},
+                "mae_xy": {},
+                "mean-obs_xy": {},
+                "mean_xy": {},
+                "rms_devzm": {},
+                "rms_xy": {},
+                "rms_xyt": {},
+                "rms_y": {},
+                "rmsc_xy": {},
+                "std-obs_xy": {},
+                "std-obs_xy_devzm": {},
+                "std-obs_xyt": {},
+                "std_xy": {},
+                "std_xy_devzm": {},
+                "std_xyt": {},
+            },
+        },
+        "RESULTS": {
+            "global": {
+                "bias_xy": {"ann": 1.55238, "djf": 1.66939, "jja": 1.47011, "mam": 1.47425, "son": 1.59322}
+            },
+        },
+        "json_version": 3.0,
+    }
+    transformed_data = _transform_results(input_data)
+    assert transformed_data == expected_output
+
+
+def test_transform_results_empty_results_and_dimensions():
+    input_data = {
+        "RESULTS": {},
+        "DIMENSIONS": {"json_structure": []},
+    }
+    with pytest.raises(ValueError, match="'model' is not in list"):
+        _transform_results(input_data)

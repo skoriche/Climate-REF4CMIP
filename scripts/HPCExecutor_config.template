@@ -10,8 +10,9 @@ req_nodes=1
 walltime="00:30:00"
 username="minxu"
 qos="debug"
-scheduler_options="#SBATCH -C"
-
+scheduler_options="#SBATCH -C cpu"
+cores_per_worker=1
+max_workers_per_node=64
 
 # DOE ORNL baseline (https://docs.cades.olcf.ornl.gov/baseline_user_guide/baseline_user_guide.html#system-overview)
 [executor]
@@ -27,3 +28,5 @@ username="minxu"
 partition="batch_ccsi"
 scheduler_options="#SBATCH -J 'test_ref_hpc'"
 overrides="--mpi=none"
+cores_per_worker=1
+max_workers_per_node=16

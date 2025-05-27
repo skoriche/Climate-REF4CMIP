@@ -304,7 +304,8 @@ def test_extract_no_groups():
 
 
 def test_solver_solve_with_filters(aft_solver):
-    def _to_df(executions):
+    def solve_filtered(**kwargs):
+        """Helper function to solve with filters and return a DataFrame of results."""
         return pd.DataFrame(
             [
                 {
@@ -312,36 +313,39 @@ def test_solver_solve_with_filters(aft_solver):
                     "provider": execution.provider.slug,
                     "dataset_key": execution.dataset_key,
                 }
-                for execution in executions
+                for execution in aft_solver.solve(filters=SolveFilterOptions(**kwargs))
             ]
         )
 
     # Empty filters should return all executions
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions()))
+    executions = solve_filtered()
     assert not executions.empty
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=None, diagnostic=None)))
+    executions = solve_filtered(provider=None, diagnostic=None)
     assert not executions.empty
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=[], diagnostic=[])))
+    executions = solve_filtered(provider=[], diagnostic=[])
     assert not executions.empty
 
     # ILAMB filter should only return ILAMB executions
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["ilamb"])))
+    executions = solve_filtered(provider=["ilamb"])
     assert executions["provider"].unique().tolist() == ["ilamb"]
     assert executions["diagnostic"].nunique() > 1
 
     # Multiple provider filters
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["ilamb", "pmp"])))
+    executions = solve_filtered(provider=["ilamb", "pmp"])
     assert sorted(executions["provider"].unique().tolist()) == ["ilamb", "pmp"]
 
     # Partial diagnostic filter should return executions for that diagnostic
     # enso metrics exist in both pmp and esmvaltool providers
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(diagnostic=["enso"])))
+    executions = solve_filtered(diagnostic=["enso"])
     assert sorted(executions["provider"].unique().tolist()) == ["esmvaltool", "pmp"]
 
     # Adding in a provider filter as well should limit the results to that provider
-    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["pmp"], diagnostic=["enso"])))
+    executions = solve_filtered(provider=["pmp"], diagnostic=["enso"])
     assert executions["provider"].unique().tolist() == ["pmp"]
     assert sorted(executions["diagnostic"].unique().tolist()) == ["enso_proc", "enso_tel"]
+
+    # Check lowercase
+    pd.testing.assert_frame_equal(executions, solve_filtered(provider=["PmP"], diagnostic=["enSo"]))
 
     # Missing provider should return no results
     assert not list(

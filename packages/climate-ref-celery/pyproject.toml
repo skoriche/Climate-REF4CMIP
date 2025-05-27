@@ -6,6 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
 ]
+license = "Apache-2.0"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",

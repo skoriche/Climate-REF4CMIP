@@ -8,4 +8,4 @@ ref/recipe_enso_basicclimatology.yml        9ea7deb7ee668e39ac44618b96496d898bd8
 ref/recipe_enso_characteristics.yml         34c2518b138068ac96d212910b979d54a8fcedee2c0089b5acd56a42c41dc3e4
 ref/recipe_ref_cre.yml                      4f35d9639f1008be3b5382a5bd8933a855cb5368ccf5d04a1c70227172e2e82c
 ref/recipe_ref_sea_ice_area_basic.yml       7d01a8527880663ca28284772f83a8356d9972fb4f022a4000e50a56ce044b09
-ref/recipe_ref_scatterplot.yml              d4accda02835a882a55fe1ac8ebe235c6d75933f36bd06c01bcd6bf6e9c65c70
+ref/recipe_ref_scatterplot.yml              fd030fb2510b3c040fa578a72a4853c1ee8d13be808bdcc3c4bde1312cab2ac5

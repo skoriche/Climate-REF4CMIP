@@ -9,7 +9,7 @@ If you want to
 
 import os
 import time
-from typing import Any
+from typing import Any, cast
 
 import parsl
 from loguru import logger
@@ -25,7 +25,7 @@ from climate_ref.database import Database
 from climate_ref.models import Execution
 from climate_ref.slurm import HAS_REAL_SLURM, SlurmChecker
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
-from climate_ref_core.exceptions import ExecutionError
+from climate_ref_core.exceptions import DiagnosticError, ExecutionError
 from climate_ref_core.executor import execute_locally
 
 from .local import ExecutionFuture, process_result
@@ -34,14 +34,14 @@ from .local import ExecutionFuture, process_result
 @python_app
 def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
     """Run the function on computer nodes"""
-    # This is a catch-all for any exceptions that occur in the process
+    # This is a catch-all for any exceptions that occur in the process and need to raise for
+    # parsl retries to work
     try:
-        return execute_locally(definition=definition, log_level=log_level)
-    except Exception:  # pragma: no cover
-        # This isn't expected but if it happens we want to log the error before the process exits
+        return execute_locally(definition=definition, log_level=log_level, raise_error=True)
+    except DiagnosticError as e:  # pragma: no cover
+        # any diagnostic error will be caught here
         logger.exception("Error running diagnostic")
-        # This will kill the process pool
-        raise
+        return cast(ExecutionResult, e.result)
 
 
 def _to_float(x: Any) -> float | None:

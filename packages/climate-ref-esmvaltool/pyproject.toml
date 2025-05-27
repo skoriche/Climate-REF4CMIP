@@ -4,8 +4,10 @@ version = "0.5.5"
 description = "ESMValTool diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
-    { name = "ESMValTool development team", email = "esmvaltool-dev@listserv.dfn.de " }
+    { name = "ESMValTool development team", email = "esmvaltool-dev@listserv.dfn.de" },
+    { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" },
 ]
+license = "Apache-2.0"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -26,9 +28,6 @@ dependencies = [
     "ruamel.yaml >= 0.18",
     "xarray >= 2023.3.0",
 ]
-
-[project.license]
-text = "Apache-2.0"
 
 [build-system]
 requires = ["hatchling"]

@@ -12,6 +12,7 @@ authors = [
     { name = "Nathan Collier", email = "collierno@ornl.gov" },
     { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
 ]
+license = "Apache-2.0"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -37,6 +38,8 @@ dependencies = [
     "pooch>=1.8.0,<2",
     "ruamel.yaml>=0.18",
     "environs>=11",
+    # Not used directly, but required to support some installations
+    "setuptools>=75.8.0",
 
     # SPEC 0000 constraints
     # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)
@@ -44,9 +47,6 @@ dependencies = [
     "pandas>=2.1.0",
     "numpy>=1.25.0"
 ]
-
-[project.license]
-text = "Apache-2.0"
 
 [dependency-groups]
 dev = [

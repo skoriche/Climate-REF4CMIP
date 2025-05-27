@@ -205,14 +205,27 @@ class TestFetchObs4REFData:
 
         invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref", "--output-directory", str(tmp_path)])
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=False)
+        mock_fetch.assert_called_once_with(
+            mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=False, verify=True
+        )
 
     def test_fetch_without_output_directory(self, mock_obs4ref, invoke_cli, tmp_path):
         mock_data_registry, mock_fetch = mock_obs4ref
 
         invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref"])
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", None, symlink=False)
+        mock_fetch.assert_called_once_with(
+            mock_data_registry["obs4ref"], "obs4ref", None, symlink=False, verify=True
+        )
+
+    def test_fetch_no_verify(self, mock_obs4ref, invoke_cli, tmp_path):
+        mock_data_registry, mock_fetch = mock_obs4ref
+
+        invoke_cli(["datasets", "fetch-data", "--registry", "obs4ref", "--no-verify"])
+
+        mock_fetch.assert_called_once_with(
+            mock_data_registry["obs4ref"], "obs4ref", None, symlink=False, verify=False
+        )
 
     def test_fetch_missing(self, mock_obs4ref, invoke_cli, tmp_path):
         mock_data_registry, mock_fetch = mock_obs4ref
@@ -234,7 +247,9 @@ class TestFetchObs4REFData:
             ]
         )
 
-        mock_fetch.assert_called_once_with(mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=True)
+        mock_fetch.assert_called_once_with(
+            mock_data_registry["obs4ref"], "obs4ref", tmp_path, symlink=True, verify=True
+        )
 
     def test_fetch_force_cleanup(self, mock_obs4ref, invoke_cli, tmp_path):
         assert tmp_path.exists()

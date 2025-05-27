@@ -201,8 +201,7 @@ class HPCExecutor:
         )
 
         hpc_config = ParslConfig(
-            run_dir=self.log_dir,
-            executors=[executor],
+            run_dir=self.log_dir, executors=[executor], retries=int(executor_config.get("retries", 2))
         )
         parsl.load(hpc_config)
 

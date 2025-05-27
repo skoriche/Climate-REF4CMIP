@@ -21,6 +21,46 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.0 (2025-05-27)
+
+### Breaking Changes
+
+- Updated the group by dimensions for the PMP diagnostics.
+  This will cause duplicate runs to appear if an existing database is used.
+  We recommend starting with a new database if using the next release. ([#321](https://github.com/Climate-REF/climate-ref/pulls/321))
+
+### Features
+
+- Implemented PMP ENSO metrics ([#273](https://github.com/Climate-REF/climate-ref/pulls/273))
+- Added ESMValTool ENSO diagnostics. ([#320](https://github.com/Climate-REF/climate-ref/pulls/320))
+- Add the creation of verbose debug logs.
+  These logs will be created in the `$REF_CONFIGURATION/log` directory
+  (or overriden via the `config.paths.log` setting). ([#323](https://github.com/Climate-REF/climate-ref/pulls/323))
+- Data catalogs now only contain the latest version of a dataset.
+  This will trigger new executions when a new version of a dataset is ingested.
+
+  Some additional datasets have been added to the obs4REF dataset registry.
+  These datasets should be fetched and reingested. ([#330](https://github.com/Climate-REF/climate-ref/pulls/330))
+- Added a comparison of `burntFractionAll` to the ILAMB list of diagnostics ([#332](https://github.com/Climate-REF/climate-ref/pulls/332))
+- Adds `--diagnostic` and `--provider` arguments to the `ref solve` command.
+  This allows users to subset a specific diagnostic or provider that they wish to run.
+  Multiple `--diagnostic` or `--provider` arguments can be used to specify multiple diagnostics or providers.
+  The diagnostic or provider slug must contain one of the filter values to be included in the calculations. ([#338](https://github.com/Climate-REF/climate-ref/pulls/338))
+
+### Improvements
+
+- Raise the ilamb3 version to 2025.5.20 and add remaining ILAMB/IOMB metrics. ([#317](https://github.com/Climate-REF/climate-ref/pulls/317))
+- Adds Ocean Heat Content and snow cover datasets to the ilamb/iomb registry ([#318](https://github.com/Climate-REF/climate-ref/pulls/318))
+- Updated the ESMValTool version to include updated recipes and diagnostics. ([#325](https://github.com/Climate-REF/climate-ref/pulls/325))
+- Add obs4MIPs ERA-5 ta sample data as obs4REF. ([#334](https://github.com/Climate-REF/climate-ref/pulls/334))
+- Enable more variables for the annual cycle diagnostics via PMP. ([#335](https://github.com/Climate-REF/climate-ref/pulls/335))
+- Verify the checksum of downloaded datasets by default ([#336](https://github.com/Climate-REF/climate-ref/pulls/336))
+
+### Bug Fixes
+
+- Depth selects properly in mrsos, added regression data ([#331](https://github.com/Climate-REF/climate-ref/pulls/331))
+
+
 ## climate-ref 0.5.5 (2025-05-21)
 
 ### Improvements

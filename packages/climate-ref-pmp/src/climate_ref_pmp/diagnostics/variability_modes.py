@@ -1,4 +1,6 @@
 from collections.abc import Iterable
+from pathlib import Path
+from typing import Any, Union
 
 from loguru import logger
 
@@ -171,6 +173,8 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             logger.warning(f"A single cmec output file not found: {results_files}")
             return ExecutionResult.build_from_failure(definition)
 
+        clean_up_json(results_files[0])
+
         # Find the other outputs
         png_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.png")]
         data_files = [definition.as_relative_path(f) for f in definition.output_directory.glob("*.nc")]
@@ -200,3 +204,63 @@ class ExtratropicalModesOfVariability(CommandLineDiagnostic):
             cmec_output_bundle=cmec_output_bundle,
             cmec_metric_bundle=cmec_metric_bundle,
         )
+
+
+def clean_up_json(json_file: Union[str, Path]) -> None:
+    """
+    Clean up the JSON file by removing unnecessary fields.
+
+    Parameters
+    ----------
+    json_file : str or Path
+        Path to the JSON file to clean up.
+    """
+    import json
+
+    with open(str(json_file)) as f:
+        data = json.load(f)
+
+    # Remove null values from the JSON data
+    data = remove_null_values(data)
+
+    with open(str(json_file), "w") as f:
+        json.dump(data, f, indent=4)
+
+    # Log the cleanup action
+    logger.debug(f"Cleaned up JSON file: {json_file}")
+    logger.info("JSON file cleaned up successfully.")
+
+
+def remove_null_values(data: Union[dict[Any, Any], list[Any], Any]) -> Union[dict[Any, Any], list[Any], Any]:
+    """
+    Recursively removes keys with null (None) values from a dictionary or list.
+
+    Parameters
+    ----------
+    data : dict, list, or Any
+        The JSON-like data structure to process. It can be a dictionary, a list,
+        or any other type of data.
+
+    Returns
+    -------
+    dict, list, or Any
+        A new data structure with null values removed. If the input is a dictionary,
+        keys with `None` values are removed. If the input is a list, items are
+        recursively processed to remove `None` values. For other types, the input
+        is returned unchanged.
+
+    Examples
+    --------
+    >>> data = {
+    ...     "key1": None,
+    ...     "key2": {"subkey1": 123, "subkey2": None},
+    ...     "key3": [None, 456, {"subkey3": None}],
+    ... }
+    >>> remove_null_values(data)
+    {'key2': {'subkey1': 123}, 'key3': [456, {}]}
+    """
+    if isinstance(data, dict):
+        return {key: remove_null_values(value) for key, value in data.items() if value is not None}
+    if isinstance(data, list):
+        return [remove_null_values(item) for item in data if item is not None]
+    return data

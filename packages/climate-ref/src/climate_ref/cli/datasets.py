@@ -34,7 +34,12 @@ def list_(
     ] = SourceDatasetType.CMIP6.value,  # type: ignore
     column: Annotated[list[str] | None, typer.Option()] = None,
     include_files: bool = typer.Option(False, help="Include files in the output"),
-    limit: int = typer.Option(100, help="Limit the number of rows to display"),
+    limit: int = typer.Option(
+        100,
+        help=(
+            "Limit the number of datasets (or files when using --include-files) to display to this number."
+        ),
+    ),
 ) -> None:
     """
     List the datasets that have been ingested
@@ -172,16 +177,28 @@ def _fetch_sample_data(
 
 
 @app.command(name="fetch-data")
-def fetch_data(
+def fetch_data(  # noqa: PLR0913
     ctx: typer.Context,
-    registry: Annotated[str, typer.Option(help="Name of the data registry to use")],
+    registry: Annotated[
+        str,
+        typer.Option(help="Name of the data registry to use"),
+    ],
     output_directory: Annotated[
-        Path | None, typer.Option(help="Output directory where files will be saved")
+        Path | None,
+        typer.Option(help="Output directory where files will be saved"),
     ] = None,
-    force_cleanup: Annotated[bool, typer.Option(help="If True, remove any existing files")] = False,
-    symlink: Annotated[
-        bool, typer.Option(help="If True, symlink files into the output directory, otherwise perform a copy")
+    force_cleanup: Annotated[
+        bool,
+        typer.Option(help="If True, remove any existing files"),
     ] = False,
+    symlink: Annotated[
+        bool,
+        typer.Option(help="If True, symlink files into the output directory, otherwise perform a copy"),
+    ] = False,
+    verify: Annotated[
+        bool,
+        typer.Option(help="Verify the checksums of the fetched files"),
+    ] = True,
 ) -> None:
     """
     Fetch REF-specific datasets
@@ -206,4 +223,10 @@ def fetch_data(
         logger.error(f"Available registries: {', '.join(dataset_registry_manager.keys())}")
         raise typer.Exit(code=1)
 
-    fetch_all_files(_registry, registry, output_directory, symlink=symlink)
+    fetch_all_files(
+        _registry,
+        registry,
+        output_directory,
+        symlink=symlink,
+        verify=verify,
+    )

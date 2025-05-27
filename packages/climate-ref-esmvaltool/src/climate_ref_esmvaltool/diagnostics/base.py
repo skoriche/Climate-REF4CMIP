@@ -133,7 +133,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
             config["rootpath"].update(  # type: ignore[attr-defined]
                 {
                     "OBS": str(data_dir / "OBS"),
-                    "OBS6": str(data_dir / "OBS6"),
+                    "OBS6": str(data_dir / "OBS"),
                     "native6": str(data_dir / "RAWOBS"),
                 }
             )

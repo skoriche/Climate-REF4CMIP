@@ -1,0 +1,177 @@
+{
+    "start_time":{
+        "31":"1850-01-16T12:00:00.000",
+        "39":"1850-01-16T12:00:00.000",
+        "1":"1850-01-16T12:00:00.000"
+    },
+    "end_time":{
+        "31":"2014-12-16T12:00:00.000",
+        "39":"2014-12-16T12:00:00.000",
+        "1":"2014-12-16T12:00:00.000"
+    },
+    "path":{
+        "31":"\/home\/bandela\/.esgf\/CMIP6\/CMIP\/CSIRO\/ACCESS-ESM1-5\/historical\/r1i1p1f1\/Amon\/pr\/gn\/v20191115\/pr_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_185001-201412.nc",
+        "39":"\/home\/bandela\/.esgf\/CMIP6\/CMIP\/CSIRO\/ACCESS-ESM1-5\/historical\/r1i1p1f1\/Amon\/tauu\/gn\/v20191115\/tauu_Amon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_185001-201412.nc",
+        "1":"\/home\/bandela\/climate_data\/CMIP6\/CMIP\/CSIRO\/ACCESS-ESM1-5\/historical\/r1i1p1f1\/Omon\/tos\/gn\/v20191115\/tos_Omon_ACCESS-ESM1-5_historical_r1i1p1f1_gn_185001-201412.nc"
+    },
+    "activity_id":{
+        "31":"CMIP",
+        "39":"CMIP",
+        "1":"CMIP"
+    },
+    "branch_method":{
+        "31":"standard",
+        "39":"standard",
+        "1":"standard"
+    },
+    "branch_time_in_child":{
+        "31":0.0,
+        "39":0.0,
+        "1":0.0
+    },
+    "branch_time_in_parent":{
+        "31":21915.0,
+        "39":21915.0,
+        "1":21915.0
+    },
+    "experiment":{
+        "31":"all-forcing simulation of the recent past",
+        "39":"all-forcing simulation of the recent past",
+        "1":"all-forcing simulation of the recent past"
+    },
+    "experiment_id":{
+        "31":"historical",
+        "39":"historical",
+        "1":"historical"
+    },
+    "frequency":{
+        "31":"mon",
+        "39":"mon",
+        "1":"mon"
+    },
+    "grid":{
+        "31":"native atmosphere N96 grid (145x192 latxlon)",
+        "39":"native atmosphere N96 grid (145x192 latxlon)",
+        "1":"native atmosphere N96 grid (145x192 latxlon)"
+    },
+    "grid_label":{
+        "31":"gn",
+        "39":"gn",
+        "1":"gn"
+    },
+    "institution_id":{
+        "31":"CSIRO",
+        "39":"CSIRO",
+        "1":"CSIRO"
+    },
+    "nominal_resolution":{
+        "31":"250 km",
+        "39":"250 km",
+        "1":"250 km"
+    },
+    "parent_activity_id":{
+        "31":"CMIP",
+        "39":"CMIP",
+        "1":"CMIP"
+    },
+    "parent_experiment_id":{
+        "31":"piControl",
+        "39":"piControl",
+        "1":"piControl"
+    },
+    "parent_source_id":{
+        "31":"ACCESS-ESM1-5",
+        "39":"ACCESS-ESM1-5",
+        "1":"ACCESS-ESM1-5"
+    },
+    "parent_time_units":{
+        "31":"days since 0101-1-1",
+        "39":"days since 0101-1-1",
+        "1":"days since 0101-1-1"
+    },
+    "parent_variant_label":{
+        "31":"r1i1p1f1",
+        "39":"r1i1p1f1",
+        "1":"r1i1p1f1"
+    },
+    "product":{
+        "31":"model-output",
+        "39":"model-output",
+        "1":"model-output"
+    },
+    "realm":{
+        "31":"atmos",
+        "39":"atmos",
+        "1":"ocean"
+    },
+    "source_id":{
+        "31":"ACCESS-ESM1-5",
+        "39":"ACCESS-ESM1-5",
+        "1":"ACCESS-ESM1-5"
+    },
+    "source_type":{
+        "31":"AOGCM",
+        "39":"AOGCM",
+        "1":"AOGCM"
+    },
+    "sub_experiment":{
+        "31":"none",
+        "39":"none",
+        "1":"none"
+    },
+    "sub_experiment_id":{
+        "31":"none",
+        "39":"none",
+        "1":"none"
+    },
+    "table_id":{
+        "31":"Amon",
+        "39":"Amon",
+        "1":"Omon"
+    },
+    "variable_id":{
+        "31":"pr",
+        "39":"tauu",
+        "1":"tos"
+    },
+    "variant_label":{
+        "31":"r1i1p1f1",
+        "39":"r1i1p1f1",
+        "1":"r1i1p1f1"
+    },
+    "member_id":{
+        "31":"r1i1p1f1",
+        "39":"r1i1p1f1",
+        "1":"r1i1p1f1"
+    },
+    "vertical_levels":{
+        "31":1,
+        "39":1,
+        "1":1
+    },
+    "version":{
+        "31":"v20191115",
+        "39":"v20191115",
+        "1":"v20191115"
+    },
+    "standard_name":{
+        "31":"precipitation_flux",
+        "39":"surface_downward_eastward_stress",
+        "1":"sea_surface_temperature"
+    },
+    "long_name":{
+        "31":"Precipitation",
+        "39":"Surface Downward Eastward Wind Stress",
+        "1":"Sea Surface Temperature"
+    },
+    "units":{
+        "31":"kg m-2 s-1",
+        "39":"Pa",
+        "1":"degC"
+    },
+    "instance_id":{
+        "31":"CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.pr.gn.v20191115",
+        "39":"CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Amon.tauu.gn.v20191115",
+        "1":"CMIP6.CMIP.CSIRO.ACCESS-ESM1-5.historical.r1i1p1f1.Omon.tos.gn.v20191115"
+    }
+}

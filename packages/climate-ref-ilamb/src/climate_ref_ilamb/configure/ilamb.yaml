@@ -25,8 +25,9 @@ mrsos-WangMao:
     mrsol: ilamb/mrsol/WangMao/mrsol_olc.nc
   alternate_vars:
   - mrsos
-  depth: 0.0
   transform:
+  - select_depth:
+      value: 0
   - soil_moisture_to_vol_fraction
   variable_cmap: Blues
 
@@ -50,3 +51,9 @@ nbp-Hoffman:
 snc-ESACCI:
   sources:
     snc: ilamb/snc/Snow-cci/snc_mon_Snow-cci_BE_gn_198201-201906.nc
+
+burntFractionAll-GFED:
+  sources:
+    burntArea: ilamb/burntFractionAll/GFED/burntArea.nc
+  alternate_vars:
+  - burntFractionAll

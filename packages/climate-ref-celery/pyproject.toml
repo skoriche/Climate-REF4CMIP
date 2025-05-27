@@ -1,11 +1,12 @@
 [project]
 name = "climate-ref-celery"
-version = "0.5.5"
+version = "0.6.0"
 description = "Celery app for mananging tasks and workers"
 readme = "README.md"
 authors = [
     { name = "Jared Lewis", email = "jared.lewis@climate-resource.com" }
 ]
+license = "Apache-2.0"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",

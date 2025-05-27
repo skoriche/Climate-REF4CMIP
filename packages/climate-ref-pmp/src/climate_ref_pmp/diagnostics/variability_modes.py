@@ -262,5 +262,5 @@ def remove_null_values(data: Union[dict[Any, Any], list[Any], Any]) -> Union[dic
     if isinstance(data, dict):
         return {key: remove_null_values(value) for key, value in data.items() if value is not None}
     if isinstance(data, list):
-        return [remove_null_values(item) for item in data]
+        return [remove_null_values(item) for item in data if item is not None]
     return data

@@ -72,8 +72,11 @@ class AnnualCycle(CommandLineDiagnostic):
     )
 
     data_requirements = (
+        make_data_requirement("ts", "ERA-5"),
+        make_data_requirement("uas", "ERA-5"),
+        make_data_requirement("vas", "ERA-5"),
+        make_data_requirement("psl", "ERA-5"),        
         make_data_requirement("pr", "GPCP-Monthly-3-2"),
-        make_data_requirement("psl", "ERA-5"),
         make_data_requirement("rlds", "CERES-EBAF-4-2"),
         make_data_requirement("rlus", "CERES-EBAF-4-2"),
         make_data_requirement("rlut", "CERES-EBAF-4-2"),
@@ -81,9 +84,7 @@ class AnnualCycle(CommandLineDiagnostic):
         make_data_requirement("rsdt", "CERES-EBAF-4-2"),
         make_data_requirement("rsus", "CERES-EBAF-4-2"),
         make_data_requirement("rsut", "CERES-EBAF-4-2"),
-        make_data_requirement("ts", "ERA-5"),
-        make_data_requirement("uas", "ERA-5"),
-        make_data_requirement("vas", "ERA-5"),
+
     )
 
     def __init__(self) -> None:

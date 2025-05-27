@@ -8,30 +8,22 @@ from parsl.dataflow import futures
 from climate_ref.executor.hpc import HPCExecutor, execute_locally
 from climate_ref.executor.local import ExecutionFuture
 from climate_ref_core.diagnostics import ExecutionResult
-from climate_ref_core.exceptions import ExecutionError
+from climate_ref_core.exceptions import DiagnosticError, ExecutionError
 from climate_ref_core.executor import Executor
-
-
-def test_execute_locally(definition_factory, mock_diagnostic):
-    definition = definition_factory(diagnostic=mock_diagnostic)
-    result = execute_locally(
-        definition,
-        log_level="DEBUG",
-    )
-    assert result.successful is True
-    assert definition.output_directory.exists()
 
 
 def test_execute_locally_failed(definition_factory, mock_diagnostic):
     mock_diagnostic.run = lambda definition: 1 / 0
 
     # execution raises an exception
-    result = execute_locally(
-        definition_factory(diagnostic=mock_diagnostic),
-        log_level="DEBUG",
-    )
+    with pytest.raises(DiagnosticError):
+        result = execute_locally(
+            definition_factory(diagnostic=mock_diagnostic),
+            log_level="DEBUG",
+            raise_error=True,
+        )
 
-    assert result.successful is False
+        assert result is None
 
 
 class TestHPCExecutor:

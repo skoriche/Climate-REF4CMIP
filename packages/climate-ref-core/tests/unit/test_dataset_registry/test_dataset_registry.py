@@ -5,6 +5,7 @@ import pytest
 
 from climate_ref_core.dataset_registry import (
     DatasetRegistryManager,
+    _verify_hash_matches,
     dataset_registry_manager,
     fetch_all_files,
 )
@@ -118,6 +119,71 @@ def test_fetch_all_files(mocker, tmp_path, symlink):
     assert expected_file.exists()
     assert expected_file.is_symlink() == symlink
     assert expected_file.read_text() == "foo"
+
+
+@pytest.mark.parametrize("symlink", [True, False])
+@pytest.mark.parametrize("verify", [True, False])
+def test_fetch_all_files_with_invalid(mocker, tmp_path, symlink, verify):
+    mock_verify = mocker.patch("climate_ref_core.dataset_registry._verify_hash_matches")
+
+    downloaded_file = tmp_path / "out.txt"
+    downloaded_file.write_text("foo")
+
+    registry = dataset_registry_manager["obs4ref"]
+    registry.fetch = mocker.MagicMock(return_value=downloaded_file)
+
+    fetch_all_files(registry, "obs4ref", tmp_path, symlink=symlink, verify=verify)
+    assert registry.fetch.call_count == NUM_OBS4REF_FILES
+
+    key = "obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
+    expected_file = tmp_path / key
+
+    assert expected_file.exists()
+    assert expected_file.is_symlink() == symlink
+    assert expected_file.read_text() == "foo"
+
+    if verify:
+        mock_verify.assert_any_call(expected_file, registry.registry[key])
+    else:
+        mock_verify.assert_not_called()
+
+
+def test_verify_hash_matches(mocker, tmp_path):
+    expected_hash = "sha256:expectedhashvalue"
+
+    mock_hashes = mocker.patch("climate_ref_core.dataset_registry.pooch.hashes")
+    mock_hashes.hash_algorithm.return_value = "sha256"
+    mock_hashes.file_hash.return_value = "expectedhashvalue"
+
+    file_path = tmp_path / "file.txt"
+    file_path.touch()
+
+    _verify_hash_matches(file_path, expected_hash)
+
+
+def test_verify_hash_missing_file(tmp_path):
+    expected_hash = "sha256:expectedhashvalue"
+
+    file_path = tmp_path / "file.txt"
+
+    with pytest.raises(FileNotFoundError, match="file.txt does not exist. Cannot verify hash"):
+        _verify_hash_matches(file_path, expected_hash)
+
+
+def test_verify_hash_differs(mocker, tmp_path):
+    expected_hash = "sha256:expectedhashvalue"
+
+    mock_hashes = mocker.patch("climate_ref_core.dataset_registry.pooch.hashes")
+    mock_hashes.hash_algorithm.return_value = "sha256"
+    mock_hashes.file_hash.return_value = "opps"
+
+    file_path = tmp_path / "file.txt"
+    file_path.touch()
+
+    with pytest.raises(
+        ValueError, match=f"does not match the known hash. expected {expected_hash} but got opps."
+    ):
+        _verify_hash_matches(file_path, expected_hash)
 
 
 def test_fetch_all_files_no_output(mocker):

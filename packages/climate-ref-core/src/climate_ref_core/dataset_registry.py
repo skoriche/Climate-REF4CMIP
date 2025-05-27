@@ -12,6 +12,7 @@ import pathlib
 import shutil
 
 import pooch
+import pooch.hashes
 from loguru import logger
 from rich.progress import track
 
@@ -20,11 +21,59 @@ from climate_ref_core.env import env
 DATASET_URL = env.str("REF_DATASET_URL", default="https://pub-b093171261094c4ea9adffa01f94ee06.r2.dev")
 
 
+def _verify_hash_matches(fname: str | pathlib.Path, known_hash: str) -> bool:
+    """
+    Check if the hash of a file matches a known hash.
+
+    Coverts hashes to lowercase before comparison to avoid system specific
+    mismatches between hashes in the registry and computed hashes.
+
+    This is a tweaked version of the `pooch.hashes.hash_matches` function with a custom error message.
+
+    Parameters
+    ----------
+    fname
+        The path to the file.
+    known_hash
+        The known hash. Optionally, prepend ``alg:`` to the hash to specify the
+        hashing algorithm. Default is SHA256.
+
+    Raises
+    ------
+    ValueError
+        If the hash does not match.
+    FileNotFoundError
+        If the file does not exist.
+
+    Returns
+    -------
+    bool
+        True if the hash matches.
+    """
+    fname = pathlib.Path(fname)
+
+    if not fname.exists():
+        raise FileNotFoundError(f"File {fname!s} does not exist. Cannot verify hash.")
+
+    algorithm = pooch.hashes.hash_algorithm(known_hash)
+    new_hash = pooch.hashes.file_hash(str(fname), alg=algorithm)
+    matches = new_hash.lower() == known_hash.split(":")[-1].lower()
+    if not matches:
+        raise ValueError(
+            f"{algorithm.upper()} hash of downloaded file ({fname!s}) does not match"
+            f" the known hash: expected {known_hash} but got {new_hash}. "
+            f"The file may have been corrupted or the known hash may be outdated. "
+            f"Delete the file and try again."
+        )
+    return matches
+
+
 def fetch_all_files(
     registry: pooch.Pooch,
     name: str,
     output_dir: pathlib.Path | None,
     symlink: bool = False,
+    verify: bool = True,
 ) -> None:
     """
     Fetch all files associated with a pooch registry and write them to an output directory.
@@ -49,12 +98,17 @@ def fetch_all_files(
     symlink
         If True, symlink all files to this directory.
         Otherwise, perform a copy.
+    verify
+        If True, verify the checksums of the local files against the registry.
     """
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
 
     for key in track(registry.registry.keys(), description=f"Fetching {name} data"):
         fetch_file = registry.fetch(key)
+        expected_hash = registry.registry[key]
+        if not isinstance(expected_hash, str) or not expected_hash:  # pragma: no cover
+            raise ValueError(f"Expected a hash for {key} but got {expected_hash}")
 
         if output_dir is None:
             # Just warm the cache and move onto the next file
@@ -72,6 +126,8 @@ def fetch_all_files(
                 shutil.copy(fetch_file, linked_file)
         else:
             logger.info(f"File {linked_file} already exists. Skipping.")
+        if verify:
+            _verify_hash_matches(linked_file, expected_hash)
 
 
 class DatasetRegistryManager:

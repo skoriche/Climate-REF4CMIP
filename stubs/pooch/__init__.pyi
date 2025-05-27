@@ -5,7 +5,7 @@ from typing import IO, Any
 def get_logger() -> logging.Logger: ...
 
 class Pooch:
-    registry: dict[str, dict[str, str]]
+    registry: dict[str, str]
 
     def fetch(
         self, fname: str, processor: Any = None, downloader: Any = None, progressbar: bool = False

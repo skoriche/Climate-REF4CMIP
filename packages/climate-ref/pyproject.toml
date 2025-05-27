@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref"
-version = "0.5.5"
+version = "0.6.0"
 description = "Application which runs the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -12,6 +12,7 @@ authors = [
     { name = "Nathan Collier", email = "collierno@ornl.gov" },
     { name = "Dora Hegedus", email = "dora.hegedus@stfc.ac.uk" },
 ]
+license = "Apache-2.0"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -60,8 +61,6 @@ providers = [
     "climate-ref-pmp>=0.5.0",
     "climate-ref-ilamb>=0.5.0",
 ]
-[project.license]
-text = "Apache-2.0"
 
 [project.scripts]
 ref = "climate_ref.cli:app"

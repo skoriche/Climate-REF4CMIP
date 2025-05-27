@@ -14,6 +14,9 @@ class TestSolve:
 
         assert kwargs["timeout"] == 60
         assert not kwargs["dry_run"]
+        assert kwargs["execute"]
+        assert kwargs["filters"].diagnostic is None
+        assert kwargs["filters"].provider is None
 
     def test_solve_with_timeout(self, sample_data_dir, db, invoke_cli, mocker):
         mock_solve = mocker.patch("climate_ref.cli.solve.solve_required_executions")
@@ -28,3 +31,21 @@ class TestSolve:
 
         args, kwargs = mock_solve.call_args
         assert kwargs["dry_run"]
+
+    def test_solve_with_filters(self, sample_data_dir, db, invoke_cli, mocker):
+        mock_solve = mocker.patch("climate_ref.cli.solve.solve_required_executions")
+        invoke_cli(
+            [
+                "solve",
+                "--diagnostic",
+                "global-mean-timeseries",
+                "--provider",
+                "esmvaltool",
+                "--provider",
+                "ilamb",
+            ]
+        )
+
+        args, kwargs = mock_solve.call_args
+        assert kwargs["filters"].diagnostic == ["global-mean-timeseries"]
+        assert kwargs["filters"].provider == ["esmvaltool", "ilamb"]

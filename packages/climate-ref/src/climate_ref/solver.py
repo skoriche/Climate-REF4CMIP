@@ -253,9 +253,12 @@ class SolveFilterOptions:
 
     diagnostic: list[str] | None = None
     """
-    Check if the diagnostic slug matches any of the provided values
+    Check if the diagnostic slug contains any of the provided values
     """
     provider: list[str] | None = None
+    """
+    Check if the provider slug contains any of the provided values
+    """
 
 
 def matches_filter(diagnostic: Diagnostic, filters: SolveFilterOptions | None) -> bool:
@@ -284,10 +287,10 @@ def matches_filter(diagnostic: Diagnostic, filters: SolveFilterOptions | None) -
     diagnostic_slug = diagnostic.slug
     provider_slug = diagnostic.provider.slug
 
-    if filters.provider and not any([f in provider_slug for f in filters.provider]):
+    if filters.provider and not any([f.lower() in provider_slug for f in filters.provider]):
         return False
 
-    if filters.diagnostic and not any([f in diagnostic_slug for f in filters.diagnostic]):
+    if filters.diagnostic and not any([f.lower() in diagnostic_slug for f in filters.diagnostic]):
         return False
 
     return True
@@ -343,6 +346,7 @@ class ExecutionSolver:
         """
         for provider in self.provider_registry.providers:
             for diagnostic in provider.diagnostics():
+                # Filter the diagnostic based on the provided filters
                 if not matches_filter(diagnostic, filters):
                     logger.debug(f"Skipping {diagnostic.full_slug()} due to filter")
                     continue

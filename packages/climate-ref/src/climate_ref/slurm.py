@@ -11,19 +11,19 @@ class SlurmChecker:
         if HAS_REAL_SLURM:
             import pyslurm  # type: ignore
 
-            self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
-            self.slurm_partition = pyslurm.Partitions.load()  # collection
-            self.slurm_qos = pyslurm.qos().get()  # dict
-            self.slurm_node = pyslurm.Nodes.load()  # dict
+            self.slurm_association: dict[int, Any] | None = pyslurm.db.Associations.load()
+            self.slurm_partition: dict[str, Any] | None = pyslurm.Partitions.load()
+            self.slurm_qos: dict[str, Any] | None = pyslurm.qos().get()
+            self.slurm_node: dict[str, Any] | None = pyslurm.Nodes.load()
         elif intest:
             import pyslurm
 
-            self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association
+            self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association]
             self.slurm_partition = pyslurm.Partitions.load()  # collection
             self.slurm_qos = pyslurm.qos().get()  # dict
             self.slurm_node = pyslurm.Nodes.load()  # dict
         else:
-            print("Warning: pyslurm not found. Using skip HPCExecutor config validations")
+            print("Warning: pyslurm not found. Skipping HPCExecutor config validations")
             self.slurm_association = None
             self.slurm_partition = None
             self.slurm_qos = None
@@ -31,15 +31,18 @@ class SlurmChecker:
 
     def get_partition_info(self, partition_name: str) -> Any:
         """Check if a partition exists in the Slurm configuration."""
-        return self.slurm_partition.get(partition_name)
+        return self.slurm_partition.get(partition_name) if self.slurm_partition else None
 
     def get_qos_info(self, qos_name: str) -> Any:
         """Check if a qos exists in the Slurm configuration."""
-        return self.slurm_qos.get(qos_name)
+        return self.slurm_qos.get(qos_name) if self.slurm_qos else None
 
     def get_account_info(self, account_name: str) -> list[Any]:
         """Get all associations for an account"""
-        return [a for a in self.slurm_association.values() if a.account == account_name]
+        if self.slurm_association:
+            return [a for a in self.slurm_association.values() if a.account == account_name]
+        else:
+            return [None]
 
     def can_account_use_partition(self, account_name: str, partition_name: str) -> bool:
         """
@@ -127,10 +130,12 @@ class SlurmChecker:
             return None
 
         sample_node = None
-        for node in self.slurm_node.values():
-            if partition_name in node.partitions and "cpu" in node.available_features:
-                sample_node = node
-                break
+
+        if self.slurm_node:
+            for node in self.slurm_node.values():
+                if partition_name in node.partitions and "cpu" in node.available_features:
+                    sample_node = node
+                    break
 
         return {
             "cpus": int(sample_node.total_cpus) if sample_node is not None else 1,

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from climate_ref_core.slurm import SlurmChecker
+from climate_ref.slurm import SlurmChecker
 
 
 @pytest.fixture

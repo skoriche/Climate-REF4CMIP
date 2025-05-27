@@ -23,16 +23,17 @@ from tqdm import tqdm
 from climate_ref.config import Config
 from climate_ref.database import Database
 from climate_ref.models import Execution
+from climate_ref.slurm import HAS_REAL_SLURM, SlurmChecker
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
 from climate_ref_core.exceptions import ExecutionError
 from climate_ref_core.executor import execute_locally
-from climate_ref_core.slurm import HAS_REAL_SLURM, SlurmChecker
 
 from .local import ExecutionFuture, process_result
 
 
 @python_app
 def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
+    """Run the function on computer nodes"""
     # This is a catch-all for any exceptions that occur in the process
     try:
         return execute_locally(definition=definition, log_level=log_level)

@@ -246,6 +246,54 @@ def _solve_from_data_requirements(
 
 
 @define
+class SolveFilterOptions:
+    """
+    Options to filter the diagnostics that are solved
+    """
+
+    diagnostic: list[str] | None = None
+    """
+    Check if the diagnostic slug matches any of the provided values
+    """
+    provider: list[str] | None = None
+
+
+def matches_filter(diagnostic: Diagnostic, filters: SolveFilterOptions | None) -> bool:
+    """
+    Check if a diagnostic matches the provided filters
+
+    Each filter is optional and a diagnostic will match if it satisfies all the provided filters.
+    i.e. the filters are ANDed together.
+
+    Parameters
+    ----------
+    diagnostic
+        Diagnostic to check against the filters
+    filters
+        Collection of filters to apply to the diagnostic
+
+        If no filters are provided, the diagnostic is considered to match
+
+    Returns
+    -------
+        True if the diagnostic matches the filters, False otherwise
+    """
+    if filters is None:
+        return True
+
+    diagnostic_slug = diagnostic.slug
+    provider_slug = diagnostic.provider.slug
+
+    if filters.provider and not any([f in provider_slug for f in filters.provider]):
+        return False
+
+    if filters.diagnostic and not any([f in diagnostic_slug for f in filters.diagnostic]):
+        return False
+
+    return True
+
+
+@define
 class ExecutionSolver:
     """
     A solver to determine which executions need to be calculated.
@@ -278,7 +326,9 @@ class ExecutionSolver:
             },
         )
 
-    def solve(self) -> typing.Generator[DiagnosticExecution, None, None]:
+    def solve(
+        self, filters: SolveFilterOptions | None = None
+    ) -> typing.Generator[DiagnosticExecution, None, None]:
         """
         Solve which executions need to be calculated for a dataset
 
@@ -293,17 +343,22 @@ class ExecutionSolver:
         """
         for provider in self.provider_registry.providers:
             for diagnostic in provider.diagnostics():
+                if not matches_filter(diagnostic, filters):
+                    logger.debug(f"Skipping {diagnostic.full_slug()} due to filter")
+                    continue
                 yield from solve_executions(self.data_catalog, diagnostic, provider)
 
 
 def solve_required_executions(  # noqa: PLR0913
     db: Database,
     dry_run: bool = False,
+    execute: bool = True,
     solver: ExecutionSolver | None = None,
     config: Config | None = None,
     timeout: int = 60,
     one_per_provider: bool = False,
     one_per_diagnostic: bool = False,
+    filters: SolveFilterOptions | None = None,
 ) -> None:
     """
     Solve for executions that require recalculation
@@ -328,7 +383,7 @@ def solve_required_executions(  # noqa: PLR0913
     diagnostic_count = {}
     provider_count = {}
 
-    for potential_execution in solver.solve():
+    for potential_execution in solver.solve(filters):
         # The diagnostic output is first written to the scratch directory
         definition = potential_execution.build_execution_definition(output_root=config.paths.scratch)
 
@@ -371,6 +426,7 @@ def solve_required_executions(  # noqa: PLR0913
                 logger.info(f"Created new execution group: {potential_execution.execution_slug()!r}")
                 db.session.flush()
 
+            # TODO: Move this logic to the solver
             # Check if we should run given the one_per_provider or one_per_diagnostic flags
             one_of_check_failed = (
                 one_per_provider and provider_count.get(diagnostic.provider.slug, 0) > 0
@@ -403,10 +459,11 @@ def solve_required_executions(  # noqa: PLR0913
                 # Add links to the datasets used in the execution
                 execution.register_datasets(db, definition.datasets)
 
-                executor.run(
-                    definition=definition,
-                    execution=execution,
-                )
+                if execute:
+                    executor.run(
+                        definition=definition,
+                        execution=execution,
+                    )
 
                 provider_count[diagnostic.provider.slug] += 1
                 diagnostic_count[diagnostic.full_slug()] += 1

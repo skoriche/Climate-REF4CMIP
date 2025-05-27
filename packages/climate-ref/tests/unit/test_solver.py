@@ -12,6 +12,7 @@ from climate_ref.provider_registry import ProviderRegistry, _register_provider
 from climate_ref.solver import (
     DiagnosticExecution,
     ExecutionSolver,
+    SolveFilterOptions,
     extract_covered_datasets,
     solve_executions,
     solve_required_executions,
@@ -25,6 +26,19 @@ from climate_ref_core.diagnostics import DataRequirement, FacetFilter
 def solver(db_seeded, config) -> ExecutionSolver:
     registry = ProviderRegistry(providers=[example_provider])
     # Use a fixed set of providers for the test suite until we can pull from the DB
+    metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
+    metric_solver.provider_registry = registry
+
+    return metric_solver
+
+
+@pytest.fixture
+def aft_solver(db_seeded, config) -> ExecutionSolver:
+    from climate_ref_esmvaltool import provider as esmvaltool_provider
+    from climate_ref_ilamb import provider as ilamb_provider
+    from climate_ref_pmp import provider as pmp_provider
+
+    registry = ProviderRegistry(providers=[pmp_provider, esmvaltool_provider, ilamb_provider])
     metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
 
@@ -287,6 +301,65 @@ def test_extract_no_groups():
 
     with pytest.raises(ValueError, match="No group keys passed!"):
         extract_covered_datasets(data_catalog, requirement)
+
+
+def test_solver_solve_with_filters(aft_solver):
+    def _to_df(executions):
+        return pd.DataFrame(
+            [
+                {
+                    "diagnostic": execution.diagnostic.slug,
+                    "provider": execution.provider.slug,
+                    "dataset_key": execution.dataset_key,
+                }
+                for execution in executions
+            ]
+        )
+
+    # Empty filters should return all executions
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions()))
+    assert not executions.empty
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=None, diagnostic=None)))
+    assert not executions.empty
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=[], diagnostic=[])))
+    assert not executions.empty
+
+    # ILAMB filter should only return ILAMB executions
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["ilamb"])))
+    assert executions["provider"].unique().tolist() == ["ilamb"]
+    assert executions["diagnostic"].nunique() > 1
+
+    # Multiple provider filters
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["ilamb", "pmp"])))
+    assert sorted(executions["provider"].unique().tolist()) == ["ilamb", "pmp"]
+
+    # Partial diagnostic filter should return executions for that diagnostic
+    # enso metrics exist in both pmp and esmvaltool providers
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(diagnostic=["enso"])))
+    assert sorted(executions["provider"].unique().tolist()) == ["esmvaltool", "pmp"]
+
+    # Adding in a provider filter as well should limit the results to that provider
+    executions = _to_df(aft_solver.solve(filters=SolveFilterOptions(provider=["pmp"], diagnostic=["enso"])))
+    assert executions["provider"].unique().tolist() == ["pmp"]
+    assert sorted(executions["diagnostic"].unique().tolist()) == ["enso_proc", "enso_tel"]
+
+    # Missing provider should return no results
+    assert not list(
+        aft_solver.solve(
+            filters=SolveFilterOptions(
+                provider=["missing"],
+            )
+        )
+    )
+
+    # Missing diagnostic should return no results
+    assert not list(
+        aft_solver.solve(
+            filters=SolveFilterOptions(
+                diagnostic=["missing"],
+            )
+        )
+    )
 
 
 def test_solve_metrics_default_solver(mocker, mock_metric_execution, mock_executor, db_seeded, solver):

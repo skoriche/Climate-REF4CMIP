@@ -102,28 +102,8 @@ class TestDatasetRegistry:
 
 
 @pytest.mark.parametrize("symlink", [True, False])
-def test_fetch_all_files(mocker, tmp_path, symlink):
-    downloaded_file = tmp_path / "out.txt"
-    downloaded_file.write_text("foo")
-
-    registry = dataset_registry_manager["obs4ref"]
-    registry.fetch = mocker.MagicMock(return_value=downloaded_file)
-
-    fetch_all_files(registry, "obs4ref", tmp_path, symlink=symlink)
-    assert registry.fetch.call_count == NUM_OBS4REF_FILES
-
-    expected_file = (
-        tmp_path / "obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20210727/ts_mon_HadISST-1-1_PCMDI_gn_187001-201907.nc"
-    )
-
-    assert expected_file.exists()
-    assert expected_file.is_symlink() == symlink
-    assert expected_file.read_text() == "foo"
-
-
-@pytest.mark.parametrize("symlink", [True, False])
 @pytest.mark.parametrize("verify", [True, False])
-def test_fetch_all_files_with_invalid(mocker, tmp_path, symlink, verify):
+def test_fetch_all_files(mocker, tmp_path, symlink, verify):
     mock_verify = mocker.patch("climate_ref_core.dataset_registry._verify_hash_matches")
 
     downloaded_file = tmp_path / "out.txt"

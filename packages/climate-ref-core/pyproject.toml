@@ -37,6 +37,8 @@ dependencies = [
     "pooch>=1.8.0,<2",
     "ruamel.yaml>=0.18",
     "environs>=11",
+    # Not used directly, but required to support some installations
+    "setuptools>=75.8.0",
 
     # SPEC 0000 constraints
     # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)

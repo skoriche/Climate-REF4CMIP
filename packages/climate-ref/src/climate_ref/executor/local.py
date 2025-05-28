@@ -1,4 +1,5 @@
 import concurrent.futures
+import multiprocessing
 import time
 from concurrent.futures import Future, ProcessPoolExecutor
 from typing import Any
@@ -124,7 +125,12 @@ class LocalExecutor:
         if pool is not None:
             self.pool = pool
         else:
-            self.pool = ProcessPoolExecutor(max_workers=n, initializer=_process_initialiser)
+            self.pool = ProcessPoolExecutor(
+                max_workers=n,
+                initializer=_process_initialiser,
+                # Explicitly set the context to "spawn" to avoid issues with hanging on MacOS
+                mp_context=multiprocessing.get_context("spawn"),
+            )
         self._results: list[ExecutionFuture] = []
 
     def run(

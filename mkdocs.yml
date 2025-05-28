@@ -9,22 +9,26 @@ repo_url: https://github.com/Climate-REF/climate-ref
 nav:
   - Rapid Evaluation Framework: index.md
   - Installation: installation.md
-  - Introduction:
-    - introduction/index.md
-    - introduction/basic-concepts.md
-    - introduction/getting_started.md
-    - introduction/required_datasets.md
+  - Getting Started:
+    - Configure: getting-started/01-configure.md
+    - Download Datasets: getting-started/02-download-datasets.md
+    - Ingest: getting-started/03-ingest.md
+    - Solve: getting-started/04-solve.md
+    - Visualise: getting-started/05-visualise.md
   - Configuration: configuration.md
   - Roadmap: roadmap.md
   - How-to guides:
     - how-to-guides/index.md
-    - how-to-guides/ingest-datasets.md
-    - how-to-guides/dataset-selection.py
-    - how-to-guides/running-diagnostics-locally.py
-    - how-to-guides/docker_deployment.md
+    - how-to-guides/executors.md
     - how-to-guides/hpc_executor.md
+    - how-to-guides/dataset-selection.py
+    - how-to-guides/ingest-datasets.md
+    - how-to-guides/running-diagnostics-locally.py
+    - how-to-guides/adding_custom_diagnostics.md
+    - how-to-guides/docker_deployment.md
   - Tutorials: tutorials.md
   - Further background:
+    - Basic Concepts: background/basic-concepts.md
     - Architecture: background/architecture.md
     - Explanation: background/explanation.md
   - API: api/

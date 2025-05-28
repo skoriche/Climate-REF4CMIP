@@ -4,12 +4,29 @@ There are several ways to install and use the `climate-ref` package and associat
 
 The REF itself doesn't require any conda-based dependencies and can be installed as a pure Python package.
 This was a deliberate decision to make it easy to make the framework easy to install in a range of different environments.
+That being said for HPC users, the REF should be installed inside a conda environment to ensure that
+key system dependencies are available.
 
 Some of the diagnostic providers require additional dependencies in order to run an execution.
-For these providers, the REF will automatically create a new Conda environment and install the required dependencies.
+For these providers, the REF can create a new Conda environment and install the required dependencies in this standalone environment.
 Each of these provider-specific environments are decoupled to allow for potentially incompatible dependencies.
 This uses a bundled version of the [micromamba](https://github.com/mamba-org/micromamba-releases)
 to create and manage the environment so no additional dependencies are required.
+
+/// admonition | HPC Users
+    type: warning
+
+HPC users are recommended to install the REF inside a conda environment to ensure that key system dependencies are available.
+
+This can be achieved using the following commands:
+
+```bash
+conda create -n climate-ref python=3.11
+conda activate climate-ref
+pip install climate-ref[aft-providers]
+```
+
+///
 
 ## Installing `climate-ref`
 ### PyPI
@@ -40,8 +57,6 @@ Assessment Fast Track.
 These diagnostic providers declare the available diagnostics and the rules for when they should be run.
 The actual execution occurs within a provider-specific conda environment.
 ///
-
-
 
 ### Conda
 
@@ -106,7 +121,7 @@ make virtual-environment
 
 See the [development documentation](development.md) for more information on how to contribute to the project.
 
-
+[](){#provider-dependencies}
 ## Installing metric provider dependencies
 
 /// admonition | Windows support
@@ -126,7 +141,7 @@ using a bundled version of [micromamba](https://github.com/mamba-org/micromamba-
 The conda environments for the registered providers can be created with the following command:
 
 ```bash
-ref --log-level=info providers create-env
+ref providers create-env
 ```
 
 A new environment will be created automatically for each conda-based metric provider when it is first used,
@@ -152,3 +167,4 @@ The created environments and their locations can be viewed using the command:
 
 ```bash
 uv run ref providers list
+```

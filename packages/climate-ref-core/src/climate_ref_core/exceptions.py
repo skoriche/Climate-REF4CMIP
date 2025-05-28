@@ -53,3 +53,11 @@ class ExecutionError(RefException):
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
+
+
+class DiagnosticError(RefException):
+    """Error from diagnostic computing"""
+
+    def __init__(self, message: str, result: Any):
+        super().__init__(message)
+        self.result = result

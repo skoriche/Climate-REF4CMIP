@@ -10,7 +10,7 @@ Before you begin, ensure you have:
 
 ## 1. Ingest reference datasets
 
-The `obs4REF` collection uses the `obs4mips` source type in Climate-REF:
+The `obs4REF` collection we downloaded in the previous step uses the `obs4mips` source type as the data are obs4MIPs compatible. This command will extract metadata from the files and store it in the Climate-REF catalog, and print a summary of the ingested datasets.
 
 ```bash
 ref datasets ingest --source-type obs4mips $REF_CONFIGURATION/datasets/obs4ref
@@ -23,10 +23,11 @@ Replace `$REF_CONFIGURATION/datasets/obs4ref` with the directory used when [fetc
 Use the `pmp-climatology` source type:
 
 ```bash
-ref datasets ingest --source-type pmp-climatology /path/to/datasets/pmp-climatology
+ref datasets ingest --source-type pmp-climatology $REF_CONFIGURATION/datasets/pmp-climatology
 ```
 
 This registry contains pre-computed climatology fields used by the PMP diagnostics.
+Replace `$REF_CONFIGURATION/datasets/pmp-climatology` with the directory used when [fetched the pmp-climatology data](02-download-datasets.md#fetch-pmp-climatology-datasets)
 
 ## 3. Ingest CMIP6 data
 

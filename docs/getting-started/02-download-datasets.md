@@ -30,12 +30,14 @@ export REF_DATASET_CACHE_DIR=/path/to/cache
 Use the `ref datasets fetch-data` command to retrieve each registry. Replace example paths with your desired output directories.
 
 These are hosted temporarily in one location until they become available on ESGF.
+This archive is ~30 GB in size, so ensure you have sufficient disk space available.
 In the future, these datasets will be available on ESGF and can be fetched directly from there:
 
 ```bash
 ref datasets fetch-data --registry obs4ref --output-directory $REF_CONFIGURATION/datasets/obs4ref
 ```
 
+[](){#fetch-pmp-climatology-datasets}
 ## 2. PMP Climatology datasets
 
 PMP has generated a set of climatology datasets based on obs4MIPs data.

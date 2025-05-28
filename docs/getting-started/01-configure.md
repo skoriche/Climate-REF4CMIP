@@ -32,10 +32,11 @@ export REF_CONFIGURATION="/path/to/your/ref/configuration"
 Climate-REF provides a script to write out the default configuration.
 
 ```bash
+mkdir $REF_CONFIGURATION
 ref config list > $REF_CONFIGURATION/ref.toml
 ```
 
-This command will create `ref_config.yml` in your current directory with placeholder sections.
+This command will create the `$REF_CONFIGURATION` directory and create a `ref.toml` inside it with the default configuration settings.
 
 /// admonition | Note
 
@@ -106,11 +107,16 @@ The particularly important sections to customize are:
 
 ## 4. Environment variables
 
-Optionally, you can export environment variables instead of hardcoding paths:
+Optionally, you can export environment variables instead of hardcoding paths. See the [Environment Variables documentation](../configuration.md#additional-environment-variables) for more details.
+
+One important environment variable is `REF_DATASET_CACHE_DIR`,
+which specifies where the REF will cache downloaded datasets.
+This can be GBs of data, so it is recommended to set this to a scratch filesystem or a location with sufficient disk space.
+
+This can be set as follows:
 
 ```bash
-export REF_OBS4REF=/path/to/obs4ref/data
-export REF_RESULTS=/path/to/results
+export REF_DATASET_CACHE_DIR="/path/to/your/dataset/cache"
 ```
 
 If set, Climate-REF will use these environment variables in preference to the configuration file.
@@ -125,6 +131,20 @@ ref config list
 ```
 
 Your configuration should be displayed without errors and should include any changes you made in the `ref.toml` file.
+
+
+## 6. Create Proivider-specific conda environments
+
+Some diagnostic providers require specific conda environments to be created before they can be used.
+This should happen before you run any diagnostics to avoid multiple installations of the same environment.
+By default, these conda environments will be installed the `$REF_CONFIGURATION/software` directory,
+but the location can be changed in the configuration file using the [paths.software](../configuration.md#paths_software).
+
+You can create these environments using the following command:
+
+```bash
+ref providers create-env
+```
 
 ## Next steps
 

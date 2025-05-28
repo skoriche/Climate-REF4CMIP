@@ -34,11 +34,8 @@ This application allows you to explore results, visualize metrics, and generate 
 - GitHub repo: https://github.com/Climate-REF/ref-app
 - Live demo screenshot below:
 
-![Dashboard placeholder](../background/images/placeholder_dashboard.png)
+![Dashboard placeholder](images/execution_overview.png)
 
-You can also explore individual plots and time series:
-
-![Plot placeholder](../background/images/placeholder_plot.png)
 
 ## Next steps
 

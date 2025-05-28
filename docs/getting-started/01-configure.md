@@ -102,7 +102,7 @@ The particularly important sections to customize are:
 
 - **paths**: Set the paths for logs, scratch space, software, and results. These should point to directories where you have write access.
 - **db**: Configure the database URL. By default, it uses SQLite, but you can change it to a PostgreSQL or other database if needed.
-- **executor**: Set the executor type. The default is `LocalExecutor`, but you can change it to `CeleryExecutor` or `HPCExecutor` for distributed execution (see the [Executor documentation](../how-to-guides/executor.md) for more details).
+- **executor**: Set the executor type. The default is `LocalExecutor`, but you can change it to `CeleryExecutor` or `HPCExecutor` for distributed execution (see the [Executor documentation](../how-to-guides/executors.md) for more details).
 - **diagnostic_providers**: List the diagnostic providers you want to use. The default includes ESMValTool, ILAMB, and PMP. You can add or remove providers as needed.
 
 ## 4. Environment variables
@@ -148,4 +148,4 @@ ref providers create-env
 
 ## Next steps
 
-After configuring, proceed to the [Download Datasets](02-download-data.md) tutorial to load your data into Climate-REF.
+After configuring, proceed to the [Download Datasets](02-download-datasets.md) tutorial to load your data into Climate-REF.

@@ -138,7 +138,7 @@ class GlobalMeanTimeseries(Diagnostic):
 ```
 
 If your diagnostic must run in its own Conda environment,
-extend [CondaDiagnostic][climate_ref_core.diagnostics.CondaDiagnostic] instead.
+extend [CommandLineDiagnostic][climate_ref_core.diagnostics.CommandLineDiagnostic] instead.
 
 
 ## 4. Register your diagnostics

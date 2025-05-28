@@ -21,9 +21,10 @@ nav:
     - how-to-guides/index.md
     - how-to-guides/executors.md
     - how-to-guides/hpc_executor.md
-    - how-to-guides/ingest-datasets.md
     - how-to-guides/dataset-selection.py
+    - how-to-guides/ingest-datasets.md
     - how-to-guides/running-diagnostics-locally.py
+    - how-to-guides/adding_custom_diagnostics.md
     - how-to-guides/docker_deployment.md
   - Tutorials: tutorials.md
   - Further background:
@@ -83,7 +84,7 @@ plugins:
       # Use filenames for titles
       ignore_h1_titles: True
       include: ["*.py"]
-      execute: false
+      execute: true
       # Toggle off for faster builds
       # execute: false
       allow_errors: false

@@ -83,3 +83,7 @@ Some other potential points of interest:
 - [Basic Concepts][basic-concepts]
 - [Architecture overview][architecture]
 - [How to Guides][how-to-guides]
+
+---
+
+![Funders](images/funders.png)

@@ -147,8 +147,8 @@ docs-strict:  ## build the docs strictly (e.g. raise an error on warnings, this 
 	uv run mkdocs build --strict
 
 .PHONY: docs-serve
-docs-serve: ## serve the docs locally
-	uv run mkdocs serve
+docs-serve: ## serve the docs locally to http://localhost:8001
+	uv run mkdocs serve -a localhost:8001
 
 .PHONY: changelog-draft
 changelog-draft:  ## compile a draft of the next changelog

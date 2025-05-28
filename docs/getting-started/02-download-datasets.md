@@ -42,6 +42,7 @@ ref datasets fetch-data --registry obs4ref --output-directory $REF_CONFIGURATION
 
 PMP has generated a set of climatology datasets based on obs4MIPs data.
 These datasets are used for the PMP diagnostics and are not part of the obs4REF collection.
+These datasets will later be ingested into the REF and used in diagnostic data requirements.
 
 ```bash
 ref datasets fetch-data --registry pmp-climatology --output-directory $REF_CONFIGURATION/datasets/pmp-climatology

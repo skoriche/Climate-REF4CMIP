@@ -105,14 +105,14 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     # This assumes that the member_id and grid_label are always the last two parts of the source string
     # and don't contain '-'
     extracted_source = model_df.source.str.extract(r"([\w-]+)-([\w\d]+)-([\w\d]+)")
-    model_df["source_id"] = extracted_source[0]
-    model_df["member_id"] = extracted_source[1]
-    model_df["grid_label"] = extracted_source[2]
+    model_df.loc[:, "source_id"] = extracted_source[0]
+    model_df.loc[:, "member_id"] = extracted_source[1]
+    model_df.loc[:, "grid_label"] = extracted_source[2]
 
     # Strip out units from the name
     # These are available in the attributes
     extracted_source = model_df.name.str.extract(r"(.*)\s\[.*\]")
-    model_df["name"] = extracted_source[0]
+    model_df.loc[:, "name"] = extracted_source[0]
 
     model_df = model_df.rename(
         columns={
@@ -122,7 +122,8 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     )
 
     # Convert the value column to numeric, coercing errors to NaN
-    model_df["value"] = pd.to_numeric(model_df["value"], errors="coerce")
+    model_df.loc[:, "value"] = pd.to_numeric(model_df["value"], errors="coerce")
+    model_df = model_df.astype({"value": "float64"})
 
     dimensions = ["experiment_id", "source_id", "member_id", "grid_label", "region", "metric", "statistic"]
     attributes = ["type", "units"]

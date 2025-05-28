@@ -45,7 +45,7 @@ The metrics that are currently available in the REF are relatively limited so no
 It is recommended to read through the [developer documentation](development.md) to get an understanding of the REF and how we collaborate.
 
 For those interested in learning more about the REF,
-we recommend reading the [Introduction section](introduction/index.md) [Architecture design document](background/architecture.md).
+we recommend reading the [Introduction section](index.md) [Architecture design document](background/architecture.md).
 This outlines the design of the REF and provides some background about the project.
 
 

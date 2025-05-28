@@ -64,7 +64,7 @@ uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/
 uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4REF/
 ```
 
-Additional reference datasets can be fetched by following the instructions [here](introduction/required_datasets.md).
+Additional reference datasets can be fetched by following the instructions [here](getting-started/02-download-datasets.md).
 The Obs4REF step is not required as we have already ingested these datasets above.
 
 ### Creating provider environments

@@ -31,12 +31,14 @@ nav:
     - Basic Concepts: background/basic-concepts.md
     - Architecture: background/architecture.md
     - Explanation: background/explanation.md
+  - CLI: cli.md
   - API: api/
   - Development: development.md
   - Changelog: changelog.md
 
 theme:
   name: "material"
+  favicon: images/favicon.svg
   features:
     - content.code.copy
   custom_dir: docs/overrides
@@ -84,7 +86,7 @@ plugins:
       # Use filenames for titles
       ignore_h1_titles: True
       include: ["*.py"]
-      execute: true
+      execute: false
       # Toggle off for faster builds
       # execute: false
       allow_errors: false
@@ -177,6 +179,8 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format # yamllint disable-line
+  # https://github.com/mkdocs/mkdocs-click
+  - mkdocs-typer:
 
 watch:
   - README.md

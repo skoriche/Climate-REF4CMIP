@@ -12,6 +12,9 @@ Where possible, datasets from [obs4MIPs](https://pcmdi.github.io/obs4MIPs/) are 
 During development, additional datasets have been identified for inclusion in obs4MIPs and will be added as they become available.
 This collection of datasets is referred to as `obs4REF` in the Climate-REF documentation.
 
+The required datasets and their hashes are listed in the [obs4REF registry](https://github.com/Climate-REF/climate-ref/blob/main/packages/climate-ref/src/climate_ref/dataset_registry/obs4ref_reference.txt).
+
+
 /// admonition | Note
 
 By default, fetched data is stored in a cache directory which is in your user directory by default.
@@ -27,7 +30,8 @@ export REF_DATASET_CACHE_DIR=/path/to/cache
 [](){#fetch-obs4ref-datasets}
 ## 1. Fetching obs4REF datasets
 
-Use the `ref datasets fetch-data` command to retrieve each registry. Replace example paths with your desired output directories.
+Use the [ref datasets fetch-data](../cli.md#fetch-data) command to retrieve each registry.
+Replace example paths with your desired output directories.
 
 These are hosted temporarily in one location until they become available on ESGF.
 This archive is ~30 GB in size, so ensure you have sufficient disk space available.
@@ -42,6 +46,7 @@ ref datasets fetch-data --registry obs4ref --output-directory $REF_CONFIGURATION
 
 PMP has generated a set of climatology datasets based on obs4MIPs data.
 These datasets are used for the PMP diagnostics and are not part of the obs4REF collection.
+These datasets will later be ingested into the REF and used in diagnostic data requirements.
 
 ```bash
 ref datasets fetch-data --registry pmp-climatology --output-directory $REF_CONFIGURATION/datasets/pmp-climatology
@@ -60,8 +65,11 @@ ref datasets fetch-data --registry iomb
 ref datasets fetch-data --registry esmvaltool
 ```
 
-[//]: # (TOODO: Add links to CLI reference once available)
-[//]: # (For more options and details, see the [Datasets CLI reference]&#40;../how-to-guides/ingest-datasets.md&#41;.)
+### Future work
+
+The Climate-REF team is working on providing a more integrated way to fetch and manage these datasets from the Next Generation ESGF infrastructure that in the process of being deployed.
+This should minimise the need to manually fetch datasets and ensure that all required datasets are available for diagnostics.
+
 
 ## Next steps
 

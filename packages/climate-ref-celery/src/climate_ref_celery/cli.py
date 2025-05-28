@@ -1,5 +1,8 @@
 """
-Managing remote execution workers
+Managing remote celery workers
+
+This module is used to manage remote execution workers for the Climate REF project.
+It is added to the `ref` command line interface if the `climate-ref-celery` package is installed.
 """
 
 import importlib

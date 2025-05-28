@@ -11,7 +11,7 @@ from climate_ref.models.execution import execution_datasets
 def test_execution_help(invoke_cli):
     result = invoke_cli(["executions", "--help"])
 
-    assert "View diagnostic executions" in result.stdout
+    assert "View execution groups" in result.stdout
 
 
 class TestExecutionList:

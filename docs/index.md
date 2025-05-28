@@ -10,7 +10,7 @@ This is somewhat analogous to a CI/CD pipeline for climate data.
 The REF is designed to be run in a variety of environments, including local execution, cloud-based execution, and execution on HPC systems.
 The REF can be run as a standalone application, as a set of services, or as a set of docker containers.
 
-REF is a community project, and we welcome contributions from anyone.
+REF is a [community project](https://wcrp-cmip.org/cmip-phases/cmip7/rapid-evaluation-framework/), and we welcome contributions from anyone.
 
 ---
 
@@ -37,7 +37,7 @@ $ ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...
 
- climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework
+ A CLI for the Assessment Fast Track Rapid Evaluation Framework
 
  This CLI provides a number of commands for managing and executing diagnostics.
 
@@ -83,3 +83,7 @@ Some other potential points of interest:
 - [Basic Concepts][basic-concepts]
 - [Architecture overview][architecture]
 - [How to Guides][how-to-guides]
+
+---
+
+![Funders](images/funders.png)

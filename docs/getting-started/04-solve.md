@@ -4,7 +4,7 @@ With your datasets ingested and cataloged, you can now solve and execute diagnos
 
 ## 1. Run all diagnostics (default)
 
-By default, `ref solve` will discover and schedule _all_ available diagnostics across all providers. The default executor is the **local executor**, which runs diagnostics in parallel using a process pool:
+By default, [ref solve](../cli.md#solve) will discover and schedule _all_ available diagnostics across all providers. The default executor is the **local executor**, which runs diagnostics in parallel using a process pool:
 
 ```bash
 ref solve --timeout 3600

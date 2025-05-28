@@ -30,7 +30,8 @@ export REF_DATASET_CACHE_DIR=/path/to/cache
 [](){#fetch-obs4ref-datasets}
 ## 1. Fetching obs4REF datasets
 
-Use the `ref datasets fetch-data` command to retrieve each registry. Replace example paths with your desired output directories.
+Use the [ref datasets fetch-data](../cli.md#fetch-data) command to retrieve each registry.
+Replace example paths with your desired output directories.
 
 These are hosted temporarily in one location until they become available on ESGF.
 This archive is ~30 GB in size, so ensure you have sufficient disk space available.
@@ -69,8 +70,6 @@ ref datasets fetch-data --registry esmvaltool
 The Climate-REF team is working on providing a more integrated way to fetch and manage these datasets from the Next Generation ESGF infrastructure that in the process of being deployed.
 This should minimise the need to manually fetch datasets and ensure that all required datasets are available for diagnostics.
 
-[//]: # (TOODO: Add links to CLI reference once available)
-[//]: # (For more options and details, see the [Datasets CLI reference]&#40;../how-to-guides/ingest-datasets.md&#41;.)
 
 ## Next steps
 

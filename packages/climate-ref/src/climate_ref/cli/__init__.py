@@ -88,7 +88,7 @@ def build_app() -> typer.Typer:
     :
         The CLI app
     """
-    app = typer.Typer(name="climate_ref", no_args_is_help=True)
+    app = typer.Typer(name="ref", no_args_is_help=True)
 
     app.command(name="solve")(solve.solve)
     app.add_typer(config.app, name="config")
@@ -136,10 +136,10 @@ def main(  # noqa: PLR0913
     ] = None,
 ) -> None:
     """
-    climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework
+    A CLI for the Assessment Fast Track Rapid Evaluation Framework
 
     This CLI provides a number of commands for managing and executing diagnostics.
-    """
+    """  # noqa: D401
     if quiet:
         log_level = LogLevel.Warning
     if verbose:

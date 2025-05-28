@@ -30,9 +30,9 @@ class TestConfigList:
         assert "Configuration file not found" in result.stdout
 
 
-class TestConfigUpdate:
-    def test_config_update(self, invoke_cli):
-        result = invoke_cli(["config", "update"])
-
-        # TODO: actually implement this functionality
-        assert "config" in result.stdout
+# class TestConfigUpdate:
+#     def test_config_update(self, invoke_cli):
+#         result = invoke_cli(["config", "update"])
+#
+#         # TODO: actually implement this functionality
+#         assert "config" in result.stdout

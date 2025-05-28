@@ -16,8 +16,8 @@ def escape_ansi(line):
 def test_without_subcommand(invoke_cli):
     result = invoke_cli([])
     assert "Usage:" in result.stdout
-    assert "climate_ref [OPTIONS] COMMAND [ARGS]" in result.stdout
-    assert "climate_ref: A CLI for the Assessment Fast Track Rapid Evaluation Framework" in result.stdout
+    assert "ref [OPTIONS] COMMAND [ARGS]" in result.stdout
+    assert "A CLI for the Assessment Fast Track Rapid Evaluation Framework" in result.stdout
 
 
 def test_version(invoke_cli):

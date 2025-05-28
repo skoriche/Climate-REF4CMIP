@@ -56,7 +56,10 @@ def create_env(
     ] = None,
 ) -> None:
     """
-    Create a virtual environment containing the provider software.
+    Create a conda environment containing the provider software.
+
+    If no provider is specified, all providers will be installed.
+    If the provider is up to date or does not use a virtual environment, it will be skipped.
     """
     config = ctx.obj.config
     db = ctx.obj.database

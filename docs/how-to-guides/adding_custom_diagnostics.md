@@ -1,5 +1,3 @@
-from climate_ref_core.pycmec.metric import CMECMetricfrom climate_ref_core.pycmec.output import CMECOutput
-
 # Adding Custom Diagnostics
 
 /// admonition | Caveat

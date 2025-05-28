@@ -61,6 +61,7 @@ dev = [
     "types-tqdm>=4.67",
     "pytest-xdist>=3.6.1",
     "types-pyyaml>=6.0.12",
+    "mkdocs-typer>=0.0.3",
 ]
 
 [tool.uv.workspace]

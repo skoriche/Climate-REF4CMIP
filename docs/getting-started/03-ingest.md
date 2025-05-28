@@ -77,9 +77,6 @@ ref datasets list --column instance_id --column variable_id
 ```
 
 
-[//]: # (TODO: Add links to CLI reference once available)
-[//]: # (For a complete list of flags, see the [Datasets CLI reference]&#40;../how-to-guides/ingest-datasets.md&#41;.)
-
 ## Next steps
 
 With your data cataloged, you’re ready to run diagnostics. Proceed to the [Solve tutorial](04-solve.md).

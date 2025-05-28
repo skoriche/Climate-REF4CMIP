@@ -21,6 +21,24 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.1 (2025-05-28)
+
+### Features
+
+- Implemented a HPCExecutor.
+  It could let users run REF under HPC workflows by submitting batch jobs
+  and compute diagnostics on the computer nodes. Only the slurm scheduler is
+  supported now. ([#305](https://github.com/Climate-REF/climate-ref/pulls/305))
+
+### Bug Fixes
+
+- Remove keys with their value None from the output JSON for CMEC validation of PMP extratropical variability modes ([#337](https://github.com/Climate-REF/climate-ref/pulls/337))
+
+### Improved Documentation
+
+- Add Getting Started section for ingesting and solving ([#342](https://github.com/Climate-REF/climate-ref/pulls/342))
+
+
 ## climate-ref 0.6.0 (2025-05-27)
 
 ### Breaking Changes

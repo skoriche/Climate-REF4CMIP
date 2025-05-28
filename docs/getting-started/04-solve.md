@@ -40,7 +40,7 @@ Replace `pmp` or `enso` with any provider or diagnostic slug listed in your inst
 You can view the status of execution groups with:
 
 ```bash
-ref executions list-group
+ref executions list-groups
 ```
 
 Each group corresponds to a set of related executions (e.g., all runs of a diagnostic for one model).

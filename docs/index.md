@@ -33,7 +33,7 @@ REF is a community project, and we welcome contributions from anyone.
 After [installation](installation.md), you can start using the REF via the CLI tool:
 
 ```bash
-$ uv run ref
+$ ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...
 

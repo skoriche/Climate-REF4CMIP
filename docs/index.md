@@ -74,7 +74,8 @@ This CLI tool is the main interface to the REF and is used to manage the REF.
 
 ## Where to next?
 
-We recommend starting with the [Getting Started][getting-started] guide, which will walk you through the initial steps of configuring and using the REF.
+We recommend starting with the [Getting Started](getting-started/01-configure.md) guide,
+which will walk you through the initial steps of configuring and using the REF.
 
 Some other potential points of interest:
 

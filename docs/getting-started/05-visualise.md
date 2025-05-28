@@ -31,7 +31,7 @@ We are working on a Python package to make it easier to query and visualize resu
 An interactive dashboard is available via the REF web application (API + frontend).
 This application allows you to explore results, visualize metrics, and generate plots:
 
-- GitHub repo: [https://github.com/Climate-REF/ref-app]()
+- GitHub repo: [https://github.com/Climate-REF/ref-app](https://github.com/Climate-REF/ref-app)
 - Live demo screenshot below:
 
 ![Dashboard placeholder](images/execution_overview.png)

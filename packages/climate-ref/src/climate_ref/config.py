@@ -15,6 +15,7 @@ which always take precedence over any other configuration values.
 # https://github.com/ESGF/esgf-download/blob/main/esgpull/config.py
 
 import importlib.resources
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -64,6 +65,7 @@ def ensure_absolute_path(path: str | Path) -> Path:
     """
     if isinstance(path, str):
         path = Path(path)
+    path = Path(*[os.path.expandvars(p) for p in path.parts])
     return path.resolve()
 
 

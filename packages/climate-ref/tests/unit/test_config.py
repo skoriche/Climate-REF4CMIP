@@ -183,6 +183,14 @@ filename = "sqlite://climate_ref.db"
         assert config_new.paths.log == Path("/my/test/logs")
         assert config_new.paths.results == Path("/my/test/executions")
 
+    def test_custom_env_variable(self, monkeypatch, tmp_path, config):
+        monkeypatch.setenv("ABC", "/my")
+        config.paths.results = "${ABC}/test/executions"
+        # Environment variables are only expanded when loading from file.
+        config.save(tmp_path / "ref.toml")
+        config_new = Config.load(tmp_path / "ref.toml")
+        assert config_new.paths.results == Path("/my/test/executions")
+
     def test_executor_build(self, config, db):
         executor = config.executor.build(config, db)
         assert executor.name == "synchronous"

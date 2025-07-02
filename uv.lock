@@ -769,7 +769,7 @@ dev = [
 requires-dist = [
     { name = "climate-ref-core", editable = "packages/climate-ref-core" },
     { name = "ilamb3", specifier = ">=2025.5.20" },
-    { name = "scipy", specifier = "<=1.16" },
+    { name = "scipy", specifier = "<1.16" },
 ]
 
 [package.metadata.requires-dev]

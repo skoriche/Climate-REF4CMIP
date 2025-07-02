@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
   "climate-ref-core",
   "ilamb3>=2025.5.20",
-  "scipy<=1.16",  # https://github.com/statsmodels/statsmodels/issues/9584
+  "scipy<1.16",  # https://github.com/statsmodels/statsmodels/issues/9584
 ]
 
 [dependency-groups]

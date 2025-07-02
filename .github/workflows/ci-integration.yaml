@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   # Run on each push to main and tagged version
   push:
-    branches: [main, install-providers-in-integration-tests]
+    branches: [main]
     tags: ['v*']
   # Runs every day at 2:15am (UTC) (~ midday in AEST)
   schedule:

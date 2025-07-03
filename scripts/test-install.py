@@ -34,6 +34,7 @@ def main(package: str = typer.Argument(..., help="List of package names to test 
         version = getattr(pkg, "__version__", "<no __version__>")
         print(f"{package} version: {version}")
     except Exception as e:
+        logger.exception("Failed to import package")
         print(f"Failed to import {package}: {e}")
         raise typer.Abort()
 

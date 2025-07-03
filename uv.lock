@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -621,6 +622,7 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
+provides-extras = ["postgres", "celery", "aft-providers", "providers"]
 
 [package.metadata.requires-dev]
 dev = []
@@ -755,6 +757,7 @@ source = { editable = "packages/climate-ref-ilamb" }
 dependencies = [
     { name = "climate-ref-core" },
     { name = "ilamb3" },
+    { name = "scipy" },
 ]
 
 [package.dev-dependencies]
@@ -766,6 +769,7 @@ dev = [
 requires-dist = [
     { name = "climate-ref-core", editable = "packages/climate-ref-core" },
     { name = "ilamb3", specifier = ">=2025.5.20" },
+    { name = "scipy", specifier = "<1.16" },
 ]
 
 [package.metadata.requires-dev]

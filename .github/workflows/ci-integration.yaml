@@ -45,6 +45,7 @@ jobs:
           uv run ref datasets fetch-data --registry ilamb
           uv run ref datasets fetch-data --registry iomb
           uv run ref datasets fetch-data --registry esmvaltool
+          uv run ref providers create-env
           make test
       # Upload the scratch and executions directories as artifacts
       - name: Upload scratch artifacts

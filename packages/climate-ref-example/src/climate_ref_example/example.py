@@ -131,7 +131,7 @@ class GlobalMeanTimeseries(Diagnostic):
     """
 
     name = "Global Mean Timeseries"
-    slug = "global-mean-timeseries"
+    slug = "example-global-mean-timeseries"
 
     data_requirements = (
         DataRequirement(

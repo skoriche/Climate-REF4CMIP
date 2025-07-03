@@ -85,6 +85,16 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
     )
 
 
+def test_start_worker_package_not_registered(mocker, mock_create_celery_app):
+    mocker.patch("importlib.metadata.entry_points", return_value=[])
+
+    result = runner.invoke(app, ["start-worker", "--package", "unregistered_package"])
+
+    assert result.exit_code == 1
+    assert "Package 'unregistered_package' is missing" in result.output
+    mock_create_celery_app.assert_called_once_with("climate_ref_celery")
+
+
 def test_start_worker_package_not_found(mocker, mock_create_celery_app):
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
     mock_entry_point.dist.name = "missing_package"

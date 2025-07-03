@@ -17,7 +17,7 @@ from parsl import python_app
 from parsl.config import Config as ParslConfig
 from parsl.executors import HighThroughputExecutor
 from parsl.launchers import SrunLauncher, SimpleLauncher
-from parsl.providers import SlurmProvider, PBSProProvider
+from parsl.providers import SlurmProvider
 from tqdm import tqdm
 
 from climate_ref.config import Config

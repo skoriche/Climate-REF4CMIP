@@ -8,7 +8,7 @@ from parsl.dataflow import futures
 from climate_ref.executor.hpc import HPCExecutor, execute_locally
 from climate_ref.executor.local import ExecutionFuture
 from climate_ref_core.diagnostics import ExecutionResult
-from climate_ref_core.exceptions import DiagnosticError, ExecutionError
+from climate_ref_core.exceptions import DiagnosticError
 from climate_ref_core.executor import Executor
 
 
@@ -87,8 +87,17 @@ class TestHPCExecutor:
         )
 
         future.set_exception(DiagnosticError("Some thing bad went wrong", execution_result))
+        err_result = executor.parsl_results[0].future.exception().result
 
         executor.join(0.1)
+
+        assert err_result == ExecutionResult(
+            definition=metric_definition,
+            successful=False,
+            output_bundle_filename=None,
+            metric_bundle_filename=None,
+        )
+        assert len(executor.parsl_results) == 0
 
     def test_join_other_exception(self, metric_definition, tmp_path):
         executor = HPCExecutor(log_dir=tmp_path / "parsl_runinfo")

@@ -7,6 +7,11 @@ If you want to
 
 """
 
+try:
+    import parsl
+except ImportError:  # pragma: no cover
+    raise ImportError("The HPCExecutor requires the `parsl` package")
+
 import os
 import time
 from typing import Any, cast

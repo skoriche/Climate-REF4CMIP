@@ -48,8 +48,7 @@ CMIP Rapid Evaluation Framework can be installed with pip,
 alongside the providers selected for the Assessment Fast Track.
 (mamba and conda releases are not yet implemented):
 
-Window's doesn't support some of the packages required by the metrics providers,
-so we only support MacOS and Linux.
+The Climate-REF doesn't support Windows at the moment due to some downstream dependencies that are not available on Windows.
 Windows users are recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
 or a Linux VM if they wish to use the REF.
 

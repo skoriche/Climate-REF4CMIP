@@ -36,7 +36,6 @@ dependencies = [
     "rich",
     "loguru>=0.7.0",
     "pooch>=1.8.0,<2",
-    "ruamel.yaml>=0.18",
     "environs>=11",
     # Not used directly, but required to support some installations
     "setuptools>=75.8.0",

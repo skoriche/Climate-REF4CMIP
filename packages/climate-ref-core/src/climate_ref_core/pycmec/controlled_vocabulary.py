@@ -4,13 +4,10 @@ from typing import Any
 from attrs import field, frozen, validators
 from cattrs import Converter, transform_error
 from loguru import logger
-from ruamel.yaml import YAML
+from yaml import safe_load
 
 from climate_ref_core.exceptions import ResultValidationError
 from climate_ref_core.pycmec.metric import CMECMetric
-
-yaml = YAML()
-
 
 RESERVED_DIMENSION_NAMES = {"attributes", "json_structure", "created_at", "updated_at", "value", "id"}
 """
@@ -164,9 +161,9 @@ class CV:
 
         """
         convertor = Converter(forbid_extra_keys=True)
-        contents = yaml.load(pathlib.Path(filename))
 
         try:
+            contents = safe_load(pathlib.Path(filename).read_text(encoding="utf-8"))
             return convertor.structure(contents, CV)
         except Exception as exc:
             logger.error(f"Error loading CV from {filename}")

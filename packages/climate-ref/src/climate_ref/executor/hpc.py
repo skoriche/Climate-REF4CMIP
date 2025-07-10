@@ -29,7 +29,7 @@ from climate_ref_core.exceptions import DiagnosticError, ExecutionError
 from climate_ref_core.executor import execute_locally
 
 from .local import ExecutionFuture, process_result
-from .nci_pbs import NCIGadiPBSProProvider
+from .pbs_scheduler import SmartPBSProvider
 
 @python_app
 def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
@@ -194,16 +194,22 @@ class HPCExecutor:
                 cmd_timeout=int(executor_config.get("cmd_timeout", 120)),
             )
 
-        elif self.scheduler in ("nci", "gadi"):
-            provider = NCIGadiPBSProProvider(
+        elif self.scheduler == "pbs":
+            provider = SmartPBSProProvider(
                 account=self.account,
                 queue=self.queue,
+                worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),
+                nodes_per_block=_to_int(executor_config.get("nodes_per_block", 1)),
+                cpus_per_node=_to_int(executor_config.get("cpus_per_node", None)),
                 ncpus=_to_int(executor_config.get("ncpus", 1)),
                 mem=executor_config.get("mem", "4GB"),
                 jobfs= executor_config.get("jobfs", "10GB"),
                 storage=executor_config.get("storage", ""),
+                init_blocks=_to_int(executor_config.get("init_blocks", 1)),
+                min_blocks=_to_int(executor_config.get("min_blocks", 0)),
+                max_blocks=_to_int(executor_config.get("max_blocks", 1)),
+                parallelism=_to_int(executor_config.get("parallelism", 1)),
                 scheduler_options=executor_config.get("scheduler_options", ""),
-                worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),
                 launcher=SimpleLauncher(),
                 walltime=self.walltime,
                 cmd_timeout=int(executor_config.get("cmd_timeout", 120))

@@ -68,12 +68,19 @@ def _clean_branch_time(branch_time: pd.Series[str]) -> pd.Series[float]:
     return pd.to_numeric(branch_time.astype(str).str.replace("D", ""), errors="coerce")
 
 
-def parse_cmip6(file: str) -> dict[str, Any]:
+def parse_cmip6(file: str, **kwargs: Any) -> dict[str, Any]:
     """
     Parser for CMIP6
 
     This function parses the CMIP6 dataset and returns a dictionary with the metadata.
     This was copied from the ecgtools package, but we want to log the exception when it fails.
+
+    Parameters
+    ----------
+    file
+        File to parse
+    kwargs
+        Additional keyword arguments (not used, but required for protocol compatibility)
     """
     keys = sorted(
         {
@@ -157,6 +164,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
     dataset_cls = CMIP6Dataset
     slug_column = "instance_id"
+    parsing_function = parse_cmip6
 
     dataset_specific_metadata = (
         "activity_id",
@@ -237,7 +245,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 depth=10,
                 include_patterns=["*.nc"],
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
-            ).build(parsing_func=parse_cmip6)  # type: ignore
+            ).build(parsing_func=self.parsing_function)  # type: ignore
 
         datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)
 

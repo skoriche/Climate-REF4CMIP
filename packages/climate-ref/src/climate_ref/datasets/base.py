@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 
 import pandas as pd
 from loguru import logger
@@ -35,6 +35,31 @@ def _log_duplicate_metadata(
         )
 
 
+class DatasetParsingFunction(Protocol):
+    """
+    Protocol for a function that parses metadata from a file or directory
+    """
+
+    def __call__(self, file: str, **kwargs: Any) -> dict[str, Any]:
+        """
+        Parse a file or directory and return metadata for the dataset
+
+        Parameters
+        ----------
+        file_or_directory
+            File or directory to parse
+
+        kwargs
+            Additional keyword arguments to pass to the parsing function.
+
+        Returns
+        -------
+        :
+            Data catalog containing the metadata for the dataset
+        """
+        ...
+
+
 class DatasetAdapter(Protocol):
     """
     An adapter to provide a common interface for different dataset types
@@ -65,6 +90,8 @@ class DatasetAdapter(Protocol):
     This is generally the columns that describe the `slug` of a dataset,
     excluding the version information.
     """
+
+    parsing_function: DatasetParsingFunction
 
     def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """

@@ -195,7 +195,7 @@ class HPCExecutor:
             )
 
         elif self.scheduler == "pbs":
-            provider = SmartPBSProProvider(
+            provider = SmartPBSProvider(
                 account=self.account,
                 queue=self.queue,
                 worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),

@@ -17,7 +17,7 @@ class SmartPBSProvider(PBSProProvider):
                  scheduler_options='',
                  worker_init='',
                  nodes_per_block=1,
-                 cpus_per_node=None,
+                 cpus_per_node=1,
                  ncpus=None,
                  mem='4GB',
                  jobfs='10GB',
@@ -30,6 +30,10 @@ class SmartPBSProvider(PBSProProvider):
                  walltime="00:20:00",
                  cmd_timeout=120):
 
+        self.ncpus = ncpus
+        self.mem = mem
+        self.jobfs = jobfs
+        self.storage = storage
         self._select_supported = self._detect_select_support()
 
         # Prepare fallback resource dictionary
@@ -53,6 +57,8 @@ class SmartPBSProvider(PBSProProvider):
                 cpus_per_node = int(ncpus)
             elif ncpus is not None and cpus_per_node is not None and int(ncpus) != int(cpus_per_node):
                 print(f"Warning: ncpus={ncpus} and cpus_per_node={cpus_per_node} differ. Using cpus_per_node={cpus_per_node}.")
+        else:
+            cpus_per_node = int(self._fallback_resources['ncpus'])
 
         super().__init__(account=account,
                          queue=queue,
@@ -76,7 +82,7 @@ class SmartPBSProvider(PBSProProvider):
         """Detect whether `-l select` is supported by the underlying PBS system."""
         try:
             result = subprocess.run(
-                ["qsub", "-l", "select=1:ncpus=1", "--version"],
+                ["qsub", "-l", "wd,select=1:ncpus=1", "--version"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 timeout=5
@@ -108,19 +114,21 @@ class SmartPBSProvider(PBSProProvider):
         """Submit script template used if `select` is not supported."""
         return textwrap.dedent("""\
             #!/bin/bash
-            #PBS -N {job_name}
-            #PBS -q {queue}
-            #PBS -l ncpus={ncpus}
-            #PBS -l mem={mem}
-            #PBS -l jobfs={jobfs}
-            #PBS -l walltime={walltime}
-            #PBS -l storage={storage}
-            #PBS -A {account}
-            {scheduler_options}
+            #PBS -N ${jobname}
+            #PBS -l ncpus=${ncpus}
+            #PBS -l mem=${mem}
+            #PBS -l jobfs=${jobfs}
+            #PBS -l walltime=${walltime}
+            #PBS -l storage=${storage}
+            #PBS -o ${job_stdout_path}
+            #PBS -e ${job_stderr_path}
+            ${scheduler_options}
 
-            cd $PBS_O_WORKDIR
-            {worker_init}
-            {command}
+            ${worker_init}
+            
+            export JOBNAME="${jobname}"
+            ${user_script}
+
         """)
 
     def _write_submit_script(self, template, script_filename, job_name, configs):

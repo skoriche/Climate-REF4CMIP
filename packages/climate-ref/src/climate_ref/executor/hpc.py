@@ -201,7 +201,7 @@ class HPCExecutor:
                 worker_init=executor_config.get("worker_init", "source .venv/bin/activate"),
                 nodes_per_block=_to_int(executor_config.get("nodes_per_block", 1)),
                 cpus_per_node=_to_int(executor_config.get("cpus_per_node", None)),
-                ncpus=_to_int(executor_config.get("ncpus", 1)),
+                ncpus=_to_int(executor_config.get("ncpus", None)),
                 mem=executor_config.get("mem", "4GB"),
                 jobfs= executor_config.get("jobfs", "10GB"),
                 storage=executor_config.get("storage", ""),

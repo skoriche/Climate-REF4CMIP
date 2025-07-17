@@ -21,6 +21,14 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.3 (2025-07-17)
+
+### Improvements
+
+- Use a new URL for serving the reference data.
+  This should now support older versions of TLS which may help some users. ([#364](https://github.com/Climate-REF/climate-ref/pulls/364))
+
+
 ## climate-ref 0.6.2 (2025-07-09)
 
 ### Improvements

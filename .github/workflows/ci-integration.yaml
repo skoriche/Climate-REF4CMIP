@@ -13,6 +13,7 @@ on:
 
 jobs:
   tests-slow:
+    if: github.repository == 'Climate-REF/climate-ref'
     env:
       REF_TEST_OUTPUT: "test-outputs"
       REF_DATASET_CACHE_DIR: "data"
@@ -20,9 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest" ]
-        python-version: [ "3.11", "3.12", "3.13" ]
-    runs-on: "${{ matrix.os }}"
+        python-version: [ "3.11", "3.13" ]
+    runs-on: "self-hosted"
     defaults:
       run:
         shell: bash

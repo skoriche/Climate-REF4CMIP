@@ -12,7 +12,7 @@ from ecgtools import Builder
 from ecgtools.parsers.utilities import extract_attr_with_regex  # type: ignore
 from loguru import logger
 
-from climate_ref.datasets.base import DatasetAdapter
+from climate_ref.datasets.base import DatasetAdapter, DatasetParsingFunction
 from climate_ref.models.dataset import CMIP6Dataset
 
 
@@ -164,7 +164,6 @@ class CMIP6DatasetAdapter(DatasetAdapter):
 
     dataset_cls = CMIP6Dataset
     slug_column = "instance_id"
-    parsing_function = parse_cmip6
 
     dataset_specific_metadata = (
         "activity_id",
@@ -219,6 +218,14 @@ class CMIP6DatasetAdapter(DatasetAdapter):
     def __init__(self, n_jobs: int = 1):
         self.n_jobs = n_jobs
 
+    def get_parsing_function(self) -> DatasetParsingFunction:
+        """
+        Get the parsing function for CMIP6 datasets
+
+        TODO: This will be expanded to support different parsing functions in the future.
+        """
+        return parse_cmip6
+
     def find_local_datasets(self, file_or_directory: Path) -> pd.DataFrame:
         """
         Generate a data catalog from the specified file or directory
@@ -236,6 +243,8 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         :
             Data catalog containing the metadata for the dataset
         """
+        parsing_function = self.get_parsing_function()
+
         with warnings.catch_warnings():
             # Ignore the DeprecationWarning from xarray
             warnings.simplefilter("ignore", DeprecationWarning)
@@ -245,7 +254,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
                 depth=10,
                 include_patterns=["*.nc"],
                 joblib_parallel_kwargs={"n_jobs": self.n_jobs},
-            ).build(parsing_func=self.parsing_function)  # type: ignore
+            ).build(parsing_func=parsing_function)
 
         datasets: pd.DataFrame = builder.df.drop(["init_year"], axis=1)
 

@@ -112,7 +112,6 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
 
     dataset_cls: type[Dataset] = Obs4MIPsDataset
     slug_column = "instance_id"
-    parsing_function = parse_obs4mips
 
     dataset_specific_metadata = (
         "activity_id",
@@ -169,7 +168,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
             depth=10,
             include_patterns=["*.nc"],
             joblib_parallel_kwargs={"n_jobs": self.n_jobs},
-        ).build(parsing_func=self.parsing_function)  # type: ignore
+        ).build(parsing_func=parse_obs4mips)
 
         datasets = builder.df
         if datasets.empty:

@@ -91,8 +91,6 @@ class DatasetAdapter(Protocol):
     excluding the version information.
     """
 
-    parsing_function: DatasetParsingFunction
-
     def pretty_subset(self, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Get a subset of the data_catalog to pretty print

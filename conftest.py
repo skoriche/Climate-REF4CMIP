@@ -42,10 +42,12 @@ pytest_plugins = ("celery.contrib.pytest",)
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
+    config.addinivalue_line("markers", "docker: mark test requires docker to run")
 
 
 def pytest_addoption(parser):
     parser.addoption("--slow", action="store_true", help="include tests marked slow")
+    parser.addoption("--no-docker", action="store_true", help="skip docker tests")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -54,6 +56,11 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if item.get_closest_marker("slow"):
                 item.add_marker(skip_slow)
+    if config.getoption("--no-docker"):
+        skip_docker = pytest.mark.skip(reason="--no-docker option provided")
+        for item in items:
+            if item.get_closest_marker("docker"):
+                item.add_marker(skip_docker)
 
 
 @pytest.fixture(scope="session")

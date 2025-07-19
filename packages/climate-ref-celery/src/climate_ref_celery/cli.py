@@ -3,11 +3,14 @@ Managing remote celery workers
 
 This module is used to manage remote execution workers for the Climate REF project.
 It is added to the `ref` command line interface if the `climate-ref-celery` package is installed.
+
+A celery worker should be run for each diagnostic provider.
 """
 
-import importlib
+import importlib.metadata
 
 import typer
+from loguru import logger
 
 from climate_ref_celery.app import create_celery_app
 from climate_ref_celery.tasks import register_celery_tasks
@@ -16,14 +19,32 @@ from climate_ref_core.providers import DiagnosticProvider
 app = typer.Typer(help=__doc__)
 
 
-def import_provider(provider_package: str) -> DiagnosticProvider:
+def import_provider(provider_name: str) -> DiagnosticProvider:
     """
-    Import the provider from a given package.
+    Import the provider using the name of a registered provider.
 
     Parameters
     ----------
-    provider_package:
-        The package to import the provider from
+    provider_name:
+        The name of a registered provider.
+
+        Packages can register a provider by defining an
+        [entry point](https://packaging.python.org/en/latest/specifications/entry-points/)
+         in its `pyproject.toml` file under the group `"climate-ref.providers"`.
+
+        Example: 'climate_ref_esmvaltool:provider' would require a section in the `pyproject.toml` for the
+        `climate_ref_esmvaltool` package like this:
+
+        ```
+        [project.entry-points."climate-ref.providers"]
+        esmvaltool = "climate_ref_esmvaltool:provider"
+        ```
+
+        `"esmvaltool"` or ("climate_ref_esmvaltool:provider")
+        can then be used as the `provider_name` argument.
+
+        If the entry point is not found, an error will be raised
+        and the list of available providers will be shown.
 
     Raises
     ------
@@ -38,13 +59,17 @@ def import_provider(provider_package: str) -> DiagnosticProvider:
         The provider instance
     """
     # Note that this only works for provider packages that have a single provider.
-    for entry_point in importlib.metadata.entry_points(group="climate-ref.providers"):
-        if entry_point.dist is not None and entry_point.dist.name == provider_package:
+    provider_entry_points = importlib.metadata.entry_points(group="climate-ref.providers")
+    for entry_point in provider_entry_points:
+        logger.debug(f"found entry point: {entry_point}")
+
+        # Also support the case where the entrypoint definition ('name:provider') is supplied
+        if entry_point.name == provider_name or entry_point.value == provider_name:  # noqa: PLR1714
             break
     else:
+        found_entry_points = ", ".join(f"{ep.name} ({ep.value})" for ep in provider_entry_points)
         typer.echo(
-            f"Package '{provider_package}' is missing "
-            '[project.entry-points."climate-ref.providers"] in pyproject.toml'
+            f"No entry point named '{provider_name}' is provided. Found entry points: {found_entry_points}."
         )
         raise typer.Abort()
 
@@ -52,11 +77,13 @@ def import_provider(provider_package: str) -> DiagnosticProvider:
     try:
         provider = entry_point.load()
     except ModuleNotFoundError:
-        typer.echo(f"Package '{provider_package}' not found")
+        typer.echo(f"Invalid entrypoint {entry_point}: {entry_point.value} not found.")
         raise typer.Abort()
     except AttributeError:
-        typer.echo("The package must define a 'provider' attribute")
+        _split = entry_point.value.split(":", 1)
+        typer.echo(f"Invalid entrypoint {entry_point}: {_split[0]} does not define a {_split[1]} attribute.")
         raise typer.Abort()
+
     if not isinstance(provider, DiagnosticProvider):
         typer.echo(f"Expected DiagnosticProvider, got {type(provider)}")
         raise typer.Abort()
@@ -67,7 +94,9 @@ def import_provider(provider_package: str) -> DiagnosticProvider:
 def start_worker(
     ctx: typer.Context,
     loglevel: str = typer.Option("info", help="Log level for the worker"),
-    package: str | None = typer.Option(help="Package to import tasks from", default=None),
+    provider: str | None = typer.Option(
+        help="Provider to start a worker for (e.g. 'climate_ref_esmvaltool:provider).", default=None
+    ),
     extra_args: list[str] = typer.Argument(None, help="Additional arguments for the worker"),
 ) -> None:
     """
@@ -77,23 +106,21 @@ def start_worker(
     This worker will register a celery task for each diagnostic in the provider.
     The worker tasks can be executed by sending a celery task with the name
     '{package_slug}_{diagnostic_slug}'.
-
-    The package must define a 'provider' variable that is an instance of 'ref_core.DiagnosticProvider'.
     """
     # Create a new celery app
     celery_app = create_celery_app("climate_ref_celery")
 
-    if package:
+    if provider:
         # Attempt to import the provider
-        provider = import_provider(package)
+        provider_instance = import_provider(provider)
 
         if hasattr(ctx.obj, "config"):
             # Configure the provider so that it knows where the conda environments are
-            provider.configure(ctx.obj.config)
+            provider_instance.configure(ctx.obj.config)
 
         # Wrap each diagnostics in the provider with a celery tasks
-        register_celery_tasks(celery_app, provider)
-        queue = provider.slug
+        register_celery_tasks(celery_app, provider_instance)
+        queue = provider_instance.slug
     else:
         # This might need some tweaking in later PRs to pull in the appropriate tasks
         import climate_ref_celery.worker_tasks  # noqa: F401

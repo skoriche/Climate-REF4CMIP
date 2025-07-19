@@ -68,8 +68,11 @@ def import_provider(provider_name: str) -> DiagnosticProvider:
             break
     else:
         found_entry_points = ", ".join(f"{ep.name} ({ep.value})" for ep in provider_entry_points)
+        if len(found_entry_points) == 0:
+            found_entry_points = "[]"
+
         typer.echo(
-            f"No entry point named '{provider_name}' is provided. Found entry points: {found_entry_points}."
+            f"No entry point named {provider_name!r} was found. Found entry points: {found_entry_points}."
         )
         raise typer.Abort()
 
@@ -77,11 +80,14 @@ def import_provider(provider_name: str) -> DiagnosticProvider:
     try:
         provider = entry_point.load()
     except ModuleNotFoundError:
-        typer.echo(f"Invalid entrypoint {entry_point}: {entry_point.value} not found.")
+        _split = entry_point.value.split(":", 1)
+        typer.echo(f"Invalid entrypoint {entry_point}: Package {_split[0]!r} not found.")
         raise typer.Abort()
     except AttributeError:
         _split = entry_point.value.split(":", 1)
-        typer.echo(f"Invalid entrypoint {entry_point}: {_split[0]} does not define a {_split[1]} attribute.")
+        typer.echo(
+            f"Invalid entrypoint {entry_point}: {_split[0]!r} does not define a {_split[1]!r} attribute."
+        )
         raise typer.Abort()
 
     if not isinstance(provider, DiagnosticProvider):

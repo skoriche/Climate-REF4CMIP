@@ -30,11 +30,11 @@ def test_start_worker_success(mocker, mock_create_celery_app, mock_register_cele
     mock_provider.slug = "example"
 
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
-    mock_entry_point.dist.name = "test_package"
+    mock_entry_point.name = "test_package"
     mock_entry_point.load.return_value = mock_provider
     mock_entry_points = mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
-    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", "test_package"])
 
     assert result.exit_code == 0
     mock_entry_points.assert_called_once_with(group="climate-ref.providers")
@@ -61,7 +61,7 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
     mock_provider.slug = "example"
 
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
-    mock_entry_point.dist.name = "test_package"
+    mock_entry_point.name = "test_package"
     mock_entry_point.load.return_value = mock_provider
     mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
@@ -71,7 +71,7 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
             "start-worker",
             "--loglevel",
             "error",
-            "--package",
+            "--provider",
             "test_package",
             "--",
             "--extra-args",
@@ -88,20 +88,22 @@ def test_start_worker_success_extra_args(mocker, mock_create_celery_app, mock_re
 def test_start_worker_package_not_registered(mocker, mock_create_celery_app):
     mocker.patch("importlib.metadata.entry_points", return_value=[])
 
-    result = runner.invoke(app, ["start-worker", "--package", "unregistered_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", "unregistered_package"])
 
     assert result.exit_code == 1
-    assert "Package 'unregistered_package' is missing" in result.output
+    assert "No entry point named 'unregistered_package' was found" in result.output
+    assert "Found entry points: []" in result.output
     mock_create_celery_app.assert_called_once_with("climate_ref_celery")
 
 
 def test_start_worker_package_not_found(mocker, mock_create_celery_app):
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
-    mock_entry_point.dist.name = "missing_package"
+    mock_entry_point.name = "missing_package"
+    mock_entry_point.value = "missing_package:provider"
     mock_entry_point.load.side_effect = ModuleNotFoundError
     mock_entry_points = mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
-    result = runner.invoke(app, ["start-worker", "--package", "missing_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", "missing_package"])
 
     assert result.exit_code == 1
     assert "Package 'missing_package' not found" in result.output
@@ -111,14 +113,15 @@ def test_start_worker_package_not_found(mocker, mock_create_celery_app):
 
 def test_start_worker_missing_provider(mocker, mock_create_celery_app):
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
-    mock_entry_point.dist.name = "test_package"
+    mock_entry_point.name = "test_package"
+    mock_entry_point.value = "test_package:provider"
     mock_entry_point.load.side_effect = AttributeError
     mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
-    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", "test_package"])
 
     assert result.exit_code == 1, result.output
-    assert "The package must define a 'provider' attribute" in result.output
+    assert "'test_package' does not define a 'provider' attribute" in result.output
 
 
 def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
@@ -126,11 +129,11 @@ def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
     mock_provider = mocker.Mock()
 
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
-    mock_entry_point.dist.name = "test_package"
+    mock_entry_point.name = "test_package"
     mock_entry_point.load.return_value = mock_provider
     mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
-    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", "test_package"])
 
     assert result.exit_code == 1, result.output
     assert "Expected DiagnosticProvider, got <class 'unittest.mock.Mock'>" in result.output

@@ -8,6 +8,7 @@ A celery worker should be run for each diagnostic provider.
 """
 
 import importlib.metadata
+from warnings import warn
 
 import typer
 from loguru import logger
@@ -58,7 +59,6 @@ def import_provider(provider_name: str) -> DiagnosticProvider:
     :
         The provider instance
     """
-    # Note that this only works for provider packages that have a single provider.
     provider_entry_points = importlib.metadata.entry_points(group="climate-ref.providers")
     for entry_point in provider_entry_points:
         logger.debug(f"found entry point: {entry_point}")
@@ -100,9 +100,8 @@ def import_provider(provider_name: str) -> DiagnosticProvider:
 def start_worker(
     ctx: typer.Context,
     loglevel: str = typer.Option("info", help="Log level for the worker"),
-    provider: str | None = typer.Option(
-        help="Provider to start a worker for (e.g. 'climate_ref_esmvaltool:provider).", default=None
-    ),
+    provider: str | None = typer.Option(help="Provider to start a worker for", default=None),
+    package: str | None = typer.Option(help="Deprecated. Use provider instead", default=None),
     extra_args: list[str] = typer.Argument(None, help="Additional arguments for the worker"),
 ) -> None:
     """
@@ -115,6 +114,17 @@ def start_worker(
     """
     # Create a new celery app
     celery_app = create_celery_app("climate_ref_celery")
+
+    if package:
+        # Deprecation warning for package argument
+        warn(
+            "The 'package' argument is deprecated. Use 'provider' instead. "
+            "To be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # Assume the package is the provider
+        provider = package + ":provider"
 
     if provider:
         # Attempt to import the provider

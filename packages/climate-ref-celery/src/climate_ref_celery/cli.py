@@ -100,17 +100,25 @@ def import_provider(provider_name: str) -> DiagnosticProvider:
 def start_worker(
     ctx: typer.Context,
     loglevel: str = typer.Option("info", help="Log level for the worker"),
-    provider: str | None = typer.Option(help="Provider to start a worker for", default=None),
+    provider: list[str] | None = typer.Option(
+        help="Name of the provider to start a worker for. This argument may be supplied multiple times. "
+        "If no provider is given, the worker will consume the default queue.",
+        default=None,
+    ),
     package: str | None = typer.Option(help="Deprecated. Use provider instead", default=None),
     extra_args: list[str] = typer.Argument(None, help="Additional arguments for the worker"),
 ) -> None:
     """
-    Start a Celery worker for the given package.
+    Start a Celery worker for the given provider.
 
     A celery worker enables the execution of tasks in the background on multiple different nodes.
     This worker will register a celery task for each diagnostic in the provider.
     The worker tasks can be executed by sending a celery task with the name
     '{package_slug}_{diagnostic_slug}'.
+
+    Providers must be registered as entry points in the `pyproject.toml` file of the package.
+    The entry point should be defined under the group `climate-ref.providers`
+    (See `import_provider` for details).
     """
     # Create a new celery app
     celery_app = create_celery_app("climate_ref_celery")
@@ -124,26 +132,28 @@ def start_worker(
             stacklevel=2,
         )
         # Assume the package is the provider
-        provider = package + ":provider"
+        provider = [package + ":provider"]
 
+    queues = []
     if provider:
-        # Attempt to import the provider
-        provider_instance = import_provider(provider)
+        for p in provider:
+            # Attempt to import the provider
+            provider_instance = import_provider(p)
 
-        if hasattr(ctx.obj, "config"):
-            # Configure the provider so that it knows where the conda environments are
-            provider_instance.configure(ctx.obj.config)
+            if hasattr(ctx.obj, "config"):
+                # Configure the provider so that it knows where the conda environments are
+                provider_instance.configure(ctx.obj.config)
 
-        # Wrap each diagnostics in the provider with a celery tasks
-        register_celery_tasks(celery_app, provider_instance)
-        queue = provider_instance.slug
+            # Wrap each diagnostics in the provider with a celery tasks
+            register_celery_tasks(celery_app, provider_instance)
+            queues.append(provider_instance.slug)
     else:
         # This might need some tweaking in later PRs to pull in the appropriate tasks
         import climate_ref_celery.worker_tasks  # noqa: F401
 
-        queue = "celery"
+        queues.append("celery")
 
-    argv = ["worker", "-E", f"--loglevel={loglevel}", f"--queues={queue}", *(extra_args or [])]
+    argv = ["worker", "-E", f"--loglevel={loglevel}", f"--queues={','.join(queues)}", *(extra_args or [])]
     celery_app.worker_main(argv=argv)
 
 

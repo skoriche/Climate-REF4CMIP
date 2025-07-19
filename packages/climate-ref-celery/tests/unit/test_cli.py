@@ -24,23 +24,57 @@ def mock_register_celery_tasks(mocker):
     return mocker.patch("climate_ref_celery.cli.register_celery_tasks")
 
 
-def test_start_worker_success(mocker, mock_create_celery_app, mock_register_celery_tasks):
+@pytest.mark.parametrize("provider", ["test_package", "test_package:provider"])
+def test_start_worker_success(mocker, mock_create_celery_app, mock_register_celery_tasks, provider):
     mock_celery_app = mock_create_celery_app.return_value
     mock_provider = mocker.MagicMock(spec=DiagnosticProvider)
     mock_provider.slug = "example"
 
     mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
     mock_entry_point.name = "test_package"
+    mock_entry_point.value = "test_package:provider"
     mock_entry_point.load.return_value = mock_provider
     mock_entry_points = mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
 
-    result = runner.invoke(app, ["start-worker", "--provider", "test_package"])
+    result = runner.invoke(app, ["start-worker", "--provider", provider])
 
     assert result.exit_code == 0
     mock_entry_points.assert_called_once_with(group="climate-ref.providers")
     mock_register_celery_tasks.assert_called_once_with(mock_create_celery_app.return_value, mock_provider)
     mock_celery_app.worker_main.assert_called_once_with(
         argv=["worker", "-E", "--loglevel=info", "--queues=example"]
+    )
+
+
+def test_start_worker_multiple(mocker, mock_create_celery_app, mock_register_celery_tasks):
+    mock_celery_app = mock_create_celery_app.return_value
+
+    mock_provider_a = mocker.MagicMock(spec=DiagnosticProvider)
+    mock_provider_a.slug = "example"
+    mock_entry_point_a = mocker.Mock(spec=importlib.metadata.EntryPoint)
+    mock_entry_point_a.name = "test_package"
+    mock_entry_point_a.value = "test_package:provider"
+    mock_entry_point_a.load.return_value = mock_provider_a
+
+    mock_provider_b = mocker.MagicMock(spec=DiagnosticProvider)
+    mock_provider_b.slug = "other"
+    mock_entry_point_b = mocker.Mock(spec=importlib.metadata.EntryPoint)
+    mock_entry_point_b.name = "other_package"
+    mock_entry_point_b.value = "other_package:provider"
+    mock_entry_point_b.load.return_value = mock_provider_b
+
+    mock_entry_points = mocker.patch(
+        "importlib.metadata.entry_points", return_value=[mock_entry_point_a, mock_entry_point_b]
+    )
+
+    result = runner.invoke(app, ["start-worker", "--provider", "test_package", "--provider", "other_package"])
+
+    assert result.exit_code == 0
+    mock_entry_points.assert_called_with(group="climate-ref.providers")
+    mock_register_celery_tasks.assert_any_call(mock_create_celery_app.return_value, mock_provider_a)
+    mock_register_celery_tasks.assert_any_call(mock_create_celery_app.return_value, mock_provider_b)
+    mock_celery_app.worker_main.assert_called_once_with(
+        argv=["worker", "-E", "--loglevel=info", "--queues=example,other"]
     )
 
 

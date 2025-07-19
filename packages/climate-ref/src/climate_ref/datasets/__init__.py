@@ -4,13 +4,14 @@ Dataset handling utilities
 
 from typing import TYPE_CHECKING, Any
 
+from climate_ref.config import Config
 from climate_ref_core.datasets import SourceDatasetType
 
 if TYPE_CHECKING:
     from climate_ref.datasets.base import DatasetAdapter
 
 
-def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
+def get_dataset_adapter(source_type: str, config: Config | None = None, **kwargs: Any) -> "DatasetAdapter":
     """
     Get the appropriate adapter for the specified source type
 
@@ -18,6 +19,10 @@ def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
     ----------
     source_type
         Type of source dataset
+    config
+        Configuration to use for the adapter
+    kwargs
+        Additional keyword arguments to pass to the adapter
 
     Returns
     -------
@@ -27,7 +32,7 @@ def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
     if source_type.lower() == SourceDatasetType.CMIP6.value:
         from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 
-        return CMIP6DatasetAdapter(**kwargs)
+        return CMIP6DatasetAdapter(config=config, **kwargs)
     elif source_type.lower() == SourceDatasetType.obs4MIPs.value.lower():
         from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
 

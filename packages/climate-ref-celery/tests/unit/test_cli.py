@@ -173,6 +173,22 @@ def test_start_worker_incorrect_provider(mocker, mock_create_celery_app):
     assert "Expected DiagnosticProvider, got <class 'unittest.mock.Mock'>" in result.output
 
 
+def test_start_worker_deprecated_package(mocker, mock_create_celery_app):
+    mock_provider = mocker.MagicMock(spec=DiagnosticProvider)
+    mock_provider.slug = "example"
+
+    mock_entry_point = mocker.Mock(spec=importlib.metadata.EntryPoint)
+    mock_entry_point.name = "test_package"
+    mock_entry_point.value = "test_package:provider"
+    mock_entry_point.load.return_value = mock_provider
+    mocker.patch("importlib.metadata.entry_points", return_value=[mock_entry_point])
+
+    result = runner.invoke(app, ["start-worker", "--package", "test_package"])
+
+    assert result.exit_code == 0, result.output
+    assert "The '--package' argument is deprecated. Use '--provider' instead." in result.output
+
+
 def test_list_config():
     result = runner.invoke(app, ["list-config"])
 

@@ -124,13 +124,14 @@ def start_worker(
     celery_app = create_celery_app("climate_ref_celery")
 
     if package:
+        msg = "The '--package' argument is deprecated. Use '--provider' instead."
         # Deprecation warning for package argument
         warn(
-            "The 'package' argument is deprecated. Use 'provider' instead. "
-            "To be removed in a future release.",
+            msg,
             DeprecationWarning,
             stacklevel=2,
         )
+        typer.echo(msg)
         # Assume the package is the provider
         provider = [package + ":provider"]
 

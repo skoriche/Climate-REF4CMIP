@@ -21,7 +21,7 @@ from loguru import logger
 from parsl import python_app
 from parsl.config import Config as ParslConfig
 from parsl.executors import HighThroughputExecutor
-from parsl.launchers import SrunLauncher, SimpleLauncher
+from parsl.launchers import SimpleLauncher, SrunLauncher
 from parsl.providers import SlurmProvider
 from tqdm import tqdm
 
@@ -35,6 +35,7 @@ from climate_ref_core.executor import execute_locally
 
 from .local import ExecutionFuture, process_result
 from .pbs_scheduler import SmartPBSProvider
+
 
 @python_app
 def _process_run(definition: ExecutionDefinition, log_level: str) -> ExecutionResult:
@@ -208,7 +209,7 @@ class HPCExecutor:
                 cpus_per_node=_to_int(executor_config.get("cpus_per_node", None)),
                 ncpus=_to_int(executor_config.get("ncpus", None)),
                 mem=executor_config.get("mem", "4GB"),
-                jobfs= executor_config.get("jobfs", "10GB"),
+                jobfs=executor_config.get("jobfs", "10GB"),
                 storage=executor_config.get("storage", ""),
                 init_blocks=_to_int(executor_config.get("init_blocks", 1)),
                 min_blocks=_to_int(executor_config.get("min_blocks", 0)),
@@ -217,7 +218,7 @@ class HPCExecutor:
                 scheduler_options=executor_config.get("scheduler_options", ""),
                 launcher=SimpleLauncher(),
                 walltime=self.walltime,
-                cmd_timeout=int(executor_config.get("cmd_timeout", 120))
+                cmd_timeout=int(executor_config.get("cmd_timeout", 120)),
             )
         else:
             raise ValueError(f"Unsupported scheduler: {self.scheduler}")

@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-import subprocess
+
 import pytest
 
 from climate_ref.executor.pbs_scheduler import SmartPBSProvider
@@ -15,15 +15,15 @@ def test_smart_pbs_provider_script_generation(force_select):
             return force_select  # Force override to control logic path
 
     provider = TestablePBSProvider(
-        account='test',
-        queue='normal',
-        scheduler_options='-l select=1:ncpus=4:mem=8GB:jobfs=20GB',
-        worker_init='module load myenv',
+        account="test",
+        queue="normal",
+        scheduler_options="-l select=1:ncpus=4:mem=8GB:jobfs=20GB",
+        worker_init="module load myenv",
         ncpus=4,
-        mem='8GB',
-        jobfs='20GB',
-        storage='gdata1+gdata2',
-        walltime='00:30:00'
+        mem="8GB",
+        jobfs="20GB",
+        storage="gdata1+gdata2",
+        walltime="00:30:00",
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -33,22 +33,17 @@ def test_smart_pbs_provider_script_generation(force_select):
         stderr = Path(tmpdir) / "err.txt"
 
         configs = {
-            'jobname': job_name,
-            'job_stdout_path': str(stdout),
-            'job_stderr_path': str(stderr),
-            'scheduler_options': provider.scheduler_options,
-            'worker_init': provider.worker_init,
-            'user_script': "echo 'Hello from PBS'",
-            'walltime': provider.walltime,
+            "jobname": job_name,
+            "job_stdout_path": str(stdout),
+            "job_stderr_path": str(stderr),
+            "scheduler_options": provider.scheduler_options,
+            "worker_init": provider.worker_init,
+            "user_script": "echo 'Hello from PBS'",
+            "walltime": provider.walltime,
         }
 
         # Use internal method for template + script writing
-        provider._write_submit_script(
-            provider.template_string,
-            str(script_path),
-            job_name,
-            configs
-        )
+        provider._write_submit_script(provider.template_string, str(script_path), job_name, configs)
 
         script_content = script_path.read_text()
 
@@ -63,4 +58,3 @@ def test_smart_pbs_provider_script_generation(force_select):
             assert "#PBS -l ncpus=4" in script_content
             assert "#PBS -l mem=8GB" in script_content
             assert "#PBS -l jobfs=20GB" in script_content
-

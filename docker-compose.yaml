@@ -52,17 +52,22 @@ services:
   climate-ref-esmvaltool:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_esmvaltool --loglevel INFO
+    command: celery start-worker --provider esmvaltool --loglevel INFO
   # ILAMB worker
   climate-ref-ilamb:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_ilamb --loglevel INFO
+    command: celery start-worker --provider ilamb --loglevel INFO
   # PMP worker
   climate-ref-pmp:
     extends:
       service: climate-ref
-    command: celery start-worker --package climate_ref_pmp --loglevel INFO
+    command: celery start-worker --provider pmp --loglevel INFO
+  # Example worker
+  climate-ref-example:
+    extends:
+      service: climate-ref
+    command: celery start-worker --provider example --loglevel INFO
 
 volumes:
   # This volume contains the database, scratch directories and the conda environments

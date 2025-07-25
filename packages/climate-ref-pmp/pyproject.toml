@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-pmp"
-version = "0.6.1"
+version = "0.6.3"
 description = "PMP diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -25,6 +25,8 @@ classifiers = [
 dependencies = [
     "climate-ref-core",
 ]
+[project.entry-points."climate-ref.providers"]
+pmp = "climate_ref_pmp:provider"
 
 [dependency-groups]
 dev = []

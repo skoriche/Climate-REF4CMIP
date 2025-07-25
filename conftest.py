@@ -142,14 +142,15 @@ def config(tmp_path, monkeypatch, request) -> Config:
     dir_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", request.node.name)
     ref_config_dir = root_output_dir / request.module.__name__ / dir_name
 
+    # Read the configured location for the conda environments.
+    software_path = Config.default().paths.software
+
+    # Use the default configuration with a test-specific directory.
     monkeypatch.setenv("REF_CONFIGURATION", str(ref_config_dir))
+    cfg = Config.default()
 
-    # Uses the default configuration
-    cfg = Config.load(ref_config_dir / "ref.toml")
-
-    # Put the conda environments in a shared location
-    # ROOT / .ref / software
-    cfg.paths.software = Path(__file__).parent / ".ref" / "software"
+    # Use the configured location for the conda environments.
+    cfg.paths.software = software_path
 
     # Allow adding datasets from outside the tree for testing
     cfg.diagnostic_providers = [DiagnosticProviderConfig(provider="climate_ref_example")]

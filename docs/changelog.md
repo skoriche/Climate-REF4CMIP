@@ -21,6 +21,30 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.3 (2025-07-17)
+
+### Improvements
+
+- Use a new URL for serving the reference data.
+  This should now support older versions of TLS which may help some users. ([#364](https://github.com/Climate-REF/climate-ref/pulls/364))
+
+
+## climate-ref 0.6.2 (2025-07-09)
+
+### Improvements
+
+- Implemented the parsl retry function ([#341](https://github.com/Climate-REF/climate-ref/pulls/341))
+- Allow arbitrary environment variables to be used in paths in the configuration file. ([#349](https://github.com/Climate-REF/climate-ref/pulls/349))
+- No longer automatically try to create the conda environment for a provider when running diagnostics. ([#354](https://github.com/Climate-REF/climate-ref/pulls/354))
+- Use provider conda environments from the configured location when running tests. ([#357](https://github.com/Climate-REF/climate-ref/pulls/357))
+- Remove the dependency on `ruamel.yaml` in `climate-ref-core` ([#361](https://github.com/Climate-REF/climate-ref/pulls/361))
+- Clarify that we don't technically support Windows at the moment, but it is possible to use WSL or a VM. ([#362](https://github.com/Climate-REF/climate-ref/pulls/362))
+
+### Improved Documentation
+
+- Add documentation for the CLI tool ([#343](https://github.com/Climate-REF/climate-ref/pulls/343))
+
+
 ## climate-ref 0.6.1 (2025-05-28)
 
 ### Features

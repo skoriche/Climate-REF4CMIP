@@ -1,3 +1,4 @@
+import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -342,6 +343,9 @@ def test_slurm_checker(
 
     assert checker.can_account_use_qos("climate_ref1", "normal") is True
     assert checker.can_account_use_qos("climate_ref3", "normal") is False
+
+    os.environ["USER"] = "test_user"
+    assert checker.can_account_use_qos("climate_ref1", "normal") is True
 
     assert checker.get_partition_limits("cpu") == {
         "max_time_minutes": 7200,

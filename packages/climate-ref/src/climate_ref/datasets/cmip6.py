@@ -112,6 +112,7 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         "standard_name",
         "long_name",
         "units",
+        "finalised",
         slug_column,
     )
 

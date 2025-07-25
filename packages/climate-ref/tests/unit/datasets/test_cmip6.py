@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from climate_ref.database import Database
 from climate_ref.datasets.cmip6 import (
     CMIP6DatasetAdapter,
     _apply_fixes,
@@ -90,18 +91,27 @@ class TestCMIP6Adapter:
         assert target_ds not in latest_instance_ids
         assert new_instance_id in latest_instance_ids
 
-    def test_round_trip(self, db_seeded, sample_data_dir):
+    @pytest.mark.parametrize("cmip6_parser", ["complete", "drs"])
+    def test_round_trip(self, cmip6_parser, config, sample_data_dir):
+        config.cmip6_parser = cmip6_parser
+
+        database = Database.from_config(config, run_migrations=True)
+        catalog = CMIP6DatasetAdapter(config=config).find_local_datasets(sample_data_dir / "CMIP6")
+
         # Indexes and ordering may be different
         adapter = CMIP6DatasetAdapter()
+        with database.session.begin():
+            for instance_id, data_catalog_dataset in catalog.groupby(adapter.slug_column):
+                adapter.register_dataset(config, database, data_catalog_dataset)
+
         local_data_catalog = (
-            adapter.find_local_datasets(sample_data_dir / "CMIP6")
-            .drop(columns=["time_range"])
+            catalog.drop(columns=["time_range"])
             .sort_values(["instance_id", "start_time"])
             .reset_index(drop=True)
         )
 
         db_data_catalog = (
-            adapter.load_catalog(db_seeded).sort_values(["instance_id", "start_time"]).reset_index(drop=True)
+            adapter.load_catalog(database).sort_values(["instance_id", "start_time"]).reset_index(drop=True)
         )
 
         pd.testing.assert_frame_equal(
@@ -121,10 +131,12 @@ class TestCMIP6Adapter:
 
         if cmip6_parser == "complete":
             assert data_catalog["finalised"].all()
+        else:
+            assert (~data_catalog["finalised"]).all()
 
         # TODO: add time_range to the db?
         assert sorted(data_catalog.columns.tolist()) == sorted(
-            [*adapter.dataset_specific_metadata, *adapter.file_specific_metadata, "time_range", "finalised"]
+            [*adapter.dataset_specific_metadata, *adapter.file_specific_metadata, "time_range"]
         )
 
         catalog_regression(

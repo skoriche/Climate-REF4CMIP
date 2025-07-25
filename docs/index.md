@@ -32,7 +32,7 @@ REF is a [community project](https://wcrp-cmip.org/cmip-phases/cmip7/rapid-evalu
 
 After [installation](installation.md), you can start using the REF via the CLI tool:
 
-```bash
+```
 $ ref
 
  Usage: ref [OPTIONS] COMMAND [ARGS]...

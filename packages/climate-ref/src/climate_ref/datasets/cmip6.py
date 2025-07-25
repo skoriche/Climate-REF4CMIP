@@ -21,16 +21,19 @@ def _parse_datetime(dt_str: pd.Series[str]) -> pd.Series[datetime | Any]:
     """
 
     def _inner(date_string: str | None) -> datetime | None:
-        if not date_string:
+        if not date_string or pd.isnull(date_string):
             return None
 
         # Try to parse the date string with and without milliseconds
-        try:
-            dt = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            dt = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S.%f")
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):
+            try:
+                return datetime.strptime(date_string, fmt)
+            except ValueError:
+                continue
 
-        return dt
+        # If all parsing attempts fail, log an error and return None
+        logger.error(f"Failed to parse date string: {date_string}")
+        return None
 
     return pd.Series(
         [_inner(dt) for dt in dt_str],
@@ -43,15 +46,16 @@ def _apply_fixes(data_catalog: pd.DataFrame) -> pd.DataFrame:
     def _fix_parent_variant_label(group: pd.DataFrame) -> pd.DataFrame:
         if group["parent_variant_label"].nunique() == 1:
             return group
-        group["parent_variant_label"] = group["variant_label"].iloc[0]
+        group["parent_variant_label"] = group["parent_variant_label"].iloc[0]
 
         return group
 
-    data_catalog = (
-        data_catalog.groupby("instance_id")
-        .apply(_fix_parent_variant_label, include_groups=False)
-        .reset_index(level="instance_id")
-    )
+    if "parent_variant_label" in data_catalog:
+        data_catalog = (
+            data_catalog.groupby("instance_id")
+            .apply(_fix_parent_variant_label, include_groups=False)
+            .reset_index(level="instance_id")
+        )
 
     if "branch_time_in_child" in data_catalog:
         data_catalog["branch_time_in_child"] = _clean_branch_time(data_catalog["branch_time_in_child"])
@@ -194,6 +198,14 @@ class CMIP6DatasetAdapter(DatasetAdapter):
         datasets["instance_id"] = datasets.apply(
             lambda row: "CMIP6." + ".".join([row[item] for item in drs_items]), axis=1
         )
+
+        # Add in any missing metadata columns
+        missing_columns = set(self.dataset_specific_metadata + self.file_specific_metadata) - set(
+            datasets.columns
+        )
+        if missing_columns:
+            for column in missing_columns:
+                datasets[column] = pd.NA
 
         # Temporary fix for some datasets
         # TODO: Replace with a standalone package that contains metadata fixes for CMIP6 datasets

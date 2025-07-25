@@ -198,7 +198,7 @@ class DatasetAdapter(Protocol):
         slug = unique_slugs[0]
 
         dataset_metadata = data_catalog_dataset[list(self.dataset_specific_metadata)].iloc[0].to_dict()
-        dataset, created = db.get_or_create(DatasetModel, slug=slug, **dataset_metadata)
+        dataset, created = db.get_or_create(DatasetModel, defaults=dataset_metadata, slug=slug)
         if not created:
             logger.warning(f"{dataset} already exists in the database. Skipping")
             return None

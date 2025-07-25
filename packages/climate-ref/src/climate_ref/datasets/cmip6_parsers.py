@@ -13,6 +13,38 @@ from ecgtools.parsers.utilities import extract_attr_with_regex  # type: ignore
 from loguru import logger
 
 
+def _parse_daterange(date_range: str) -> tuple[str | None, str | None]:
+    """
+    Parse a date range string into start and end dates
+
+    The output from this is an estimated date range until the file is completely parsed.
+
+    Parameters
+    ----------
+    date_range
+        Date range string in the format "YYYYMM-YYYYMM"
+
+    Returns
+    -------
+    :
+        Tuple containing start and end dates as strings in the format "YYYY-MM-DD"
+    """
+    try:
+        start, end = date_range.split("-")
+        if len(start) != 6 or len(end) != 6:  # noqa: PLR2004
+            raise ValueError("Date range must be in the format 'YYYYMM-YYYYMM'")
+
+        start = f"{start[:4]}-{start[4:6]}-01"
+        # Up to the 30th of the month, assuming a 30-day month
+        # These values will be corrected later when the file is parsed
+        end = f"{end[:4]}-{end[4:6]}-30"
+
+        return start, end
+    except ValueError:
+        logger.error(f"Invalid date range format: {date_range}")
+        return None, None
+
+
 def parse_cmip6_complete(file: str, **kwargs: Any) -> dict[str, Any]:
     """
     Complete parser for CMIP6 files
@@ -101,7 +133,11 @@ def parse_cmip6_complete(file: str, **kwargs: Any) -> dict[str, Any]:
                 info["time_range"] = f"{start_time}-{end_time}"
         info["path"] = str(file)
         info["version"] = extract_attr_with_regex(str(file), regex=r"v\d{4}\d{2}\d{2}|v\d{1}") or "v0"
-        info[""]
+
+        # Mark the dataset as finalised
+        # This is used to indicate that the dataset has been fully parsed and is ready for use
+        info["finalised"] = True
+
         return info
 
     except Exception:
@@ -128,4 +164,26 @@ def parse_cmip6_drs(file: str, **kwargs: Any) -> dict[str, Any]:
     :
         Dictionary with extracted metadata
     """
-    return parse_cmip6_using_directories(file)
+    info: dict[str, Any] = parse_cmip6_using_directories(file)
+
+    if "INVALID_ASSET" in info:
+        logger.warning(f"Failed to parse {file}: {info['INVALID_ASSET']}")
+        return info
+
+    # The member_id is technically incorrect
+    # but for simplicity we are going to ignore sub-experiments for the DRS parser
+    info["variant_label"] = info["member_id"]
+
+    # Rename the `dcpp_init_year` key to `init_year` if it exists
+    if "dcpp_init_year" in info:
+        info["init_year"] = info.pop("dcpp_init_year")
+
+    if info.get("time_range"):
+        # Parse the time range if it exists
+        start_time, end_time = _parse_daterange(info["time_range"])
+        info["start_time"] = start_time
+        info["end_time"] = end_time
+
+    info["finalised"] = False
+
+    return info

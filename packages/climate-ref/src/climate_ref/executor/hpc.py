@@ -99,7 +99,7 @@ class HPCExecutor:
         self.partition = str(executor_config.get("partition")) if executor_config.get("partition") else None
         self.queue = str(executor_config.get("queue")) if executor_config.get("queue") else None
         self.qos = str(executor_config.get("qos")) if executor_config.get("qos") else None
-        self.req_nodes = int(executor_config.get("req_nodes", 1)) if self.scheduler == "slurm" else None
+        self.req_nodes = int(executor_config.get("req_nodes", 1)) if self.scheduler == "slurm" else 1
         self.walltime = str(executor_config.get("walltime", "00:10:00"))
         self.log_dir = str(executor_config.get("log_dir", "runinfo"))
 
@@ -183,6 +183,7 @@ class HPCExecutor:
     def _initialize_parsl(self) -> None:
         executor_config = self.config.executor.config
 
+        provider: SlurmProvider | SmartPBSProvider
         if self.scheduler == "slurm":
             provider = SlurmProvider(
                 account=self.account,
@@ -211,10 +212,10 @@ class HPCExecutor:
                 mem=executor_config.get("mem", "4GB"),
                 jobfs=executor_config.get("jobfs", "10GB"),
                 storage=executor_config.get("storage", ""),
-                init_blocks=_to_int(executor_config.get("init_blocks", 1)),
-                min_blocks=_to_int(executor_config.get("min_blocks", 0)),
-                max_blocks=_to_int(executor_config.get("max_blocks", 1)),
-                parallelism=_to_int(executor_config.get("parallelism", 1)),
+                init_blocks=executor_config.get("init_blocks", 1),
+                min_blocks=executor_config.get("min_blocks", 0),
+                max_blocks=executor_config.get("max_blocks", 1),
+                parallelism=executor_config.get("parallelism", 1),
                 scheduler_options=executor_config.get("scheduler_options", ""),
                 launcher=SimpleLauncher(),
                 walltime=self.walltime,

@@ -192,7 +192,7 @@ class GlobalMeanTimeseries(Diagnostic):
         cmec_metric_bundle = CMECMetric(**format_cmec_metric_bundle(ds)).prepend_dimensions(
             {
                 "source_id": input_selectors["source_id"],
-                "variable_id": input_selectors["member_id"],
+                "variable_id": input_selectors["variable_id"],
                 "experiment_id": input_selectors["experiment_id"],
                 "variant_label": input_selectors["variant_label"],
             }

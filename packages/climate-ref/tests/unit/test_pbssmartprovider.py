@@ -33,7 +33,6 @@ def test_smart_pbs_provider_script_generation(force_select):
         stderr = Path(tmpdir) / "err.txt"
 
         configs = {
-            "jobname": job_name,
             "job_stdout_path": str(stdout),
             "job_stderr_path": str(stderr),
             "scheduler_options": provider.scheduler_options,

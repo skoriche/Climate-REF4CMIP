@@ -115,6 +115,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
 
     dataset_specific_metadata = (
         "activity_id",
+        "finalised",
         "frequency",
         "grid",
         "grid_label",
@@ -187,4 +188,5 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
         datasets["instance_id"] = datasets.apply(
             lambda row: "obs4MIPs." + ".".join([row[item] for item in drs_items]), axis=1
         )
+        datasets["finalised"] = True
         return datasets

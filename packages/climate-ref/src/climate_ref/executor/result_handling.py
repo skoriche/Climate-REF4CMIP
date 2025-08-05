@@ -74,6 +74,8 @@ def _process_execution_scalar(
 ) -> None:
     """
     Process the scalar values from the execution result and store them in the database
+
+    This also validates the scalar values against the controlled vocabulary
     """
     # Load the metric bundle from the file
     cmec_metric_bundle = CMECMetric.load_from_json(result.to_output_path(result.metric_bundle_filename))
@@ -117,9 +119,13 @@ def _process_execution_series(
     database: Database,
     result: "ExecutionResult",
     execution: Execution,
+    cv: CV,
 ) -> None:
     """
     Process the series values from the execution result and store them in the database
+
+    This also copies the series values file from the scratch directory to the results directory
+    and validates the series values against the controlled vocabulary.
     """
     assert result.series_filename, "Series filename must be set in the result"
 
@@ -134,16 +140,23 @@ def _process_execution_series(
     series_values_path = result.to_output_path(result.series_filename)
     series_values = TSeries.load_from_json(series_values_path)
 
+    try:
+        cv.validate_metrics(series_values)
+    except (ResultValidationError, AssertionError):
+        # TODO: Remove once we have settled on a controlled vocabulary
+        logger.exception("Diagnostic values do not conform with the controlled vocabulary")
+        # execution.mark_failed()
+
     # Perform a bulk insert of series values
     try:
         series_values_content = [
             {
                 "execution_id": execution.id,
-                "values": result.values,
-                "attributes": result.attributes,
-                **result.dimensions,
+                "values": series_result.values,
+                "attributes": series_result.attributes,
+                **series_result.dimensions,
             }
-            for result in series_values
+            for series_result in series_values
         ]
         logger.debug(f"Ingesting {len(series_values)} series values for execution {execution.id}")
         if series_values:
@@ -222,7 +235,7 @@ def handle_execution_result(
     if result.series_filename:
         # Process the series values if they are present
         # This will ingest the series values into the database
-        _process_execution_series(config=config, database=database, result=result, execution=execution)
+        _process_execution_series(config=config, database=database, result=result, execution=execution, cv=cv)
 
     # Process the scalar values
     # This will ingest the scalar values into the database

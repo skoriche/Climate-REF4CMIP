@@ -183,9 +183,11 @@ class ExecutionResult:
     Whether the diagnostic execution ran successfully.
     """
 
-    series: Sequence[SeriesMetricValue] = field(factory=tuple)
+    series_filename: pathlib.Path | None = None
     """
     A collection of series metric values that were extracted from the execution.
+
+    These are written to a CSV file in the output directory.
     """
 
     @staticmethod
@@ -207,6 +209,8 @@ class ExecutionResult:
             An output bundle in the CMEC format.
         cmec_metric_bundle
             An diagnostic bundle in the CMEC format.
+        series
+            Series metric values extracted from the execution.
 
         Returns
         -------
@@ -225,19 +229,22 @@ class ExecutionResult:
             cmec_metric = cmec_metric_bundle
 
         definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
-        bundle_path = definition.to_output_path("output.json")
-        cmec_output.dump_to_json(bundle_path)
 
-        definition.to_output_path(filename=None).mkdir(parents=True, exist_ok=True)
-        bundle_path = definition.to_output_path("diagnostic.json")
-        cmec_metric.dump_to_json(bundle_path)
+        output_filename = "output.json"
+        metric_filename = "diagnostic.json"
+        series_filename = "series.json"
 
+        cmec_output.dump_to_json(definition.to_output_path(output_filename))
+        cmec_metric.dump_to_json(definition.to_output_path(metric_filename))
+        SeriesMetricValue.dump_to_json(definition.to_output_path(series_filename), series)
+
+        # We are using relative paths for the output files for portability of the results
         return ExecutionResult(
             definition=definition,
-            output_bundle_filename=pathlib.Path("output.json"),
-            metric_bundle_filename=pathlib.Path("diagnostic.json"),
+            output_bundle_filename=pathlib.Path(output_filename),
+            metric_bundle_filename=pathlib.Path(metric_filename),
+            series_filename=pathlib.Path(series_filename),
             successful=True,
-            series=series,
         )
 
     @staticmethod

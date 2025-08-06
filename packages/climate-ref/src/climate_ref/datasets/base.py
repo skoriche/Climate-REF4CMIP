@@ -46,7 +46,7 @@ class DatasetParsingFunction(Protocol):
 
         Parameters
         ----------
-        file_or_directory
+        file
             File or directory to parse
 
         kwargs

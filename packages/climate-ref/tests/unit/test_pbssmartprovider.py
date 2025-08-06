@@ -19,6 +19,7 @@ def test_smart_pbs_provider_script_generation(force_select):
         queue="normal",
         scheduler_options="-l select=1:ncpus=4:mem=8GB:jobfs=20GB",
         worker_init="module load myenv",
+        nodes_per_block=1,
         ncpus=4,
         mem="8GB",
         jobfs="20GB",

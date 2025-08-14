@@ -123,7 +123,7 @@ See the [development documentation](development.md) for more information on how 
 ## Installing metric provider dependencies
 
 /// admonition | Windows support
-   type: warning
+    type: warning
 
 Window's doesn't support some of the packages required by the [diagnostic providers](nutshell.md),
 so we only support MacOS and Linux.

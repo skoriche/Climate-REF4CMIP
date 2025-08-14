@@ -1,7 +1,6 @@
 # Ingest Datasets
 
-This guide will walk you through the process of ingesting local datasets into the REF.
-Ingesting datasets is the first step in the REF workflow.
+This guide will walk you through the process of ingesting local datasets into the REF. In REF, to *ingest* means that we record local datasets in the REF database, letting REF know where they exist and to what format they conform. Ingesting datasets is the first step in the REF workflow.
 
 The REF supports the following dataset formats:
 

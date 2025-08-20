@@ -52,7 +52,7 @@ class TestMetricsProvider:
         assert isinstance(result, Diagnostic)
 
 
-@pytest.mark.parametrize("fqn", ["climate_ref_esmvaltool.provider", "climate_ref_esmvaltool"])
+@pytest.mark.parametrize("fqn", ["climate_ref_esmvaltool:provider", "climate_ref_esmvaltool"])
 def test_import_provider(fqn):
     provider = import_provider(fqn)
 
@@ -63,21 +63,21 @@ def test_import_provider(fqn):
 
 def test_import_provider_missing():
     fqn = "climate_ref"
-    match = f"Invalid provider: '{fqn}'\n Provider 'provider' not found in climate_ref"
+    match = f"Invalid provider: '{fqn}.provider'\n Provider not found in module"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "climate_ref.datasets.WrongProvider"
-    match = f"Invalid provider: '{fqn}'\n Provider 'WrongProvider' not found in climate_ref.datasets"
+    fqn = "climate_ref.datasets:WrongProvider"
+    match = f"Invalid provider: '{fqn}'\n Provider not found in module"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "missing.local.WrongProvider"
-    match = f"Invalid provider: '{fqn}'\n Module 'missing.local' not found"
+    fqn = "missing.local:WrongProvider"
+    match = f"Invalid provider: '{fqn}'\n Module not found"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
 
-    fqn = "climate_ref.__version__"
+    fqn = "climate_ref:__version__"
     match = f"Invalid provider: '{fqn}'\n Expected DiagnosticProvider, got <class 'str'>"
     with pytest.raises(InvalidProviderException, match=match):
         import_provider(fqn)
@@ -256,9 +256,12 @@ class TestCondaMetricsProvider:
 
         assert f"Environment at {env_path} already exists, skipping." in caplog.text
 
-    def test_run(self, mocker, tmp_path, provider):
+    @pytest.mark.parametrize("env_exists", [True, False])
+    def test_run(self, mocker, tmp_path, provider, env_exists):
         conda_exe = tmp_path / "conda" / "micromamba"
         env_path = provider.prefix / "mock-env"
+        if env_exists:
+            env_path.mkdir(parents=True)
 
         mocker.patch.object(
             CondaDiagnosticProvider,
@@ -284,18 +287,25 @@ class TestCondaMetricsProvider:
             create_autospec=True,
         )
 
-        provider.run(["mock-command"])
+        if not env_exists:
+            with pytest.raises(
+                RuntimeError,
+                match=(f"Conda environment for provider `{provider.slug}` not available at {env_path}."),
+            ):
+                provider.run(["mock-command"])
+        else:
+            provider.run(["mock-command"])
 
-        run.assert_called_with(
-            [
-                f"{conda_exe}",
-                "run",
-                "--prefix",
-                f"{env_path}",
-                "mock-command",
-            ],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
+            run.assert_called_with(
+                [
+                    f"{conda_exe}",
+                    "run",
+                    "--prefix",
+                    f"{env_path}",
+                    "mock-command",
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )

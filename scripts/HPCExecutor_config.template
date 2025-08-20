@@ -1,0 +1,32 @@
+#DOE NERSC (https://docs.nersc.gov/systems/perlmutter/architecture/)
+
+[executor]
+executor="climate_ref.executor.HPCExecutor"
+
+[executor.config]
+scheduler="slurm"
+account="m2467"
+req_nodes=1
+walltime="00:30:00"
+username="minxu"
+qos="debug"
+scheduler_options="#SBATCH -C cpu"
+cores_per_worker=1
+max_workers_per_node=64
+
+# DOE ORNL baseline (https://docs.cades.olcf.ornl.gov/baseline_user_guide/baseline_user_guide.html#system-overview)
+[executor]
+executor="climate_ref.executor.HPCExecutor"
+
+[executor.config]
+scheduler="slurm"
+account="cli185"
+req_nodes=3
+cores_per_workers=16
+walltime="00:30:00"
+username="minxu"
+partition="batch_ccsi"
+scheduler_options="#SBATCH -J 'test_ref_hpc'"
+overrides="--mpi=none"
+cores_per_worker=1
+max_workers_per_node=16

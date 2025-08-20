@@ -1,5 +1,9 @@
 """
 View and ingest input datasets
+
+The metadata from these datasets are stored in the database so that they can be used to determine
+which executions are required for a given diagnostic without having to re-parse the datasets.
+
 """
 
 import errno
@@ -105,9 +109,12 @@ def ingest(  # noqa: PLR0913
     ] = False,
 ) -> None:
     """
-    Ingest a dataset
+    Ingest a directory of datasets into the database
 
-    This will register a dataset in the database to be used for diagnostics calculations.
+    Each dataset will be loaded and validated using the specified dataset adapter.
+    This will extract metadata from the datasets and store it in the database.
+
+    A table of the datasets will be printed to the console at the end of the operation.
     """
     config = ctx.obj.config
     db = ctx.obj.database

@@ -64,7 +64,7 @@ uv run ref datasets ingest --source-type cmip6 $PWD/tests/test-data/sample-data/
 uv run ref datasets ingest --source-type obs4mips $PWD/tests/test-data/sample-data/obs4REF/
 ```
 
-Additional reference datasets can be fetched by following the instructions [here](introduction/required_datasets.md).
+Additional reference datasets can be fetched by following the instructions [here](getting-started/02-download-datasets.md).
 The Obs4REF step is not required as we have already ingested these datasets above.
 
 ### Creating provider environments
@@ -158,7 +158,7 @@ MAMBA_PLATFORM=osx-64 uv run ref providers create-env --provider pmp
 To update a conda-lock file, run for example:
 
 ```bash
-uvx uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
+uvx conda-lock -p linux-64 -p osx-64 -p osx-arm64 -f packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/environment.yml
 mv conda-lock.yml packages/climate-ref-esmvaltool/src/climate_ref_esmvaltool/requirements/conda-lock.yml
 ```
 

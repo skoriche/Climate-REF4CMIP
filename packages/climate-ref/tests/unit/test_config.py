@@ -1,3 +1,4 @@
+import importlib.metadata
 import logging
 import sys
 from pathlib import Path
@@ -119,6 +120,18 @@ filename = "sqlite://climate_ref.db"
     def test_defaults(self, monkeypatch, mocker):
         monkeypatch.setenv("REF_CONFIGURATION", "test")
         mocker.patch("climate_ref.config.importlib.resources.files", return_value=Path("pycmec"))
+        mocker.patch(
+            "climate_ref.config.importlib.metadata.entry_points",
+            return_value=importlib.metadata.EntryPoints(
+                [
+                    importlib.metadata.EntryPoint(
+                        name="example",
+                        value="climate_ref_example:provider",
+                        group="climate-ref.providers",
+                    ),
+                ]
+            ),
+        )
 
         cfg = Config.load(Path("test.toml"))
         default_path = Path("test").resolve()
@@ -130,26 +143,18 @@ filename = "sqlite://climate_ref.db"
         assert without_defaults == {
             "log_level": "INFO",
             "log_format": DEFAULT_LOG_FORMAT,
+            "cmip6_parser": "complete",
             "diagnostic_providers": [
-                {"provider": "climate_ref_esmvaltool.provider"},
-                {"provider": "climate_ref_ilamb.provider"},
-                {"provider": "climate_ref_pmp.provider"},
+                {"provider": "climate_ref_example:provider"},
             ],
         }
         assert with_defaults == {
             "log_level": "INFO",
             "log_format": DEFAULT_LOG_FORMAT,
+            "cmip6_parser": "complete",
             "diagnostic_providers": [
                 {
-                    "provider": "climate_ref_esmvaltool.provider",
-                    "config": {},
-                },
-                {
-                    "provider": "climate_ref_ilamb.provider",
-                    "config": {},
-                },
-                {
-                    "provider": "climate_ref_pmp.provider",
+                    "provider": "climate_ref_example:provider",
                     "config": {},
                 },
             ],
@@ -181,6 +186,14 @@ filename = "sqlite://climate_ref.db"
         assert config_new.executor.executor == "new-executor"
         assert config_new.paths.scratch == Path("/my/test/scratch")
         assert config_new.paths.log == Path("/my/test/logs")
+        assert config_new.paths.results == Path("/my/test/executions")
+
+    def test_custom_env_variable(self, monkeypatch, tmp_path, config):
+        monkeypatch.setenv("ABC", "/my")
+        config.paths.results = "${ABC}/test/executions"
+        # Environment variables are only expanded when loading from file.
+        config.save(tmp_path / "ref.toml")
+        config_new = Config.load(tmp_path / "ref.toml")
         assert config_new.paths.results == Path("/my/test/executions")
 
     def test_executor_build(self, config, db):

@@ -49,6 +49,10 @@ def solve(  # noqa: PLR0913
 
     This may trigger a number of additional calculations depending on what data has been ingested
     since the last solve.
+    This command will block until all executions have been solved or the timeout is reached.
+
+    Filters can be applied to limit the diagnostics and providers that are considered, see the options
+    `--diagnostic` and `--provider` for more information.
     """
     config = ctx.obj.config
     db = ctx.obj.database

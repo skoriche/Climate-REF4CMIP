@@ -20,9 +20,9 @@ def list_(ctx: typer.Context) -> None:
     print(config.dumps(defaults=True))
 
 
-@app.command()
-def update() -> None:
-    """
-    Update a configuration value
-    """
-    print("config")
+# @app.command()
+# def update() -> None:
+#     """
+#     Update a configuration value
+#     """
+#     print("config")

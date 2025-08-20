@@ -2,7 +2,7 @@
 
 <!--- --8<-- [start:description] -->
 
-**Status**: This project is in active development. We expect to be ready for beta releases in Q2 2025.
+**Status**: This project is in active development
 
 The Rapid Evaluation Framework(REF) is a set of Python packages that provide the ability to manage the execution of calculations against climate datasets.
 The aim is to be able to evaluate climate data against a set of reference data in near-real time as datasets are published,
@@ -47,6 +47,10 @@ The REF is agnostic to what types of data and metrics are to be performed.
 CMIP Rapid Evaluation Framework can be installed with pip,
 alongside the providers selected for the Assessment Fast Track.
 (mamba and conda releases are not yet implemented):
+
+The Climate-REF doesn't support Windows at the moment due to some downstream dependencies that are not available on Windows.
+Windows users are recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
+or a Linux VM if they wish to use the REF.
 
 ```bash
 pip install climate-ref[aft-providers]

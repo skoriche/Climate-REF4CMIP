@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from loguru import logger
 
 from climate_ref_core.diagnostics import ExecutionDefinition, ExecutionResult
-from climate_ref_core.exceptions import InvalidExecutorException
+from climate_ref_core.exceptions import DiagnosticError, InvalidExecutorException
 from climate_ref_core.logging import redirect_logs
 
 if TYPE_CHECKING:
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 def execute_locally(
     definition: ExecutionDefinition,
     log_level: str,
+    raise_error: bool = False,
 ) -> ExecutionResult:
     """
     Run a diagnostic execution
@@ -46,10 +47,15 @@ def execute_locally(
 
         with redirect_logs(definition, log_level):
             return definition.diagnostic.run(definition=definition)
-    except Exception:
+    except Exception as e:
         # If the diagnostic fails, we want to log the error and return a failure result
         logger.exception(f"Error running {definition.execution_slug()!r}")
-        return ExecutionResult.build_from_failure(definition)
+        result = ExecutionResult.build_from_failure(definition)
+
+        if raise_error:
+            raise DiagnosticError(str(e), result) from e
+        else:
+            return result
 
 
 @runtime_checkable

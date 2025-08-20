@@ -11,7 +11,7 @@ from climate_ref.models.dataset import CMIP6Dataset, DatasetFile
 def test_ingest_help(invoke_cli):
     result = invoke_cli(["datasets", "ingest", "--help"])
 
-    assert "Ingest a dataset" in result.stdout
+    assert "Ingest a directory of dataset" in result.stdout
 
 
 class TestDatasetsList:

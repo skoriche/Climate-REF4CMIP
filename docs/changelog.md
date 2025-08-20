@@ -21,6 +21,66 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.4 (2025-08-04)
+
+### Deprecations
+
+- The `--package` option of the `ref celery start-worker` command has been deprecated and scheduled for removal.
+  This functionality is now handled by the `--provider` option which uses entry points declared in the provider packages. ([#367](https://github.com/Climate-REF/climate-ref/pulls/367))
+
+### Features
+
+- Use entrypoints to register provider plugins. ([#360](https://github.com/Climate-REF/climate-ref/pulls/360))
+- Support celery workers to consume tasks for multiple providers ([#367](https://github.com/Climate-REF/climate-ref/pulls/367))
+
+### Improvements
+
+- Add additional dimensions to the example metric for testing purposes. ([#372](https://github.com/Climate-REF/climate-ref/pulls/372))
+- Added a basic script to the CMIP6 data targetted by the current set of diagnostics for the Assessment Fast Track. ([#373](https://github.com/Climate-REF/climate-ref/pulls/373))
+
+
+## climate-ref 0.6.3 (2025-07-17)
+
+### Improvements
+
+- Use a new URL for serving the reference data.
+  This should now support older versions of TLS which may help some users. ([#364](https://github.com/Climate-REF/climate-ref/pulls/364))
+
+
+## climate-ref 0.6.2 (2025-07-09)
+
+### Improvements
+
+- Implemented the parsl retry function ([#341](https://github.com/Climate-REF/climate-ref/pulls/341))
+- Allow arbitrary environment variables to be used in paths in the configuration file. ([#349](https://github.com/Climate-REF/climate-ref/pulls/349))
+- No longer automatically try to create the conda environment for a provider when running diagnostics. ([#354](https://github.com/Climate-REF/climate-ref/pulls/354))
+- Use provider conda environments from the configured location when running tests. ([#357](https://github.com/Climate-REF/climate-ref/pulls/357))
+- Remove the dependency on `ruamel.yaml` in `climate-ref-core` ([#361](https://github.com/Climate-REF/climate-ref/pulls/361))
+- Clarify that we don't technically support Windows at the moment, but it is possible to use WSL or a VM. ([#362](https://github.com/Climate-REF/climate-ref/pulls/362))
+
+### Improved Documentation
+
+- Add documentation for the CLI tool ([#343](https://github.com/Climate-REF/climate-ref/pulls/343))
+
+
+## climate-ref 0.6.1 (2025-05-28)
+
+### Features
+
+- Implemented a HPCExecutor.
+  It could let users run REF under HPC workflows by submitting batch jobs
+  and compute diagnostics on the computer nodes. Only the slurm scheduler is
+  supported now. ([#305](https://github.com/Climate-REF/climate-ref/pulls/305))
+
+### Bug Fixes
+
+- Remove keys with their value None from the output JSON for CMEC validation of PMP extratropical variability modes ([#337](https://github.com/Climate-REF/climate-ref/pulls/337))
+
+### Improved Documentation
+
+- Add Getting Started section for ingesting and solving ([#342](https://github.com/Climate-REF/climate-ref/pulls/342))
+
+
 ## climate-ref 0.6.0 (2025-05-27)
 
 ### Breaking Changes

@@ -1,5 +1,5 @@
 """
-View diagnostic executions
+View execution groups and their results
 """
 
 import pathlib
@@ -29,11 +29,19 @@ console = Console()
 @app.command()
 def list_groups(
     ctx: typer.Context,
-    column: Annotated[list[str] | None, typer.Option()] = None,
+    column: Annotated[
+        list[str] | None,
+        typer.Option(help="Only include specified columns in the output"),
+    ] = None,
     limit: int = typer.Option(100, help="Limit the number of rows to display"),
 ) -> None:
     """
     List the diagnostic execution groups that have been identified
+
+    The data catalog is sorted by the date that the execution group was created (first = newest).
+    If the `--column` option is provided, only the specified columns will be displayed.
+
+    The output will be in a tabular format.
     """
     session = ctx.obj.database.session
 
@@ -178,6 +186,8 @@ def _log_panel(result_directory: pathlib.Path) -> Panel | None:
 def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
     Inspect a specific execution group by its ID
+
+    This will display the execution details, datasets, results directory, and logs if available.
     """
     config: Config = ctx.obj.config
     session = ctx.obj.database.session

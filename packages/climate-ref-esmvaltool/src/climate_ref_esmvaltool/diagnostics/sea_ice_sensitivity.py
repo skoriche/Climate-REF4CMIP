@@ -54,7 +54,7 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
             ),
         ),
     )
-    facets = ()
+    facets = ("experiment_id", "source_id", "region", "metric")
 
     @staticmethod
     def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:

@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
     "pooch >= 1.8",
     "climate-ref-core",
-    "ruamel.yaml >= 0.18",
+    "pyyaml",
     "xarray >= 2023.3.0",
 ]
 [project.entry-points."climate-ref.providers"]

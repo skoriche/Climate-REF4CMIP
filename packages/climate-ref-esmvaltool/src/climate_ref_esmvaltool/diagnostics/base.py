@@ -87,7 +87,10 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        input_files = {project: definition.datasets[project].datasets for project in definition.datasets}
+        input_files = {
+            project: dataset_collection.datasets
+            for project, dataset_collection in definition.datasets.items()
+        }
         recipe = load_recipe(self.base_recipe)
         self.update_recipe(recipe, input_files)
 
@@ -137,7 +140,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
                 {
                     "OBS": str(data_dir / "OBS"),
                     "OBS6": str(data_dir / "OBS"),
-                    "native6": str(data_dir / "RAWOBS"),
+                    "native6": str(data_dir / "native6"),
                 }
             )
             config["rootpath"]["obs4MIPs"] = [  # type: ignore[index]

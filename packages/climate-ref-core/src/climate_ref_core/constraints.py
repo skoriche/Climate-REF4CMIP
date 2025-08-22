@@ -211,13 +211,15 @@ class AddSupplementaryDataset:
                 supplementaries = supplementary_group[
                     (supplementary_group[matching_facets] == dataset[matching_facets]).all(1)
                 ]
-                # Select the best matching supplementary dataset based on the optional matching facets.
-                scores = (supplementaries[facets] == dataset).sum(axis=1)
-                matches = supplementaries[scores == scores.max()]
-                # Select the latest version if there are multiple matches
-                matches = matches[matches["version"] == matches["version"].max()]
-                # Select one match per dataset
-                indices.add(matches.index[0])
+                if not supplementaries.empty:
+                    # Select the best matching supplementary dataset based on the optional matching facets.
+                    scores = (supplementaries[facets] == dataset).sum(axis=1)
+                    matches = supplementaries[scores == scores.max()]
+                    if "version" in facets:
+                        # Select the latest version if there are multiple matches
+                        matches = matches[matches["version"] == matches["version"].max()]
+                    # Select one match per dataset
+                    indices.add(matches.index[0])
 
             supplementary_group = supplementary_group.loc[list(indices)].drop_duplicates()
 

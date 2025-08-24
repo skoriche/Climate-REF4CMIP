@@ -14,7 +14,7 @@ Certain emergent characteristics – such as climate sensitivity, ECS (Equilibri
 TCRE (Transient Climate Response to Cumulative Emissions), and others –
 could be pre-computed in a standardised manner supporting users including IPCC author teams.
 
-This document outlines some key design principles for the Rapid Evaluation Framework (REF) for the CMIP7 FastTrack (CMIP7 FT) process,
+This document outlines some key design principles for the Rapid Evaluation Framework (REF) for the CMIP Assessment Fast Track (AFT) process,
 with an eye towards a scalable solution.
 
 
@@ -49,7 +49,7 @@ The key objectives that determine the design of the system are as follows:
 * **Modular:** This is a community project.
     It should be easy for existing and future benchmarking packages to integrate with the framework.
     The developer experience for the benchmarking package providers should be paramount.
-* **Extensible:** For CMIP7-FT we are focusing on a small subset of possible derived metrics and diagnostics.
+* **Extensible:** For AFT we are focusing on a small subset of possible derived metrics and diagnostics.
     The metrics will scale over time as the science progresses in terms of data volume and complexity.
 * **Reusable:** We are targeting multiple different deployment environments and a range of different potential users.
     Where possible, we should preserve the ability to reuse components of the REF in different contexts.

@@ -17,7 +17,7 @@ The required datasets are listed in the [obs4REF registry](https://github.com/Cl
 
 /// admonition | Note
 
-By default, downloaded data is stored in a cache directory which is in your user directory by default.
+By default, downloaded data is stored in a cache directory which is in your user directory.
 
 You can override this location by setting the `REF_DATASET_CACHE_DIR` environment variable:
 

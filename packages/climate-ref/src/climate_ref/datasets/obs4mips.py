@@ -15,8 +15,17 @@ from climate_ref.datasets.cmip6 import _parse_datetime
 from climate_ref.models.dataset import Dataset, Obs4MIPsDataset
 
 
-def parse_obs4mips(file: str) -> dict[str, Any | None]:
-    """Parser for obs4mips"""
+def parse_obs4mips(file: str, **kwargs: Any) -> dict[str, Any]:
+    """
+    Parser for obs4mips
+
+    Parameters
+    ----------
+    file
+        File to parse
+    kwargs
+        Additional keyword arguments (not used, but required for protocol compatibility)
+    """
     keys = sorted(
         list(
             {
@@ -106,6 +115,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
 
     dataset_specific_metadata = (
         "activity_id",
+        "finalised",
         "frequency",
         "grid",
         "grid_label",
@@ -159,7 +169,7 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
             depth=10,
             include_patterns=["*.nc"],
             joblib_parallel_kwargs={"n_jobs": self.n_jobs},
-        ).build(parsing_func=parse_obs4mips)  # type: ignore[arg-type]
+        ).build(parsing_func=parse_obs4mips)
 
         datasets = builder.df
         if datasets.empty:
@@ -178,4 +188,5 @@ class Obs4MIPsDatasetAdapter(DatasetAdapter):
         datasets["instance_id"] = datasets.apply(
             lambda row: "obs4MIPs." + ".".join([row[item] for item in drs_items]), axis=1
         )
+        datasets["finalised"] = True
         return datasets

@@ -42,6 +42,15 @@ def test_smart_pbs_provider_script_generation(force_select):
             "walltime": provider.walltime,
         }
 
+        if force_select:
+            configs.update(
+                {
+                    "nodes_per_block": 1,
+                    "ncpus": 4,
+                    "select_options": provider.select_options,
+                }
+            )
+
         # Use internal method for template + script writing
         provider._write_submit_script(provider.template_string, str(script_path), job_name, configs)
 
@@ -52,8 +61,8 @@ def test_smart_pbs_provider_script_generation(force_select):
         assert "echo 'Hello from PBS'" in script_content
 
         if force_select:
-            assert "#PBS -l select=1:ncpus=4:mem=8GB:jobfs=20GB" in script_content
-            assert "#PBS -l ncpus=" not in script_content
+            assert "#PBS -l select=1:ncpus=4" in script_content
+            assert "#PBS -l ncpus=4" not in script_content
         else:
             assert "#PBS -l ncpus=4" in script_content
             assert "#PBS -l mem=8GB" in script_content

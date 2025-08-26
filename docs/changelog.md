@@ -21,6 +21,25 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.5 (2025-08-25)
+
+### Features
+
+- Add support for NCI PBS Scheduler to the HPCExecutor ([#358](https://github.com/Climate-REF/climate-ref/pulls/358))
+- Added sea ice sensitivity diagnostic. ([#378](https://github.com/Climate-REF/climate-ref/pulls/378))
+- Added data required for regional historical changes diagnostics. ([#379](https://github.com/Climate-REF/climate-ref/pulls/379))
+
+### Improvements
+
+- Added a dataset ingestor for CMIP6 data that only uses the DRS information present in the filename. This greatly speeds up the process of ingesting a large number of files, as it does not require reading the file contents to extract the DRS information.
+
+  This method can be opted into by specifying `cmip6_parser: "drs"` in the REF configuration file. The default parser remains the `complete` parser, which reads the file contents to all the required metadata, but this will change in a future PR. ([#366](https://github.com/Climate-REF/climate-ref/pulls/366))
+
+### Improved Documentation
+
+- Address documentation review from the Model Benchmarking Task Team ([#371](https://github.com/Climate-REF/climate-ref/pulls/371))
+
+
 ## climate-ref 0.6.4 (2025-08-04)
 
 ### Deprecations

@@ -152,7 +152,7 @@ class CV:
         metric_value_collection
             A collection of metric values to validate.
 
-        This can be a CMECMetric instance or a sequence of SeriesMetricValue instances.
+            This can be a CMECMetric instance or a sequence of SeriesMetricValue instances.
 
         Raises
         ------

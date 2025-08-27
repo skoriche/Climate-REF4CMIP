@@ -105,11 +105,6 @@ class SeriesMetricValue(BaseModel):
         ----------
         path
             The path to the JSON file.
-
-            The directory containing this file must already exist.
-            This file will be overwritten if it already exists.
-        series
-            The series values to dump.
         """
         with open(path) as f:
             data = json.load(f)

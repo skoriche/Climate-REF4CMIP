@@ -75,6 +75,7 @@ def config(config, postgres_container):
     return config
 
 
+@pytest.mark.docker
 def test_connect_and_migrations(config, cmip6_data_catalog):
     database = Database.from_config(config)
     assert database.url.startswith("postgresql")
@@ -87,6 +88,7 @@ def test_connect_and_migrations(config, cmip6_data_catalog):
             adapter.register_dataset(config, database, data_catalog_dataset)
 
 
+@pytest.mark.docker
 def test_check_up_to_date(config):
     database = Database.from_config(config)
 

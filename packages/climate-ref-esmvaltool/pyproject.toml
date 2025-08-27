@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-esmvaltool"
-version = "0.6.3"
+version = "0.6.5"
 description = "ESMValTool diagnostic provider for the Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -25,9 +25,11 @@ classifiers = [
 dependencies = [
     "pooch >= 1.8",
     "climate-ref-core",
-    "ruamel.yaml >= 0.18",
+    "pyyaml",
     "xarray >= 2023.3.0",
 ]
+[project.entry-points."climate-ref.providers"]
+esmvaltool = "climate_ref_esmvaltool:provider"
 
 [build-system]
 requires = ["hatchling"]

@@ -3,13 +3,11 @@ import json
 import climate_ref_esmvaltool.diagnostics.base
 import pandas
 import pytest
+import yaml
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.types import Recipe
-from ruamel.yaml import YAML
 
 from climate_ref_core.pycmec.output import OutputCV
-
-yaml = YAML()
 
 
 @pytest.fixture
@@ -40,7 +38,7 @@ def test_build_cmd(mocker, tmp_path, metric_definition, mock_diagnostic, data_di
     recipe = output_dir / "recipe.yml"
     assert cmd == ["esmvaltool", "run", f"--config-dir={config_dir}", f"{recipe}"]
     assert (output_dir / "climate_data").is_dir()
-    config = yaml.load((config_dir / "config.yml").read_text(encoding="utf-8"))
+    config = yaml.safe_load((config_dir / "config.yml").read_text(encoding="utf-8"))
     assert len(config["rootpath"]) == 5 if data_dir_exists else 1
 
 

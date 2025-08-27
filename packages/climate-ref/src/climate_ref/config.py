@@ -17,7 +17,7 @@ which always take precedence over any other configuration values.
 import importlib.resources
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import tomlkit
 from attr import Factory
@@ -215,17 +215,17 @@ class DiagnosticProviderConfig:
 
     ```toml
     [[diagnostic_providers]]
-    provider = "climate_ref_esmvaltool.provider"
+    provider = "climate_ref_esmvaltool:provider"
 
     [diagnostic_providers.config]
 
     [[diagnostic_providers]]
-    provider = "climate_ref_ilamb.provider"
+    provider = "climate_ref_ilamb:provider"
 
     [diagnostic_providers.config]
 
     [[diagnostic_providers]]
-    provider = "climate_ref_pmp.provider"
+    provider = "climate_ref_pmp:provider"
 
     [diagnostic_providers.config]
     ```
@@ -311,10 +311,12 @@ def default_providers() -> list[DiagnosticProviderConfig]:
     if env_providers:
         return [DiagnosticProviderConfig(provider=provider) for provider in env_providers]
 
+    # Refer to https://setuptools.pypa.io/en/latest/userguide/entry_point.html#entry-points-for-plugins
+    # and https://packaging.python.org/en/latest/specifications/entry-points/
+    # to learn more about entry points.
     return [
-        DiagnosticProviderConfig(provider="climate_ref_esmvaltool.provider", config={}),
-        DiagnosticProviderConfig(provider="climate_ref_ilamb.provider", config={}),
-        DiagnosticProviderConfig(provider="climate_ref_pmp.provider", config={}),
+        DiagnosticProviderConfig(provider=entry_point.value, config={})
+        for entry_point in importlib.metadata.entry_points(group="climate-ref.providers")
     ]
 
 
@@ -350,6 +352,16 @@ class Config:
 
     Examples of the formatting options are available in the
     [loguru documentation](https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger).
+    """
+
+    cmip6_parser: Literal["drs", "complete"] = env_field("CMIP6_PARSER", default="complete")
+    """
+    Parser to use for CMIP6 datasets
+
+    This can be either `drs` or `complete`.
+
+    - `drs`: Use the DRS parser, which parses the dataset based on the DRS naming conventions.
+    - `complete`: Use the complete parser, which parses the dataset based on all available metadata.
     """
 
     paths: PathConfig = Factory(PathConfig)  # noqa

@@ -1,11 +1,9 @@
 # Configuration
 
-The REF uses a tiered configuration model,
-where configuration is sourced from a hierarchy of different places.
+The REF uses a tiered configuration model, where options can be sourced from different places.
 Then configuration is loaded from a `.toml` file which overrides any default values.
-Finally, some configuration can be overridden at runtime using environment variables,
-which always take precedence over any other configuration values.
-For all configuration options, the environment variables take precedence over the configuration file.
+However, some configuration variables can be overridden at runtime using environment variables,
+which always take precedence over any other configuration values set by default or found in a `.toml` file.
 
 The default values for these environment variables are generally suitable,
 but if you require updating these values we recommend the use of a `.env` file
@@ -48,17 +46,17 @@ executor = "climate_ref.executor.LocalExecutor"
 [executor.config]
 
 [[diagnostic_providers]]
-provider = "climate_ref_esmvaltool.provider"
+provider = "climate_ref_esmvaltool:provider"
 
 [diagnostic_providers.config]
 
 [[diagnostic_providers]]
-provider = "climate_ref_ilamb.provider"
+provider = "climate_ref_ilamb:provider"
 
 [diagnostic_providers.config]
 
 [[diagnostic_providers]]
-provider = "climate_ref_pmp.provider"
+provider = "climate_ref_pmp:provider"
 
 [diagnostic_providers.config]
 ```

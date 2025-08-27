@@ -87,7 +87,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
 
         recipe_path = definition.to_output_path("recipe.yml")
         with recipe_path.open("w", encoding="utf-8") as file:
-            yaml.dump(recipe, file)
+            yaml.safe_dump(recipe, file, sort_keys=False)
 
         climate_data = definition.to_output_path("climate_data")
 

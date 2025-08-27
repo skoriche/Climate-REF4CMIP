@@ -61,6 +61,21 @@ class TestAddSupplementaryDataset:
                 [0],
             ),
             (
+                # Test that missing supplementary files are handled gracefully.
+                pd.DataFrame(
+                    {
+                        "variable_id": ["tas", "areacella", "areacella", "tas"],
+                        "source_id": ["X", "X", "X", "Y"],
+                        "grid_label": ["gn"] * 4,
+                        "table_id": ["Amon", "fx", "fx", "Amon"],
+                        "experiment_id": ["historical"] * 4,
+                        "member_id": ["r1i1p1f1", "r1i1p1f1", "r2i1p1f1", "r2i1p1f1"],
+                        "version": ["v20210316", "v20210316", "v20210317", "v20210317"],
+                    }
+                ),
+                [0, 3, 1],
+            ),
+            (
                 # Test that the grid_label matches.
                 pd.DataFrame(
                     {
@@ -68,7 +83,7 @@ class TestAddSupplementaryDataset:
                         "source_id": ["ACCESS-ESM1-5"] * 3,
                         "grid_label": ["gn", "gn", "gr"],
                         "table_id": ["Amon", "fx", "fx"],
-                        "experiment_id": ["historical"] * 3,
+                        "experiment_id": ["historical", "piControl", "historical"],
                         "member_id": ["r1i1p1f1", "r2i1p1f1", "r1i1p1f1"],
                         "version": ["v20210316"] * 3,
                     }

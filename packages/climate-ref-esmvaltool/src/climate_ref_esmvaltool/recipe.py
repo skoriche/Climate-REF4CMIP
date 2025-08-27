@@ -5,14 +5,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pooch
-from ruamel.yaml import YAML
+import yaml
 
 from climate_ref_esmvaltool.types import Recipe
 
 if TYPE_CHECKING:
     import pandas as pd
-
-yaml = YAML()
 
 FACETS = {
     "CMIP6": {
@@ -115,8 +113,8 @@ def dataframe_to_recipe(files: pd.DataFrame) -> dict[str, Any]:
     return variables
 
 
-_ESMVALTOOL_COMMIT = "58fd0b8ece981bc97c4fbd213b11f2228d90db28"
-_ESMVALTOOL_VERSION = f"2.13.0.dev65+g{_ESMVALTOOL_COMMIT[:9]}"
+_ESMVALTOOL_COMMIT = "8f56863a70ba4df76ec501ba0372c571a0af6cf9"
+_ESMVALTOOL_VERSION = f"2.13.0.dev120+g{_ESMVALTOOL_COMMIT[:9]}"
 
 _RECIPES = pooch.create(
     path=pooch.os_cache("climate_ref_esmvaltool"),
@@ -144,7 +142,7 @@ def load_recipe(recipe: str) -> Recipe:
         The loaded recipe.
     """
     filename = _RECIPES.fetch(recipe)
-    return yaml.load(Path(filename).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
+    return yaml.safe_load(Path(filename).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
 
 
 def prepare_climate_data(datasets: pd.DataFrame, climate_data_dir: Path) -> None:

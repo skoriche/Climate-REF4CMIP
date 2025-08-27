@@ -6,8 +6,8 @@ from typing import ClassVar
 
 import pandas
 import xarray as xr
+import yaml
 from loguru import logger
-from ruamel.yaml import YAML
 
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.datasets import ExecutionDatasetCollection, SourceDatasetType
@@ -21,8 +21,6 @@ from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_esmvaltool.recipe import load_recipe, prepare_climate_data
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
-
-yaml = YAML()
 
 
 class ESMValToolDiagnostic(CommandLineDiagnostic):
@@ -186,7 +184,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         series = []
         plot_suffixes = {".png", ".jpg", ".pdf", ".ps"}
         for metadata_file in result_dir.glob("run/*/*/diagnostic_provenance.yml"):
-            metadata = yaml.load(metadata_file.read_text(encoding="utf-8"))
+            metadata = yaml.safe_load(metadata_file.read_text(encoding="utf-8"))
             for filename in metadata:
                 caption = metadata[filename].get("caption", "")
                 relative_path = definition.as_relative_path(filename)

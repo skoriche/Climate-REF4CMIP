@@ -294,6 +294,12 @@ class TestCondaMetricsProvider:
             ):
                 provider.run(["mock-command"])
         else:
+            mocker.patch.object(
+                climate_ref_core.providers.os.environ,
+                "copy",
+                return_value={"existing_var": "existing_value"},
+            )
+            provider.env_vars = {"test_var": "test_value"}
             provider.run(["mock-command"])
 
             run.assert_called_with(
@@ -308,4 +314,5 @@ class TestCondaMetricsProvider:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                env={"existing_var": "existing_value", "test_var": "test_value"},
             )

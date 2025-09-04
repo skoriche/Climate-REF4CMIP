@@ -166,7 +166,8 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
             for diagnostic_name, orig_diagnostic in recipe["diagnostics"].items():
                 # Create the diagnostic for the region.
                 diagnostic = copy.deepcopy(orig_diagnostic)
-                diagnostics[f"{diagnostic_name}-{region}"] = diagnostic
+                normalized_region = region.replace("&", "-and-").replace("/", "-and-")
+                diagnostics[f"{diagnostic_name}-{normalized_region}"] = diagnostic
 
                 for variable in diagnostic["variables"].values():
                     # Remove unwanted facets that are part of the dataset.
@@ -176,7 +177,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
                     preprocessor_name = variable["preprocessor"]
                     preprocessor = copy.deepcopy(recipe["preprocessors"][preprocessor_name])
                     preprocessor["extract_shape"]["ids"] = {"Name": [region]}
-                    variable["preprocessor"] = f"{preprocessor_name}-{region}"
+                    variable["preprocessor"] = f"{preprocessor_name}-{normalized_region}"
                     recipe["preprocessors"][variable["preprocessor"]] = preprocessor
 
                 # Update plot titles with region name.

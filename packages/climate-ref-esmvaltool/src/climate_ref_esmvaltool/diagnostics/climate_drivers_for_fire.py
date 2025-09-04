@@ -64,3 +64,4 @@ class ClimateDriversForFire(ESMValToolDiagnostic):
         dataset = recipe_variables["cVeg"]["additional_datasets"][0]
         dataset.pop("mip")
         recipe["datasets"] = [dataset]
+        recipe["diagnostics"]["fire_evaluation"]["scripts"]["fire_evaluation"]["remove_confire_files"] = True

@@ -140,8 +140,8 @@ def dataframe_to_recipe(
     return variables
 
 
-_ESMVALTOOL_COMMIT = "8f56863a70ba4df76ec501ba0372c571a0af6cf9"
-_ESMVALTOOL_VERSION = f"2.13.0.dev120+g{_ESMVALTOOL_COMMIT[:9]}"
+_ESMVALTOOL_COMMIT = "710ecc39b71a4aad408e65ad5cd63b003ec03748"
+_ESMVALTOOL_VERSION = f"2.13.0.dev147+g{_ESMVALTOOL_COMMIT[:9]}"
 
 _RECIPES = pooch.create(
     path=pooch.os_cache("climate_ref_esmvaltool"),

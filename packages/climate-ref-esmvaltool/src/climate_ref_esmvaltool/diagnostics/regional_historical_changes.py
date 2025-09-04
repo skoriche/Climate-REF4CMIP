@@ -83,7 +83,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
             # - HadCRUT5_ground_5.0.1.0-analysis: tas
         ),
     )
-    facets = ("source_id", "member_id", "grid_label")
+    facets = ()
 
     @staticmethod
     def update_recipe(
@@ -257,7 +257,7 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
             # - HadCRUT5_ground_5.0.1.0-analysis: tas
         ),
     )
-    facets = ("source_id", "member_id", "grid_label")
+    facets = ()
 
     @staticmethod
     def update_recipe(

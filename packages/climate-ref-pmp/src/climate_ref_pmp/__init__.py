@@ -2,15 +2,20 @@
 Rapid evaluating CMIP data
 """
 
+from __future__ import annotations
+
 import importlib.metadata
 import os
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from climate_ref.config import Config
 from climate_ref_core.dataset_registry import DATASET_URL, dataset_registry_manager
 from climate_ref_core.providers import CondaDiagnosticProvider
 from climate_ref_pmp.diagnostics import ENSO, AnnualCycle, ExtratropicalModesOfVariability
+
+if TYPE_CHECKING:
+    from climate_ref.config import Config
 
 __version__ = importlib.metadata.version("climate-ref-pmp")
 

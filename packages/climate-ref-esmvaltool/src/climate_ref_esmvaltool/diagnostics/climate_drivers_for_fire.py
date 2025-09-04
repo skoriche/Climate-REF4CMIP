@@ -2,7 +2,6 @@ import pandas
 
 from climate_ref_core.constraints import (
     AddSupplementaryDataset,
-    RequireContiguousTimerange,
     RequireFacets,
     RequireOverlappingTimerange,
 )
@@ -46,7 +45,6 @@ class ClimateDriversForFire(ESMValToolDiagnostic):
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
                 RequireFacets("variable_id", variables),
-                RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
             ),
@@ -63,5 +61,8 @@ class ClimateDriversForFire(ESMValToolDiagnostic):
         recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
         dataset = recipe_variables["cVeg"]["additional_datasets"][0]
         dataset.pop("mip")
+        dataset.pop("timerange")
+        dataset["start_year"] = 2013
+        dataset["end_year"] = 2014
         recipe["datasets"] = [dataset]
         recipe["diagnostics"]["fire_evaluation"]["scripts"]["fire_evaluation"]["remove_confire_files"] = True

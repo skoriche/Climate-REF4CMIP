@@ -73,7 +73,7 @@ REGIONS = (
     "W.Southern-Africa",
     "West&Central-Europe",
     "Western-Africa",
-)[:2]
+)
 
 
 def normalize_region(region: str) -> str:

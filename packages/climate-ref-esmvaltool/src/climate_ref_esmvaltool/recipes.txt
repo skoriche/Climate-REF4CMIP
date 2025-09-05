@@ -12,4 +12,4 @@ ref/recipe_ref_cre.yml                      4375f262479c3b3e1b348b71080a6d758e19
 ref/recipe_ref_sea_ice_area_basic.yml       7d01a8527880663ca28284772f83a8356d9972fb4f022a4000e50a56ce044b09
 ref/recipe_ref_scatterplot.yml              b99d1736e16256d161847b025811d7088ad9f892d4887fb009fa99c4079135a0
 ref/recipe_ref_timeseries_region.yml        86f36e442021caba201601d8cf4624f8ce6715ce421670a467c792db2910db22
-ref/recipe_ref_trend_regions.yml            75d502a12742495bcd8a758125c2b2b4d1466fe2db5e827a993f6287b0b52a50
+ref/recipe_ref_trend_regions.yml            18fe246a51474bd12172ab1ba141efac999a247de7774822f77ae6ef144645fe

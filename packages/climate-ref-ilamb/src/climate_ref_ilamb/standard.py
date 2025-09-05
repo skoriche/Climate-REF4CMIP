@@ -5,6 +5,7 @@ import ilamb3  # type: ignore
 import ilamb3.regions as ilr  # type: ignore
 import pandas as pd
 import pooch
+import xarray as xr
 from ilamb3 import run
 
 from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets
@@ -16,6 +17,7 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
+from climate_ref_core.metric_values.typing import SeriesMetricValue
 from climate_ref_core.pycmec.metric import CMECMetric
 from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_ilamb.datasets import (
@@ -286,8 +288,40 @@ class ILAMBStandard(Diagnostic):
         }
         output_bundle[OutputCV.INDEX.value] = index_html
 
+        # Add series to the output based on the time traces we find in the
+        # output files
+        series = []
+        for ncfile in definition.output_directory.glob("*.nc"):
+            ds = xr.open_dataset(ncfile)
+            for name, da in ds.items():
+                # Only create series for 1d DataArray's with these dimensions
+                if not (da.ndim == 1 and set(da.dims).intersection(["time", "month"])):
+                    continue
+                # Convert dimension values
+                attrs = {}
+                str_name = str(name)
+                index_name = str(da.dims[0])
+                index = ds[index_name].values.tolist()
+                if hasattr(index[0], "isoformat"):
+                    index = [v.isoformat() for v in index]
+                if hasattr(index[0], "calendar"):
+                    attrs["calendar"] = index[0].calendar
+                # Parse out some CVs
+                dimensions = {"metric": str_name, "source_id": ncfile.stem}
+                if "_" in str_name:
+                    dimensions["region"] = str_name.split("_")[1]
+                series.append(
+                    SeriesMetricValue(
+                        dimensions=dimensions,
+                        values=da.values.tolist(),
+                        index=index,
+                        index_name=index_name,
+                        attributes=attrs,
+                    )
+                )
+
         return ExecutionResult.build_from_output_bundle(
-            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
+            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle, series=series
         )
 
 

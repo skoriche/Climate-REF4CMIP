@@ -8,7 +8,6 @@ documentation:
   maintainer:
   - weigel_katja
   title: Linear trends.
-datasets: []
 preprocessors:
   trend_tas:
     custom_order: true
@@ -308,6 +307,7 @@ preprocessors:
     linear_trend: null
     convert_units:
       units: year-1
+  default: {}
 diagnostics:
   tas_trends:
     variables:
@@ -315,24 +315,6 @@ diagnostics:
         preprocessor: trend_tas
         mip: Amon
         timerange: 1980/2009
-        additional_datasets:
-        - dataset: HadCRUT5
-          project: OBS
-          type: ground
-          version: 5.0.1.0-analysis
-          tier: 2
-        - dataset: ERA-5
-          project: obs4MIPs
-          tier: 1
-          reference_for_metric: true'
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: historical
-          grid: gn
-          mip: Amon
     scripts:
       plot:
         script: seaborn_diag.py
@@ -357,31 +339,23 @@ diagnostics:
             - 28
             - 6
         suptitle: Trend in Near-Surface Air Temperature
+    additional_datasets:
+    - dataset: ERA-5
+      project: obs4MIPs
+      tier: 1
+      reference_for_metric: true'
+      version: v20250220
+    - dataset: HadCRUT5
+      project: OBS
+      type: ground
+      version: 5.0.1.0-analysis
+      tier: 2
   pr_trends:
     variables:
       pr:
         preprocessor: trend_pr
         mip: Amon
         timerange: 1980/2009
-        additional_datasets:
-        - dataset: GPCP-V2.3
-          project: obs4MIPs
-          tier: 1
-          reference_for_metric: true
-        - dataset: ERA5
-          project: native6
-          type: reanaly
-          version: v1
-          tier: 3
-          reference_for_metric: true
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: historical
-          grid: gn
-          mip: Amon
     scripts:
       plot:
         script: seaborn_diag.py
@@ -406,25 +380,24 @@ diagnostics:
             - 28
             - 6
         suptitle: Trend in Precipitation
+    additional_datasets:
+    - dataset: ERA5
+      project: native6
+      type: reanaly
+      version: v1
+      tier: 3
+      reference_for_metric: true
+    - dataset: GPCP-V2.3
+      project: obs4MIPs
+      tier: 1
+      reference_for_metric: true
+      version: v20180519
   psl_trends:
     variables:
       psl:
         preprocessor: trend_psl
         mip: Amon
         timerange: 1980/2009
-        additional_datasets:
-        - dataset: ERA-5
-          project: obs4MIPs
-          tier: 1
-          reference_for_metric: true'
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: historical
-          grid: gn
-          mip: Amon
     scripts:
       plot:
         script: seaborn_diag.py
@@ -449,25 +422,18 @@ diagnostics:
             - 28
             - 6
         suptitle: Trend in Sea Level Pressure
+    additional_datasets:
+    - dataset: ERA-5
+      project: obs4MIPs
+      tier: 1
+      reference_for_metric: true'
+      version: v20250220
   ua200_trends:
     variables:
       ua:
         preprocessor: trend_ua200
         mip: Amon
         timerange: 1980/2009
-        additional_datasets:
-        - dataset: ERA-5
-          project: obs4MIPs
-          tier: 1
-          reference_for_metric: true'
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: historical
-          grid: gn
-          mip: Amon
     scripts:
       plot:
         script: seaborn_diag.py
@@ -491,27 +457,18 @@ diagnostics:
             - 28
             - 6
         suptitle: Trend in Zonal Wind at 200 hPa
+    additional_datasets:
+    - dataset: ERA-5
+      project: obs4MIPs
+      tier: 1
+      reference_for_metric: true'
+      version: v20250220
   hus200_trends:
     variables:
       hus:
         preprocessor: trend_hus200
         mip: Amon
         timerange: 1980/2009
-        additional_datasets:
-        - dataset: ERA5
-          project: native6
-          type: reanaly
-          version: v1
-          tier: 3
-          reference_for_metric: true
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: historical
-          grid: gn
-          mip: Amon
     scripts:
       plot:
         script: seaborn_diag.py
@@ -535,3 +492,22 @@ diagnostics:
             - 28
             - 6
         suptitle: Trend in Specific Humidity at 200 hPa
+    additional_datasets:
+    - dataset: ERA5
+      project: native6
+      type: reanaly
+      version: v1
+      tier: 3
+      reference_for_metric: true
+datasets:
+- project: CMIP6
+  activity: CMIP
+  dataset: ACCESS-ESM1-5
+  ensemble: r1i1p1f1
+  institute: CSIRO
+  exp: historical
+  grid: gn
+  version: v20191115
+  supplementary_variables:
+  - mip: fx
+    short_name: areacella

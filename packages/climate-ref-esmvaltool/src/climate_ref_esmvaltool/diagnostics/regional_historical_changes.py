@@ -9,9 +9,76 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import Recipe
+
+REGIONS = (
+    "Arabian-Peninsula",
+    "Arabian-Sea",
+    "Arctic-Ocean",
+    "Bay-of-Bengal",
+    "C.Australia",
+    "C.North-America",
+    "Caribbean",
+    "Central-Africa",
+    "E.Antarctica",
+    "E.Asia",
+    "E.Australia",
+    "E.C.Asia",
+    "E.Europe",
+    "E.North-America",
+    "E.Siberia",
+    "E.Southern-Africa",
+    "Equatorial.Atlantic-Ocean",
+    "Equatorial.Indic-Ocean",
+    "Equatorial.Pacific-Ocean",
+    "Greenland/Iceland",
+    "Madagascar",
+    "Mediterranean",
+    "N.Atlantic-Ocean",
+    "N.Australia",
+    "N.Central-America",
+    "N.E.North-America",
+    "N.E.South-America",
+    "N.Eastern-Africa",
+    "N.Europe",
+    "N.Pacific-Ocean",
+    "N.South-America",
+    "N.W.North-America",
+    "N.W.South-America",
+    "New-Zealand",
+    "Russian-Arctic",
+    "Russian-Far-East",
+    "S.Asia",
+    "S.Atlantic-Ocean",
+    "S.Australia",
+    "S.Central-America",
+    "S.E.Asia",
+    "S.E.South-America",
+    "S.Eastern-Africa",
+    "S.Indic-Ocean",
+    "S.Pacific-Ocean",
+    "S.South-America",
+    "S.W.South-America",
+    "Sahara",
+    "South-American-Monsoon",
+    "Southern-Ocean",
+    "Tibetan-Plateau",
+    "W.Antarctica",
+    "W.C.Asia",
+    "W.North-America",
+    "W.Siberia",
+    "W.Southern-Africa",
+    "West&Central-Europe",
+    "Western-Africa",
+)[:2]
+
+
+def normalize_region(region: str) -> str:
+    """Normalize region name so it can be used in filenames."""
+    return region.replace("&", "-and-").replace("/", "-and-")
 
 
 class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
@@ -23,19 +90,33 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
     slug = "regional-historical-annual-cycle"
     base_recipe = "ref/recipe_ref_annual_cycle_region.yml"
 
+    variables = (
+        "hus",
+        "pr",
+        "psl",
+        "tas",
+        "ua",
+    )
+    series = tuple(
+        SeriesDefinition(
+            file_pattern=f"anncyc-{region}/allplots/*_{var_name}_*.nc",
+            sel={"dim0": 0},  # Select the model and not the observation.
+            dimensions={"region": region},
+            values_name=var_name,
+            index_name="month_number",
+            attributes=[],
+        )
+        for var_name in variables
+        for region in REGIONS
+    )
+
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": (
-                            "hus",
-                            "pr",
-                            "psl",
-                            "tas",
-                            "ua",
-                        ),
+                        "variable_id": variables,
                         "experiment_id": "historical",
                         "frequency": "mon",
                     },
@@ -43,16 +124,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets(
-                    "variable_id",
-                    (
-                        "hus",
-                        "pr",
-                        "psl",
-                        "tas",
-                        "ua",
-                    ),
-                ),
+                RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
@@ -91,67 +163,6 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
         input_files: dict[SourceDatasetType, pandas.DataFrame],
     ) -> None:
         """Update the recipe."""
-        regions = [
-            "Arabian-Peninsula",
-            "Arabian-Sea",
-            "Arctic-Ocean",
-            "Bay-of-Bengal",
-            "C.Australia",
-            "C.North-America",
-            "Caribbean",
-            "Central-Africa",
-            "E.Antarctica",
-            "E.Asia",
-            "E.Australia",
-            "E.C.Asia",
-            "E.Europe",
-            "E.North-America",
-            "E.Siberia",
-            "E.Southern-Africa",
-            "Equatorial.Atlantic-Ocean",
-            "Equatorial.Indic-Ocean",
-            "Equatorial.Pacific-Ocean",
-            "Greenland/Iceland",
-            "Madagascar",
-            "Mediterranean",
-            "N.Atlantic-Ocean",
-            "N.Australia",
-            "N.Central-America",
-            "N.E.North-America",
-            "N.E.South-America",
-            "N.Eastern-Africa",
-            "N.Europe",
-            "N.Pacific-Ocean",
-            "N.South-America",
-            "N.W.North-America",
-            "N.W.South-America",
-            "New-Zealand",
-            "Russian-Arctic",
-            "Russian-Far-East",
-            "S.Asia",
-            "S.Atlantic-Ocean",
-            "S.Australia",
-            "S.Central-America",
-            "S.E.Asia",
-            "S.E.South-America",
-            "S.Eastern-Africa",
-            "S.Indic-Ocean",
-            "S.Pacific-Ocean",
-            "S.South-America",
-            "S.W.South-America",
-            "Sahara",
-            "South-American-Monsoon",
-            "Southern-Ocean",
-            "Tibetan-Plateau",
-            "W.Antarctica",
-            "W.C.Asia",
-            "W.North-America",
-            "W.Siberia",
-            "W.Southern-Africa",
-            "West&Central-Europe",
-            "Western-Africa",
-        ]
-
         # Update the dataset.
         recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
         dataset = recipe_variables["hus"]["additional_datasets"][0]
@@ -162,11 +173,11 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
 
         # Generate diagnostics for each region.
         diagnostics = {}
-        for region in regions:
+        for region in REGIONS:
             for diagnostic_name, orig_diagnostic in recipe["diagnostics"].items():
                 # Create the diagnostic for the region.
                 diagnostic = copy.deepcopy(orig_diagnostic)
-                normalized_region = region.replace("&", "-and-").replace("/", "-and-")
+                normalized_region = normalize_region(region)
                 diagnostics[f"{diagnostic_name}-{normalized_region}"] = diagnostic
 
                 for variable in diagnostic["variables"].values():
@@ -195,6 +206,19 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
     name = "Regional historical mean and anomaly of climate variables"
     slug = "regional-historical-timeseries"
     base_recipe = "ref/recipe_ref_timeseries_region.yml"
+    series = tuple(
+        SeriesDefinition(
+            file_pattern=f"{diagnostic}-{region}/allplots/*_{var_name}_*.nc",
+            sel={"dim0": 0},  # Select the model and not the observation.
+            dimensions={"region": region},
+            values_name=var_name,
+            index_name="time",
+            attributes=[],
+        )
+        for var_name in RegionalHistoricalAnnualCycle.variables
+        for region in REGIONS
+        for diagnostic in ["timeseries_abs", "timeseries"]
+    )
 
 
 class RegionalHistoricalTrend(ESMValToolDiagnostic):

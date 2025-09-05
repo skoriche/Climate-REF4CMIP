@@ -12,10 +12,9 @@ diagnostics = [
     pytest.param(
         diagnostic,
         id=diagnostic.slug,
-        marks=(
-            pytest.mark.skip(reason="Output data too large to store in git")
-            if diagnostic.slug in SKIP
-            else ()
+        marks=pytest.mark.skipif(
+            diagnostic.slug in SKIP,
+            reason="Output data too large to store in git",
         ),
     )
     for diagnostic in provider.diagnostics()

@@ -30,7 +30,7 @@ class Dataset(Base):
 
     In the case of CMIP6 datasets, this is the instance_id.
     """
-    dataset_type: Mapped[SourceDatasetType] = mapped_column(nullable=False)
+    dataset_type: Mapped[SourceDatasetType] = mapped_column(nullable=False, index=True)
     """
     Type of dataset
     """
@@ -73,7 +73,9 @@ class DatasetFile(Base):
     __tablename__ = "dataset_file"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(ForeignKey("dataset.id", ondelete="CASCADE"), nullable=False)
+    dataset_id: Mapped[int] = mapped_column(
+        ForeignKey("dataset.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     """
     Foreign key to the dataset table
     """
@@ -111,13 +113,13 @@ class CMIP6Dataset(Dataset):
     branch_time_in_child: Mapped[float] = mapped_column(nullable=True)
     branch_time_in_parent: Mapped[float] = mapped_column(nullable=True)
     experiment: Mapped[str] = mapped_column(nullable=True)
-    experiment_id: Mapped[str] = mapped_column()
+    experiment_id: Mapped[str] = mapped_column(index=True)
     frequency: Mapped[str] = mapped_column(nullable=True)
     grid: Mapped[str] = mapped_column(nullable=True)
     grid_label: Mapped[str] = mapped_column()
     institution_id: Mapped[str] = mapped_column()
     long_name: Mapped[str] = mapped_column(nullable=True)
-    member_id: Mapped[str] = mapped_column()
+    member_id: Mapped[str] = mapped_column(index=True)
     nominal_resolution: Mapped[str] = mapped_column(nullable=True)
     parent_activity_id: Mapped[str] = mapped_column(nullable=True)
     parent_experiment_id: Mapped[str] = mapped_column(nullable=True)
@@ -126,7 +128,7 @@ class CMIP6Dataset(Dataset):
     parent_variant_label: Mapped[str] = mapped_column(nullable=True)
     realm: Mapped[str] = mapped_column(nullable=True)
     product: Mapped[str] = mapped_column(nullable=True)
-    source_id: Mapped[str] = mapped_column()
+    source_id: Mapped[str] = mapped_column(index=True)
     standard_name: Mapped[str] = mapped_column(nullable=True)
     source_type: Mapped[str] = mapped_column(nullable=True)
     sub_experiment: Mapped[str] = mapped_column(nullable=True)
@@ -138,7 +140,7 @@ class CMIP6Dataset(Dataset):
     vertical_levels: Mapped[int] = mapped_column(nullable=True)
     version: Mapped[str] = mapped_column()
 
-    instance_id: Mapped[str] = mapped_column()
+    instance_id: Mapped[str] = mapped_column(index=True)
     """
     Unique identifier for the dataset (including the version).
     """

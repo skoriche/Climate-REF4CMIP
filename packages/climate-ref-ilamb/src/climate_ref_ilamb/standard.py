@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
 
-import ilamb3  # type: ignore
-import ilamb3.regions as ilr  # type: ignore
+import ilamb3
+import ilamb3.regions as ilr
 import pandas as pd
 import pooch
 import xarray as xr
@@ -145,7 +145,7 @@ def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
     """
     Set options for ILAMB based on which registry file is being used.
     """
-    ilamb3.conf.reset()
+    ilamb3.conf.reset()  # type: ignore
     ilamb_regions = ilr.Regions()
     if registry_file == "ilamb":
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))

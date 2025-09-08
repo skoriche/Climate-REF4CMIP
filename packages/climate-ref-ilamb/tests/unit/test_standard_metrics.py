@@ -13,19 +13,27 @@ def test_standard_site(cmip6_data_catalog, definition_factory):
     diagnostic = ILAMBStandard(
         registry_file="ilamb-test", metric_name="test-site-tas", sources={"tas": "ilamb/test/Site/tas.nc"}
     )
-    ds = (
-        cmip6_data_catalog[
-            (cmip6_data_catalog["experiment_id"] == "historical")
-            & (cmip6_data_catalog["variable_id"] == "tas")
-            # Exclude the HadGEM model because it has a 360 day calendar and ilamb3 cannot handle that.
-            & (~cmip6_data_catalog["source_id"].str.contains("HadGEM", na=False))
-        ]
-        .groupby("instance_id")
-        .first()
+    _, ds = next(
+        iter(
+            cmip6_data_catalog[
+                (cmip6_data_catalog["experiment_id"] == "historical")
+                & (cmip6_data_catalog["variable_id"] == "tas")
+            ].groupby("instance_id")
+        )
     )
     definition = definition_factory(
         diagnostic=diagnostic,
-        cmip6=DatasetCollection(ds, "instance_id", selector=(("experiment_id", "historical"),)),
+        cmip6=DatasetCollection(
+            ds,
+            "instance_id",
+            selector=(
+                ("experiment_id", "historical"),
+                ("variable_id", "tas"),
+                ("source_id", "CanESM5"),
+                ("member_id", "r1i1p1f1"),
+                ("grid_label", "gn"),
+            ),
+        ),
     )
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -55,15 +63,28 @@ def test_standard_grid(cmip6_data_catalog, definition_factory):
         sources={"gpp": "ilamb/test/Grid/gpp.nc"},
         relationships={"pr": "ilamb/test/Grid/pr.nc"},
     )
-    grp = cmip6_data_catalog[
-        (cmip6_data_catalog["experiment_id"] == "historical")
-        & ((cmip6_data_catalog["variable_id"] == "gpp") | (cmip6_data_catalog["variable_id"] == "pr"))
-    ].groupby(["source_id", "member_id", "grid_label"])
-    _, ds = next(iter(grp))
+    _, ds = next(
+        iter(
+            cmip6_data_catalog[
+                (cmip6_data_catalog["experiment_id"] == "historical")
+                & ((cmip6_data_catalog["variable_id"] == "gpp") | (cmip6_data_catalog["variable_id"] == "pr"))
+            ].groupby(["source_id", "member_id", "grid_label"])
+        )
+    )
 
     definition = definition_factory(
         diagnostic=diagnostic,
-        cmip6=DatasetCollection(ds, "instance_id", selector=(("experiment_id", "historical"),)),
+        cmip6=DatasetCollection(
+            ds,
+            "instance_id",
+            selector=(
+                ("experiment_id", "historical"),
+                ("variable_id", "tas"),
+                ("source_id", "CanESM5"),
+                ("member_id", "r1i1p1f1"),
+                ("grid_label", "gn"),
+            ),
+        ),
     )
     definition.output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -130,17 +151,18 @@ def test_expected_executions():
         ),
     }
     executions = list(solve_executions(data_catalog, diagnostic, provider=ilamb_provider))
-    assert len(executions) == 1
-
-    # ts
-    assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (("experiment_id", "historical"),)
+    assert len(executions) == 2
+    assert executions[0].datasets[SourceDatasetType.CMIP6].selector == (
+        ("experiment_id", "historical"),
+        ("grid_label", "gn"),
+        ("member_id", "r1i1p1f1"),
+        ("source_id", "ACCESS-ESM1-5"),
+    )
     assert executions[0].datasets[SourceDatasetType.CMIP6].datasets["variable_id"].tolist() == [
-        "cSoil",
         "cSoil",
         "areacella",
     ]
     assert executions[0].datasets[SourceDatasetType.CMIP6].datasets["member_id"].tolist() == [
         "r1i1p1f1",
-        "r2i1p1f1",
         "r1i1p1f1",
     ]

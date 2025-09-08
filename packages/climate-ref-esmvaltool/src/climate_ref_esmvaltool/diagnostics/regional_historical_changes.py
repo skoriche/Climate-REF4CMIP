@@ -328,10 +328,8 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
             select = source_id == np.array([s.strip() for s in ds.dataset.values.astype(str).tolist()])
             ds.isel(dim0=select)
             variable_id = next(iter(ds.data_vars.keys()))
-            if variable_id not in metric_args[MetricCV.DIMENSIONS.value]["variable_id"]:
-                metric_args[MetricCV.DIMENSIONS.value]["variable_id"][variable_id] = {}
-            if variable_id not in metric_args[MetricCV.RESULTS.value]:
-                metric_args[MetricCV.RESULTS.value][variable_id] = {}
+            metric_args[MetricCV.DIMENSIONS.value]["variable_id"][variable_id] = {}
+            metric_args[MetricCV.RESULTS.value][variable_id] = {}
             for region_value, trend_value in zip(ds.shape_id.astype(str).values, ds[variable_id].values):
                 region = region_value.strip()
                 trend = float(trend_value)

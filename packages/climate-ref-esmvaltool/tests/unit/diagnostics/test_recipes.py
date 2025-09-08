@@ -15,7 +15,7 @@ from climate_ref_core.datasets import SourceDatasetType
 @pytest.mark.parametrize(
     "diagnostic", [pytest.param(diagnostic, id=diagnostic.slug) for diagnostic in provider.diagnostics()]
 )
-def test_build_cmd(
+def test_write_recipe(
     tmp_path: Path,
     file_regression: FileRegressionFixture,
     data_catalog: dict[SourceDatasetType, pd.DataFrame],

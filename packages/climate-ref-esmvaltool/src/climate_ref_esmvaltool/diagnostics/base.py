@@ -73,6 +73,32 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         """
         return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)
 
+    def write_recipe(self, definition: ExecutionDefinition) -> Path:
+        """
+        Update the ESMValTool recipe for the diagnostic and write it to file.
+
+        Parameters
+        ----------
+        definition
+            A description of the information needed for this execution of the diagnostic
+
+        Returns
+        -------
+        :
+            The path to the written recipe.
+        """
+        input_files = {
+            project: dataset_collection.datasets
+            for project, dataset_collection in definition.datasets.items()
+        }
+        recipe = load_recipe(self.base_recipe)
+        self.update_recipe(recipe, input_files)
+
+        recipe_path = definition.to_output_path("recipe.yml")
+        with recipe_path.open("w", encoding="utf-8") as file:
+            yaml.safe_dump(recipe, file, sort_keys=False)
+        return recipe_path
+
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run an ESMValTool recipe.
@@ -87,17 +113,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        input_files = {
-            project: dataset_collection.datasets
-            for project, dataset_collection in definition.datasets.items()
-        }
-        recipe = load_recipe(self.base_recipe)
-        self.update_recipe(recipe, input_files)
-
-        recipe_path = definition.to_output_path("recipe.yml")
-        with recipe_path.open("w", encoding="utf-8") as file:
-            yaml.safe_dump(recipe, file, sort_keys=False)
-
+        recipe_path = self.write_recipe(definition)
         climate_data = definition.to_output_path("climate_data")
 
         for metric_dataset in definition.datasets.values():

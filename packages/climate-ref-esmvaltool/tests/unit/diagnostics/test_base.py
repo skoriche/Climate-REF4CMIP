@@ -9,6 +9,7 @@ import yaml
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.types import Recipe
 
+from climate_ref_core.datasets import SourceDatasetType
 from climate_ref_core.metric_values import SeriesMetricValue as SeriesMetricValueType
 from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.controlled_vocabulary import CV
@@ -20,7 +21,11 @@ def mock_diagnostic():
     class MockDiagnostic(ESMValToolDiagnostic):
         base_recipe = "examples/recipe_python.yml"
 
-        def update_recipe(self, recipe: Recipe, input_files: pandas.DataFrame) -> None:
+        def update_recipe(
+            self,
+            recipe: Recipe,
+            input_files: dict[SourceDatasetType, pandas.DataFrame],
+        ) -> None:
             pass
 
     return MockDiagnostic()

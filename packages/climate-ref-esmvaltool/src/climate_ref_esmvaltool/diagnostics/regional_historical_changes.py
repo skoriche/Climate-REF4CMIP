@@ -1,18 +1,23 @@
 import copy
+from pathlib import Path
 
+import numpy as np
 import pandas
+import xarray
 
 from climate_ref_core.constraints import (
     AddSupplementaryDataset,
     RequireContiguousTimerange,
     RequireFacets,
 )
-from climate_ref_core.datasets import FacetFilter, SourceDatasetType
+from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
 from climate_ref_core.metric_values.typing import SeriesDefinition
+from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
+from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
-from climate_ref_esmvaltool.types import Recipe
+from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
 
 REGIONS = (
     "Arabian-Peninsula",
@@ -281,7 +286,7 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
             # - HadCRUT5_ground_5.0.1.0-analysis: tas
         ),
     )
-    facets = ()
+    facets = ("grid_label", "member_id", "source_id", "variable_id", "region", "metric")
 
     @staticmethod
     def update_recipe(
@@ -301,3 +306,37 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
                 variable["additional_datasets"].append(dataset)
                 diagnostics[diagnostic_name] = diagnostic
         recipe["diagnostics"] = diagnostics
+
+    @classmethod
+    def format_result(
+        cls,
+        result_dir: Path,
+        execution_dataset: ExecutionDatasetCollection,
+        metric_args: MetricBundleArgs,
+        output_args: OutputBundleArgs,
+    ) -> tuple[CMECMetric, CMECOutput]:
+        """Format the result."""
+        metric_args[MetricCV.DIMENSIONS.value] = {
+            "json_structure": ["variable_id", "region", "metric"],
+            "variable_id": {},
+            "region": {},
+            "metric": {"trend": {}},
+        }
+        for file in result_dir.glob("work/*_trends/plot/seaborn_barplot.nc"):
+            ds = xarray.open_dataset(file)
+            source_id = execution_dataset[SourceDatasetType.CMIP6].source_id.iloc[0]
+            select = source_id == np.array([s.strip() for s in ds.dataset.values.astype(str).tolist()])
+            ds.isel(dim0=select)
+            variable_id = next(iter(ds.data_vars.keys()))
+            if variable_id not in metric_args[MetricCV.DIMENSIONS.value]["variable_id"]:
+                metric_args[MetricCV.DIMENSIONS.value]["variable_id"][variable_id] = {}
+            if variable_id not in metric_args[MetricCV.RESULTS.value]:
+                metric_args[MetricCV.RESULTS.value][variable_id] = {}
+            for region_value, trend_value in zip(ds.shape_id.astype(str).values, ds[variable_id].values):
+                region = region_value.strip()
+                trend = float(trend_value)
+                if region not in metric_args[MetricCV.DIMENSIONS.value]["region"]:
+                    metric_args[MetricCV.DIMENSIONS.value]["region"][region] = {}
+                metric_args[MetricCV.RESULTS.value][variable_id][region] = {"trend": trend}
+
+        return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)

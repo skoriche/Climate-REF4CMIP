@@ -3,17 +3,20 @@ from climate_ref_ilamb import provider as ilamb_provider
 
 from climate_ref_core.diagnostics import Diagnostic
 
-skipped_diagnostics = [
+xfail_diagnostics = [
     "ohc-noaa",  # Missing sample data
 ]
+skipped_diagnostics = []
+
 
 diagnostics = [
     pytest.param(
         diagnostic,
         id=diagnostic.slug,
-        marks=[pytest.mark.xfail(reason="Expected failure")]
-        if diagnostic.slug in skipped_diagnostics
-        else [],
+        marks=[
+            *([pytest.mark.xfail(reason="Expected failure")] if diagnostic.slug in xfail_diagnostics else []),
+            *([pytest.mark.skip(reason="Problem test")] if diagnostic.slug in skipped_diagnostics else []),
+        ],
     )
     for diagnostic in ilamb_provider.diagnostics()
 ]

@@ -281,6 +281,7 @@ class ILAMBStandard(Diagnostic):
         -------
             An execution result object
         """
+        _set_ilamb3_options(self.registry, self.registry_file)
         # In ILAMB, scalars are saved in CSV files in the output directory. To
         # be compatible with the REF system we will need to add the metadata
         # that is associated with the execution group, called the selector.

@@ -1,0 +1,160 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "experiment_id",
+      "source_id",
+      "member_id",
+      "grid_label",
+      "region",
+      "metric",
+      "statistic"
+    ],
+    "experiment_id": {
+      "historical": {}
+    },
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
+    "region": {
+      "global": {
+        "LongName": "Global - Land",
+        "Description": "Global - Land",
+        "Generator": "GlobalLand.nc"
+      },
+      "tropical": {
+        "LongName": "Tropical climates",
+        "Description": "Tropical climates",
+        "Generator": "Koppen_coarse.nc"
+      }
+    },
+    "metric": {
+      "Bias": {},
+      "RMSE": {},
+      "Annual Cycle": {},
+      "Spatial Distribution": {},
+      "Relationship pr": {},
+      "Relationship tas": {}
+    },
+    "statistic": {
+      "Period Mean": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "Bias": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "Bias Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "RMSE": {
+        "type": "scalar",
+        "units": "g d-1 m-2"
+      },
+      "RMSE Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Phase Shift": {
+        "type": "scalar",
+        "units": "month"
+      },
+      "Seasonal Cycle Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Normalized Standard Deviation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Correlation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Spatial Distribution Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Relationship Score pr": {
+        "type": "score",
+        "units": "1"
+      },
+      "Relationship Score tas": {
+        "type": "score",
+        "units": "1"
+      }
+    }
+  },
+  "RESULTS": {
+    "historical": {
+      "ACCESS-ESM1-5": {
+        "r1i1p1f1": {
+          "gn": {
+            "global": {
+              "Annual Cycle": {
+                "Phase Shift": 0.3460071505100452,
+                "Seasonal Cycle Score": 0.7302961501719626
+              },
+              "Bias": {
+                "Bias": 0.0864657532640793,
+                "Bias Score": 0.4676109048415676,
+                "Period Mean": 2.102402154978122
+              },
+              "RMSE": {
+                "RMSE": 1.6552676976411893,
+                "RMSE Score": 0.4274016614067749
+              },
+              "Relationship pr": {
+                "Relationship Score pr": 0.4648701436860109
+              },
+              "Relationship tas": {
+                "Relationship Score tas": 0.5961174687755967
+              },
+              "Spatial Distribution": {
+                "Correlation": 0.7954204310685824,
+                "Normalized Standard Deviation": 1.2191835212182185,
+                "Spatial Distribution Score": 0.8633549384785635
+              }
+            },
+            "tropical": {
+              "Annual Cycle": {
+                "Phase Shift": 0.8985700662469462,
+                "Seasonal Cycle Score": 0.6585526247077628
+              },
+              "Bias": {
+                "Bias": 0.2906089675036235,
+                "Bias Score": 0.3600624305629896,
+                "Period Mean": 4.880223654215761
+              },
+              "RMSE": {
+                "RMSE": 2.8095335768502725,
+                "RMSE Score": 0.3714562972753612
+              },
+              "Relationship pr": {
+                "Relationship Score pr": 0.484278282539137
+              },
+              "Relationship tas": {
+                "Relationship Score tas": 0.4321457150215198
+              },
+              "Spatial Distribution": {
+                "Correlation": 0.5065086373022373,
+                "Normalized Standard Deviation": 2.100220500948656,
+                "Spatial Distribution Score": 0.4539292777197412
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

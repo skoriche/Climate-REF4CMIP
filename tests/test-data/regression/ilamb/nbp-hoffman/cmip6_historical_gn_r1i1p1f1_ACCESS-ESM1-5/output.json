@@ -1,0 +1,26 @@
+{
+  "index": "<OUTPUT_DIR>/index.html",
+  "provenance": {
+    "environment": {},
+    "modeldata": [],
+    "obsdata": {},
+    "log": "cmec_output.log"
+  },
+  "data": {},
+  "plots": {
+    "<OUTPUT_DIR>/None_None_accumulation.png": {
+      "filename": "<OUTPUT_DIR>/None_None_accumulation.png",
+      "long_name": "",
+      "description": ""
+    }
+  },
+  "html": {
+    "<OUTPUT_DIR>/index.html": {
+      "filename": "<OUTPUT_DIR>/index.html",
+      "long_name": "Results page",
+      "description": "Page displaying scalars and plots from the ILAMB execution."
+    }
+  },
+  "metrics": null,
+  "diagnostics": {}
+}

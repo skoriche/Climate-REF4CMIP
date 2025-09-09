@@ -186,37 +186,57 @@ class ILAMBStandard(Diagnostic):
         self.ilamb_kwargs = ilamb_kwargs
 
         # REF stuff
-        variables = (
-            self.variable_id,
-            *ilamb_kwargs.get("relationships", {}).keys(),
-            *ilamb_kwargs.get("alternate_vars", []),
-            *ilamb_kwargs.get("related_vars", []),
-        )
         self.name = metric_name
         self.slug = self.name.lower().replace(" ", "-")
         self.data_requirements = (
             DataRequirement(
                 source_type=SourceDatasetType.CMIP6,
                 filters=(
-                    FacetFilter(facets={"variable_id": variables}),
+                    FacetFilter(
+                        facets={
+                            "variable_id": (
+                                self.variable_id,
+                                *ilamb_kwargs.get("alternate_vars", []),
+                                *ilamb_kwargs.get("related_vars", []),
+                                *ilamb_kwargs.get("relationships", {}).keys(),
+                            )
+                        }
+                    ),
                     FacetFilter(facets={"frequency": ("mon",)}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
-                    # Exclude unneeded snc tables
                     FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
                 ),
                 constraints=(
-                    RequireFacets("variable_id", variables),
-                    AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
-                )
-                if registry_file == "ilamb"
-                else (
-                    AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                    RequireFacets(
+                        "variable_id",
+                        (
+                            self.variable_id,
+                            *ilamb_kwargs.get("alternate_vars", []),
+                            *ilamb_kwargs.get("related_vars", []),
+                        ),
+                        operator="any",
+                    ),
+                    *(
+                        [RequireFacets("variable_id", ilamb_kwargs.get("relationships", {}).keys())]
+                        if "relationships" in ilamb_kwargs
+                        else []
+                    ),
+                    *(
+                        (
+                            AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
+                        )
+                        if registry_file == "ilamb"
+                        else (
+                            AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                        )
+                    ),
                 ),
                 group_by=("experiment_id", "source_id", "member_id", "grid_label"),
             ),
         )
+
         self.facets = (
             "experiment_id",
             "source_id",

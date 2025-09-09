@@ -146,3 +146,32 @@ class TestExecutionInspect:
         assert "file1.txt (4 bytes)" in capture.get()
         assert "┣━━ 📂 dir1" in capture.get()
         assert "hidden" not in capture.get()
+
+    def test_flag_dirty(self, sample_data_dir, db_seeded, invoke_cli, file_regression, config):
+        config.paths.results = pathlib.Path("/results")
+        config.save()
+        execution_group = ExecutionGroup(
+            key="key1",
+            diagnostic_id=1,
+            created_at=datetime.datetime(2021, 1, 1),
+            updated_at=datetime.datetime(2021, 2, 1),
+        )
+        with db_seeded.session.begin():
+            db_seeded.session.add(execution_group)
+            db_seeded.session.flush()
+            execution = Execution(
+                execution_group_id=execution_group.id,
+                successful=True,
+                output_fragment="output",
+                dataset_hash="hash",
+            )
+            db_seeded.session.add(execution)
+            db_seeded.session.flush()
+            db_seeded.session.execute(
+                execution_datasets.insert(),
+                [{"execution_id": execution.id, "dataset_id": idx} for idx in [1, 2]],
+            )
+        result = invoke_cli(["executions", "inspect", str(execution_group.id)])
+        assert "Dirty: False" in result.stdout
+        result = invoke_cli(["executions", "flag-dirty", str(execution_group.id)])
+        assert "Dirty: True" in result.stdout

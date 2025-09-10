@@ -40,7 +40,7 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    diagnostic_id: Mapped[int] = mapped_column(ForeignKey("diagnostic.id"))
+    diagnostic_id: Mapped[int] = mapped_column(ForeignKey("diagnostic.id"), index=True)
     """
     The diagnostic that this execution group belongs to
     """
@@ -103,8 +103,8 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
 execution_datasets = Table(
     "execution_dataset",
     Base.metadata,
-    Column("execution_id", ForeignKey("execution.id")),
-    Column("dataset_id", ForeignKey("dataset.id")),
+    Column("execution_id", ForeignKey("execution.id"), index=True),
+    Column("dataset_id", ForeignKey("dataset.id"), index=True),
 )
 
 
@@ -136,7 +136,8 @@ class Execution(CreatedUpdatedMixin, Base):
         ForeignKey(
             "execution_group.id",
             name="fk_execution_id",
-        )
+        ),
+        index=True,
     )
     """
     The execution group that this execution belongs to
@@ -149,7 +150,7 @@ class Execution(CreatedUpdatedMixin, Base):
     This is used to verify if an existing diagnostic execution has been run with the same datasets.
     """
 
-    successful: Mapped[bool] = mapped_column(nullable=True)
+    successful: Mapped[bool] = mapped_column(nullable=True, index=True)
     """
     Was the run successful
     """

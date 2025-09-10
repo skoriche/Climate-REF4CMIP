@@ -49,7 +49,7 @@ def downgrade() -> None:
     # Note: Original migration 94beace57a9c added cmip6_dataset.finalised NOT NULL, with no default.
     with op.batch_alter_table("cmip6_dataset", schema=None) as batch_op:
         batch_op.add_column(
-            sa.Column("finalised", sa.Boolean(), nullable=False, server_default=sa.text("false"))
+            sa.Column("finalised", sa.Boolean(), nullable=True, server_default=sa.text("false"))
         )
 
     # Drop base dataset finalised

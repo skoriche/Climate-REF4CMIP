@@ -38,7 +38,9 @@ class CreatedUpdatedMixin:
     When the dataset was added to the database
     """
 
-    updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now(), index=True
+    )
     """
     When the dataset was updated.
     """

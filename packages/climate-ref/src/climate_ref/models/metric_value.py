@@ -47,13 +47,13 @@ class MetricValue(CreatedUpdatedMixin, Base):
     }
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    execution_id: Mapped[int] = mapped_column(ForeignKey("execution.id"))
+    execution_id: Mapped[int] = mapped_column(ForeignKey("execution.id"), index=True)
 
     attributes: Mapped[dict[str, Any]] = mapped_column()
 
     execution: Mapped["Execution"] = relationship(back_populates="values")
 
-    type: Mapped[MetricValueType] = mapped_column()
+    type: Mapped[MetricValueType] = mapped_column(index=True)
     """
     Type of metric value
 

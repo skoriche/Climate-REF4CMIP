@@ -224,10 +224,6 @@ def flag_dirty(ctx: typer.Context, execution_id: int) -> None:
             logger.error(f"Execution not found: {execution_id}")
             raise typer.Exit(code=1)
 
-        if not execution_group.executions:
-            logger.error(f"No results found for execution: {execution_id}")
-            return
-
         execution_group.dirty = True
 
         console.print(_execution_panel(execution_group))

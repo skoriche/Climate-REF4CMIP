@@ -147,7 +147,7 @@ class TestExecutionInspect:
         assert "┣━━ 📂 dir1" in capture.get()
         assert "hidden" not in capture.get()
 
-    def test_flag_dirty(self, sample_data_dir, db_seeded, invoke_cli, file_regression, config):
+    def test_flag_dirty(self, sample_data_dir, db_seeded, invoke_cli, config):
         config.paths.results = pathlib.Path("/results")
         config.save()
         execution_group = ExecutionGroup(
@@ -175,3 +175,6 @@ class TestExecutionInspect:
         assert "Dirty: False" in result.stdout
         result = invoke_cli(["executions", "flag-dirty", str(execution_group.id)])
         assert "Dirty: True" in result.stdout
+
+    def test_flag_dirty_missing(self, db_seeded, invoke_cli):
+        invoke_cli(["executions", "flag-dirty", "123"], expected_exit_code=1)

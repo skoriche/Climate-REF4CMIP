@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import Any
 
-import ilamb3  # type: ignore
-import ilamb3.regions as ilr  # type: ignore
-import matplotlib.pyplot as plt
+import ilamb3
+import ilamb3.regions as ilr
 import pandas as pd
 import pooch
+import xarray as xr
 from ilamb3 import run
 
-from climate_ref_core.constraints import AddSupplementaryDataset
+from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
@@ -17,8 +17,9 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
+from climate_ref_core.metric_values.typing import SeriesMetricValue
 from climate_ref_core.pycmec.metric import CMECMetric
-from climate_ref_core.pycmec.output import CMECOutput
+from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_ilamb.datasets import (
     registry_to_collection,
 )
@@ -101,16 +102,7 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     # reference_df = df[df["source"] == "Reference"]
     model_df = df[df["source"] != "Reference"]
 
-    # Source is formatted as "ACCESS-ESM1-5-r1i1p1f1-gn"
-    # This assumes that the member_id and grid_label are always the last two parts of the source string
-    # and don't contain '-'
-    extracted_source = model_df.source.str.extract(r"([\w-]+)-([\w\d]+)-([\w\d]+)")
-    model_df.loc[:, "source_id"] = extracted_source[0]
-    model_df.loc[:, "member_id"] = extracted_source[1]
-    model_df.loc[:, "grid_label"] = extracted_source[2]
-
-    # Strip out units from the name
-    # These are available in the attributes
+    # Strip out units from the name (available in the attributes)
     extracted_source = model_df.name.str.extract(r"(.*)\s\[.*\]")
     model_df.loc[:, "name"] = extracted_source[0]
 
@@ -149,20 +141,11 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     return bundle
 
 
-def _form_bundles(df: pd.DataFrame) -> tuple[CMECMetric, CMECOutput]:
-    """
-    Create the output bundles (really a lift to make Ruff happy with the size of run()).
-    """
-    metric_bundle = _build_cmec_bundle(df)
-    output_bundle = CMECOutput.create_template()
-    return CMECMetric.model_validate(metric_bundle), CMECOutput.model_validate(output_bundle)
-
-
 def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
     """
     Set options for ILAMB based on which registry file is being used.
     """
-    ilamb3.conf.reset()
+    ilamb3.conf.reset()  # type: ignore
     ilamb_regions = ilr.Regions()
     if registry_file == "ilamb":
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))
@@ -213,29 +196,52 @@ class ILAMBStandard(Diagnostic):
                         facets={
                             "variable_id": (
                                 self.variable_id,
-                                *ilamb_kwargs.get("relationships", {}).keys(),
                                 *ilamb_kwargs.get("alternate_vars", []),
                                 *ilamb_kwargs.get("related_vars", []),
+                                *ilamb_kwargs.get("relationships", {}).keys(),
                             )
                         }
                     ),
                     FacetFilter(facets={"frequency": ("mon",)}),
                     FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
-                    # Exclude unneeded snc tables
                     FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
                 ),
                 constraints=(
-                    AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
-                )
-                if registry_file == "ilamb"
-                else (
-                    AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                    RequireFacets(
+                        "variable_id",
+                        (
+                            self.variable_id,
+                            *ilamb_kwargs.get("alternate_vars", []),
+                            *ilamb_kwargs.get("related_vars", []),
+                        ),
+                        operator="any",
+                    ),
+                    *(
+                        [
+                            RequireFacets(
+                                "variable_id",
+                                required_facets=tuple(ilamb_kwargs.get("relationships", {}).keys()),
+                            )
+                        ]
+                        if "relationships" in ilamb_kwargs
+                        else []
+                    ),
+                    *(
+                        (
+                            AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
+                        )
+                        if registry_file == "ilamb"
+                        else (
+                            AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                        )
+                    ),
                 ),
-                group_by=("experiment_id",),
+                group_by=("experiment_id", "source_id", "member_id", "grid_label"),
             ),
         )
+
         self.facets = (
             "experiment_id",
             "source_id",
@@ -257,12 +263,11 @@ class ILAMBStandard(Diagnostic):
         """
         Run the ILAMB standard analysis.
         """
-        plt.rcParams.update({"figure.max_open_warning": 0})
         _set_ilamb3_options(self.registry, self.registry_file)
         ref_datasets = self.ilamb_data.datasets.set_index(self.ilamb_data.slug_column)
-        run.run_simple(
-            ref_datasets,
+        run.run_single_block(
             self.slug,
+            ref_datasets,
             definition.datasets[SourceDatasetType.CMIP6].datasets,
             definition.output_directory,
             **self.ilamb_kwargs,
@@ -281,15 +286,91 @@ class ILAMBStandard(Diagnostic):
         -------
             An execution result object
         """
-        selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
         _set_ilamb3_options(self.registry, self.registry_file)
-
+        # In ILAMB, scalars are saved in CSV files in the output directory. To
+        # be compatible with the REF system we will need to add the metadata
+        # that is associated with the execution group, called the selector.
         df = _load_csv_and_merge(definition.output_directory)
-        # Add the selectors to the dataframe
+        selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
         for key, value in selectors.items():
             df[key] = value
-        metric_bundle, output_bundle = _form_bundles(df)
+        metric_bundle = CMECMetric.model_validate(_build_cmec_bundle(df))
+
+        # Add each png file plot to the output
+        output_bundle = CMECOutput.create_template()
+        for plotfile in definition.output_directory.glob("*.png"):
+            output_bundle[OutputCV.PLOTS.value][f"{plotfile}"] = {
+                OutputCV.FILENAME.value: f"{plotfile}",
+                OutputCV.LONG_NAME.value: _caption_from_filename(plotfile),
+                OutputCV.DESCRIPTION.value: "",
+            }
+
+        # Add the html page to the output
+        index_html = str(definition.to_output_path("index.html"))
+        output_bundle[OutputCV.HTML.value][index_html] = {
+            OutputCV.FILENAME.value: index_html,
+            OutputCV.LONG_NAME.value: "Results page",
+            OutputCV.DESCRIPTION.value: "Page displaying scalars and plots from the ILAMB execution.",
+        }
+        output_bundle[OutputCV.INDEX.value] = index_html
+
+        # Add series to the output based on the time traces we find in the
+        # output files
+        series = []
+        for ncfile in definition.output_directory.glob("*.nc"):
+            ds = xr.open_dataset(ncfile)
+            for name, da in ds.items():
+                # Only create series for 1d DataArray's with these dimensions
+                if not (da.ndim == 1 and set(da.dims).intersection(["time", "month"])):
+                    continue
+                # Convert dimension values
+                attrs = {}
+                str_name = str(name)
+                index_name = str(da.dims[0])
+                index = ds[index_name].values.tolist()
+                if hasattr(index[0], "isoformat"):
+                    index = [v.isoformat() for v in index]
+                if hasattr(index[0], "calendar"):
+                    attrs["calendar"] = index[0].calendar
+                # Parse out some CVs
+                dimensions = {"metric": str_name, "source_id": ncfile.stem}
+                if "_" in str_name:
+                    dimensions["region"] = str_name.split("_")[1]
+                series.append(
+                    SeriesMetricValue(
+                        dimensions=dimensions,
+                        values=da.values.tolist(),
+                        index=index,
+                        index_name=index_name,
+                        attributes=attrs,
+                    )
+                )
 
         return ExecutionResult.build_from_output_bundle(
-            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
+            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle, series=series
         )
+
+
+def _caption_from_filename(filename: Path) -> str:
+    source, region, plot = filename.stem.split("_")
+    plot_texts = {
+        "bias": "bias",
+        "biasscore": "bias score",
+        "cycle": "annual cycle",
+        "cyclescore": "annual cycle score",
+        "mean": "period mean",
+        "rmse": "RMSE",
+        "rmsescore": "RMSE score",
+        "shift": "shift in maximum month",
+        "tmax": "maxmimum month",
+        "trace": "regional mean",
+        "taylor": "Taylor diagram",
+    }
+    if plot not in plot_texts:
+        return ""
+    caption = f"The {plot_texts.get(plot)}"
+    if source != "None":
+        caption += f" of {'the reference data' if source == 'Reference' else source}"
+    if region.lower() != "none":
+        caption += f" over the {ilr.Regions().get_name(region)} region."
+    return caption

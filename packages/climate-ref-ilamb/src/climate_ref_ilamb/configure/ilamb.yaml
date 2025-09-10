@@ -25,7 +25,7 @@ mrsos-WangMao:
     mrsol: ilamb/mrsol/WangMao/mrsol_olc.nc
   alternate_vars:
   - mrsos
-  transform:
+  transforms:
   - select_depth:
       value: 0
   - soil_moisture_to_vol_fraction

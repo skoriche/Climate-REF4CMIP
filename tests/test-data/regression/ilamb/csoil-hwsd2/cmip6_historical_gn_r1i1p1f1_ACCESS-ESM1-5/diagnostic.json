@@ -1,0 +1,104 @@
+{
+  "DIMENSIONS": {
+    "json_structure": [
+      "experiment_id",
+      "source_id",
+      "member_id",
+      "grid_label",
+      "region",
+      "metric",
+      "statistic"
+    ],
+    "experiment_id": {
+      "historical": {}
+    },
+    "source_id": {
+      "ACCESS-ESM1-5": {}
+    },
+    "member_id": {
+      "r1i1p1f1": {}
+    },
+    "grid_label": {
+      "gn": {}
+    },
+    "region": {
+      "global": {
+        "LongName": "Global - Land",
+        "Description": "Global - Land",
+        "Generator": "GlobalLand.nc"
+      },
+      "tropical": {
+        "LongName": "Tropical climates",
+        "Description": "Tropical climates",
+        "Generator": "Koppen_coarse.nc"
+      }
+    },
+    "metric": {
+      "Bias": {},
+      "Spatial Distribution": {}
+    },
+    "statistic": {
+      "Period Mean": {
+        "type": "scalar",
+        "units": "kg m-2"
+      },
+      "Bias": {
+        "type": "scalar",
+        "units": "kg m-2"
+      },
+      "Bias Score": {
+        "type": "score",
+        "units": "1"
+      },
+      "Normalized Standard Deviation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Correlation": {
+        "type": "scalar",
+        "units": "1"
+      },
+      "Spatial Distribution Score": {
+        "type": "score",
+        "units": "1"
+      }
+    }
+  },
+  "RESULTS": {
+    "historical": {
+      "ACCESS-ESM1-5": {
+        "r1i1p1f1": {
+          "gn": {
+            "global": {
+              "Bias": {
+                "Bias": null,
+                "Bias Score": null,
+                "Period Mean": 5.591810098528851
+              },
+              "Spatial Distribution": {
+                "Correlation": null,
+                "Normalized Standard Deviation": null,
+                "Spatial Distribution Score": null
+              }
+            },
+            "tropical": {
+              "Bias": {
+                "Bias": null,
+                "Bias Score": null,
+                "Period Mean": 3.9942166888319406
+              },
+              "Spatial Distribution": {
+                "Correlation": null,
+                "Normalized Standard Deviation": null,
+                "Spatial Distribution Score": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "PROVENANCE": null,
+  "DISCLAIMER": null,
+  "NOTES": null
+}

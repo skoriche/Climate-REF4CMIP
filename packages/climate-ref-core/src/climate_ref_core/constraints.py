@@ -6,7 +6,7 @@ import sys
 import warnings
 from collections import defaultdict
 from collections.abc import Mapping
-from typing import Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -148,6 +148,7 @@ class RequireFacets:
 
     dimension: str
     required_facets: tuple[str, ...]
+    operator: Literal["all", "any"] = "all"
 
     def validate(self, group: pd.DataFrame) -> bool:
         """
@@ -156,7 +157,8 @@ class RequireFacets:
         if self.dimension not in group:
             logger.warning(f"Dimension {self.dimension} not present in group {group}")
             return False
-        return all(value in group[self.dimension].values for value in self.required_facets)
+        op = all if self.operator == "all" else any
+        return op(value in group[self.dimension].values for value in self.required_facets)
 
 
 @frozen

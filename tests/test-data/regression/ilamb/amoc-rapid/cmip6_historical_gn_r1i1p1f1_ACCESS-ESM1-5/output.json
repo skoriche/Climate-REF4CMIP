@@ -1,0 +1,36 @@
+{
+  "index": "<OUTPUT_DIR>/index.html",
+  "provenance": {
+    "environment": {},
+    "modeldata": [],
+    "obsdata": {},
+    "log": "cmec_output.log"
+  },
+  "data": {},
+  "plots": {
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png",
+      "long_name": "",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/None_None_allamoc.png": {
+      "filename": "<OUTPUT_DIR>/None_None_allamoc.png",
+      "long_name": "",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/None_None_taylor.png": {
+      "filename": "<OUTPUT_DIR>/None_None_taylor.png",
+      "long_name": "The Taylor diagram",
+      "description": ""
+    }
+  },
+  "html": {
+    "<OUTPUT_DIR>/index.html": {
+      "filename": "<OUTPUT_DIR>/index.html",
+      "long_name": "Results page",
+      "description": "Page displaying scalars and plots from the ILAMB execution."
+    }
+  },
+  "metrics": null,
+  "diagnostics": {}
+}

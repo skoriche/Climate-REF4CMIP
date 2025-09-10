@@ -21,6 +21,38 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.6.6 (2025-09-10)
+
+### Features
+
+- Added a diagnostic to create scatterplots of two cloud-relevant variables. ([#261](https://github.com/Climate-REF/climate-ref/pulls/261))
+- Added support for serialising series metric values from an execution.
+  These series metric values are also ingested into the database for later retrieval.
+
+  Currently, only the ESMValTool example diagnostic supports this feature,
+  but this will be extended to other diagnostics in the future. ([#374](https://github.com/Climate-REF/climate-ref/pulls/374))
+- Added regional historical changes diagnostics. ([#380](https://github.com/Climate-REF/climate-ref/pulls/380))
+- Shifts ILAMB executions to be per experiment/model/ensemble/grid as opposed to all models for a given experiment. Also dumps out series information into the database for all time traces found in the output files. ([#391](https://github.com/Climate-REF/climate-ref/pulls/391))
+- Made it possible to run PMP diagnostics without having conda installed. ([#392](https://github.com/Climate-REF/climate-ref/pulls/392))
+- Added climate drivers for fire diagnostic. ([#393](https://github.com/Climate-REF/climate-ref/pulls/393))
+- Added a sub-command to `ref executions` that allows you to flag an execution as dirty. ([#396](https://github.com/Climate-REF/climate-ref/pulls/396))
+
+### Improvements
+
+- Use a self-hosted CI runner for the integration tests.
+  The GitHub runner do not have enough disk space to store the required datasets,
+  and these data are downloaded over the internet on each run. ([#365](https://github.com/Climate-REF/climate-ref/pulls/365))
+- Updated the sample data to v0.7.1. ([#385](https://github.com/Climate-REF/climate-ref/pulls/385))
+- Adds additional indexes for some slow queries in the API ([#395](https://github.com/Climate-REF/climate-ref/pulls/395))
+- Better error message when a user tries to use the HPCExecutor on Windows ([#397](https://github.com/Climate-REF/climate-ref/pulls/397))
+
+### Bug Fixes
+
+- Fix bug in writing ESMValTool recipes that loses order of preprocessing steps.
+  This bug was introduced in [#378](https://github.com/Climate-REF/climate-ref/pull/378)
+  and included in the v0.6.5 release. ([#384](https://github.com/Climate-REF/climate-ref/pulls/384))
+
+
 ## climate-ref 0.6.5 (2025-08-25)
 
 ### Features

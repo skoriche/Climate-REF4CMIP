@@ -20,7 +20,7 @@ This can be achieved using the following commands:
 ```bash
 conda create -n climate-ref python=3.11
 conda activate climate-ref
-pip install climate-ref[aft-providers]
+pip install "climate-ref[aft-providers]"
 ```
 
 ///
@@ -49,7 +49,7 @@ pip install climate-ref[celery,aft-providers]
 
 /// admonition | Note
 
-`pip install climate-ref[aft-providers]` additionally installs the [diagnostic
+`pip install "climate-ref[aft-providers]"` additionally installs the [diagnostic
 providers](nutshell.md) that are used for the Assessment Fast Track. These
 diagnostic providers declare the available diagnostics and the rules for when
 they should be run. The actual execution occurs within a provider-specific conda

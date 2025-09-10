@@ -209,3 +209,21 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
     console.print(_datasets_panel(result))
     console.print(_results_directory_panel(result_directory))
     console.print(_log_panel(result_directory))
+
+
+@app.command()
+def flag_dirty(ctx: typer.Context, execution_id: int) -> None:
+    """
+    Flag an execution group for recomputation
+    """
+    session = ctx.obj.database.session
+    with session.begin():
+        execution_group = session.get(ExecutionGroup, execution_id)
+
+        if not execution_group:
+            logger.error(f"Execution not found: {execution_id}")
+            raise typer.Exit(code=1)
+
+        execution_group.dirty = True
+
+        console.print(_execution_panel(execution_group))

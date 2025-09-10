@@ -39,6 +39,37 @@ class CMIP6Request:
         return []
 
 
+@define
+class Obs4MIPsRequest:
+    """
+    A set of Obs4MIPs data that will be fetched from ESGF
+    """
+
+    id: str
+    facets: dict[str, str | tuple[str, ...] | list[str]]
+
+    def fetch(self):
+        """
+        Fetch Obs4MIPs data from the ESGF catalog and return it as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the metadata for the CMIP6 datasets.
+        """
+        catalog = intake_esgf.ESGFCatalog()
+        try:
+            obs_data = catalog.search(
+                project="obs4MIPs",
+                frequency="mon",
+                **self.facets,
+            )
+            return obs_data.remove_ensembles().to_path_dict()
+        except Exception as e:
+            print(e)
+        return []
+
+
 requests = [
     CMIP6Request(
         id="esmvaltool-climate-at-global-warmings-levels",
@@ -53,6 +84,33 @@ requests = [
         facets=dict(
             variable_id=["rlut", "rlutcs", "rsut", "rsutcs"],
             experiment_id="historical",
+        ),
+    ),
+    # ESMValTool cloud scatterplots
+    CMIP6Request(
+        id="esmvaltool-cloud-scatterplots-cmip6",
+        facets=dict(
+            variable_id=[
+                "areacella",
+                "cli",
+                "clivi",
+                "clt",
+                "clwvi",
+                "pr",
+                "rlut",
+                "rlutcs",
+                "rsut",
+                "rsutcs",
+                "ta",
+            ],
+            experiment_id="historical",
+        ),
+    ),
+    Obs4MIPsRequest(
+        id="esmvaltool-cloud-scatterplots-obs4mips",
+        facets=dict(
+            source_id="ERA-5",
+            variable_id="ta",
         ),
     ),
     # ESMValTool ECS data
@@ -73,6 +131,48 @@ requests = [
                 "tauu",
             ],
             experiment_id=["historical"],
+        ),
+    ),
+    # ESMValTool fire data
+    CMIP6Request(
+        id="esmvaltool-fire",
+        facets=dict(
+            variable_id=[
+                "cVeg",
+                "hurs",
+                "pr",
+                "sftlf",
+                "tas",
+                "tasmax",
+                "treeFrac",
+                "vegFrac",
+            ],
+            experiment_id=["historical"],
+        ),
+    ),
+    # ESMValTool Historical data
+    CMIP6Request(
+        id="esmvaltool-historical-cmip6",
+        facets=dict(
+            variable_id=[
+                "hus",
+                "pr",
+                "psl",
+                "tas",
+                "ua",
+            ],
+            experiment_id=["historical"],
+        ),
+    ),
+    Obs4MIPsRequest(
+        id="esmvaltool-historical-obs4mips",
+        facets=dict(
+            source_id="ERA-5",
+            variable_id=[
+                "psl",
+                "tas",
+                "ua",
+            ],
         ),
     ),
     # ESMValTool TCR data

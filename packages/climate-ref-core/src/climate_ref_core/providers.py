@@ -232,6 +232,27 @@ def _get_micromamba_url() -> str:
 class CondaDiagnosticProvider(CommandLineDiagnosticProvider):
     """
     A provider for diagnostics that can be run from the command line in a conda environment.
+
+    Parameters
+    ----------
+    name
+        The name of the provider.
+    version
+        The version of the provider.
+    slug
+        A slugified version of the name.
+    repo
+        URL of the git repository to install a development version of the package from.
+    tag_or_commit
+        Tag or commit to install from the `repo` repository.
+
+    Attributes
+    ----------
+    env_vars
+        Environment variables to set when running commands in the conda environment.
+    url
+        URL to install a development version of the package from.
+
     """
 
     def __init__(
@@ -246,6 +267,7 @@ class CondaDiagnosticProvider(CommandLineDiagnosticProvider):
         self._conda_exe: Path | None = None
         self._prefix: Path | None = None
         self.url = f"git+{repo}@{tag_or_commit}" if repo and tag_or_commit else None
+        self.env_vars: dict[str, str] = {}
 
     @property
     def prefix(self) -> Path:
@@ -404,6 +426,8 @@ class CondaDiagnosticProvider(CommandLineDiagnosticProvider):
             *cmd,
         ]
         logger.info(f"Running '{' '.join(cmd)}'")
+        env_vars = os.environ.copy()
+        env_vars.update(self.env_vars)
         try:
             # This captures the log output until the execution is complete
             # We could poll using `subprocess.Popen` if we want something more responsive
@@ -413,6 +437,7 @@ class CondaDiagnosticProvider(CommandLineDiagnosticProvider):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                env=env_vars,
             )
             logger.info("Command output: \n" + res.stdout)
             logger.info("Command execution successful")

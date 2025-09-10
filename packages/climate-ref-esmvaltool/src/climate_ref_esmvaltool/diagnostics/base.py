@@ -30,7 +30,10 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
 
     @staticmethod
     @abstractmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """
         Update the base recipe for the run.
 
@@ -70,6 +73,32 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         """
         return CMECMetric.model_validate(metric_args), CMECOutput.model_validate(output_args)
 
+    def write_recipe(self, definition: ExecutionDefinition) -> Path:
+        """
+        Update the ESMValTool recipe for the diagnostic and write it to file.
+
+        Parameters
+        ----------
+        definition
+            A description of the information needed for this execution of the diagnostic
+
+        Returns
+        -------
+        :
+            The path to the written recipe.
+        """
+        input_files = {
+            project: dataset_collection.datasets
+            for project, dataset_collection in definition.datasets.items()
+        }
+        recipe = load_recipe(self.base_recipe)
+        self.update_recipe(recipe, input_files)
+
+        recipe_path = definition.to_output_path("recipe.yml")
+        with recipe_path.open("w", encoding="utf-8") as file:
+            yaml.safe_dump(recipe, file, sort_keys=False)
+        return recipe_path
+
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
         """
         Build the command to run an ESMValTool recipe.
@@ -84,20 +113,14 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         :
             The result of running the diagnostic.
         """
-        input_files = definition.datasets[SourceDatasetType.CMIP6].datasets
-        recipe = load_recipe(self.base_recipe)
-        self.update_recipe(recipe, input_files)
-
-        recipe_path = definition.to_output_path("recipe.yml")
-        with recipe_path.open("w", encoding="utf-8") as file:
-            yaml.safe_dump(recipe, file, sort_keys=False)
-
+        recipe_path = self.write_recipe(definition)
         climate_data = definition.to_output_path("climate_data")
 
-        prepare_climate_data(
-            definition.datasets[SourceDatasetType.CMIP6].datasets,
-            climate_data_dir=climate_data,
-        )
+        for metric_dataset in definition.datasets.values():
+            prepare_climate_data(
+                metric_dataset.datasets,
+                climate_data_dir=climate_data,
+            )
 
         config = {
             "drs": {
@@ -133,7 +156,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
                 {
                     "OBS": str(data_dir / "OBS"),
                     "OBS6": str(data_dir / "OBS"),
-                    "native6": str(data_dir / "RAWOBS"),
+                    "native6": str(data_dir / "native6"),
                 }
             )
             config["rootpath"]["obs4MIPs"] = [  # type: ignore[index]
@@ -144,7 +167,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         config_dir = definition.to_output_path("config")
         config_dir.mkdir()
         with (config_dir / "config.yml").open("w", encoding="utf-8") as file:
-            yaml.dump(config, file)
+            yaml.safe_dump(config, file)
 
         return [
             "esmvaltool",
@@ -176,7 +199,7 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         output_args = CMECOutput.create_template()
 
         # Add the plots and data files
-        default_series_attributes = (
+        variable_attributes = (
             "long_name",
             "standard_name",
             "units",
@@ -199,19 +222,29 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
                 }
                 for series_def in definition.diagnostic.series:
                     if fnmatch.fnmatch(str(relative_path), f"executions/*/{series_def.file_pattern}"):
-                        dataset = xr.open_dataset(filename)
+                        dataset = xr.open_dataset(
+                            filename, decode_times=xr.coders.CFDatetimeCoder(use_cftime=True)
+                        )
+                        dataset = dataset.sel(series_def.sel)
                         attributes = {
                             attr: dataset.attrs[attr]
-                            for attr in (tuple(series_def.attributes) + default_series_attributes)
+                            for attr in series_def.attributes
                             if attr in dataset.attrs
                         }
                         attributes["caption"] = caption
+                        attributes["values_name"] = series_def.values_name
+                        attributes["index_name"] = series_def.index_name
+                        for attr in variable_attributes:
+                            if attr in dataset[series_def.values_name].attrs:
+                                attributes[f"value_{attr}"] = dataset[series_def.values_name].attrs[attr]
+                            if attr in dataset[series_def.index_name].attrs:
+                                attributes[f"index_{attr}"] = dataset[series_def.index_name].attrs[attr]
                         index = dataset[series_def.index_name].values.tolist()
+                        if hasattr(index[0], "calendar"):
+                            attributes["calendar"] = index[0].calendar
                         if hasattr(index[0], "isoformat"):
                             # Convert time objects to strings.
                             index = [v.isoformat() for v in index]
-                        if hasattr(index[0], "calendar"):
-                            attributes["calendar"] = index[0].calendar
 
                         series.append(
                             SeriesMetricValue(

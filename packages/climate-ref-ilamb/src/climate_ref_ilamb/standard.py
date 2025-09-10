@@ -217,7 +217,12 @@ class ILAMBStandard(Diagnostic):
                         operator="any",
                     ),
                     *(
-                        [RequireFacets("variable_id", ilamb_kwargs.get("relationships", {}).keys())]
+                        [
+                            RequireFacets(
+                                "variable_id",
+                                required_facets=tuple(ilamb_kwargs.get("relationships", {}).keys()),
+                            )
+                        ]
                         if "relationships" in ilamb_kwargs
                         else []
                     ),

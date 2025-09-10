@@ -21,7 +21,7 @@ pip install climate-ref
 If you want to use the diagnostic providers for the Assessment Fast Track, you can install them with:
 
 ```bash
-pip install climate-ref[aft-providers]
+pip install "climate-ref[aft-providers]"
 ```
 
 ## Quick Start

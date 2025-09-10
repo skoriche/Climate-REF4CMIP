@@ -53,7 +53,7 @@ Windows users are recommended to use [WSL](https://learn.microsoft.com/en-us/win
 or a Linux VM if they wish to use the REF.
 
 ```bash
-pip install climate-ref[aft-providers]
+pip install "climate-ref[aft-providers]"
 ```
 
 <!--- --8<-- [end:installation] -->

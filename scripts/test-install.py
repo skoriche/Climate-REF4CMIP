@@ -12,6 +12,10 @@ import pkgutil
 import typer
 from loguru import logger
 
+ignored_modules = [
+    "climate_ref.executor.hpc",  # Optional dependencies not installed on Windows
+]
+
 
 def import_submodules(package_name):
     """
@@ -22,6 +26,12 @@ def import_submodules(package_name):
     for _, name, is_pkg in pkgutil.walk_packages(package.__path__):
         full_name = package.__name__ + "." + name
         logger.info(f"Importing {full_name}")
+
+        # Ignore certain modules that have optional dependencies
+        if full_name in ignored_modules:
+            logger.warning(f"Skipping {full_name}")
+            continue
+
         importlib.import_module(full_name)
         if is_pkg:
             import_submodules(full_name)

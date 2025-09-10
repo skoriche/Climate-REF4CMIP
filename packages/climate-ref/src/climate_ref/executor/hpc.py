@@ -5,12 +5,18 @@ If you want to
 - run REF under the HPC workflows
 - run REF in multiple nodes
 
+The `HPCExecutor` requires the optional `parsl` dependency.
+This dependency (and therefore this executor) is not available on Windows.
 """
 
 try:
     import parsl
 except ImportError:  # pragma: no cover
-    raise ImportError("The HPCExecutor requires the `parsl` package")
+    from climate_ref_core.exceptions import InvalidExecutorException
+
+    raise InvalidExecutorException(
+        "climate_ref_core.executor.hpc.HPCExecutor", "The HPCExecutor requires the `parsl` package"
+    )
 
 import os
 import time

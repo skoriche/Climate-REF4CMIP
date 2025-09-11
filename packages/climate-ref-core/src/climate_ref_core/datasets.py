@@ -159,6 +159,9 @@ class ExecutionDatasetCollection:
     def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
         self._collection = {SourceDatasetType(k): v for k, v in collection.items()}
 
+    def __repr__(self) -> str:
+        return f"ExecutionDatasetCollection({self._collection})"
+
     def __contains__(self, key: SourceDatasetType | str) -> bool:
         if isinstance(key, str):
             key = SourceDatasetType(key)

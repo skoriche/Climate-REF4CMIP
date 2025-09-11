@@ -4,9 +4,11 @@ import pandas
 
 from climate_ref_core.constraints import (
     AddSupplementaryDataset,
+    PartialDateTime,
     RequireContiguousTimerange,
     RequireFacets,
     RequireOverlappingTimerange,
+    RequireTimerange,
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
@@ -135,7 +137,13 @@ class CloudScatterplotsReference(ESMValToolDiagnostic):
                 ),
             ),
             group_by=("instance_id",),
-            constraints=(RequireContiguousTimerange(group_by=("instance_id",)),),
+            constraints=(
+                RequireTimerange(
+                    group_by=("instance_id",),
+                    start=PartialDateTime(2007, 1),
+                    end=PartialDateTime(2014, 12),
+                ),
+            ),
             # TODO: Add obs4MIPs datasets once available and working:
             #
             # obs4MIPs datasets with issues:

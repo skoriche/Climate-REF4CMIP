@@ -7,8 +7,8 @@
     "log": "<OUTPUT_DIR>/executions/recipe_20250908_083356/run/main_log_debug.txt"
   },
   "data": {
-    "executions/recipe_20250908_083356/work/tas_trends/plot/seaborn_barplot.nc": {
-      "filename": "executions/recipe_20250908_083356/work/tas_trends/plot/seaborn_barplot.nc",
+    "executions/recipe_20250908_083356/work/psl_trends/plot/seaborn_barplot.nc": {
+      "filename": "executions/recipe_20250908_083356/work/psl_trends/plot/seaborn_barplot.nc",
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     },
@@ -27,15 +27,15 @@
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     },
-    "executions/recipe_20250908_083356/work/psl_trends/plot/seaborn_barplot.nc": {
-      "filename": "executions/recipe_20250908_083356/work/psl_trends/plot/seaborn_barplot.nc",
+    "executions/recipe_20250908_083356/work/tas_trends/plot/seaborn_barplot.nc": {
+      "filename": "executions/recipe_20250908_083356/work/tas_trends/plot/seaborn_barplot.nc",
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     }
   },
   "plots": {
-    "executions/recipe_20250908_083356/plots/tas_trends/plot/seaborn_barplot.png": {
-      "filename": "executions/recipe_20250908_083356/plots/tas_trends/plot/seaborn_barplot.png",
+    "executions/recipe_20250908_083356/plots/psl_trends/plot/seaborn_barplot.png": {
+      "filename": "executions/recipe_20250908_083356/plots/psl_trends/plot/seaborn_barplot.png",
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     },
@@ -54,8 +54,8 @@
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     },
-    "executions/recipe_20250908_083356/plots/psl_trends/plot/seaborn_barplot.png": {
-      "filename": "executions/recipe_20250908_083356/plots/psl_trends/plot/seaborn_barplot.png",
+    "executions/recipe_20250908_083356/plots/tas_trends/plot/seaborn_barplot.png": {
+      "filename": "executions/recipe_20250908_083356/plots/tas_trends/plot/seaborn_barplot.png",
       "long_name": "Seaborn barplot for one or more dataset(s)",
       "description": ""
     }

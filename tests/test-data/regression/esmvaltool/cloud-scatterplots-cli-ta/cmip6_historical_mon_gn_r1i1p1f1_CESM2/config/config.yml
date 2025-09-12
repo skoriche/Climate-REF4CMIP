@@ -9,7 +9,7 @@ rootpath:
   CMIP6: <OUTPUT_DIR>/climate_data
   OBS: /home/bandela/.cache/climate_ref/ESMValTool/OBS
   OBS6: /home/bandela/.cache/climate_ref/ESMValTool/OBS
-  native6: /home/bandela/.cache/climate_ref/ESMValTool/RAWOBS
+  native6: /home/bandela/.cache/climate_ref/ESMValTool/native6
   obs4MIPs:
   - <OUTPUT_DIR>/climate_data
   - /home/bandela/.cache/climate_ref/ESMValTool

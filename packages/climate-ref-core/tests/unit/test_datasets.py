@@ -22,36 +22,42 @@ def dataset_collection_obs4mips(obs4mips_data_catalog) -> DatasetCollection:
 
 
 @pytest.fixture
-def metric_dataset(dataset_collection) -> ExecutionDatasetCollection:
+def execution_dataset(dataset_collection) -> ExecutionDatasetCollection:
     return ExecutionDatasetCollection({SourceDatasetType.CMIP6: dataset_collection})
 
 
-class TestMetricDataset:
-    def test_get_item(self, metric_dataset):
-        assert metric_dataset["cmip6"] == metric_dataset._collection[SourceDatasetType.CMIP6]
-        assert metric_dataset[SourceDatasetType.CMIP6] == metric_dataset._collection[SourceDatasetType.CMIP6]
+class TestExecutionDatasetCollection:
+    def test_repr(self, execution_dataset: ExecutionDatasetCollection) -> None:
+        assert repr(execution_dataset) == f"ExecutionDatasetCollection({execution_dataset._collection})"
 
-    def test_get_item_missing(self, metric_dataset):
+    def test_get_item(self, execution_dataset):
+        assert execution_dataset["cmip6"] == execution_dataset._collection[SourceDatasetType.CMIP6]
+        assert (
+            execution_dataset[SourceDatasetType.CMIP6]
+            == execution_dataset._collection[SourceDatasetType.CMIP6]
+        )
+
+    def test_get_item_missing(self, execution_dataset):
         with pytest.raises(KeyError):
-            metric_dataset["cmip7"]
+            execution_dataset["cmip7"]
 
-    def test_iter(self, metric_dataset):
-        assert tuple(iter(metric_dataset)) == tuple(iter(metric_dataset._collection))
+    def test_iter(self, execution_dataset):
+        assert tuple(iter(execution_dataset)) == tuple(iter(execution_dataset._collection))
 
-    def test_keys(self, metric_dataset):
-        assert metric_dataset.keys() == metric_dataset._collection.keys()
+    def test_keys(self, execution_dataset):
+        assert execution_dataset.keys() == execution_dataset._collection.keys()
 
-    def test_values(self, metric_dataset):
-        assert tuple(metric_dataset.values()) == tuple(metric_dataset._collection.values())
+    def test_values(self, execution_dataset):
+        assert tuple(execution_dataset.values()) == tuple(execution_dataset._collection.values())
 
-    def test_items(self, metric_dataset):
-        assert metric_dataset.items() == metric_dataset._collection.items()
+    def test_items(self, execution_dataset):
+        assert execution_dataset.items() == execution_dataset._collection.items()
 
-    def test_python_hash(self, metric_dataset, cmip6_data_catalog, data_regression):
-        dataset_hash = hash(metric_dataset)
+    def test_python_hash(self, execution_dataset, cmip6_data_catalog, data_regression):
+        dataset_hash = hash(execution_dataset)
 
         # The python hash is different to the hash of the dataset
-        assert hash(metric_dataset.hash) == dataset_hash
+        assert hash(execution_dataset.hash) == dataset_hash
         assert isinstance(dataset_hash, int)
 
         # Check that the hash changes if the dataset changes
@@ -67,7 +73,7 @@ class TestMetricDataset:
 
         # This will change if the data catalog changes
         # Specifically if more tas datasets are provided
-        data_regression.check(metric_dataset.hash, basename="metric_dataset_hash")
+        data_regression.check(execution_dataset.hash, basename="execution_dataset_hash")
 
 
 class TestDatasetCollection:

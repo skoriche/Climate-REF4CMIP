@@ -27,7 +27,7 @@ def _determine_test_directory() -> Path | None:
 
 
 TEST_DATA_DIR = _determine_test_directory()
-SAMPLE_DATA_VERSION = "v0.7.2"
+SAMPLE_DATA_VERSION = "v0.7.3"
 
 
 def fetch_sample_data(force_cleanup: bool = False, symlink: bool = False) -> None:

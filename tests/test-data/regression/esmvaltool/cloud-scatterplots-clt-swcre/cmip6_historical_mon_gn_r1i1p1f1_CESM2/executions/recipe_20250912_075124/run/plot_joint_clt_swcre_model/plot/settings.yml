@@ -1,0 +1,30 @@
+x: clt
+y: swcre
+bins: 20
+joint_kws:
+  vmax: 0.015
+  cmap: YlGnBu
+cbar: true
+cbar_kws:
+  extend: max
+marginal_kws:
+  color: darkturquoise
+seaborn_settings:
+  style: ticks
+  rc:
+    axes.titlepad: 15.0
+suptitle: CMIP6 CESM2 r1i1p1f1 gn 19960115T120000/20141215T120000
+plot_filename: jointplot_clt_swcre_CMIP6_CESM2_r1i1p1f1_gn_19960115T120000-20141215T120000
+recipe: recipe.yml
+version: 2.12.0
+script: plot
+run_dir: <OUTPUT_DIR>/executions/recipe_20250912_075124/run/plot_joint_clt_swcre_model/plot
+plot_dir: <OUTPUT_DIR>/executions/recipe_20250912_075124/plots/plot_joint_clt_swcre_model/plot
+work_dir: <OUTPUT_DIR>/executions/recipe_20250912_075124/work/plot_joint_clt_swcre_model/plot
+output_file_type: png
+log_level: info
+auxiliary_data_dir: /home/bandela/auxiliary_data
+scheduler_address: tcp://127.0.0.1:44725
+input_files:
+- <OUTPUT_DIR>/executions/recipe_20250912_075124/preproc/plot_joint_clt_swcre_model/clt/metadata.yml
+- <OUTPUT_DIR>/executions/recipe_20250912_075124/preproc/plot_joint_clt_swcre_model/swcre/metadata.yml

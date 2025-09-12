@@ -2609,17 +2609,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/cli/gn/v20190308/cli_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/cli/gn/v20190308/cli_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: cli
   variant_label: r1i1p1f1
@@ -2646,17 +2646,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clivi/gn/v20190308/clivi_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clivi/gn/v20190308/clivi_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: clivi
   variant_label: r1i1p1f1
@@ -2683,17 +2683,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clt/gn/v20190308/clt_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clt/gn/v20190308/clt_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: clt
   variant_label: r1i1p1f1
@@ -2720,17 +2720,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clwvi/gn/v20190308/clwvi_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/clwvi/gn/v20190308/clwvi_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: clwvi
   variant_label: r1i1p1f1
@@ -2757,17 +2757,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/pr/gn/v20190401/pr_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/pr/gn/v20190401/pr_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: pr
   variant_label: r1i1p1f1
@@ -2794,17 +2794,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rlut/gn/v20190308/rlut_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rlut/gn/v20190308/rlut_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: rlut
   variant_label: r1i1p1f1
@@ -2831,17 +2831,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rlutcs/gn/v20190308/rlutcs_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rlutcs/gn/v20190308/rlutcs_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: rlutcs
   variant_label: r1i1p1f1
@@ -2868,17 +2868,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rsut/gn/v20190308/rsut_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rsut/gn/v20190308/rsut_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: rsut
   variant_label: r1i1p1f1
@@ -2905,17 +2905,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rsutcs/gn/v20190308/rsutcs_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/rsutcs/gn/v20190308/rsutcs_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: rsutcs
   variant_label: r1i1p1f1
@@ -2942,17 +2942,17 @@
   parent_source_id: .nan
   parent_time_units: .nan
   parent_variant_label: .nan
-  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/ta/gn/v20190308/ta_Amon_CESM2_historical_r1i1p1f1_gn_200701-201412.nc'
+  path: '{esgf_data_dir}/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/ta/gn/v20190308/ta_Amon_CESM2_historical_r1i1p1f1_gn_199601-201412.nc'
   product: .nan
   realm: .nan
   source_id: CESM2
   source_type: .nan
   standard_name: .nan
-  start_time: 2007-01-01 00:00:00
+  start_time: 1996-01-01 00:00:00
   sub_experiment: .nan
   sub_experiment_id: .nan
   table_id: Amon
-  time_range: 200701-201412
+  time_range: 199601-201412
   units: .nan
   variable_id: ta
   variant_label: r1i1p1f1

@@ -152,6 +152,12 @@ class RequireFacets:
     required_facets: tuple[str, ...]
     operator: Literal["all", "any"] = "all"
 
+    group_by: tuple[str, ...] = ()
+    """
+    The fields to group the datasets by. Each group must contain all or any of the
+    required facets to fulfill the constraint.
+    """
+
     def validate(self, group: pd.DataFrame) -> bool:
         """
         Check that the required facets are present in the group
@@ -160,7 +166,15 @@ class RequireFacets:
             logger.warning(f"Dimension {self.dimension} not present in group {group}")
             return False
         op = all if self.operator == "all" else any
-        return op(value in group[self.dimension].values for value in self.required_facets)
+        groups = [group] if not self.group_by else (g[1] for g in group.groupby(list(self.group_by)))
+        for subgroup in groups:
+            if not op(value in subgroup[self.dimension].values for value in self.required_facets):
+                logger.debug(
+                    f"Constraint {self} not satisfied because required facet values "
+                    f"not found for group {', '.join(subgroup['path'])}"
+                )
+                return False
+        return True
 
 
 @frozen

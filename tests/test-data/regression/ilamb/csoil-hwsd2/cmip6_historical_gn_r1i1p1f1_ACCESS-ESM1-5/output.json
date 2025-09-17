@@ -8,14 +8,9 @@
   },
   "data": {},
   "plots": {
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png",
-      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
-      "description": ""
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png",
-      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "<OUTPUT_DIR>/Reference_tropical_mean.png": {
+      "filename": "<OUTPUT_DIR>/Reference_tropical_mean.png",
+      "long_name": "The period mean of the reference data over the Tropical climates region.",
       "description": ""
     },
     "<OUTPUT_DIR>/Reference_global_mean.png": {
@@ -23,29 +18,9 @@
       "long_name": "The period mean of the reference data over the Global - Land region.",
       "description": ""
     },
-    "<OUTPUT_DIR>/Reference_tropical_mean.png": {
-      "filename": "<OUTPUT_DIR>/Reference_tropical_mean.png",
-      "long_name": "The period mean of the reference data over the Tropical climates region.",
-      "description": ""
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png",
-      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
-      "description": ""
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png",
-      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
-      "description": ""
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png",
-      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
-      "description": ""
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png",
-      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "<OUTPUT_DIR>/None_tropical_taylor.png": {
+      "filename": "<OUTPUT_DIR>/None_tropical_taylor.png",
+      "long_name": "The Taylor diagram over the Tropical climates region.",
       "description": ""
     },
     "<OUTPUT_DIR>/None_global_taylor.png": {
@@ -53,9 +28,34 @@
       "long_name": "The Taylor diagram over the Global - Land region.",
       "description": ""
     },
-    "<OUTPUT_DIR>/None_tropical_taylor.png": {
-      "filename": "<OUTPUT_DIR>/None_tropical_taylor.png",
-      "long_name": "The Taylor diagram over the Tropical climates region.",
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png",
+      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png",
+      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png",
+      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png",
+      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png",
+      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+      "description": ""
+    },
+    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png": {
+      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png",
+      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": ""
     }
   },

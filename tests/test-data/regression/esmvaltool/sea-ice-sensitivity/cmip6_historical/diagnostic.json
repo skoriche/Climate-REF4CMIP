@@ -7,9 +7,9 @@
       "metric"
     ],
     "source_id": {
-      "HadGEM3-GC31-LL": {},
       "ACCESS-ESM1-5": {},
-      "CanESM5": {}
+      "CanESM5": {},
+      "HadGEM3-GC31-LL": {}
     },
     "region": {
       "antarctic": {},
@@ -28,22 +28,6 @@
   },
   "RESULTS": {
     "historical": {
-      "HadGEM3-GC31-LL": {
-        "antarctic": {
-          "direct_sensitivity_(notz-style)": -0.0240291003592504,
-          "annual_siconc_trend": -0.0010106442791242,
-          "annual_tas_trend": 0.038504358240076,
-          "direct_r_val": -0.9245224453912408,
-          "direct_p_val": 8.345568766166358e-16
-        },
-        "arctic": {
-          "direct_sensitivity_(notz-style)": -0.0182667687090698,
-          "annual_siconc_trend": -0.0007086997732451,
-          "annual_tas_trend": 0.038504358240076,
-          "direct_r_val": -0.9377936932511496,
-          "direct_p_val": 3.456803123954097e-17
-        }
-      },
       "ACCESS-ESM1-5": {
         "antarctic": {
           "direct_sensitivity_(notz-style)": -0.0093089389765667,
@@ -74,6 +58,22 @@
           "annual_tas_trend": 0.0327313947248029,
           "direct_r_val": -0.7952221159781833,
           "direct_p_val": 6.87979369930241e-9
+        }
+      },
+      "HadGEM3-GC31-LL": {
+        "antarctic": {
+          "direct_sensitivity_(notz-style)": -0.0240291003592504,
+          "annual_siconc_trend": -0.0010106442791242,
+          "annual_tas_trend": 0.038504358240076,
+          "direct_r_val": -0.9245224453912408,
+          "direct_p_val": 8.345568766166358e-16
+        },
+        "arctic": {
+          "direct_sensitivity_(notz-style)": -0.0182667687090698,
+          "annual_siconc_trend": -0.0007086997732451,
+          "annual_tas_trend": 0.038504358240076,
+          "direct_r_val": -0.9377936932511496,
+          "direct_p_val": 3.456803123954097e-17
         }
       }
     }

@@ -3,6 +3,7 @@ import pandas
 from climate_ref_core.constraints import (
     AddSupplementaryDataset,
     PartialDateTime,
+    RequireFacets,
     RequireTimerange,
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
@@ -29,7 +30,7 @@ class SeaIceAreaBasic(ESMValToolDiagnostic):
                     facets={
                         "variable_id": "siconc",
                         "experiment_id": "historical",
-                        "table_id": ("OImon", "SImon"),
+                        "table_id": "SImon",
                     },
                 ),
             ),
@@ -41,6 +42,7 @@ class SeaIceAreaBasic(ESMValToolDiagnostic):
                     end=PartialDateTime(2014, 12),
                 ),
                 AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                RequireFacets("variable_id", ("siconc", "areacello")),
             ),
         ),
         # TODO: Use OSI-450-nh and OSI-450-sh from obs4MIPs once available.

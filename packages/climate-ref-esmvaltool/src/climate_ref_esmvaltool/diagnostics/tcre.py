@@ -42,14 +42,15 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
                 FacetFilter(
                     facets={
                         "variable_id": variables,
-                        "frequency": "mon",
                         "experiment_id": experiments,
+                        "table_id": "Amon",
                     },
                 ),
                 FacetFilter(
                     facets={
                         "variable_id": "fco2antt",
                         "experiment_id": "esm-piControl",
+                        "table_id": "Amon",
                     },
                     keep=False,
                 ),

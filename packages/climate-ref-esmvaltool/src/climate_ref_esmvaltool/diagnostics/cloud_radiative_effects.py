@@ -38,7 +38,8 @@ class CloudRadiativeEffects(ESMValToolDiagnostic):
                 FacetFilter(
                     facets={
                         "variable_id": variables,
-                        "experiment_id": ("historical",),
+                        "experiment_id": "historical",
+                        "table_id": "Amon",
                     }
                 ),
             ),

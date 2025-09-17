@@ -29,6 +29,7 @@ class SeaIceAreaBasic(ESMValToolDiagnostic):
                     facets={
                         "variable_id": "siconc",
                         "experiment_id": "historical",
+                        "table_id": ("OImon", "SImon"),
                     },
                 ),
             ),

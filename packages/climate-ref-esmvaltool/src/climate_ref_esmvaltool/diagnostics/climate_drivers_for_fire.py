@@ -38,8 +38,8 @@ class ClimateDriversForFire(ESMValToolDiagnostic):
                 FacetFilter(
                     facets={
                         "variable_id": variables,
-                        "frequency": "mon",
                         "experiment_id": "historical",
+                        "table_id": ("Amon", "Emon", "Lmon"),
                     }
                 ),
             ),

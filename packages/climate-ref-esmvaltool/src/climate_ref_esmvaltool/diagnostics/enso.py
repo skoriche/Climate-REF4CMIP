@@ -40,6 +40,7 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
+                        "table_id": ("Amon", "Omon"),
                     },
                 ),
             ),
@@ -85,6 +86,7 @@ class ENSOCharacteristics(ESMValToolDiagnostic):
                     facets={
                         "variable_id": "tos",
                         "experiment_id": "historical",
+                        "table_id": "Omon",
                     },
                 ),
             ),

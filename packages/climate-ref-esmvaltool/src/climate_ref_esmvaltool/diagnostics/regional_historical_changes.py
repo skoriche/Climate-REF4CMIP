@@ -124,7 +124,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
-                        "frequency": "mon",
+                        "table_id": "Amon",
                     },
                 ),
             ),
@@ -253,7 +253,7 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
-                        "frequency": "mon",
+                        "table_id": "Amon",
                     },
                 ),
             ),
@@ -325,7 +325,7 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
                             "ua",
                         ),
                         "experiment_id": "historical",
-                        "frequency": "mon",
+                        "table_id": "Amon",
                     },
                 ),
             ),

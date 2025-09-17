@@ -1,0 +1,152 @@
+INFO    [2071429] 
+______________________________________________________________________
+          _____ ____  __  ____     __    _ _____           _
+         | ____/ ___||  \/  \ \   / /_ _| |_   _|__   ___ | |
+         |  _| \___ \| |\/| |\ \ / / _` | | | |/ _ \ / _ \| |
+         | |___ ___) | |  | | \ V / (_| | | | | (_) | (_) | |
+         |_____|____/|_|  |_|  \_/ \__,_|_| |_|\___/ \___/|_|
+______________________________________________________________________
+
+Earth System Model Evaluation Tool
+
+A community tool for the evaluation of Earth system models.
+
+https://esmvaltool.org
+
+The Earth System Model Evaluation Tool (ESMValTool) is a community
+diagnostics and performance metrics tool for the evaluation of Earth
+System Models (ESMs) that allows for routine comparison of single or
+multiple models, either against predecessor versions or against
+observations.
+
+Tutorial: https://tutorial.esmvaltool.org
+Documentation: https://docs.esmvaltool.org
+Contact: esmvaltool-dev@listserv.dfn.de
+
+If you find this software useful for your research, please cite it using
+https://doi.org/10.5281/zenodo.3387139 for ESMValCore or
+https://doi.org/10.5281/zenodo.3401363 for ESMValTool or
+any of the reference papers listed at https://esmvaltool.org/references/.
+
+Have fun!
+
+INFO    [2071429] Package versions
+INFO    [2071429] ----------------
+INFO    [2071429] ESMValCore: 2.12.0
+INFO    [2071429] ESMValTool: 2.13.0.dev148+g2c438d0e0
+INFO    [2071429] ----------------
+INFO    [2071429] Reading configuration files from:
+/work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/lib/python3.12/site-packages/esmvalcore/config/configurations/defaults (defaults)
+/home/b/b381141/.config/esmvaltool (default user configuration directory)
+<OUTPUT_DIR>/config (command line argument)
+INFO    [2071429] Writing program log files to:
+<OUTPUT_DIR>/executions/recipe_20250917_081947/run/main_log.txt
+<OUTPUT_DIR>/executions/recipe_20250917_081947/run/main_log_debug.txt
+<OUTPUT_DIR>/executions/recipe_20250917_081947/run/cmor_log.txt
+INFO    [2071429] Starting the Earth System Model Evaluation Tool at time: 2025-09-17 08:19:48 UTC
+INFO    [2071429] ----------------------------------------------------------------------
+INFO    [2071429] RECIPE   = <OUTPUT_DIR>/recipe.yml
+INFO    [2071429] RUNDIR     = <OUTPUT_DIR>/executions/recipe_20250917_081947/run
+INFO    [2071429] WORKDIR    = <OUTPUT_DIR>/executions/recipe_20250917_081947/work
+INFO    [2071429] PREPROCDIR = <OUTPUT_DIR>/executions/recipe_20250917_081947/preproc
+INFO    [2071429] PLOTDIR    = <OUTPUT_DIR>/executions/recipe_20250917_081947/plots
+INFO    [2071429] ----------------------------------------------------------------------
+INFO    [2071429] Running tasks using at most 10 processes
+INFO    [2071429] If your system hangs during execution, it may not have enough memory for keeping this number of tasks in memory.
+INFO    [2071429] If you experience memory problems, try reducing 'max_parallel_tasks' in your configuration.
+INFO    [2071429] Creating tasks from recipe
+INFO    [2071429] Creating tasks for diagnostic plot_maps
+INFO    [2071429] Creating diagnostic task plot_maps/plot
+INFO    [2071429] Creating preprocessor task plot_maps/lwcre
+INFO    [2071429] Creating preprocessor 'full_climatology' task for variable 'lwcre'
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, CMIP6, ACCESS-ESM1-5, CMIP, historical, r1i1p1f1, gn, v20191115
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, OBS, CERES-EBAF, Ed4.2
+INFO    [2071429] PreprocessingTask plot_maps/lwcre created.
+INFO    [2071429] Creating preprocessor task plot_maps/swcre
+INFO    [2071429] Creating preprocessor 'full_climatology' task for variable 'swcre'
+INFO    [2071429] Found input files for Dataset: swcre, Amon, CMIP6, ACCESS-ESM1-5, CMIP, historical, r1i1p1f1, gn, v20191115
+INFO    [2071429] Found input files for Dataset: swcre, Amon, OBS, CERES-EBAF, Ed4.2
+INFO    [2071429] PreprocessingTask plot_maps/swcre created.
+INFO    [2071429] Creating tasks for diagnostic plot_profiles
+INFO    [2071429] Creating diagnostic task plot_profiles/plot
+INFO    [2071429] Creating preprocessor task plot_profiles/lwcre
+INFO    [2071429] Creating preprocessor 'zonal_mean' task for variable 'lwcre'
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, CMIP6, ACCESS-ESM1-5, CMIP, historical, r1i1p1f1, gn, v20191115
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, OBS, CERES-EBAF, Ed4.2
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, OBS, ESACCI-CLOUD, AVHRR-AMPM-fv3.0
+INFO    [2071429] Found input files for Dataset: lwcre, Amon, OBS, ISCCP-FH, v0
+INFO    [2071429] PreprocessingTask plot_profiles/lwcre created.
+INFO    [2071429] Creating preprocessor task plot_profiles/swcre
+INFO    [2071429] Creating preprocessor 'zonal_mean' task for variable 'swcre'
+INFO    [2071429] Found input files for Dataset: swcre, Amon, CMIP6, ACCESS-ESM1-5, CMIP, historical, r1i1p1f1, gn, v20191115
+INFO    [2071429] Found input files for Dataset: swcre, Amon, OBS, CERES-EBAF, Ed4.2
+INFO    [2071429] Found input files for Dataset: swcre, Amon, OBS, ESACCI-CLOUD, AVHRR-AMPM-fv3.0
+INFO    [2071429] Found input files for Dataset: swcre, Amon, OBS, ISCCP-FH, v0
+INFO    [2071429] PreprocessingTask plot_profiles/swcre created.
+INFO    [2071429] These tasks will be executed: plot_maps/lwcre, plot_maps/swcre, plot_profiles/plot, plot_profiles/swcre, plot_maps/plot, plot_profiles/lwcre
+INFO    [2071429] Wrote recipe with version numbers and wildcards to:
+file://<OUTPUT_DIR>/executions/recipe_20250917_081947/run/recipe_filled.yml
+INFO    [2071429] Using Dask distributed scheduler (address: tcp://127.0.0.1:38591, dashboard link: http://127.0.0.1:8787/status)
+INFO    [2071429] Running 6 tasks using 6 processes
+INFO    [2071539] Starting task plot_maps/lwcre in process [2071539]
+INFO    [2071541] Starting task plot_maps/swcre in process [2071541]
+INFO    [2071543] Starting task plot_profiles/lwcre in process [2071543]
+INFO    [2071545] Starting task plot_profiles/swcre in process [2071545]
+INFO    [2071429] Progress: 4 tasks running, 2 tasks waiting for ancestors, 0/6 done
+INFO    [2071539] Computing and saving data for preprocessing task plot_maps/lwcre
+INFO    [2071539] plot_maps/lwcre               [########################################] | 100% Completed | 3.02 s
+INFO    [2071541] Computing and saving data for preprocessing task plot_maps/swcre
+INFO    [2071539] Successfully completed task plot_maps/lwcre (priority 1) in 0:00:05.503312
+INFO    [2071429] Progress: 3 tasks running, 2 tasks waiting for ancestors, 1/6 done
+INFO    [2071541] plot_maps/swcre               [########################################] | 100% Completed | 1.01 s
+INFO    [2071541] Successfully completed task plot_maps/swcre (priority 2) in 0:00:06.520271
+INFO    [2071429] Progress: 2 tasks running, 2 tasks waiting for ancestors, 2/6 done
+INFO    [2071547] Starting task plot_maps/plot in process [2071547]
+INFO    [2071547] Running command ['/work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/bin/python', '/work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/lib/python3.12/site-packages/esmvaltool/diag_scripts/monitor/multi_datasets.py', '<OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_maps/plot/settings.yml']
+INFO    [2071547] Writing output to <OUTPUT_DIR>/executions/recipe_20250917_081947/work/plot_maps/plot
+INFO    [2071547] Writing plots to <OUTPUT_DIR>/executions/recipe_20250917_081947/plots/plot_maps/plot
+INFO    [2071547] Writing log to <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_maps/plot/log.txt
+INFO    [2071547] To re-run this diagnostic script, run:
+cd <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_maps/plot; MPLBACKEND="Agg" /work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/bin/python /work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/lib/python3.12/site-packages/esmvaltool/diag_scripts/monitor/multi_datasets.py <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_maps/plot/settings.yml
+INFO    [2071429] Progress: 3 tasks running, 1 tasks waiting for ancestors, 2/6 done
+INFO    [2071543] Computing and saving data for preprocessing task plot_profiles/lwcre
+INFO    [2071543] plot_profiles/lwcre           [########################################] | 100% Completed | 3.06 s
+INFO    [2071545] Computing and saving data for preprocessing task plot_profiles/swcre
+INFO    [2071543] Successfully completed task plot_profiles/lwcre (priority 4) in 0:00:24.596726
+INFO    [2071429] Progress: 2 tasks running, 1 tasks waiting for ancestors, 3/6 done
+INFO    [2071545] plot_profiles/swcre           [########################################] | 100% Completed | 4.07 s
+INFO    [2071545] Successfully completed task plot_profiles/swcre (priority 5) in 0:00:28.652735
+INFO    [2071429] Progress: 1 tasks running, 1 tasks waiting for ancestors, 4/6 done
+INFO    [2071549] Starting task plot_profiles/plot in process [2071549]
+INFO    [2071549] Running command ['/work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/bin/python', '/work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/lib/python3.12/site-packages/esmvaltool/diag_scripts/monitor/multi_datasets.py', '<OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_profiles/plot/settings.yml']
+INFO    [2071549] Writing output to <OUTPUT_DIR>/executions/recipe_20250917_081947/work/plot_profiles/plot
+INFO    [2071549] Writing plots to <OUTPUT_DIR>/executions/recipe_20250917_081947/plots/plot_profiles/plot
+INFO    [2071549] Writing log to <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_profiles/plot/log.txt
+INFO    [2071549] To re-run this diagnostic script, run:
+cd <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_profiles/plot; MPLBACKEND="Agg" /work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/bin/python /work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/lib/python3.12/site-packages/esmvaltool/diag_scripts/monitor/multi_datasets.py <OUTPUT_DIR>/executions/recipe_20250917_081947/run/plot_profiles/plot/settings.yml
+INFO    [2071429] Progress: 2 tasks running, 0 tasks waiting for ancestors, 4/6 done
+INFO    [2071547] Maximum memory used (estimate): 0.4 GB
+INFO    [2071547] Sampled every second. It may be inaccurate if short but high spikes in memory consumption occur.
+INFO    [2071547] Successfully completed task plot_maps/plot (priority 0) in 0:00:23.518542
+INFO    [2071429] Progress: 1 tasks running, 0 tasks waiting for ancestors, 5/6 done
+INFO    [2071549] Maximum memory used (estimate): 0.4 GB
+INFO    [2071549] Sampled every second. It may be inaccurate if short but high spikes in memory consumption occur.
+INFO    [2071549] Successfully completed task plot_profiles/plot (priority 3) in 0:00:08.860551
+INFO    [2071429] Progress: 0 tasks running, 0 tasks waiting for ancestors, 6/6 done
+INFO    [2071429] Successfully completed all tasks.
+INFO    [2071429] Wrote recipe with version numbers and wildcards to:
+file://<OUTPUT_DIR>/executions/recipe_20250917_081947/run/recipe_filled.yml
+INFO    [2071429] Wrote recipe output to:
+file://<OUTPUT_DIR>/executions/recipe_20250917_081947/index.html
+INFO    [2071429] It looks like you are connected to a remote machine via SSH. To show the output html file, you can try the following command on your local machine:
+server=136.172.124.5 && port=31415 && ssh -t -L ${port}:localhost:${port} b381141@${server} /work/bk1088/b381141/climate_ref/software/conda/esmvaltool-1b3bf252de04f119f83bfe65fac5aa040d9d97b4/bin/python -m http.server ${port} -d <OUTPUT_DIR>/executions/recipe_20250917_081947
+Then visit http://localhost:31415 in your browser
+INFO    [2071429] If the port 31415 is already in use, you can replace it with any other free one (e.g., 12789). If you are connected through a jump host, replace the server IP address 136.172.124.5 with your SSH server name
+INFO    [2071429] Ending the Earth System Model Evaluation Tool at time: 2025-09-17 08:20:28 UTC
+INFO    [2071429] Time for running the recipe was: 0:00:40.165317
+INFO    [2071429] Maximum memory used (estimate): 5.1 GB
+INFO    [2071429] Sampled every second. It may be inaccurate if short but high spikes in memory consumption occur.
+INFO    [2071429] Removing `preproc` directory containing preprocessed data
+INFO    [2071429] If this data is further needed, then set `remove_preproc_dir` to `false` in your configuration
+WARNING [2071429] Input data is not (fully) CMOR-compliant, see <OUTPUT_DIR>/executions/recipe_20250917_081947/run/cmor_log.txt for details
+INFO    [2071429] Run was successful

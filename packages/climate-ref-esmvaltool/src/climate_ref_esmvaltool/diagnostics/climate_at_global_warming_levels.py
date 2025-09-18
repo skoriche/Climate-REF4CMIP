@@ -48,6 +48,7 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
                             "ssp370",
                             "ssp585",
                         ),
+                        "table_id": "Amon",
                     },
                 ),
             ),

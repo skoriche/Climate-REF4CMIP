@@ -45,6 +45,7 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
                     facets={
                         "variable_id": variables,
                         "experiment_id": experiments,
+                        "table_id": "Amon",
                     },
                 ),
             ),

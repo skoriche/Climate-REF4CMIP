@@ -40,6 +40,7 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
+                        "table_id": ("Amon", "Omon"),
                     },
                 ),
             ),
@@ -85,15 +86,16 @@ class ENSOCharacteristics(ESMValToolDiagnostic):
                     facets={
                         "variable_id": "tos",
                         "experiment_id": "historical",
+                        "table_id": "Omon",
                     },
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("variable_id", ("tos",)),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                RequireFacets("variable_id", ("tos", "areacello")),
             ),
         ),
     )

@@ -39,6 +39,7 @@ class TransientClimateResponse(ESMValToolDiagnostic):
                     facets={
                         "variable_id": ("tas",),
                         "experiment_id": experiments,
+                        "table_id": "Amon",
                     },
                 ),
             ),

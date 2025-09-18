@@ -40,6 +40,7 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
+                        "table_id": ("Amon", "SImon"),
                     },
                 ),
             ),
@@ -52,10 +53,7 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
                     start=PartialDateTime(1979, 1),
                     end=PartialDateTime(2014, 12),
                 ),
-                RequireFacets("variable_id", variables),
-                # TODO: Add a constraint to ensure that tas, siconc and areacello
-                # are available for each model or alternatively filter out
-                # incomplete models below.
+                RequireFacets("variable_id", ("areacello", *variables)),
             ),
         ),
     )

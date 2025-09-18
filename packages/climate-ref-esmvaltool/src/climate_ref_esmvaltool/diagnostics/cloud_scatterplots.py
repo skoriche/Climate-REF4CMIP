@@ -25,6 +25,7 @@ def get_cmip6_data_requirements(variables: tuple[str, ...]) -> tuple[DataRequire
                     facets={
                         "variable_id": variables,
                         "experiment_id": "historical",
+                        "table_id": "Amon",
                     },
                 ),
             ),

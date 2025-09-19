@@ -156,11 +156,12 @@ class RequireFacets:
     """
     The fields to group the datasets by. Each group must contain all or any of the
     required facets to fulfill the constraint.
-    
+
     The default is to treat the datasets as a single group.
 
-    For example, if there are multiple models in the group, it can be used
-    to make sure that each model provides all required variables.
+    For example, if there are multiple models and variables in the selection,
+    `group_by` can be used to make sure that only those models are selected that
+    provide all required variables.
     """
 
     def validate(self, group: pd.DataFrame) -> bool:

@@ -152,10 +152,13 @@ class RequireFacets:
     required_facets: tuple[str, ...]
     operator: Literal["all", "any"] = "all"
 
-    group_by: tuple[str, ...] = ()
+    group_by: tuple[str, ...] | None = None
     """
     The fields to group the datasets by. Each group must contain all or any of the
     required facets to fulfill the constraint.
+
+    For example, if there are multiple models in the group, it can be used
+    to make sure that each model provides all required variables.
     """
 
     def validate(self, group: pd.DataFrame) -> bool:

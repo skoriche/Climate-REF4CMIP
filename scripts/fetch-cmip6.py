@@ -64,7 +64,7 @@ class Obs4MIPsRequest:
                 frequency="mon",
                 **self.facets,
             )
-            return obs_data.remove_ensembles().to_path_dict()
+            return obs_data.to_path_dict()
         except Exception as e:
             print(e)
         return []

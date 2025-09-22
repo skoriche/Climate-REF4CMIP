@@ -20,7 +20,7 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
     series = (
         SeriesDefinition(
             file_pattern="timeseries/script1/*.nc",
-            dimensions={},
+            dimensions={"statistic": "tas"},
             values_name="tas",
             index_name="time",
             attributes=[],

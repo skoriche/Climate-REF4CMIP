@@ -198,12 +198,16 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         metric_args = CMECMetric.create_template()
         output_args = CMECOutput.create_template()
 
+        # Input selectors for the datasets used in the diagnostic.
+        # TODO: Better handling of multiple source types
+        if SourceDatasetType.CMIP6 in definition.datasets:
+            input_selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
+        elif SourceDatasetType.obs4MIPs in definition.datasets:
+            input_selectors = definition.datasets[SourceDatasetType.obs4MIPs].selector_dict()
+        else:
+            input_selectors = {}
+
         # Add the plots and data files
-        variable_attributes = (
-            "long_name",
-            "standard_name",
-            "units",
-        )
         series = []
         plot_suffixes = {".png", ".jpg", ".pdf", ".ps"}
         for metadata_file in result_dir.glob("run/*/*/diagnostic_provenance.yml"):
@@ -220,41 +224,11 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
                     OutputCV.LONG_NAME.value: caption,
                     OutputCV.DESCRIPTION.value: "",
                 }
-                for series_def in definition.diagnostic.series:
-                    if fnmatch.fnmatch(str(relative_path), f"executions/*/{series_def.file_pattern}"):
-                        dataset = xr.open_dataset(
-                            filename, decode_times=xr.coders.CFDatetimeCoder(use_cftime=True)
-                        )
-                        dataset = dataset.sel(series_def.sel)
-                        attributes = {
-                            attr: dataset.attrs[attr]
-                            for attr in series_def.attributes
-                            if attr in dataset.attrs
-                        }
-                        attributes["caption"] = caption
-                        attributes["values_name"] = series_def.values_name
-                        attributes["index_name"] = series_def.index_name
-                        for attr in variable_attributes:
-                            if attr in dataset[series_def.values_name].attrs:
-                                attributes[f"value_{attr}"] = dataset[series_def.values_name].attrs[attr]
-                            if attr in dataset[series_def.index_name].attrs:
-                                attributes[f"index_{attr}"] = dataset[series_def.index_name].attrs[attr]
-                        index = dataset[series_def.index_name].values.tolist()
-                        if hasattr(index[0], "calendar"):
-                            attributes["calendar"] = index[0].calendar
-                        if hasattr(index[0], "isoformat"):
-                            # Convert time objects to strings.
-                            index = [v.isoformat() for v in index]
-
-                        series.append(
-                            SeriesMetricValue(
-                                dimensions=series_def.dimensions,
-                                values=dataset[series_def.values_name].values.tolist(),
-                                index=index,
-                                index_name=series_def.index_name,
-                                attributes=attributes,
-                            )
-                        )
+                series.extend(
+                    self._extract_series_from_file(
+                        definition, filename, relative_path, caption=caption, input_selectors=input_selectors
+                    )
+                )
 
         # Add the index.html file
         index_html = f"{result_dir}/index.html"
@@ -278,7 +252,6 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
 
         # Add the extra information from the groupby operations
         if len(metric_bundle.DIMENSIONS[MetricCV.JSON_STRUCTURE.value]):
-            input_selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
             metric_bundle = metric_bundle.prepend_dimensions(input_selectors)
 
         return ExecutionResult.build_from_output_bundle(
@@ -287,3 +260,54 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
             cmec_metric_bundle=metric_bundle,
             series=series,
         )
+
+    def _extract_series_from_file(
+        self,
+        definition: ExecutionDefinition,
+        filename: Path,
+        relative_path: Path,
+        caption: str,
+        input_selectors: dict[str, str],
+    ) -> list[SeriesMetricValue]:
+        """
+        Extract series data from a file if it matches any of the series definitions.
+        """
+        variable_attributes = (
+            "long_name",
+            "standard_name",
+            "units",
+        )
+
+        series = []
+        for series_def in definition.diagnostic.series:
+            if fnmatch.fnmatch(str(relative_path), f"executions/*/{series_def.file_pattern}"):
+                dataset = xr.open_dataset(filename, decode_times=xr.coders.CFDatetimeCoder(use_cftime=True))
+                dataset = dataset.sel(series_def.sel)
+                attributes = {
+                    attr: dataset.attrs[attr] for attr in series_def.attributes if attr in dataset.attrs
+                }
+                attributes["caption"] = caption
+                attributes["values_name"] = series_def.values_name
+                attributes["index_name"] = series_def.index_name
+                for attr in variable_attributes:
+                    if attr in dataset[series_def.values_name].attrs:
+                        attributes[f"value_{attr}"] = dataset[series_def.values_name].attrs[attr]
+                    if attr in dataset[series_def.index_name].attrs:
+                        attributes[f"index_{attr}"] = dataset[series_def.index_name].attrs[attr]
+                index = dataset[series_def.index_name].values.tolist()
+                if hasattr(index[0], "calendar"):
+                    attributes["calendar"] = index[0].calendar
+                if hasattr(index[0], "isoformat"):
+                    # Convert time objects to strings.
+                    index = [v.isoformat() for v in index]
+
+                series.append(
+                    SeriesMetricValue(
+                        dimensions={**input_selectors, **series_def.dimensions},
+                        values=dataset[series_def.values_name].values.tolist(),
+                        index=index,
+                        index_name=series_def.index_name,
+                        attributes=attributes,
+                    )
+                )
+        return series

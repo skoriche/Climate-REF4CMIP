@@ -31,7 +31,10 @@ class MetricValue(CreatedUpdatedMixin, Base):
     """
     Represents a single metric value
 
-    This value has a number of dimensions which are used to query the diagnostic value.
+    This is a base class for different types of metric values (e.g. scalar, series) which
+    are stored in a single table using single table inheritance.
+
+    This value has a number of dimensions which are used to query the diagnostic values.
     These dimensions describe aspects such as the type of statistic being measured,
     the region of interest or the model from which the statistic is being measured.
 
@@ -180,6 +183,12 @@ class ScalarMetricValue(MetricValue):
     # This is a scalar value
     value: Mapped[float] = mapped_column(nullable=True)
 
+    def __repr__(self) -> str:
+        return (
+            f"<ScalarMetricValue "
+            f"id={self.id} execution={self.execution} dimensions={self.dimensions} value={self.value}>"
+        )
+
     @classmethod
     def build(
         cls,
@@ -232,9 +241,10 @@ class ScalarMetricValue(MetricValue):
 
 class SeriesMetricValue(MetricValue):
     """
-    A scalar value with an associated dimensions
+    A 1d series with associated dimensions
 
-    This is a subclass of MetricValue that is used to represent a scalar value.
+    This is a subclass of MetricValue that is used to represent a series.
+    This can be used to represent time series, vertical profiles or other 1d data.
     """
 
     __mapper_args__: ClassVar[Mapping[str, Any]] = {  # type: ignore
@@ -245,6 +255,12 @@ class SeriesMetricValue(MetricValue):
     values: Mapped[list[float | int]] = mapped_column(nullable=True)
     index: Mapped[list[float | int | str]] = mapped_column(nullable=True)
     index_name: Mapped[str] = mapped_column(nullable=True)
+
+    def __repr__(self) -> str:
+        return (
+            f"<SeriesMetricValue id={self.id} execution={self.execution} "
+            f"dimensions={self.dimensions} index_name={self.index_name}>"
+        )
 
     @classmethod
     def build(  # noqa: PLR0913

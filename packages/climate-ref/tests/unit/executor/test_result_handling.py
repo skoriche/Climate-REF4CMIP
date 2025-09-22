@@ -136,6 +136,8 @@ def test_handle_execution_result_with_series(
     assert series[0].type == MetricValueType.SERIES
     assert series[0].dimensions == {"source_id": "test1"}
     assert series[0].values == [1.0, 2.0, 3.0]
+    assert series[0].index == [0, 1, 2]
+    assert series[0].index_name == "time"
     assert series[0].attributes == {"attr": "value1"}
 
 

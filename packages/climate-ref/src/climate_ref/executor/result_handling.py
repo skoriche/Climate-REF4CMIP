@@ -154,6 +154,8 @@ def _process_execution_series(
                 "execution_id": execution.id,
                 "values": series_result.values,
                 "attributes": series_result.attributes,
+                "index": series_result.index,
+                "index_name": series_result.index_name,
                 **series_result.dimensions,
             }
             for series_result in series_values

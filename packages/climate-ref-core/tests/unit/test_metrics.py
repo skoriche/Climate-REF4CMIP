@@ -258,9 +258,29 @@ def apply_data_catalog():
     )
 
 
+def test_apply_no_filter(apply_data_catalog):
+    requirement = DataRequirement(
+        source_type=SourceDatasetType.CMIP6,
+        filters=tuple(),
+        group_by=None,
+    )
+
+    filtered = requirement.apply_filters(apply_data_catalog)
+
+    pd.testing.assert_frame_equal(filtered, apply_data_catalog)
+
+
 @pytest.mark.parametrize(
     "facet_filter, expected_data, expected_index",
     [
+        (
+            {},
+            {
+                "variable": ["tas", "pr", "rsut", "tas", "tas"],
+                "source_id": ["CESM2", "CESM2", "CESM2", "ACCESS", "CAS"],
+            },
+            [0, 1, 2, 3, 4],
+        ),
         (
             {"variable": "tas"},
             {
@@ -308,8 +328,8 @@ def test_apply_filters_multi(apply_data_catalog):
     requirement = DataRequirement(
         source_type=SourceDatasetType.CMIP6,
         filters=(
-            FacetFilter({"variable": "tas"}),
-            FacetFilter({"source_id": "ACCESS"}, keep=False),
+            FacetFilter({"variable": "pr"}),
+            FacetFilter({"source_id": "ACCESS"}),
         ),
         group_by=None,
     )
@@ -320,68 +340,10 @@ def test_apply_filters_multi(apply_data_catalog):
         filtered,
         pd.DataFrame(
             {
-                "variable": ["tas", "tas"],
-                "source_id": ["CESM2", "CAS"],
+                "variable": ["pr", "tas"],
+                "source_id": ["CESM2", "ACCESS"],
             },
-            index=[0, 4],
-        ),
-    )
-
-
-def test_apply_filters_dont_keep(apply_data_catalog):
-    requirement = DataRequirement(
-        source_type=SourceDatasetType.CMIP6,
-        filters=(FacetFilter({"variable": "tas"}, keep=False),),
-        group_by=None,
-    )
-
-    filtered = requirement.apply_filters(apply_data_catalog)
-
-    pd.testing.assert_frame_equal(
-        filtered,
-        pd.DataFrame(
-            {
-                "variable": ["pr", "rsut"],
-                "source_id": [
-                    "CESM2",
-                    "CESM2",
-                ],
-            },
-            index=[1, 2],
-        ),
-    )
-
-
-def test_apply_filters_dont_keep_multifacet(apply_data_catalog):
-    """Test that all facet values must match to exclude a file from the catalog."""
-    requirement = DataRequirement(
-        source_type=SourceDatasetType.CMIP6,
-        filters=(
-            FacetFilter(
-                {
-                    "variable": "tas",
-                    "source_id": "CAS",
-                },
-                keep=False,
-            ),
-        ),
-        group_by=None,
-    )
-
-    filtered = requirement.apply_filters(apply_data_catalog)
-    pd.testing.assert_frame_equal(
-        filtered,
-        pd.DataFrame(
-            {
-                "variable": ["tas", "pr", "rsut", "tas"],
-                "source_id": [
-                    "CESM2",
-                    "CESM2",
-                    "CESM2",
-                    "ACCESS",
-                ],
-            },
-            index=[0, 1, 2, 3],
+            index=[1, 3],
         ),
     )
 
@@ -389,7 +351,7 @@ def test_apply_filters_dont_keep_multifacet(apply_data_catalog):
 def test_apply_filters_missing(apply_data_catalog):
     requirement = DataRequirement(
         source_type=SourceDatasetType.CMIP6,
-        filters=(FacetFilter({"missing": "tas"}, keep=False),),
+        filters=(FacetFilter({"missing": "tas"}),),
         group_by=None,
     )
 

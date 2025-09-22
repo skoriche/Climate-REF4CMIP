@@ -199,12 +199,22 @@ class ILAMBStandard(Diagnostic):
                                 *ilamb_kwargs.get("alternate_vars", []),
                                 *ilamb_kwargs.get("related_vars", []),
                                 *ilamb_kwargs.get("relationships", {}).keys(),
-                            )
+                            ),
+                            "frequency": "mon",
+                            "experiment_id": ("historical", "land-hist"),
+                            "table_id": (
+                                "AERmonZ",
+                                "Amon",
+                                "CFmon",
+                                "Emon",
+                                "EmonZ",
+                                "LImon",
+                                "Lmon",
+                                "Omon",
+                                "SImon",
+                            ),
                         }
                     ),
-                    FacetFilter(facets={"frequency": ("mon",)}),
-                    FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
-                    FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
                 ),
                 constraints=(
                     RequireFacets(

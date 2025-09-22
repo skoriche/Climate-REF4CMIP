@@ -321,7 +321,12 @@ class DataRequirement:
     Filters to apply to the data catalog of datasets.
 
     This is used to reduce the set of datasets to only those that are required by the diagnostic.
-    The filters are applied iteratively to reduce the set of datasets.
+
+    Each FacetFilter contains one or more facet values that must all be satisfied
+    for a dataset to match that filter. The overall selection keeps any dataset
+    that matches at least one of the provided filters.
+
+    If no filters are specified, all datasets in the data catalog are used.
     """
 
     group_by: tuple[str, ...] | None
@@ -361,6 +366,10 @@ class DataRequirement:
         :
             Filtered data catalog
         """
+        if not self.filters or any(not f.facets for f in self.filters):
+            return data_catalog
+
+        select = pd.Series(False, index=data_catalog.index)
         for facet_filter in self.filters:
             values = {}
             for facet, value in facet_filter.facets.items():
@@ -372,11 +381,9 @@ class DataRequirement:
                     )
                 values[facet] = clean_value
 
-            mask = data_catalog[list(values)].isin(values).all(axis="columns")
-            if not facet_filter.keep:
-                mask = ~mask
-            data_catalog = data_catalog[mask]
-        return data_catalog
+            select |= data_catalog[list(values)].isin(values).all(axis="columns")
+
+        return data_catalog[select]
 
 
 @runtime_checkable

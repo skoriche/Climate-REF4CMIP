@@ -4,7 +4,8 @@ import pandas as pd
 import pytest
 
 from climate_ref.datasets import get_dataset_adapter
-from climate_ref.datasets.base import DatasetAdapter
+from climate_ref.datasets.base import DatasetAdapter, DatasetRegistrationResult
+from climate_ref.models.dataset import Dataset
 from climate_ref_core.datasets import SourceDatasetType
 
 
@@ -28,11 +29,21 @@ class MockDatasetAdapter(DatasetAdapter):
             "file_name": [file_or_directory.name, file_or_directory.name + "_2"],
             "file_size": [100, 100],
         }
+
         return pd.DataFrame(data)
 
-    def register_dataset(self, config, db, data_catalog_dataset: pd.DataFrame) -> pd.DataFrame | None:
-        # Returning the input as a stand-in "registered" dataset
-        return data_catalog_dataset
+    def register_dataset(
+        self, config, db, data_catalog_dataset: pd.DataFrame
+    ) -> DatasetRegistrationResult | None:
+        dataset = Dataset(slug="mock-dataset", dataset_type=SourceDatasetType.CMIP6)
+        return DatasetRegistrationResult(
+            dataset=dataset,
+            dataset_state=None,
+            files_added=[],
+            files_updated=[],
+            files_removed=[],
+            files_unchanged=[],
+        )
 
 
 def test_validate_data_catalog_complete_data():

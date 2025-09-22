@@ -24,6 +24,7 @@ class DatasetRegistrationResult:
     files_added: list[str]
     files_updated: list[str]
     files_removed: list[str]
+    files_unchanged: list[str]
 
     @property
     def total_changes(self) -> int:
@@ -190,7 +191,7 @@ class DatasetAdapter(Protocol):
 
     def register_dataset(
         self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
-    ) -> DatasetRegistrationResult | None:
+    ) -> DatasetRegistrationResult:
         """
         Register a dataset in the database using the data catalog
 
@@ -206,7 +207,7 @@ class DatasetAdapter(Protocol):
         Returns
         -------
         :
-            Registration result with dataset and file change information if successful, else None
+            Registration result with dataset and file change information
         """
         DatasetModel = self.dataset_cls
 
@@ -229,6 +230,7 @@ class DatasetAdapter(Protocol):
         files_added = []
         files_updated = []
         files_removed = []
+        files_unchanged = []
 
         # Get current files for this dataset
         current_files = db.session.query(DatasetFile).filter_by(dataset_id=dataset.id).all()
@@ -267,6 +269,8 @@ class DatasetAdapter(Protocol):
                     existing_file.start_time = new_times["start_time"]
                     existing_file.end_time = new_times["end_time"]
                     files_updated.append(file_path)
+                else:
+                    files_unchanged.append(file_path)
 
         # Add new files (batch operation)
         files_to_add = new_file_paths - existing_file_paths
@@ -291,13 +295,15 @@ class DatasetAdapter(Protocol):
             files_added=files_added,
             files_updated=files_updated,
             files_removed=files_removed,
+            files_unchanged=files_unchanged,
         )
         change_message = f": ({dataset_state.name})" if dataset_state else ""
         logger.debug(
             f"Dataset registration complete for {dataset.slug}{change_message} "
             f"{len(files_added)} files added, "
             f"{len(files_updated)} files updated, "
-            f"{len(files_removed)} files removed"
+            f"{len(files_removed)} files removed, "
+            f"{len(files_unchanged)} files unchanged"
         )
 
         return result

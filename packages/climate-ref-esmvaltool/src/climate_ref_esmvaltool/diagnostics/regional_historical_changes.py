@@ -107,7 +107,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
         SeriesDefinition(
             file_pattern=f"anncyc-{region}/allplots/*_{var_name}_*.nc",
             sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={"region": region},
+            dimensions={"region": region, "statistic": var_name},
             values_name=var_name,
             index_name="month_number",
             attributes=[],
@@ -235,7 +235,7 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
         SeriesDefinition(
             file_pattern=f"{diagnostic}-{region}/allplots/*_{var_name}_*.nc",
             sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={"region": region},
+            dimensions={"region": region, "statistic": var_name},
             values_name=var_name,
             index_name="time",
             attributes=[],

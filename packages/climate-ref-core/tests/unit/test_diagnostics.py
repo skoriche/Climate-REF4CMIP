@@ -116,10 +116,10 @@ def cmec_right_output_data(request, cmec_right_output_dict):
         return CMECOutput(**cmec_right_output_dict)
 
 
-class TestMetric:
+class TestDiagnostic:
     def test_provider(self, provider):
-        metric = provider.diagnostics()[0]
-        assert isinstance(metric.provider, DiagnosticProvider)
+        diagnostic = provider.diagnostics()[0]
+        assert isinstance(diagnostic.provider, DiagnosticProvider)
 
     def test_no_provider(self, mock_diagnostic):
         mock_diagnostic.provider = None
@@ -127,7 +127,7 @@ class TestMetric:
             mock_diagnostic.provider
 
 
-class TestCommandLineMetric:
+class TestCommandLineDiagnostic:
     def test_run(self, mocker):
         mocker.patch.object(
             CommandLineDiagnosticProvider,
@@ -137,7 +137,7 @@ class TestCommandLineMetric:
 
         provider = CommandLineDiagnosticProvider("provider_name", "v0.23")
 
-        metric_result = mocker.sentinel.result
+        diagnostic_result = mocker.sentinel.result
         cmd = mocker.sentinel.cmd
         run_definition = mocker.sentinel.definition
 
@@ -152,18 +152,18 @@ class TestCommandLineMetric:
 
             def build_execution_result(self, definition):
                 assert definition == run_definition
-                return metric_result
+                return diagnostic_result
 
-        metric = TestDiagnostic()
-        provider.register(metric)
+        diagnostic = TestDiagnostic()
+        provider.register(diagnostic)
 
-        result = metric.run(run_definition)
+        result = diagnostic.run(run_definition)
 
         provider.run.assert_called_with(cmd)
-        assert result == metric_result
+        assert result == diagnostic_result
 
 
-class TestMetricResult:
+class TestExecutionResult:
     def test_build_from_output_bundle(
         self,
         cmec_right_output_data,

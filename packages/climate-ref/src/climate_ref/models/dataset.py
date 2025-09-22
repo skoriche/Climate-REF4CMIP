@@ -207,6 +207,7 @@ class PMPClimatologyDataset(Dataset):
     units: Mapped[str] = mapped_column()
     variable_id: Mapped[str] = mapped_column()
     variant_label: Mapped[str] = mapped_column()
+    version: Mapped[str] = mapped_column()
     vertical_levels: Mapped[int] = mapped_column()
     source_version_number: Mapped[str] = mapped_column()
 

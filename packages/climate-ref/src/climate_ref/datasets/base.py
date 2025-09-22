@@ -46,7 +46,8 @@ def _log_duplicate_metadata(
         invalid_dataset_columns = invalid_dataset_nunique[invalid_dataset_nunique.gt(1)].index.tolist()
 
         # Include time_range in the list of invalid columns to make debugging easier
-        invalid_dataset_columns.append("time_range")
+        if "time_range" in data_catalog.columns and "time_range" not in invalid_dataset_columns:
+            invalid_dataset_columns.append("time_range")
 
         data_catalog_subset = data_catalog[data_catalog[slug_column] == instance_id]
 
@@ -189,7 +190,7 @@ class DatasetAdapter(Protocol):
 
         return data_catalog
 
-    def register_dataset(
+    def register_dataset(  # noqa: PLR0915
         self, config: Config, db: Database, data_catalog_dataset: pd.DataFrame
     ) -> DatasetRegistrationResult:
         """
@@ -289,15 +290,23 @@ class DatasetAdapter(Protocol):
                 )
             db.session.add_all(new_dataset_files)
 
+        # Determine final dataset state
+        # If dataset metadata changed, use that state
+        # If no metadata changed but files changed, consider it updated
+        # If nothing changed, keep the original state (None for existing, CREATED for new)
+        final_dataset_state = dataset_state
+        if dataset_state is None and (files_added or files_updated or files_removed):
+            final_dataset_state = ModelState.UPDATED
+
         result = DatasetRegistrationResult(
             dataset=dataset,
-            dataset_state=dataset_state,
+            dataset_state=final_dataset_state,
             files_added=files_added,
             files_updated=files_updated,
             files_removed=files_removed,
             files_unchanged=files_unchanged,
         )
-        change_message = f": ({dataset_state.name})" if dataset_state else ""
+        change_message = f": ({final_dataset_state.name})" if final_dataset_state else ""
         logger.debug(
             f"Dataset registration complete for {dataset.slug}{change_message} "
             f"{len(files_added)} files added, "

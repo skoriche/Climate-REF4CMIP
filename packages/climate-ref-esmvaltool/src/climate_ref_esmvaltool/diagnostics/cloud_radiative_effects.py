@@ -9,6 +9,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import Recipe
@@ -22,8 +23,6 @@ class CloudRadiativeEffects(ESMValToolDiagnostic):
     name = "Climatologies and zonal mean profiles of cloud radiative effects"
     slug = "cloud-radiative-effects"
     base_recipe = "ref/recipe_ref_cre.yml"
-
-    facets = ()
 
     variables = (
         "rlut",
@@ -56,6 +55,19 @@ class CloudRadiativeEffects(ESMValToolDiagnostic):
             ),
         ),
         # TODO: Use CERES-EBAF, ESACCI-CLOUD, and ISCCP-FH from obs4MIPs once available.
+    )
+
+    facets = ()
+    series = tuple(
+        SeriesDefinition(
+            file_pattern=f"plot_profiles/plot/variable_vs_lat_{var_name}_*.nc",
+            sel={"dim0": 0},  # Select the model and not the observations.
+            dimensions={"statistic": f"{var_name} zonal mean"},
+            values_name=var_name,
+            index_name="lat",
+            attributes=[],
+        )
+        for var_name in ["lwcre", "swcre"]
     )
 
     @staticmethod

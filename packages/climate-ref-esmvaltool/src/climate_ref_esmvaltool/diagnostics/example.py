@@ -17,15 +17,6 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
     name = "Global Mean Timeseries"
     slug = "global-mean-timeseries"
     base_recipe = "examples/recipe_python.yml"
-    series = (
-        SeriesDefinition(
-            file_pattern="timeseries/script1/*.nc",
-            dimensions={"statistic": "tas"},
-            values_name="tas",
-            index_name="time",
-            attributes=[],
-        ),
-    )
 
     data_requirements = (
         DataRequirement(
@@ -38,7 +29,17 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
             ),
         ),
     )
+
     facets = ()
+    series = (
+        SeriesDefinition(
+            file_pattern="timeseries/script1/*.nc",
+            dimensions={"statistic": "tas annual global mean"},
+            values_name="tas",
+            index_name="time",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
     def update_recipe(

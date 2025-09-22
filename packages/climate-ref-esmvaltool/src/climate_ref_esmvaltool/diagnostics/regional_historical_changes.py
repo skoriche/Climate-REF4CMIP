@@ -103,18 +103,6 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
         "tas",
         "ua",
     )
-    series = tuple(
-        SeriesDefinition(
-            file_pattern=f"anncyc-{region}/allplots/*_{var_name}_*.nc",
-            sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={"region": region, "statistic": var_name},
-            values_name=var_name,
-            index_name="month_number",
-            attributes=[],
-        )
-        for var_name in variables
-        for region in REGIONS
-    )
 
     data_requirements = (
         DataRequirement(
@@ -171,7 +159,20 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
             # - HadCRUT5_ground_5.0.1.0-analysis: tas
         ),
     )
+
     facets = ()
+    series = tuple(
+        SeriesDefinition(
+            file_pattern=f"anncyc-{region}/allplots/*_{var_name}_*.nc",
+            sel={"dim0": 0},  # Select the model and not the observation.
+            dimensions={"region": region, "statistic": f"{var_name} regional mean"},
+            values_name=var_name,
+            index_name="month_number",
+            attributes=[],
+        )
+        for var_name in variables
+        for region in REGIONS
+    )
 
     @staticmethod
     def update_recipe(
@@ -231,20 +232,6 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
         "ua",
     )
 
-    series = tuple(
-        SeriesDefinition(
-            file_pattern=f"{diagnostic}-{region}/allplots/*_{var_name}_*.nc",
-            sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={"region": region, "statistic": var_name},
-            values_name=var_name,
-            index_name="time",
-            attributes=[],
-        )
-        for var_name in variables
-        for region in REGIONS
-        for diagnostic in ["timeseries_abs", "timeseries"]
-    )
-
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
@@ -299,6 +286,27 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
             # - ERA5: hus
             # - HadCRUT5_ground_5.0.1.0-analysis: tas
         ),
+    )
+
+    series = tuple(
+        SeriesDefinition(
+            file_pattern=f"{diagnostic}-{region}/allplots/*_{var_name}_*.nc",
+            sel={"dim0": 0},  # Select the model and not the observation.
+            dimensions={
+                "region": region,
+                "statistic": (
+                    f"{var_name} regional mean"
+                    if diagnostic == "timeseries_abs"
+                    else f"{var_name} regional mean anomaly"
+                ),
+            },
+            values_name=var_name,
+            index_name="time",
+            attributes=[],
+        )
+        for var_name in variables
+        for region in REGIONS
+        for diagnostic in ["timeseries_abs", "timeseries"]
     )
 
 

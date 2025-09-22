@@ -280,7 +280,10 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
 
         series = []
         for series_def in definition.diagnostic.series:
-            if fnmatch.fnmatch(str(relative_path), f"executions/*/{series_def.file_pattern}"):
+            if fnmatch.fnmatch(
+                str(relative_path),
+                f"executions/*/{series_def.file_pattern.format(**input_selectors)}",
+            ):
                 dataset = xr.open_dataset(filename, decode_times=xr.coders.CFDatetimeCoder(use_cftime=True))
                 dataset = dataset.sel(series_def.sel)
                 attributes = {

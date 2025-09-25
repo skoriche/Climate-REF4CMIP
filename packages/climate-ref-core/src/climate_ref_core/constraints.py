@@ -17,45 +17,21 @@ else:
 
 import numpy as np
 import pandas as pd
-from attrs import frozen
+from attrs import field, frozen
 from loguru import logger
 
 from climate_ref_core.datasets import SourceDatasetType
-from climate_ref_core.exceptions import ConstraintNotSatisfied
 
 
 @runtime_checkable
-class GroupValidator(Protocol):
-    """
-    A constraint that must be satisfied when executing a given diagnostic run.
-
-    All constraints must be satisfied for a given group to be run.
-    """
-
-    def validate(self, group: pd.DataFrame) -> bool:
-        """
-        Validate if the constraint is satisfied by the dataset.
-
-        This is executed after the apply method to determine if the constraint is satisfied.
-        If the constraint is not satisfied, the group will not be executed.
-
-        Parameters
-        ----------
-        group
-            A group of datasets that is being validated.
-
-        Returns
-        -------
-        :
-            Whether the constraint is satisfied
-        """
-        ...
-
-
-@runtime_checkable
-class GroupOperation(Protocol):
+class GroupConstraint(Protocol):
     """
     An operation to perform on a group of datasets resulting in a new group of datasets.
+
+    This is applied to a group of datasets representing the inputs to a potential diagnostic execution.
+
+    If the operation results in an empty group, the constraint is considered not satisfied.
+    The group must satisfy all constraints to be processed.
 
     !! warning
 
@@ -92,18 +68,6 @@ class GroupOperation(Protocol):
         ...
 
 
-GroupConstraint = GroupOperation | GroupValidator
-"""
-A constraint that must be satisfied for a group of datasets to be executed.
-
-This is applied to a group of datasets representing the inputs to a potential diagnostic execution.
-The group must satisfy all constraints to be processed.
-
-This can include operations that are applied to a group of datasets which may modify the group,
-but may also include validators that check if the group satisfies a certain condition.
-"""
-
-
 def apply_constraint(
     dataframe: pd.DataFrame,
     constraint: GroupConstraint,
@@ -126,52 +90,58 @@ def apply_constraint(
     :
         The updated group of datasets or None if the constraint was not satisfied
     """
-    try:
-        updated_group = (
-            constraint.apply(dataframe, data_catalog) if isinstance(constraint, GroupOperation) else dataframe
-        )
-
-        valid = constraint.validate(updated_group) if isinstance(constraint, GroupValidator) else True
-        if not valid:
-            logger.debug(f"Constraint {constraint} not satisfied for {dataframe}")
-            raise ConstraintNotSatisfied(f"Constraint {constraint} not satisfied for {dataframe}")
-    except ConstraintNotSatisfied:
+    updated_group = constraint.apply(dataframe, data_catalog)
+    if updated_group.empty:
         logger.debug(f"Constraint {constraint} not satisfied for {dataframe}")
         return None
 
     return updated_group
 
 
+def _to_tuple(value: None | str | tuple[str, ...]) -> tuple[str, ...]:
+    """
+    Clean the value of group_by to a tuple of strings
+    """
+    if value is None:
+        return ()
+    if isinstance(value, str):
+        return (value,)
+    return tuple(value)
+
+
 @frozen
 class RequireFacets:
     """
-    A constraint that requires a dataset to have certain facets.
+    A constraint that requires datasets to have certain facet values.
     """
 
     dimension: str
-    required_facets: tuple[str, ...]
+    """The name of the facet to filter on."""
+
+    required_facets: tuple[str, ...] = field(converter=_to_tuple)
+    "The required facet values."
+
     operator: Literal["all", "any"] = "all"
+    """Whether all or any of the required facets must be present."""
 
-    group_by: tuple[str, ...] | None = None
+    group_by: tuple[str, ...] | None = field(converter=_to_tuple, default=None)
     """
-    The fields to group the datasets by. Each group must contain all or any of the
-    required facets to fulfill the constraint.
+    The facets to group the datasets by.
 
-    The default is to treat the datasets as a single group.
+    Each group created by `group_by` must contain at least one dataset where the
+    value of the given dimension is in the list of required facet values.
 
     For example, if there are multiple models and variables in the selection,
     `group_by` can be used to make sure that only those models are selected that
     provide all required variables.
     """
 
-    def validate(self, group: pd.DataFrame) -> bool:
+    def apply(self, group: pd.DataFrame, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
-        Check that the required facets are present in the group
+        Filter out groups of datasets that do not provide the required facets
         """
-        if self.dimension not in group:
-            logger.warning(f"Dimension {self.dimension} not present in group {group}")
-            return False
         op = all if self.operator == "all" else any
+        select = pd.Series(True, index=group.index)
         groups = [group] if not self.group_by else (g[1] for g in group.groupby(list(self.group_by)))
         for subgroup in groups:
             if not op(value in subgroup[self.dimension].values for value in self.required_facets):
@@ -179,8 +149,8 @@ class RequireFacets:
                     f"Constraint {self} not satisfied because required facet values "
                     f"not found for group {', '.join(subgroup['path'])}"
                 )
-                return False
-        return True
+                select.loc[subgroup.index] = False
+        return group[select]
 
 
 @frozen
@@ -367,8 +337,8 @@ class RequireTimerange:
 
     group_by: tuple[str, ...]
     """
-    The fields to group the datasets by. Each group must cover the timerange
-    to fulfill the constraint.
+    The fields to group the datasets by. Groups that do not cover the timerange
+    will be removed.
     """
 
     start: PartialDateTime | None = None
@@ -381,35 +351,35 @@ class RequireTimerange:
     The end time of the required timerange. If None, no end time is required.
     """
 
-    def validate(self, group: pd.DataFrame) -> bool:
+    def apply(self, group: pd.DataFrame, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Check that all subgroups of the group have a contiguous timerange.
         """
-        group = group.dropna(subset=["start_time", "end_time"])
-        for _, subgroup in group.groupby(list(self.group_by)):
+        select = pd.Series(True, index=group.index)
+        for _, subgroup in group.dropna(subset=["start_time", "end_time"]).groupby(list(self.group_by)):
             start = subgroup["start_time"].min()
             end = subgroup["end_time"].max()
             result = True
             if self.start is not None and start > self.start:
                 logger.debug(
-                    f"Constraint {self.__class__.__name__} not satisfied "
-                    f"because start time {start} is after required start time "
-                    f"{self.start} for {', '.join(subgroup['path'])}"
+                    f"Constraint {self} not satisfied because start time {start} "
+                    f"is after required start time for {', '.join(subgroup['path'])}"
                 )
                 result = False
             if self.end is not None and end < self.end:
                 logger.debug(
-                    f"Constraint {self.__class__.__name__} not satisfied "
-                    f"because end time {end} is before required end time "
-                    f"{self.end} for {', '.join(subgroup['path'])}"
+                    f"Constraint {self} not satisfied because end time {end} "
+                    f"is before required end time for {', '.join(subgroup['path'])}"
                 )
                 result = False
             if result:
-                result = RequireContiguousTimerange(group_by=self.group_by).validate(subgroup)
+                contiguous_subgroup = RequireContiguousTimerange(group_by=self.group_by).apply(
+                    subgroup, data_catalog
+                )
+                result = len(contiguous_subgroup) == len(subgroup)
             if not result:
-                return False
-
-        return True
+                select.loc[subgroup.index] = False
+        return group[select]
 
 
 @frozen
@@ -420,11 +390,11 @@ class RequireContiguousTimerange:
 
     group_by: tuple[str, ...]
     """
-    The fields to group the datasets by. Each group must be contiguous in time
-    to fulfill the constraint.
+    The fields to group the datasets by. Groups that are not be contiguous in time
+    are removed.
     """
 
-    def validate(self, group: pd.DataFrame) -> bool:
+    def apply(self, group: pd.DataFrame, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Check that all subgroups of the group have a contiguous timerange.
         """
@@ -434,11 +404,10 @@ class RequireContiguousTimerange:
             days=31,  # Maximum number of days in a month.
             hours=1,  # Allow for potential rounding errors.
         )
-        group = group.dropna(subset=["start_time", "end_time"])
-        if len(group) < 2:  # noqa: PLR2004
-            return True
 
-        for _, subgroup in group.groupby(list(self.group_by)):
+        select = pd.Series(True, index=group.index)
+
+        for _, subgroup in group.dropna(subset=["start_time", "end_time"]).groupby(list(self.group_by)):
             if len(subgroup) < 2:  # noqa: PLR2004
                 continue
             sorted_group = subgroup.sort_values("start_time", kind="stable")
@@ -466,12 +435,13 @@ class RequireContiguousTimerange:
                 paths = sorted_group["path"]
                 for gap_idx in np.flatnonzero(gap_indices):
                     logger.debug(
-                        f"Constraint {self.__class__.__name__} not satisfied "
-                        f"because gap larger than {max_timedelta} found between "
+                        f"Constraint {self} not satisfied because gap larger "
+                        f"than {max_timedelta} found between "
                         f"{paths.iloc[gap_idx]} and {paths.iloc[gap_idx + 1]}"
                     )
-                return False
-        return True
+                select.loc[subgroup.index] = False
+
+        return group[select]
 
 
 @frozen
@@ -486,17 +456,24 @@ class RequireOverlappingTimerange:
     the groups to fulfill the constraint.
     """
 
-    def validate(self, group: pd.DataFrame) -> bool:
+    def apply(self, group: pd.DataFrame, data_catalog: pd.DataFrame) -> pd.DataFrame:
         """
         Check that all subgroups of the group have an overlapping timerange.
         """
-        group = group.dropna(subset=["start_time", "end_time"])
-        if len(group) < 2:  # noqa: PLR2004
-            return True
+        group_with_time = group.dropna(subset=["start_time", "end_time"])
+        if len(group_with_time) < 2:  # noqa: PLR2004
+            return group
 
-        starts = group.groupby(list(self.group_by))["start_time"].min()
-        ends = group.groupby(list(self.group_by))["end_time"].max()
-        return starts.max() < ends.min()  # type: ignore[no-any-return]
+        starts = group_with_time.groupby(list(self.group_by))["start_time"].min()
+        ends = group_with_time.groupby(list(self.group_by))["end_time"].max()
+        result = starts.max() < ends.min()
+        if not result:
+            logger.debug(
+                f"Constraint {self} not satisfied because no overlapping timerange "
+                f"found for groups in {', '.join(group['path'])}"
+            )
+            return group.loc[[]]
+        return group
 
 
 @frozen

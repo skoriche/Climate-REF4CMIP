@@ -98,7 +98,7 @@ def list_columns(
 
 
 @app.command()
-def ingest(  # noqa: PLR0913
+def ingest(  # noqa
     ctx: typer.Context,
     file_or_directory: list[Path],
     source_type: Annotated[SourceDatasetType, typer.Option(help="Type of source dataset")],

@@ -5,6 +5,7 @@ This fetches about 660GB of datasets into the default location for intake esgf.
 """
 
 import intake_esgf
+import typer
 from attrs import define
 
 
@@ -17,9 +18,15 @@ class CMIP6Request:
     id: str
     facets: dict[str, str | tuple[str, ...] | list[str]]
 
-    def fetch(self):
+    def fetch(self, remove_ensembles: bool = True):
         """
         Fetch CMIP6 data from the ESGF catalog and return it as a DataFrame.
+
+        Parameters
+        ----------
+        remove_ensembles : bool, default True
+            Whether to remove ensemble members, keeping only one per model.
+            If False, all ensemble members will be included.
 
         Returns
         -------
@@ -33,7 +40,9 @@ class CMIP6Request:
                 frequency=["mon", "fx"],
                 **self.facets,
             )
-            return cmip6_data.remove_ensembles().to_path_dict()
+            if remove_ensembles:
+                cmip6_data = cmip6_data.remove_ensembles()
+            return cmip6_data.to_path_dict()
         except Exception as e:
             print(e)
         return []
@@ -140,7 +149,7 @@ requests = [
     CMIP6Request(
         id="iomb-data-2",
         facets=dict(
-            variable_id=["sftof", "sos", "msftmz"],
+            variable_id=["sftof", "sos", "msftmz", "volcello", "thetao", "ohc"],
             experiment_id=["historical"],
         ),
     ),
@@ -155,16 +164,58 @@ requests = [
 ]
 
 
-def run_request(request: CMIP6Request):
+def run_request(request: CMIP6Request, remove_ensembles: bool = True):
     """
     Fetch and log the results of a request
     """
     print(f"Processing request: {request.id}")
-    df = request.fetch()
+    df = request.fetch(remove_ensembles=remove_ensembles)
     print(f"{len(df)} datasets")
     print("\n")
 
 
-for request in requests:
-    run_request(request)
+def main(
+    request_id: str = typer.Option(
+        None, help="ID of a specific request to run. If not provided, all requests will be run."
+    ),
+    remove_ensembles: bool = typer.Option(
+        True,
+        help=(
+            "Remove ensemble members, keeping only one per model. "
+            "Use --no-remove-ensembles to fetch all ensembles."
+        ),
+    ),
+):
+    """
+    Fetch CMIP6 datasets from ESGF.
+
+    This script can either run all predefined requests or a specific request by ID.
+    By default, only one ensemble member per model is fetched, but this can be changed
+    with the --no-remove-ensembles flag.
+    """
+    if request_id:
+        # Find and run the specific request
+        matching_requests = [req for req in requests if req.id == request_id]
+        if not matching_requests:
+            print(f"Error: No request found with ID '{request_id}'")
+            print("Available request IDs:")
+            for req in requests:
+                print(f"  - {req.id}")
+            raise typer.Exit(1)
+
+        print(f"Running single request: {request_id}")
+        if not remove_ensembles:
+            print("Fetching all ensemble members")
+        run_request(matching_requests[0], remove_ensembles=remove_ensembles)
+    else:
+        print("Running all requests...")
+        if not remove_ensembles:
+            print("Fetching all ensemble members")
+        for request in requests:
+            run_request(request, remove_ensembles=remove_ensembles)
+
+
 # joblib.Parallel(n_jobs=2)(joblib.delayed(run_request)(request) for request in requests)
+
+if __name__ == "__main__":
+    typer.run(main)

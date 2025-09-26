@@ -106,7 +106,7 @@ def ingest(  # noqa: PLR0913
     n_jobs: Annotated[int | None, typer.Option(help="Number of jobs to run in parallel")] = None,
     skip_invalid: Annotated[
         bool, typer.Option(help="Ignore (but log) any datasets that don't pass validation")
-    ] = False,
+    ] = True,
 ) -> None:
     """
     Ingest a directory of datasets into the database
@@ -135,8 +135,18 @@ def ingest(  # noqa: PLR0913
             logger.error(f"File or directory {_dir} does not exist")
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), _dir)
 
-        data_catalog = adapter.find_local_datasets(_dir)
-        data_catalog = adapter.validate_data_catalog(data_catalog, skip_invalid=skip_invalid)
+        # TODO: This assumes that all datasets are nc files.
+        # THis is true for CMIP6 and obs4MIPs but may not be true for other dataset types in the future.
+        if not _dir.rglob("*.nc"):
+            logger.error(f"No .nc files found in {_dir}")
+            continue
+
+        try:
+            data_catalog = adapter.find_local_datasets(_dir)
+            data_catalog = adapter.validate_data_catalog(data_catalog, skip_invalid=skip_invalid)
+        except Exception as e:
+            logger.error(f"Error ingesting datasets from {_dir}: {e}")
+            continue
 
         logger.info(
             f"Found {len(data_catalog)} files for {len(data_catalog[adapter.slug_column].unique())} datasets"

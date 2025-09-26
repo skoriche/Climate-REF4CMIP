@@ -56,6 +56,7 @@ def update_recipe(
     diagnostic = diagnostics.pop(diagnostic_name)
     diagnostics.clear()
     diagnostics[diagnostic_name] = diagnostic
+    recipe_variables = {k: v for k, v in recipe_variables.items() if k != "areacella"}
     datasets = next(iter(recipe_variables.values()))["additional_datasets"]
     for dataset in datasets:
         dataset["timerange"] = "1996/2014"

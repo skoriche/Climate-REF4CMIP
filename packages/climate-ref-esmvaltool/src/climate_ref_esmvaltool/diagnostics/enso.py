@@ -49,16 +49,16 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
+                RequireContiguousTimerange(group_by=("instance_id",)),
+                RequireOverlappingTimerange(group_by=("instance_id",)),
                 RequireFacets(
                     "variable_id",
                     (
                         "pr",
-                        "tos",
                         "tauu",
+                        "tos",
                     ),
                 ),
-                RequireContiguousTimerange(group_by=("instance_id",)),
-                RequireOverlappingTimerange(group_by=("instance_id",)),
             ),
         ),
     )

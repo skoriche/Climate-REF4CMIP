@@ -118,12 +118,12 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("variable_id", variables),
                 RequireTimerange(
                     group_by=("instance_id",),
                     start=PartialDateTime(1980, 1),
                     end=PartialDateTime(2009, 12),
                 ),
+                RequireFacets("variable_id", variables),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
@@ -148,6 +148,7 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
                     start=PartialDateTime(1980, 1),
                     end=PartialDateTime(2009, 12),
                 ),
+                RequireFacets("variable_id", ("psl", "ua")),
             ),
             # TODO: Add obs4MIPs datasets once available and working:
             #
@@ -246,12 +247,12 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("variable_id", variables),
                 RequireTimerange(
                     group_by=("instance_id",),
                     start=PartialDateTime(1980, 1),
                     end=PartialDateTime(2014, 12),
                 ),
+                RequireFacets("variable_id", variables),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),

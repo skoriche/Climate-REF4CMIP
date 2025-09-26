@@ -52,6 +52,8 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
+                RequireContiguousTimerange(group_by=("instance_id",)),
+                RequireOverlappingTimerange(group_by=("instance_id",)),
                 RequireFacets(
                     "variable_id",
                     required_facets=variables,
@@ -62,8 +64,6 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
                     required_facets=experiments,
                     group_by=("source_id", "member_id", "grid_label", "variable_id"),
                 ),
-                RequireContiguousTimerange(group_by=("instance_id",)),
-                RequireOverlappingTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),

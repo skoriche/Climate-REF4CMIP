@@ -12,6 +12,7 @@ This can be adjusted via `~/.config/intake-esgf/config.yaml`.
 import intake_esgf
 import typer
 from attrs import define
+from loguru import logger
 
 
 @define
@@ -39,18 +40,20 @@ class CMIP6Request:
             DataFrame containing the metadata for the CMIP6 datasets.
         """
         catalog = intake_esgf.ESGFCatalog()
+        search_parameters = {
+            "project": "CMIP6",
+            "frequency": ["mon", "fx"],
+            **self.facets,
+        }
+        logger.debug(f"Fetching CMIP6 data: {search_parameters}")
         try:
-            cmip6_data = catalog.search(
-                project="CMIP6",
-                frequency=["mon", "fx"],
-                **self.facets,
-            )
+            cmip6_data = catalog.search(**search_parameters)
             if remove_ensembles:
                 cmip6_data = cmip6_data.remove_ensembles()
             return cmip6_data.to_path_dict()
-        except Exception as e:
-            print(e)
-        return []
+        except Exception:
+            logger.info(f"Error fetching CMIP6 data: {search_parameters}")
+        return {}
 
 
 @define
@@ -77,16 +80,18 @@ class Obs4MIPsRequest:
             DataFrame containing the metadata for the Obs4MIPs datasets.
         """
         catalog = intake_esgf.ESGFCatalog()
+        search_parameters = {
+            "project": "obs4MIPs",
+            "frequency": ["mon", "fx"],
+            **self.facets,
+        }
+        logger.info(f"Fetching Obs4MIPs data: {search_parameters}")
         try:
-            obs_data = catalog.search(
-                project="obs4MIPs",
-                frequency="mon",
-                **self.facets,
-            )
-            return obs_data.to_path_dict()
-        except Exception as e:
-            print(e)
-        return []
+            obs_data = catalog.search(**search_parameters)
+            return obs_data.to_path_dict(minimal_keys=False)
+        except Exception:
+            logger.exception(f"Error fetching Obs4MIPs data: {search_parameters}")
+        return {}
 
 
 Request = CMIP6Request | Obs4MIPsRequest
@@ -261,8 +266,30 @@ requests: list[Request] = [
     CMIP6Request(
         id="iomb-data-2",
         facets=dict(
-            variable_id=["sftof", "sos", "msftmz", "volcello", "thetao", "ohc"],
+            variable_id=["sftof", "sos", "msftmz"],
             experiment_id=["historical"],
+        ),
+    ),
+    # Large 4D ocean datasets
+    # A small set of models are fetched here for now
+    CMIP6Request(
+        id="iomb-data-large",
+        facets=dict(
+            variable_id=["volcello", "thetao"],
+            experiment_id=["historical"],
+            source_id=[
+                "AWI-ESM-1-1-LR",
+                "CAMS-CSM1-0",
+                "TaiESM1",
+                "CanESM5",
+                "CanESM5-1",
+                "CanESM5-CanOE",
+                "FGOALS-g3",
+                "FGOALS-f3-L",
+                "CAS-ESM2-0",
+                "BCC-ESM1",
+                "BCC-CSM2-MR",
+            ],
         ),
     ),
     # PMP modes of variability data
@@ -309,20 +336,20 @@ def main(
         # Find and run the specific request
         matching_requests = [req for req in requests if req.id == request_id]
         if not matching_requests:
-            print(f"Error: No request found with ID '{request_id}'")
-            print("Available request IDs:")
+            logger.info(f"Error: No request found with ID '{request_id}'")
+            logger.info("Available request IDs:")
             for req in requests:
-                print(f"  - {req.id}")
+                logger.info(f"  - {req.id}")
             raise typer.Exit(1)
 
-        print(f"Running single request: {request_id}")
+        logger.info(f"Running single request: {request_id}")
         if not remove_ensembles:
-            print("Fetching all ensemble members")
+            logger.info("Fetching all ensemble members")
         run_request(matching_requests[0], remove_ensembles=remove_ensembles)
     else:
-        print("Running all requests...")
+        logger.info("Running all requests...")
         if not remove_ensembles:
-            print("Fetching all ensemble members")
+            logger.info("Fetching all ensemble members")
         for request in requests:
             run_request(request, remove_ensembles=remove_ensembles)
 

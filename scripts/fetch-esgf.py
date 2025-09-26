@@ -96,12 +96,14 @@ class Obs4MIPsRequest:
 
 Request = CMIP6Request | Obs4MIPsRequest
 
+# TODO use the data requirements from the diagnostics directly
 requests: list[Request] = [
     CMIP6Request(
         id="esmvaltool-climate-at-global-warmings-levels",
         facets=dict(
             variable_id=["pr", "tas"],
             experiment_id=["ssp126", "ssp245", "ssp370", "ssp585", "historical"],
+            table_id="Amon",
         ),
     ),
     # ESMValTool Cloud radiative effects
@@ -110,6 +112,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["rlut", "rlutcs", "rsut", "rsutcs"],
             experiment_id="historical",
+            table_id="Amon",
         ),
     ),
     # ESMValTool cloud scatterplots
@@ -130,6 +133,7 @@ requests: list[Request] = [
                 "ta",
             ],
             experiment_id="historical",
+            table_id="Amon",
         ),
     ),
     Obs4MIPsRequest(
@@ -145,6 +149,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["rlut", "rsdt", "rsut", "tas"],
             experiment_id=["abrupt-4xCO2", "piControl"],
+            table_id="Amon",
         ),
     ),
     # ESMValTool ENSO data
@@ -157,6 +162,7 @@ requests: list[Request] = [
                 "tauu",
             ],
             experiment_id=["historical"],
+            table_id=("Amon", "Omon"),
         ),
     ),
     # ESMValTool fire data
@@ -174,6 +180,7 @@ requests: list[Request] = [
                 "vegFrac",
             ],
             experiment_id=["historical"],
+            table_id=("Amon", "Emon", "Lmon"),
         ),
     ),
     # ESMValTool Historical data
@@ -188,6 +195,7 @@ requests: list[Request] = [
                 "ua",
             ],
             experiment_id=["historical"],
+            table_id="Amon",
         ),
     ),
     Obs4MIPsRequest(
@@ -207,6 +215,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["tas"],
             experiment_id=["1pctCO2", "piControl"],
+            table_id="Amon",
         ),
     ),
     # ESMValTool TCRE data
@@ -215,6 +224,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["fco2antt", "tas"],
             experiment_id=["esm-1pctCO2", "esm-piControl"],
+            table_id="Amon",
         ),
     ),
     # ESMValTool ZEC data
@@ -223,6 +233,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["areacella", "tas"],
             experiment_id=["1pctCO2", "esm-1pct-brch-1000PgC"],
+            table_id="Amon",
         ),
     ),
     # ESMValTool Sea Ice Area Seasonal Cycle data
@@ -231,6 +242,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["areacello", "siconc"],
             experiment_id=["historical"],
+            table_id=("Amon", "SImon"),
         ),
     ),
     # ILAMB data
@@ -298,6 +310,7 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["areacella", "ts", "psl"],
             experiment_id=["historical", "hist-GHG"],
+            table_id="Amon",
         ),
     ),
 ]

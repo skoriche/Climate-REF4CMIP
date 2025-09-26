@@ -11,6 +11,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
@@ -53,6 +54,18 @@ class ZeroEmissionCommitment(ESMValToolDiagnostic):
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    series = (
+        SeriesDefinition(
+            file_pattern="work/zec/zec/zec.nc",
+            sel={"dim0": 0},
+            dimensions={
+                "statistic": "zec",
+            },
+            values_name="zec",
+            index_name="time",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
     def update_recipe(

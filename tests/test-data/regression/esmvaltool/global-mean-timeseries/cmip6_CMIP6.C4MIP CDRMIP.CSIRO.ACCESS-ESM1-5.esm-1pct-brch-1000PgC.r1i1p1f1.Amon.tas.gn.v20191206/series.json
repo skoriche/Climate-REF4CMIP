@@ -1,6 +1,9 @@
 [
   {
-    "dimensions": {},
+    "dimensions": {
+      "instance_id": "CMIP6.C4MIP CDRMIP.CSIRO.ACCESS-ESM1-5.esm-1pct-brch-1000PgC.r1i1p1f1.Amon.tas.gn.v20191206",
+      "statistic": "tas annual global mean"
+    },
     "values": [
       16.491113662719727,
       16.387659072875977,

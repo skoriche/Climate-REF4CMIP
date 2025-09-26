@@ -66,6 +66,8 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    # TODO: the ESMValTool diagnostic script does not save the data for the timeseries.
+    series = tuple()
 
     @staticmethod
     def update_recipe(

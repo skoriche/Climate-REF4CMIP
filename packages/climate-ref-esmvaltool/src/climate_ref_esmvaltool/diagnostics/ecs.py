@@ -11,6 +11,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
@@ -68,6 +69,17 @@ class EquilibriumClimateSensitivity(ESMValToolDiagnostic):
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    series = (
+        SeriesDefinition(
+            file_pattern="ecs/calculate/ecs_regression_*.nc",
+            dimensions={
+                "statistic": ("global annual mean anomaly of rtnt vs tas"),
+            },
+            values_name="rtnt_anomaly",
+            index_name="tas_anomaly",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
     def update_recipe(

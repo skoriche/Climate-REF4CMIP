@@ -1,7 +1,12 @@
 """
-Basic script for fetching a single ensemble member for each of the diagnostics of interest
+CLI tool for fetching the required CMIP6 and Obs4MIPs datasets from ESGF.
 
-This fetches about 660GB of datasets into the default location for intake esgf.
+This script can either run all predefined requests or a specific request by ID.
+By default, only one ensemble member per model is fetched to reduce the total data volume.
+This can be changed with the --no-remove-ensembles flag.
+
+This fetches about 3TB of datasets into the default location for intake esgf.
+This can be adjusted via `~/.config/intake-esgf/config.yaml`.
 """
 
 import intake_esgf

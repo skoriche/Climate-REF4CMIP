@@ -135,6 +135,8 @@ def ingest(  # noqa: PLR0913
             logger.error(f"File or directory {_dir} does not exist")
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), _dir)
 
+        # TODO: This assumes that all datasets are nc files.
+        # THis is true for CMIP6 and obs4MIPs but may not be true for other dataset types in the future.
         if not _dir.rglob("*.nc"):
             logger.error(f"No .nc files found in {_dir}")
             continue

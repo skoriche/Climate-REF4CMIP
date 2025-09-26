@@ -27,20 +27,22 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
     slug = "sea-ice-sensitivity"
     base_recipe = "recipe_seaice_sensitivity.yml"
 
-    variables = (
-        "siconc",
-        "tas",
-    )
-
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": variables,
+                        "variable_id": "siconc",
                         "experiment_id": "historical",
-                        "table_id": ("Amon", "SImon"),
+                        "table_id": "SImon",
+                    },
+                ),
+                FacetFilter(
+                    facets={
+                        "variable_id": "tas",
+                        "experiment_id": "historical",
+                        "table_id": "Amon",
                     },
                 ),
             ),
@@ -48,7 +50,7 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
             constraints=(
                 RequireFacets(
                     "variable_id",
-                    required_facets=variables,
+                    required_facets=("siconc", "tas"),
                     group_by=("source_id", "member_id", "grid_label"),
                 ),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),

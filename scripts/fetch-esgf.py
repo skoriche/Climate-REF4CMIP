@@ -242,7 +242,6 @@ requests: list[Request] = [
         facets=dict(
             variable_id=["areacello", "siconc"],
             experiment_id=["historical"],
-            table_id=("Amon", "SImon"),
         ),
     ),
     # ILAMB data

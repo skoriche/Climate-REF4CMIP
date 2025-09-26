@@ -57,14 +57,19 @@ class Obs4MIPsRequest:
     id: str
     facets: dict[str, str | tuple[str, ...] | list[str]]
 
-    def fetch(self):
+    def fetch(self, remove_ensembles: bool = True):
         """
         Fetch Obs4MIPs data from the ESGF catalog and return it as a DataFrame.
+
+        Parameters
+        ----------
+        remove_ensembles : bool, default True
+            Ignored as Obs4MIPs data does not have ensembles.
 
         Returns
         -------
         pd.DataFrame
-            DataFrame containing the metadata for the CMIP6 datasets.
+            DataFrame containing the metadata for the Obs4MIPs datasets.
         """
         catalog = intake_esgf.ESGFCatalog()
         try:
@@ -79,7 +84,9 @@ class Obs4MIPsRequest:
         return []
 
 
-requests = [
+Request = CMIP6Request | Obs4MIPsRequest
+
+requests: list[Request] = [
     CMIP6Request(
         id="esmvaltool-climate-at-global-warmings-levels",
         facets=dict(
@@ -264,7 +271,7 @@ requests = [
 ]
 
 
-def run_request(request: CMIP6Request, remove_ensembles: bool = True):
+def run_request(request: Request, remove_ensembles: bool = True):
     """
     Fetch and log the results of a request
     """

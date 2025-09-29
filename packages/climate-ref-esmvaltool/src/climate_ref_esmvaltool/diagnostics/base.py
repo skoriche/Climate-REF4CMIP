@@ -93,10 +93,11 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
         }
         recipe = load_recipe(self.base_recipe)
         self.update_recipe(recipe, input_files)
-
+        recipe_txt = yaml.safe_dump(recipe, sort_keys=False)
+        logger.info(f"Using ESMValTool recipe:\n{recipe_txt}")
         recipe_path = definition.to_output_path("recipe.yml")
         with recipe_path.open("w", encoding="utf-8") as file:
-            yaml.safe_dump(recipe, file, sort_keys=False)
+            file.write(recipe_txt)
         return recipe_path
 
     def build_cmd(self, definition: ExecutionDefinition) -> Iterable[str]:
@@ -166,8 +167,10 @@ class ESMValToolDiagnostic(CommandLineDiagnostic):
 
         config_dir = definition.to_output_path("config")
         config_dir.mkdir()
+        config_txt = yaml.safe_dump(config)
+        logger.info(f"Using ESMValTool configuration:\n{config_txt}")
         with (config_dir / "config.yml").open("w", encoding="utf-8") as file:
-            yaml.safe_dump(config, file)
+            file.write(config_txt)
 
         return [
             "esmvaltool",

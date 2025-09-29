@@ -151,6 +151,11 @@ def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/Koppen_coarse.nc"))
         ilamb3.conf.set(regions=["global", "tropical"])
+    # REF's data requirement correctly will add measure data from another
+    # ensemble, but internally I also groupby. Since REF is only giving 1
+    # source_id/member_id/grid_label at a time, relax the groupby option here so
+    # these measures are part of the dataframe in ilamb3.
+    ilamb3.conf.set(comparison_groupby=["source_id", "grid_label"])
 
 
 def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
@@ -243,6 +248,7 @@ class ILAMBStandard(Diagnostic):
                         )
                         if registry_file == "ilamb"
                         else (
+                            AddSupplementaryDataset.from_defaults("volcello", SourceDatasetType.CMIP6),
                             AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
                             AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
                         )

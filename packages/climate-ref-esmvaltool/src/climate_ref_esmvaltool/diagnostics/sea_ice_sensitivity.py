@@ -27,28 +27,35 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
     slug = "sea-ice-sensitivity"
     base_recipe = "recipe_seaice_sensitivity.yml"
 
-    variables = (
-        "siconc",
-        "tas",
-    )
-
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": variables,
+                        "variable_id": "siconc",
                         "experiment_id": "historical",
-                        "table_id": ("Amon", "SImon"),
+                        "table_id": "SImon",
+                    },
+                ),
+                FacetFilter(
+                    facets={
+                        "variable_id": "tas",
+                        "experiment_id": "historical",
+                        "table_id": "Amon",
                     },
                 ),
             ),
             group_by=("experiment_id",),  # this does nothing, but group_by cannot be empty
             constraints=(
+                RequireTimerange(
+                    group_by=("instance_id",),
+                    start=PartialDateTime(1979, 1),
+                    end=PartialDateTime(2014, 12),
+                ),
                 RequireFacets(
                     "variable_id",
-                    required_facets=variables,
+                    required_facets=("siconc", "tas"),
                     group_by=("source_id", "member_id", "grid_label"),
                 ),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
@@ -57,11 +64,6 @@ class SeaIceSensitivity(ESMValToolDiagnostic):
                     "variable_id",
                     required_facets=("areacello",),
                     group_by=("source_id", "grid_label"),
-                ),
-                RequireTimerange(
-                    group_by=("instance_id",),
-                    start=PartialDateTime(1979, 1),
-                    end=PartialDateTime(2014, 12),
                 ),
             ),
         ),

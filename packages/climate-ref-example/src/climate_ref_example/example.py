@@ -136,13 +136,7 @@ class GlobalMeanTimeseries(Diagnostic):
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
-            filters=(
-                FacetFilter(facets={"variable_id": ("tas", "rsut")}),
-                # Ignore some experiments because they are not relevant
-                FacetFilter(
-                    facets={"experiment_id": ("esm-1pct-brch-1000PgC", "1pctCO2", "hist-*")}, keep=False
-                ),
-            ),
+            filters=(FacetFilter(facets={"variable_id": ("tas", "rsut")}),),
             # Run the diagnostic on each unique combination of model, variable, experiment, and variant
             group_by=("source_id", "variable_id", "experiment_id", "variant_label"),
             constraints=(

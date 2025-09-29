@@ -11,6 +11,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
@@ -45,14 +46,25 @@ class TransientClimateResponse(ESMValToolDiagnostic):
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("experiment_id", experiments),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
+                RequireFacets("experiment_id", experiments),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    series = (
+        SeriesDefinition(
+            file_pattern="tcr/calculate/{source_id}*.nc",
+            dimensions={
+                "statistic": "global annual mean tas anomaly relative to linear fit of piControl run",
+            },
+            values_name="tas_anomaly",
+            index_name="time",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
     def update_recipe(

@@ -76,12 +76,6 @@ class FacetFilter:
     The result will only contain datasets where for all fields,
     the value of the field is one of the given values.
     """
-    keep: bool = True
-    """
-    Whether to keep or remove datasets that match the filter.
-
-    If true (default), datasets that match the filter will be kept else they will be removed.
-    """
 
 
 def sort_selector(inp: Selector) -> Selector:

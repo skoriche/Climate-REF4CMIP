@@ -1,5 +1,5 @@
 {
-  "index": "<OUTPUT_DIR>/index.html",
+  "index": "index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
@@ -8,9 +8,9 @@
   },
   "data": {},
   "plots": {
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_shift.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_shift.png",
-      "long_name": "The shift in maximum month of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_shift.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_shift.png",
+      "long_name": "The shift in maximum month for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -22,9 +22,9 @@
         "statistic": "Shift in maximum month"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-tas.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-tas.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-tas.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-tas.png",
+      "long_name": "The distribution of tas for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -32,12 +32,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "global"
+        "region": "global",
+        "statistic": "Distribution|tas"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_tmax.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_tmax.png",
-      "long_name": "The maxmimum month of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_tmax.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_tmax.png",
+      "long_name": "The maxmimum month for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -49,9 +50,9 @@
         "statistic": "Maximum month"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_trace.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_trace.png",
-      "long_name": "The regional mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_trace.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_trace.png",
+      "long_name": "The regional mean for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -63,9 +64,9 @@
         "statistic": "Regional mean"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_cyclescore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_cyclescore.png",
-      "long_name": "The annual cycle score of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_cyclescore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_cyclescore.png",
+      "long_name": "The annual cycle score for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -77,9 +78,9 @@
         "statistic": "Annual cycle score"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-pr.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-pr.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-pr.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-pr.png",
+      "long_name": "The distribution of pr for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -87,12 +88,25 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "tropical",
+        "statistic": "Distribution|pr"
       }
     },
-    "<OUTPUT_DIR>/Reference_tropical_distribution-pr.png": {
-      "filename": "<OUTPUT_DIR>/Reference_tropical_distribution-pr.png",
-      "long_name": "",
+    "Reference_tropical_distribution-pr.png": {
+      "filename": "Reference_tropical_distribution-pr.png",
+      "long_name": "The distribution of pr for the reference data over the Tropical climates region.",
+      "description": "",
+      "dimensions": {
+        "experiment_id": "historical",
+        "source_id": "Reference",
+        "reference_source_id": "WECANN",
+        "region": "tropical",
+        "statistic": "Distribution|pr"
+      }
+    },
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_response-pr.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_response-pr.png",
+      "long_name": "The response of pr for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -100,12 +114,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "global",
+        "statistic": "Response|pr"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_response-pr.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_response-pr.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-tas.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-tas.png",
+      "long_name": "The distribution of tas for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -113,12 +128,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "global"
+        "region": "tropical",
+        "statistic": "Distribution|tas"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-tas.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_distribution-tas.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-pr.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-pr.png",
+      "long_name": "The distribution of pr for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -126,12 +142,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "global",
+        "statistic": "Distribution|pr"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-pr.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_distribution-pr.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-pr.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-pr.png",
+      "long_name": "The response of pr for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -139,38 +156,25 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "global"
+        "region": "tropical",
+        "statistic": "Response|pr"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-pr.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-pr.png",
-      "long_name": "",
+    "Reference_global_distribution-pr.png": {
+      "filename": "Reference_global_distribution-pr.png",
+      "long_name": "The distribution of pr for the reference data over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
-        "grid_label": "gn",
-        "member_id": "r1i1p1f1",
-        "source_id": "ACCESS-ESM1-5",
+        "source_id": "Reference",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "global",
+        "statistic": "Distribution|pr"
       }
     },
-    "<OUTPUT_DIR>/Reference_global_distribution-pr.png": {
-      "filename": "<OUTPUT_DIR>/Reference_global_distribution-pr.png",
-      "long_name": "",
-      "description": "",
-      "dimensions": {
-        "experiment_id": "historical",
-        "grid_label": "gn",
-        "member_id": "r1i1p1f1",
-        "source_id": "ACCESS-ESM1-5",
-        "reference_source_id": "WECANN",
-        "region": "global"
-      }
-    },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cycle.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cycle.png",
-      "long_name": "The annual cycle of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cycle.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cycle.png",
+      "long_name": "The annual cycle for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -182,9 +186,9 @@
         "statistic": "Annual cycle"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png",
-      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_mean.png",
+      "long_name": "The period mean for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -196,9 +200,9 @@
         "statistic": "Period Mean"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png",
-      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_bias.png",
+      "long_name": "The bias for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -210,9 +214,9 @@
         "statistic": "Bias"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_response-tas.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_response-tas.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_response-tas.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_response-tas.png",
+      "long_name": "The response of tas for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -220,12 +224,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "global"
+        "region": "global",
+        "statistic": "Response|tas"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_rmse.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_rmse.png",
-      "long_name": "The RMSE of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_rmse.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_rmse.png",
+      "long_name": "The RMSE for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -237,9 +242,9 @@
         "statistic": "RMSE"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png",
-      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_biasscore.png",
+      "long_name": "The bias score for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -251,9 +256,9 @@
         "statistic": "Bias score"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cyclescore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cyclescore.png",
-      "long_name": "The annual cycle score of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cyclescore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_cyclescore.png",
+      "long_name": "The annual cycle score for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -265,9 +270,9 @@
         "statistic": "Annual cycle score"
       }
     },
-    "<OUTPUT_DIR>/Reference_global_mean.png": {
-      "filename": "<OUTPUT_DIR>/Reference_global_mean.png",
-      "long_name": "The period mean of the reference data over the Global - Land region.",
+    "Reference_global_mean.png": {
+      "filename": "Reference_global_mean.png",
+      "long_name": "The period mean for the reference data over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -277,9 +282,9 @@
         "statistic": "Period Mean"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_tmax.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_tmax.png",
-      "long_name": "The maxmimum month of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_tmax.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_tmax.png",
+      "long_name": "The maxmimum month for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -291,8 +296,8 @@
         "statistic": "Maximum month"
       }
     },
-    "<OUTPUT_DIR>/None_tropical_taylor.png": {
-      "filename": "<OUTPUT_DIR>/None_tropical_taylor.png",
+    "None_tropical_taylor.png": {
+      "filename": "None_tropical_taylor.png",
       "long_name": "The Taylor diagram over the Tropical climates region.",
       "description": "",
       "dimensions": {
@@ -305,35 +310,33 @@
         "statistic": "Taylor diagram"
       }
     },
-    "<OUTPUT_DIR>/Reference_tropical_distribution-tas.png": {
-      "filename": "<OUTPUT_DIR>/Reference_tropical_distribution-tas.png",
-      "long_name": "",
+    "Reference_tropical_distribution-tas.png": {
+      "filename": "Reference_tropical_distribution-tas.png",
+      "long_name": "The distribution of tas for the reference data over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
-        "grid_label": "gn",
-        "member_id": "r1i1p1f1",
-        "source_id": "ACCESS-ESM1-5",
+        "source_id": "Reference",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "tropical",
+        "statistic": "Distribution|tas"
       }
     },
-    "<OUTPUT_DIR>/Reference_global_distribution-tas.png": {
-      "filename": "<OUTPUT_DIR>/Reference_global_distribution-tas.png",
-      "long_name": "",
+    "Reference_global_distribution-tas.png": {
+      "filename": "Reference_global_distribution-tas.png",
+      "long_name": "The distribution of tas for the reference data over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
-        "grid_label": "gn",
-        "member_id": "r1i1p1f1",
-        "source_id": "ACCESS-ESM1-5",
+        "source_id": "Reference",
         "reference_source_id": "WECANN",
-        "region": "global"
+        "region": "global",
+        "statistic": "Distribution|tas"
       }
     },
-    "<OUTPUT_DIR>/Reference_tropical_tmax.png": {
-      "filename": "<OUTPUT_DIR>/Reference_tropical_tmax.png",
-      "long_name": "The maxmimum month of the reference data over the Tropical climates region.",
+    "Reference_tropical_tmax.png": {
+      "filename": "Reference_tropical_tmax.png",
+      "long_name": "The maxmimum month for the reference data over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -343,9 +346,9 @@
         "statistic": "Maximum month"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_cycle.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_cycle.png",
-      "long_name": "The annual cycle of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_cycle.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_cycle.png",
+      "long_name": "The annual cycle for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -357,9 +360,9 @@
         "statistic": "Annual cycle"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmsescore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmsescore.png",
-      "long_name": "The RMSE score of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmsescore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmsescore.png",
+      "long_name": "The RMSE score for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -371,9 +374,9 @@
         "statistic": "RMSE score"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_rmsescore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_rmsescore.png",
-      "long_name": "The RMSE score of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_rmsescore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_rmsescore.png",
+      "long_name": "The RMSE score for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -385,9 +388,9 @@
         "statistic": "RMSE score"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png",
-      "long_name": "The period mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_mean.png",
+      "long_name": "The period mean for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -399,9 +402,9 @@
         "statistic": "Period Mean"
       }
     },
-    "<OUTPUT_DIR>/Reference_global_tmax.png": {
-      "filename": "<OUTPUT_DIR>/Reference_global_tmax.png",
-      "long_name": "The maxmimum month of the reference data over the Global - Land region.",
+    "Reference_global_tmax.png": {
+      "filename": "Reference_global_tmax.png",
+      "long_name": "The maxmimum month for the reference data over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -411,9 +414,9 @@
         "statistic": "Maximum month"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png",
-      "long_name": "The bias of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_bias.png",
+      "long_name": "The bias for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -425,9 +428,9 @@
         "statistic": "Bias"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_trace.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_trace.png",
-      "long_name": "The regional mean of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_trace.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_trace.png",
+      "long_name": "The regional mean for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -439,9 +442,9 @@
         "statistic": "Regional mean"
       }
     },
-    "<OUTPUT_DIR>/Reference_tropical_mean.png": {
-      "filename": "<OUTPUT_DIR>/Reference_tropical_mean.png",
-      "long_name": "The period mean of the reference data over the Tropical climates region.",
+    "Reference_tropical_mean.png": {
+      "filename": "Reference_tropical_mean.png",
+      "long_name": "The period mean for the reference data over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -451,8 +454,8 @@
         "statistic": "Period Mean"
       }
     },
-    "<OUTPUT_DIR>/None_global_taylor.png": {
-      "filename": "<OUTPUT_DIR>/None_global_taylor.png",
+    "None_global_taylor.png": {
+      "filename": "None_global_taylor.png",
       "long_name": "The Taylor diagram over the Global - Land region.",
       "description": "",
       "dimensions": {
@@ -465,9 +468,9 @@
         "statistic": "Taylor diagram"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-tas.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-tas.png",
-      "long_name": "",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-tas.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_response-tas.png",
+      "long_name": "The response of tas for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -475,12 +478,13 @@
         "member_id": "r1i1p1f1",
         "source_id": "ACCESS-ESM1-5",
         "reference_source_id": "WECANN",
-        "region": "tropical"
+        "region": "tropical",
+        "statistic": "Response|tas"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png",
-      "long_name": "The bias score of ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_global_biasscore.png",
+      "long_name": "The bias score for ACCESS-ESM1-5-r1i1p1f1-gn over the Global - Land region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -492,9 +496,9 @@
         "statistic": "Bias score"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmse.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmse.png",
-      "long_name": "The RMSE of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmse.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_rmse.png",
+      "long_name": "The RMSE for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -506,9 +510,9 @@
         "statistic": "RMSE"
       }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_shift.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_tropical_shift.png",
-      "long_name": "The shift in maximum month of ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_shift.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_tropical_shift.png",
+      "long_name": "The shift in maximum month for ACCESS-ESM1-5-r1i1p1f1-gn over the Tropical climates region.",
       "description": "",
       "dimensions": {
         "experiment_id": "historical",
@@ -522,8 +526,8 @@
     }
   },
   "html": {
-    "<OUTPUT_DIR>/index.html": {
-      "filename": "<OUTPUT_DIR>/index.html",
+    "index.html": {
+      "filename": "index.html",
       "long_name": "Results page",
       "description": "Page displaying scalars and plots from the ILAMB execution.",
       "dimensions": {

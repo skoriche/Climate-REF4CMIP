@@ -1,6 +1,6 @@
 import enum
 import pathlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
@@ -230,6 +230,8 @@ class ExecutionOutput(DimensionMixin, CreatedUpdatedMixin, Base):
     """
 
     __tablename__ = "execution_output"
+
+    _cv_dimensions: ClassVar[list[str]] = []
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

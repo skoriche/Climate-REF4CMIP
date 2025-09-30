@@ -48,6 +48,8 @@ class MetricValue(DimensionMixin, CreatedUpdatedMixin, Base):
         "polymorphic_on": "type",
     }
 
+    _cv_dimensions: ClassVar[list[str]] = []
+
     id: Mapped[int] = mapped_column(primary_key=True)
     execution_id: Mapped[int] = mapped_column(ForeignKey("execution.id"), index=True)
 

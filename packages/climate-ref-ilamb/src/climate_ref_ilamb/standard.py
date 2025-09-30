@@ -318,10 +318,13 @@ class ILAMBStandard(Diagnostic):
         # Add each png file plot to the output
         output_bundle = CMECOutput.create_template()
         for plotfile in definition.output_directory.glob("*.png"):
-            caption, plot_type = _caption_from_filename(plotfile)
-            dimensions = {**common_dimensions}
-            if plot_type is not None:
-                dimensions["statistic"] = plot_type
+            caption, figure_dimensions = _caption_from_filename(plotfile)
+            dimensions = {**common_dimensions, **figure_dimensions}
+
+            # If the source is the reference we don't need some dimensions as they are not applicable
+            if "source_id" in dimensions and dimensions["source_id"] == "Reference":
+                dimensions.pop("member_id", None)
+                dimensions.pop("grid_label", None)
 
             output_bundle[OutputCV.PLOTS.value][f"{plotfile}"] = {
                 OutputCV.FILENAME.value: str(plotfile),
@@ -371,9 +374,13 @@ class ILAMBStandard(Diagnostic):
                     }
                 else:
                     dimensions = {"metric": str_name, **common_dimensions}
+
+                # Split the metric into metric and region if possible
                 if "_" in str_name:
                     dimensions["metric"] = str_name.split("_")[0]
                     dimensions["region"] = str_name.split("_")[1]
+                else:
+                    dimensions["region"] = "None"
 
                 series.append(
                     SeriesMetricValue(
@@ -390,7 +397,7 @@ class ILAMBStandard(Diagnostic):
         )
 
 
-def _caption_from_filename(filename: Path) -> tuple[str, str | None]:
+def _caption_from_filename(filename: Path) -> tuple[str, dict[str, str]]:
     source, region, plot = filename.stem.split("_")
     plot_texts = {
         "bias": "bias",
@@ -419,11 +426,20 @@ def _caption_from_filename(filename: Path) -> tuple[str, str | None]:
         "trace": "Regional mean",
         "taylor": "Taylor diagram",
     }
+    figure_dimensions = {
+        "region": region,
+    }
     if plot not in plot_texts:
-        return "", None
+        return "", figure_dimensions
     caption = f"The {plot_texts.get(plot)}"
     if source != "None":
         caption += f" of {'the reference data' if source == 'Reference' else source}"
     if region.lower() != "none":
         caption += f" over the {ilr.Regions().get_name(region)} region."
-    return caption, plot_statistics.get(plot)
+
+    if plot_statistics.get(plot) is not None:
+        figure_dimensions["statistic"] = plot_statistics[plot]
+    if source == "Reference":
+        figure_dimensions["source_id"] = "Reference"
+
+    return caption, figure_dimensions

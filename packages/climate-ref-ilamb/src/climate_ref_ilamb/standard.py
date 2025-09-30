@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+import dask.config
 import ilamb3
 import ilamb3.regions as ilr
 import pandas as pd
@@ -281,13 +282,16 @@ class ILAMBStandard(Diagnostic):
         """
         _set_ilamb3_options(self.registry, self.registry_file)
         ref_datasets = self.ilamb_data.datasets.set_index(self.ilamb_data.slug_column)
-        run.run_single_block(
-            self.slug,
-            ref_datasets,
-            definition.datasets[SourceDatasetType.CMIP6].datasets,
-            definition.output_directory,
-            **self.ilamb_kwargs,
-        )
+
+        # Run ILAMB in a single-threaded mode to avoid issues with multithreading (#394)
+        with dask.config.set(scheduler="synchronous"):
+            run.run_single_block(
+                self.slug,
+                ref_datasets,
+                definition.datasets[SourceDatasetType.CMIP6].datasets,
+                definition.output_directory,
+                **self.ilamb_kwargs,
+            )
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
@@ -308,39 +312,54 @@ class ILAMBStandard(Diagnostic):
         # that is associated with the execution group, called the selector.
         df = _load_csv_and_merge(definition.output_directory)
         selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
-        for key, value in selectors.items():
+
+        # TODO: Fix reference data once we are using the obs4MIPs dataset
+        dataset_source = self.name.split("-")[1] if "-" in self.name else "None"
+        common_dimensions = {**selectors, "reference_source_id": dataset_source}
+        for key, value in common_dimensions.items():
             df[key] = value
         metric_bundle = CMECMetric.model_validate(_build_cmec_bundle(df))
 
         # Add each png file plot to the output
         output_bundle = CMECOutput.create_template()
         for plotfile in definition.output_directory.glob("*.png"):
-            output_bundle[OutputCV.PLOTS.value][f"{plotfile}"] = {
-                OutputCV.FILENAME.value: f"{plotfile}",
-                OutputCV.LONG_NAME.value: _caption_from_filename(plotfile),
+            relative_path = str(definition.as_relative_path(plotfile))
+            caption, figure_dimensions = _caption_from_filename(plotfile, common_dimensions)
+
+            output_bundle[OutputCV.PLOTS.value][relative_path] = {
+                OutputCV.FILENAME.value: relative_path,
+                OutputCV.LONG_NAME.value: caption,
                 OutputCV.DESCRIPTION.value: "",
+                OutputCV.DIMENSIONS.value: figure_dimensions,
             }
 
         # Add the html page to the output
-        index_html = str(definition.to_output_path("index.html"))
-        output_bundle[OutputCV.HTML.value][index_html] = {
-            OutputCV.FILENAME.value: index_html,
-            OutputCV.LONG_NAME.value: "Results page",
-            OutputCV.DESCRIPTION.value: "Page displaying scalars and plots from the ILAMB execution.",
-        }
-        output_bundle[OutputCV.INDEX.value] = index_html
+        index_html = definition.to_output_path("index.html")
+        if index_html.exists():
+            relative_path = str(definition.as_relative_path(index_html))
+            output_bundle[OutputCV.HTML.value][relative_path] = {
+                OutputCV.FILENAME.value: relative_path,
+                OutputCV.LONG_NAME.value: "Results page",
+                OutputCV.DESCRIPTION.value: "Page displaying scalars and plots from the ILAMB execution.",
+                OutputCV.DIMENSIONS.value: common_dimensions,
+            }
+            output_bundle[OutputCV.INDEX.value] = relative_path
 
         # Add series to the output based on the time traces we find in the
         # output files
         series = []
         for ncfile in definition.output_directory.glob("*.nc"):
-            ds = xr.open_dataset(ncfile)
+            ds = xr.open_dataset(ncfile, use_cftime=True)
             for name, da in ds.items():
                 # Only create series for 1d DataArray's with these dimensions
                 if not (da.ndim == 1 and set(da.dims).intersection(["time", "month"])):
                     continue
                 # Convert dimension values
-                attrs = {}
+                attrs = {
+                    "units": da.attrs.get("units", ""),
+                    "long_name": da.attrs.get("long_name", str(name)),
+                    "standard_name": da.attrs.get("standard_name", ""),
+                }
                 str_name = str(name)
                 index_name = str(da.dims[0])
                 index = ds[index_name].values.tolist()
@@ -348,10 +367,23 @@ class ILAMBStandard(Diagnostic):
                     index = [v.isoformat() for v in index]
                 if hasattr(index[0], "calendar"):
                     attrs["calendar"] = index[0].calendar
-                # Parse out some CVs
-                dimensions = {"metric": str_name, "source_id": ncfile.stem}
+
+                # Parse out some dimensions
+                if ncfile.stem == "Reference":
+                    dimensions = {
+                        "source_id": "Reference",
+                        "metric": str_name,
+                    }
+                else:
+                    dimensions = {"metric": str_name, **common_dimensions}
+
+                # Split the metric into metric and region if possible
                 if "_" in str_name:
+                    dimensions["metric"] = str_name.split("_")[0]
                     dimensions["region"] = str_name.split("_")[1]
+                else:
+                    dimensions["region"] = "None"
+
                 series.append(
                     SeriesMetricValue(
                         dimensions=dimensions,
@@ -367,7 +399,7 @@ class ILAMBStandard(Diagnostic):
         )
 
 
-def _caption_from_filename(filename: Path) -> str:
+def _caption_from_filename(filename: Path, common_dimensions: dict[str, str]) -> tuple[str, dict[str, str]]:
     source, region, plot = filename.stem.split("_")
     plot_texts = {
         "bias": "bias",
@@ -381,12 +413,55 @@ def _caption_from_filename(filename: Path) -> str:
         "tmax": "maxmimum month",
         "trace": "regional mean",
         "taylor": "Taylor diagram",
+        "distribution": "distribution",
+        "response": "response",
     }
+    # Name of statistics dimension in CMEC output
+    plot_statistics = {
+        "bias": "Bias",
+        "biasscore": "Bias score",
+        "cycle": "Annual cycle",
+        "cyclescore": "Annual cycle score",
+        "mean": "Period Mean",
+        "rmse": "RMSE",
+        "rmsescore": "RMSE score",
+        "shift": "Shift in maximum month",
+        "tmax": "Maximum month",
+        "trace": "Regional mean",
+        "taylor": "Taylor diagram",
+        "distribution": "Distribution",
+        "response": "Response",
+    }
+    figure_dimensions = {
+        "region": region,
+    }
+    plot_option = None
+    # Some plots have options appended with a dash (distribution-pr, response-tas)
+    if "-" in plot:
+        plot, plot_option = plot.split("-", 1)
+
     if plot not in plot_texts:
-        return ""
+        return "", figure_dimensions
+
+    # Build the caption
     caption = f"The {plot_texts.get(plot)}"
+    if plot_option is not None:
+        caption += f" of {plot_option}"
     if source != "None":
-        caption += f" of {'the reference data' if source == 'Reference' else source}"
+        caption += f" for {'the reference data' if source == 'Reference' else source}"
     if region.lower() != "none":
         caption += f" over the {ilr.Regions().get_name(region)} region."
-    return caption
+
+    # Use the statistic dimension to determine what is being plotted
+    if plot_statistics.get(plot) is not None:
+        figure_dimensions["statistic"] = plot_statistics[plot]
+        if plot_option is not None:
+            figure_dimensions["statistic"] += f"|{plot_option}"
+
+    # If the source is the reference we don't need some dimensions as they are not applicable
+    if source == "Reference":
+        figure_dimensions["source_id"] = "Reference"
+    else:
+        figure_dimensions = {**common_dimensions, **figure_dimensions}
+
+    return caption, figure_dimensions

@@ -48,6 +48,7 @@ def cmec_right_output_dict():
                 "filename": "gpp_bias.nc",
                 "long_name": "mean gpp bias",
                 "description": "bias",
+                "dimensions": {"source_id": "test"},
             },
         },
         "html": None,

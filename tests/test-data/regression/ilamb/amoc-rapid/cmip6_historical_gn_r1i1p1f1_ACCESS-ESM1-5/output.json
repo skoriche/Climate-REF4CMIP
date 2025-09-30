@@ -1,5 +1,5 @@
 {
-  "index": "<OUTPUT_DIR>/index.html",
+  "index": "index.html",
   "provenance": {
     "environment": {},
     "modeldata": [],
@@ -8,27 +8,59 @@
   },
   "data": {},
   "plots": {
-    "<OUTPUT_DIR>/None_None_taylor.png": {
-      "filename": "<OUTPUT_DIR>/None_None_taylor.png",
+    "None_None_taylor.png": {
+      "filename": "None_None_taylor.png",
       "long_name": "The Taylor diagram",
-      "description": ""
+      "description": "",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "RAPID",
+        "region": "None",
+        "statistic": "Taylor diagram"
+      }
     },
-    "<OUTPUT_DIR>/None_None_allamoc.png": {
-      "filename": "<OUTPUT_DIR>/None_None_allamoc.png",
+    "None_None_allamoc.png": {
+      "filename": "None_None_allamoc.png",
       "long_name": "",
-      "description": ""
+      "description": "",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "RAPID",
+        "region": "None"
+      }
     },
-    "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png": {
-      "filename": "<OUTPUT_DIR>/ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png",
+    "ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png": {
+      "filename": "ACCESS-ESM1-5-r1i1p1f1-gn_None_amoc.png",
       "long_name": "",
-      "description": ""
+      "description": "",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "RAPID",
+        "region": "None"
+      }
     }
   },
   "html": {
-    "<OUTPUT_DIR>/index.html": {
-      "filename": "<OUTPUT_DIR>/index.html",
+    "index.html": {
+      "filename": "index.html",
       "long_name": "Results page",
-      "description": "Page displaying scalars and plots from the ILAMB execution."
+      "description": "Page displaying scalars and plots from the ILAMB execution.",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "RAPID"
+      }
     }
   },
   "metrics": null,

@@ -6,6 +6,14 @@ $defs:
       description:
         title: Description
         type: string
+      dimensions:
+        anyOf:
+        - additionalProperties:
+            type: string
+          type: object
+        - type: 'null'
+        default: null
+        title: Dimensions
       filename:
         title: Filename
         type: string

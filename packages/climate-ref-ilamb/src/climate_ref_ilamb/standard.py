@@ -308,17 +308,26 @@ class ILAMBStandard(Diagnostic):
         # that is associated with the execution group, called the selector.
         df = _load_csv_and_merge(definition.output_directory)
         selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
-        for key, value in selectors.items():
+        # TODO: Fix reference data once we are using the obs4MIPs dataset
+        dataset_source = self.name.split("-")[1] if "-" in self.name else "None"
+        common_dimensions = {**selectors, "reference_source_id": dataset_source}
+        for key, value in common_dimensions.items():
             df[key] = value
         metric_bundle = CMECMetric.model_validate(_build_cmec_bundle(df))
 
         # Add each png file plot to the output
         output_bundle = CMECOutput.create_template()
         for plotfile in definition.output_directory.glob("*.png"):
+            caption, plot_type = _caption_from_filename(plotfile)
+            dimensions = {**common_dimensions}
+            if plot_type is not None:
+                dimensions["statistic"] = plot_type
+
             output_bundle[OutputCV.PLOTS.value][f"{plotfile}"] = {
-                OutputCV.FILENAME.value: f"{plotfile}",
-                OutputCV.LONG_NAME.value: _caption_from_filename(plotfile),
+                OutputCV.FILENAME.value: str(plotfile),
+                OutputCV.LONG_NAME.value: caption,
                 OutputCV.DESCRIPTION.value: "",
+                OutputCV.DIMENSIONS.value: dimensions,
             }
 
         # Add the html page to the output
@@ -327,6 +336,7 @@ class ILAMBStandard(Diagnostic):
             OutputCV.FILENAME.value: index_html,
             OutputCV.LONG_NAME.value: "Results page",
             OutputCV.DESCRIPTION.value: "Page displaying scalars and plots from the ILAMB execution.",
+            OutputCV.DIMENSIONS.value: common_dimensions,
         }
         output_bundle[OutputCV.INDEX.value] = index_html
 
@@ -334,13 +344,17 @@ class ILAMBStandard(Diagnostic):
         # output files
         series = []
         for ncfile in definition.output_directory.glob("*.nc"):
-            ds = xr.open_dataset(ncfile)
+            ds = xr.open_dataset(ncfile, use_cftime=True)
             for name, da in ds.items():
                 # Only create series for 1d DataArray's with these dimensions
                 if not (da.ndim == 1 and set(da.dims).intersection(["time", "month"])):
                     continue
                 # Convert dimension values
-                attrs = {}
+                attrs = {
+                    "units": da.attrs.get("units", ""),
+                    "long_name": da.attrs.get("long_name", str(name)),
+                    "standard_name": da.attrs.get("standard_name", ""),
+                }
                 str_name = str(name)
                 index_name = str(da.dims[0])
                 index = ds[index_name].values.tolist()
@@ -348,10 +362,19 @@ class ILAMBStandard(Diagnostic):
                     index = [v.isoformat() for v in index]
                 if hasattr(index[0], "calendar"):
                     attrs["calendar"] = index[0].calendar
-                # Parse out some CVs
-                dimensions = {"metric": str_name, "source_id": ncfile.stem}
+
+                # Parse out some dimensions
+                if ncfile.stem == "Reference":
+                    dimensions = {
+                        "source_id": "Reference",
+                        "metric": str_name,
+                    }
+                else:
+                    dimensions = {"metric": str_name, **common_dimensions}
                 if "_" in str_name:
+                    dimensions["metric"] = str_name.split("_")[0]
                     dimensions["region"] = str_name.split("_")[1]
+
                 series.append(
                     SeriesMetricValue(
                         dimensions=dimensions,
@@ -367,7 +390,7 @@ class ILAMBStandard(Diagnostic):
         )
 
 
-def _caption_from_filename(filename: Path) -> str:
+def _caption_from_filename(filename: Path) -> tuple[str, str | None]:
     source, region, plot = filename.stem.split("_")
     plot_texts = {
         "bias": "bias",
@@ -382,11 +405,25 @@ def _caption_from_filename(filename: Path) -> str:
         "trace": "regional mean",
         "taylor": "Taylor diagram",
     }
+    # Name of statistics dimension in CMEC output
+    plot_statistics = {
+        "bias": "Bias",
+        "biasscore": "Bias score",
+        "cycle": "Annual cycle",
+        "cyclescore": "Annual cycle score",
+        "mean": "Period Mean",
+        "rmse": "RMSE",
+        "rmsescore": "RMSE score",
+        "shift": "Shift in maximum month",
+        "tmax": "Maximum month",
+        "trace": "Regional mean",
+        "taylor": "Taylor diagram",
+    }
     if plot not in plot_texts:
-        return ""
+        return "", None
     caption = f"The {plot_texts.get(plot)}"
     if source != "None":
         caption += f" of {'the reference data' if source == 'Reference' else source}"
     if region.lower() != "none":
         caption += f" over the {ilr.Regions().get_name(region)} region."
-    return caption
+    return caption, plot_statistics.get(plot)

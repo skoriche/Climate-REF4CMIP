@@ -11,14 +11,29 @@
     "<OUTPUT_DIR>/None_None_accumulation.png": {
       "filename": "<OUTPUT_DIR>/None_None_accumulation.png",
       "long_name": "",
-      "description": ""
+      "description": "",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "Hoffman",
+        "region": "None"
+      }
     }
   },
   "html": {
     "<OUTPUT_DIR>/index.html": {
       "filename": "<OUTPUT_DIR>/index.html",
       "long_name": "Results page",
-      "description": "Page displaying scalars and plots from the ILAMB execution."
+      "description": "Page displaying scalars and plots from the ILAMB execution.",
+      "dimensions": {
+        "experiment_id": "historical",
+        "grid_label": "gn",
+        "member_id": "r1i1p1f1",
+        "source_id": "ACCESS-ESM1-5",
+        "reference_source_id": "Hoffman"
+      }
     }
   },
   "metrics": null,

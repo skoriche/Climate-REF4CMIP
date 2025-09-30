@@ -313,7 +313,6 @@ def _handle_outputs(
                 description=output_info.description,
                 short_name=key,
                 long_name=output_info.long_name,
-                # TODO: Support adding dimensions on outputs
-                dimensions={},
+                dimensions=output_info.dimensions or {},
             )
         )

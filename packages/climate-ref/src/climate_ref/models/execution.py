@@ -8,7 +8,8 @@ from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.orm.query import RowReturningQuery
 
 from climate_ref.models import Dataset
-from climate_ref.models.base import Base, CreatedUpdatedMixin
+from climate_ref.models.base import Base
+from climate_ref.models.mixins import CreatedUpdatedMixin, DimensionMixin
 from climate_ref_core.datasets import ExecutionDatasetCollection
 
 if TYPE_CHECKING:
@@ -217,12 +218,15 @@ class ResultOutputType(enum.Enum):
     HTML = "html"
 
 
-class ExecutionOutput(CreatedUpdatedMixin, Base):
+class ExecutionOutput(DimensionMixin, CreatedUpdatedMixin, Base):
     """
     An output generated as part of an execution.
 
     This output may be a plot, data file or HTML file.
-    These outputs are defined in the CMEC output bundle
+    These outputs are defined in the CMEC output bundle.
+
+    Outputs can be tagged with dimensions from the controlled vocabulary
+    to enable filtering and organization.
     """
 
     __tablename__ = "execution_output"

@@ -87,11 +87,11 @@ def as_facets(
 
     """
     facets = {}
-    first_row = group.iloc[0]
-    project = first_row.instance_id.split(".", 2)[0]
+    project = group.iloc[0].instance_id.split(".", 2)[0]
     facets["project"] = project
     for esmvaltool_name, ref_name in FACETS[project].items():
-        facets[esmvaltool_name] = getattr(first_row, ref_name)
+        values = group[ref_name].unique().tolist()
+        facets[esmvaltool_name] = values if len(values) > 1 else values[0]
     timerange = as_timerange(group)
     if timerange is not None:
         facets["timerange"] = timerange
@@ -100,6 +100,7 @@ def as_facets(
 
 def dataframe_to_recipe(
     files: pd.DataFrame,
+    group_by: tuple[str, ...] = ("instance_id",),
     equalize_timerange: bool = False,
 ) -> dict[str, Any]:
     """Convert the datasets dataframe to a recipe "variables" section.
@@ -108,14 +109,17 @@ def dataframe_to_recipe(
     ----------
     files
         The pandas dataframe describing the input files.
+    group_by
+        The columns to group the input files by.
+    equalize_timerange
+        If True, use the timerange that is covered by all datasets.
 
     Returns
     -------
         A "variables" section that can be used in an ESMValTool recipe.
     """
     variables: dict[str, Any] = {}
-    # TODO: refine to make it possible to combine historical and scenario runs.
-    for _, group in files.groupby("instance_id"):
+    for _, group in files.groupby(list(group_by)):
         facets = as_facets(group)
         short_name = facets.pop("short_name")
         if short_name not in variables:

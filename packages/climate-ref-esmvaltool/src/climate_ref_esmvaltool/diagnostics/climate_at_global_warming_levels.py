@@ -90,13 +90,20 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
         diagnostics = recipe["diagnostics"]
         for diagnostic in diagnostics.values():
             diagnostic.pop("additional_datasets")
-        recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
+        recipe_variables = dataframe_to_recipe(
+            input_files[SourceDatasetType.CMIP6],
+            group_by=(
+                "source_id",
+                "member_id",
+                "grid_label",
+                "table_id",
+                "variable_id",
+            ),
+        )
         datasets = recipe_variables["tas"]["additional_datasets"]
         datasets = [ds for ds in datasets if ds["exp"] != "historical"]
         for dataset in datasets:
             dataset.pop("timerange")
-            dataset["activity"] = ["CMIP", dataset["activity"]]
-            dataset["exp"] = ["historical", dataset["exp"]]
         recipe["datasets"] = datasets
 
         # Specify the timeranges

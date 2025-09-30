@@ -19,7 +19,7 @@ def execution_dataset(cmip6_data_catalog) -> ExecutionDatasetCollection:
     )
 
 
-def test_example_metric(mocker, tmp_path, execution_dataset, cmip6_data_catalog, definition_factory):
+def test_example_diagnostic(mocker, tmp_path, execution_dataset, cmip6_data_catalog, definition_factory):
     diagnostic = climate_ref_esmvaltool.provider.get("global-mean-timeseries")
     ds = cmip6_data_catalog.groupby("instance_id", as_index=False).first()
 

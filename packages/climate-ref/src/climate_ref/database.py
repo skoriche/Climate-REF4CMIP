@@ -24,6 +24,7 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from climate_ref.models import MetricValue, Table
+from climate_ref.models.execution import ExecutionOutput
 from climate_ref_core.pycmec.controlled_vocabulary import CV
 
 if TYPE_CHECKING:
@@ -244,6 +245,10 @@ class Database:
         # Register the CV dimensions with the MetricValue model
         # This will add new columns to the db if the CVs have changed
         MetricValue.register_cv_dimensions(cv)
+
+        # Register the CV dimensions with the ExecutionOutput model
+        # This enables dimension-based filtering of outputs
+        ExecutionOutput.register_cv_dimensions(cv)
 
         return db
 

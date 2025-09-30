@@ -1,6 +1,6 @@
 import enum
 import pathlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from loguru import logger
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
@@ -8,7 +8,8 @@ from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.orm.query import RowReturningQuery
 
 from climate_ref.models import Dataset
-from climate_ref.models.base import Base, CreatedUpdatedMixin
+from climate_ref.models.base import Base
+from climate_ref.models.mixins import CreatedUpdatedMixin, DimensionMixin
 from climate_ref_core.datasets import ExecutionDatasetCollection
 
 if TYPE_CHECKING:
@@ -217,15 +218,20 @@ class ResultOutputType(enum.Enum):
     HTML = "html"
 
 
-class ExecutionOutput(CreatedUpdatedMixin, Base):
+class ExecutionOutput(DimensionMixin, CreatedUpdatedMixin, Base):
     """
     An output generated as part of an execution.
 
     This output may be a plot, data file or HTML file.
-    These outputs are defined in the CMEC output bundle
+    These outputs are defined in the CMEC output bundle.
+
+    Outputs can be tagged with dimensions from the controlled vocabulary
+    to enable filtering and organization.
     """
 
     __tablename__ = "execution_output"
+
+    _cv_dimensions: ClassVar[list[str]] = []
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -263,6 +269,65 @@ class ExecutionOutput(CreatedUpdatedMixin, Base):
     """
 
     execution: Mapped["Execution"] = relationship(back_populates="outputs")
+
+    @classmethod
+    def build(  # noqa: PLR0913
+        cls,
+        *,
+        execution_id: int,
+        output_type: ResultOutputType,
+        dimensions: dict[str, str],
+        filename: str | None = None,
+        short_name: str | None = None,
+        long_name: str | None = None,
+        description: str | None = None,
+    ) -> "ExecutionOutput":
+        """
+        Build an ExecutionOutput from dimensions and metadata
+
+        This is a helper method that validates the dimensions supplied.
+
+        Parameters
+        ----------
+        execution_id
+            Execution that created the output
+        output_type
+            Type of the output
+        dimensions
+            Dimensions that describe the output
+        filename
+            Path to the output
+        short_name
+            Short key of the output
+        long_name
+            Human readable name
+        description
+            Long description
+
+        Raises
+        ------
+        KeyError
+            If an unknown dimension was supplied.
+
+            Dimensions must exist in the controlled vocabulary.
+
+        Returns
+        -------
+            Newly created ExecutionOutput
+        """
+        for k in dimensions:
+            if k not in cls._cv_dimensions:
+                raise KeyError(f"Unknown dimension column '{k}'")
+
+        return ExecutionOutput(
+            execution_id=execution_id,
+            output_type=output_type,
+            filename=filename,
+            short_name=short_name,
+            long_name=long_name,
+            description=description,
+            **dimensions,
+        )
 
 
 def get_execution_group_and_latest(

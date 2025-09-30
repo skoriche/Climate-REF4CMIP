@@ -306,12 +306,14 @@ def _handle_outputs(
             filename,
         )
         database.session.add(
-            ExecutionOutput(
+            ExecutionOutput.build(
                 execution_id=execution.id,
                 output_type=output_type,
                 filename=str(filename),
                 description=output_info.description,
                 short_name=key,
                 long_name=output_info.long_name,
+                # TODO: Support adding dimensions on outputs
+                dimensions={},
             )
         )

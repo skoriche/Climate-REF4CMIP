@@ -1,8 +1,7 @@
-import datetime
 from typing import Any
 
-from sqlalchemy import JSON, MetaData, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import JSON, MetaData
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
@@ -26,21 +25,3 @@ class Base(DeclarativeBase):
             "pk": "pk_%(table_name)s",
         }
     )
-
-
-class CreatedUpdatedMixin:
-    """
-    Mixin for models that have a created_at and updated_at fields
-    """
-
-    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
-    """
-    When the dataset was added to the database
-    """
-
-    updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), index=True
-    )
-    """
-    When the dataset was updated.
-    """

@@ -270,6 +270,65 @@ class ExecutionOutput(DimensionMixin, CreatedUpdatedMixin, Base):
 
     execution: Mapped["Execution"] = relationship(back_populates="outputs")
 
+    @classmethod
+    def build(  # noqa: PLR0913
+        cls,
+        *,
+        execution_id: int,
+        output_type: ResultOutputType,
+        dimensions: dict[str, str],
+        filename: str | None = None,
+        short_name: str | None = None,
+        long_name: str | None = None,
+        description: str | None = None,
+    ) -> "ExecutionOutput":
+        """
+        Build an ExecutionOutput from dimensions and metadata
+
+        This is a helper method that validates the dimensions supplied.
+
+        Parameters
+        ----------
+        execution_id
+            Execution that created the output
+        output_type
+            Type of the output
+        dimensions
+            Dimensions that describe the output
+        filename
+            Path to the output
+        short_name
+            Short key of the output
+        long_name
+            Human readable name
+        description
+            Long description
+
+        Raises
+        ------
+        KeyError
+            If an unknown dimension was supplied.
+
+            Dimensions must exist in the controlled vocabulary.
+
+        Returns
+        -------
+            Newly created ExecutionOutput
+        """
+        for k in dimensions:
+            if k not in cls._cv_dimensions:
+                raise KeyError(f"Unknown dimension column '{k}'")
+
+        return ExecutionOutput(
+            execution_id=execution_id,
+            output_type=output_type,
+            filename=filename,
+            short_name=short_name,
+            long_name=long_name,
+            description=description,
+            **dimensions,
+        )
+
 
 def get_execution_group_and_latest(
     session: Session,

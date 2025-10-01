@@ -9,9 +9,12 @@ from rich.console import Console
 
 from climate_ref.cli.executions import _results_directory_panel
 from climate_ref.models import Execution, ExecutionGroup
+from climate_ref.models.dataset import CMIP6Dataset
 from climate_ref.models.diagnostic import Diagnostic
-from climate_ref.models.execution import execution_datasets
+from climate_ref.models.execution import ExecutionOutput, ResultOutputType, execution_datasets
+from climate_ref.models.metric_value import ScalarMetricValue
 from climate_ref.provider_registry import _register_provider
+from climate_ref_core.datasets import SourceDatasetType
 
 
 @pytest.fixture
@@ -209,6 +212,7 @@ class TestListGroupsFiltering:
                 "extratropical-modes-of-variability-nao",
             ]
         )
+
         assert "enso" in result.stdout
         assert "extratropical-modes-of-variability-nao" in result.stdout
         assert "sea-ice-area-basic" not in result.stdout
@@ -430,18 +434,110 @@ class TestDeleteGroups:
         assert result.exit_code == 0
         assert "No execution groups match the specified filters." in result.stderr
 
-    def test_delete_groups_cascade_deletes_executions(self, db_with_groups, invoke_cli):
-        # Get initial execution count
-        initial_exec_count = db_with_groups.session.query(Execution).count()
+    def test_delete_groups_cascade_deletes_all_related_models(self, db_with_groups, invoke_cli):
+        """Test that delete-groups properly deletes ExecutionGroups, Executions,
+        ExecutionOutputs, MetricValues, and execution_datasets associations."""
 
+        # Get the execution groups that match "enso" diagnostic (eg1 and eg3)
+        enso_groups = [
+            eg
+            for eg in db_with_groups.session.query(ExecutionGroup).all()
+            if "enso" in eg.diagnostic.slug.lower()
+        ]
+
+        # Count datasets before creating a new one (db_seeded has existing datasets)
+        initial_dataset_count_before_test = db_with_groups.session.query(CMIP6Dataset).count()
+
+        # Create a shared Dataset for associations
+        with db_with_groups.session.begin_nested():
+            dataset = CMIP6Dataset(
+                slug="test-cmip6-dataset",
+                dataset_type=SourceDatasetType.CMIP6,
+                activity_id="CMIP",
+                experiment_id="historical",
+                institution_id="TEST",
+                source_id="TEST-MODEL",
+                member_id="r1i1p1f1",
+                table_id="Amon",
+                variable_id="tas",
+                grid_label="gn",
+                version="v20200101",
+                instance_id="CMIP.TEST.TEST-MODEL.historical.Amon.gn",
+                variant_label="r1i1p1f1",
+            )
+            db_with_groups.session.add(dataset)
+            db_with_groups.session.flush()
+
+            # Add ExecutionOutputs, MetricValues, and Dataset associations
+            for eg in enso_groups:
+                for execution in eg.executions:
+                    # Add ExecutionOutput
+                    output = ExecutionOutput(
+                        execution_id=execution.id,
+                        output_type=ResultOutputType.Plot,
+                        filename="test_plot.png",
+                    )
+                    db_with_groups.session.add(output)
+
+                    # Add MetricValue
+                    metric_value = ScalarMetricValue(
+                        execution_id=execution.id,
+                        value=42.0,
+                        attributes={"test_attr": "test_value"},
+                    )
+                    db_with_groups.session.add(metric_value)
+
+                    # Add Dataset association
+                    execution.datasets.append(dataset)
+
+        db_with_groups.session.commit()
+
+        # Get initial counts before deletion
+        initial_exec_count = db_with_groups.session.query(Execution).count()
+        initial_output_count = db_with_groups.session.query(ExecutionOutput).count()
+        initial_metric_count = db_with_groups.session.query(ScalarMetricValue).count()
+        initial_dataset_count = db_with_groups.session.query(CMIP6Dataset).count()
+
+        # Count execution_datasets associations before deletion
+        initial_assoc_count = len(db_with_groups.session.execute(execution_datasets.select()).fetchall())
+
+        # Verify we have created the related models
+        assert initial_output_count > 0, "Should have ExecutionOutputs"
+        assert initial_metric_count > 0, "Should have MetricValues"
+        assert initial_assoc_count > 0, "Should have execution_datasets associations"
+        assert initial_dataset_count == initial_dataset_count_before_test + 1, (
+            "Should have one more dataset than before"
+        )
+
+        # Perform deletion
         with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
             result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
 
         assert result.exit_code == 0
 
-        # Verify executions are also deleted
+        # Verify executions are deleted
         remaining_exec_count = db_with_groups.session.query(Execution).count()
-        assert remaining_exec_count < initial_exec_count
+        assert remaining_exec_count < initial_exec_count, "Executions should be deleted"
+
+        # Verify ExecutionOutputs are deleted
+        remaining_output_count = db_with_groups.session.query(ExecutionOutput).count()
+        assert remaining_output_count < initial_output_count, "ExecutionOutputs should be deleted"
+
+        # Verify MetricValues are deleted
+        remaining_metric_count = db_with_groups.session.query(ScalarMetricValue).count()
+        assert remaining_metric_count < initial_metric_count, "MetricValues should be deleted"
+
+        # Verify execution_datasets associations are deleted
+        remaining_assoc_count = len(db_with_groups.session.execute(execution_datasets.select()).fetchall())
+        assert remaining_assoc_count < initial_assoc_count, (
+            "execution_datasets associations should be deleted"
+        )
+
+        # Verify Datasets themselves are NOT deleted (just the association)
+        remaining_dataset_count = db_with_groups.session.query(CMIP6Dataset).count()
+        assert remaining_dataset_count == initial_dataset_count, (
+            "Datasets should still exist (only associations removed)"
+        )
 
     def test_delete_groups_removes_outputs(self, db_with_groups, tmp_path, invoke_cli, config):
         # Create actual output directories in tmp_path

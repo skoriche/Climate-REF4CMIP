@@ -60,6 +60,7 @@ def pretty_print_df(df: pd.DataFrame, console: Console | None = None) -> None:
     df = df.drop_duplicates()
 
     if console is None:
+        logger.debug("Creating new console for pretty printing")
         console = Console()
 
     max_col_count = console.width // 10

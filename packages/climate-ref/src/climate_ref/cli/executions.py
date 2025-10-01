@@ -191,6 +191,8 @@ def inspect(ctx: typer.Context, execution_id: int) -> None:
     """
     config: Config = ctx.obj.config
     session = ctx.obj.database.session
+    console = ctx.obj.console
+
     execution_group = session.get(ExecutionGroup, execution_id)
 
     if not execution_group:
@@ -217,6 +219,7 @@ def flag_dirty(ctx: typer.Context, execution_id: int) -> None:
     Flag an execution group for recomputation
     """
     session = ctx.obj.database.session
+    console = ctx.obj.console
     with session.begin():
         execution_group = session.get(ExecutionGroup, execution_id)
 

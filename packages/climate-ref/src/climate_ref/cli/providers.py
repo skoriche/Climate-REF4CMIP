@@ -7,14 +7,12 @@ from typing import Annotated
 import pandas as pd
 import typer
 from loguru import logger
-from rich.console import Console
 
 from climate_ref.cli._utils import pretty_print_df
 from climate_ref.provider_registry import ProviderRegistry
 from climate_ref_core.providers import CondaDiagnosticProvider, DiagnosticProvider
 
 app = typer.Typer(help=__doc__)
-console = Console()
 
 
 @app.command(name="list")
@@ -24,6 +22,7 @@ def list_(ctx: typer.Context) -> None:
     """
     config = ctx.obj.config
     db = ctx.obj.database
+    console = ctx.obj.console
     provider_registry = ProviderRegistry.build_from_config(config, db)
 
     def get_env(provider: DiagnosticProvider) -> str:

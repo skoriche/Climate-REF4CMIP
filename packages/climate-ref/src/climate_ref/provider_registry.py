@@ -14,6 +14,8 @@ from loguru import logger
 
 from climate_ref.config import Config
 from climate_ref.database import Database
+from climate_ref.models import Diagnostic as DiagnosticModel
+from climate_ref.models import Provider as ProviderModel
 from climate_ref_core.diagnostics import Diagnostic
 from climate_ref_core.providers import DiagnosticProvider, import_provider
 
@@ -29,10 +31,8 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
     provider
         DiagnosticProvider instance
     """
-    from climate_ref.models import Diagnostic, Provider
-
     provider_model, created = db.get_or_create(
-        Provider,
+        ProviderModel,
         slug=provider.slug,
         defaults={
             "name": provider.name,
@@ -46,7 +46,7 @@ def _register_provider(db: Database, provider: DiagnosticProvider) -> None:
 
     for diagnostic in provider.diagnostics():
         diagnostic_model, created = db.get_or_create(
-            Diagnostic,
+            DiagnosticModel,
             slug=diagnostic.slug,
             provider_id=provider_model.id,
             defaults={

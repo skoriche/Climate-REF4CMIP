@@ -146,7 +146,7 @@ def test_verify_hash_missing_file(tmp_path):
 
     file_path = tmp_path / "file.txt"
 
-    with pytest.raises(FileNotFoundError, match="file.txt does not exist. Cannot verify hash"):
+    with pytest.raises(FileNotFoundError, match=r"file.txt does not exist. Cannot verify hash"):
         _verify_hash_matches(file_path, expected_hash)
 
 

@@ -245,8 +245,8 @@ class FailedDiagnostic(Diagnostic):
 @pytest.fixture
 def provider(tmp_path, config) -> DiagnosticProvider:
     provider = DiagnosticProvider("mock_provider", "v0.1.0")
-    provider.register(MockDiagnostic())
-    provider.register(FailedDiagnostic())
+    provider.register(MockDiagnostic())  # type: ignore
+    provider.register(FailedDiagnostic())  # type: ignore
     provider.configure(config)
 
     return provider
@@ -335,7 +335,7 @@ class ExecutionRegression:
     )
 
     def _replace_file(self, file: Path, replacements: dict[str, str]):
-        with open(file) as f:
+        with open(file, encoding="utf-8") as f:
             content = f.read()
 
             for key, value in replacements.items():

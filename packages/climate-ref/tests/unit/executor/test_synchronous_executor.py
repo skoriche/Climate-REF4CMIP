@@ -22,7 +22,7 @@ class TestSynchronousExecutor:
         assert metric_definition.output_directory.exists()
 
         mock_handle_result.assert_called_once()
-        config, db, metric_execution_result, result = mock_handle_result.call_args.args
+        _config, _db, metric_execution_result, result = mock_handle_result.call_args.args
 
         assert metric_execution_result == mock_execution_result
         assert result.successful
@@ -40,7 +40,7 @@ class TestSynchronousExecutor:
 
         executor.run(metric_definition, mock_execution_result)
 
-        config, db, metric_execution_result, result = mock_handle_result.call_args.args
+        _config, _db, _metric_execution_result, result = mock_handle_result.call_args.args
         assert result.successful is False
         assert result.output_bundle_filename is None
         assert result.metric_bundle_filename is None

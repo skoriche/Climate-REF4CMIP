@@ -32,7 +32,7 @@ def test_process_json_result(pdo_example_dir):
 def test_execute_missing_parameter():
     with pytest.raises(
         FileNotFoundError,
-        match="Resource pmp_missing.py not found in climate_ref_pmp.params package.",
+        match=r"Resource pmp_missing.py not found in climate_ref_pmp.params package.",
     ):
         build_pmp_command(
             driver_file="variability_mode/variability_modes_driver.py",

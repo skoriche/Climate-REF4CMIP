@@ -124,7 +124,7 @@ class TestDiagnostic:
 
     def test_no_provider(self, mock_diagnostic):
         mock_diagnostic.provider = None
-        with pytest.raises(ValueError, match="register .* with a DiagnosticProvider before using"):
+        with pytest.raises(ValueError, match=r"register .* with a DiagnosticProvider before using"):
             mock_diagnostic.provider
 
 

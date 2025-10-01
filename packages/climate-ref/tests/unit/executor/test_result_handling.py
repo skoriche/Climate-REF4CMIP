@@ -218,7 +218,7 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
     )
 
     with pytest.raises(
-        FileNotFoundError, match="Could not find diagnostic.json in .*/scratch/output_fragment"
+        FileNotFoundError, match=r"Could not find diagnostic.json in .*/scratch/output_fragment"
     ):
         handle_execution_result(config, db, mock_execution_result, result)
 

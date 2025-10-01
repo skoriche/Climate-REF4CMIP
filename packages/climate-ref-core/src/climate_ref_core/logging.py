@@ -154,12 +154,12 @@ def remove_log_handler() -> None:
     """
     if hasattr(logger, "default_handler_id"):
         try:
-            logger.remove(logger.default_handler_id)
+            logger.remove(logger.default_handler_id)  # pyright: ignore[reportAttributeAccessIssue]
         except ValueError:
             # This can happen if the handler has already been removed
             # or if the logger was never configured
             pass
-        del logger.default_handler_id
+        del logger.default_handler_id  # pyright: ignore[reportAttributeAccessIssue]
     else:
         raise AssertionError("No default log handler to remove.")
 

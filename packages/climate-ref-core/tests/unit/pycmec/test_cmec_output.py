@@ -1,5 +1,6 @@
 import pytest
 
+from climate_ref_core.pycmec.metric import CMECGenerateJsonSchema
 from climate_ref_core.pycmec.output import CMECOutput
 
 
@@ -106,10 +107,6 @@ def test_output_data_extras(cmec_right_output_dict):
 
 
 def test_output_json_schema(data_regression):
-    from climate_ref_core.pycmec.metric import (
-        CMECGenerateJsonSchema,
-    )
-
     cmec_model_schema = CMECOutput.model_json_schema(schema_generator=CMECGenerateJsonSchema)
 
     data_regression.check(cmec_model_schema)

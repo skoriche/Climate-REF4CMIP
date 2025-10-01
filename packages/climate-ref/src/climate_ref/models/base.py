@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, TypeVar
 
 from sqlalchemy import JSON, MetaData
 from sqlalchemy.orm import DeclarativeBase
@@ -25,3 +25,6 @@ class Base(DeclarativeBase):
             "pk": "pk_%(table_name)s",
         }
     )
+
+
+Table = TypeVar("Table", bound=Base)

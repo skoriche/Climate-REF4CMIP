@@ -5,6 +5,59 @@ from rich.console import Console
 from rich.table import Table
 
 
+def parse_facet_filters(filters: list[str] | None) -> dict[str, str]:
+    """
+    Parse facet filters from key=value format into a dictionary.
+
+    Parameters
+    ----------
+    filters
+        List of filter strings in 'key=value' format
+
+    Returns
+    -------
+    dict[str, str]
+        Dictionary mapping facet keys to values
+
+    Raises
+    ------
+    ValueError
+        If a filter string is not in valid 'key=value' format
+
+    Examples
+    --------
+    >>> parse_facet_filters(["source_id=GFDL-ESM4", "variable_id=tas"])
+    {'source_id': 'GFDL-ESM4', 'variable_id': 'tas'}
+    """
+    if not filters:
+        return {}
+
+    parsed: dict[str, str] = {}
+    for filter_str in filters:
+        if "=" not in filter_str:
+            raise ValueError(
+                f"Invalid filter format: '{filter_str}'. "
+                f"Expected format: 'key=value' or 'dataset_type.key=value' "
+                f"(e.g., 'source_id=GFDL-ESM4' or 'cmip6.source_id=GFDL-ESM4')"
+            )
+
+        key, value = filter_str.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+
+        if not key:
+            raise ValueError(f"Empty key in filter: '{filter_str}'")
+        if not value:
+            raise ValueError(f"Empty value in filter: '{filter_str}'")
+
+        if key in parsed:
+            logger.warning(f"Filter key '{key}' specified multiple times. Using last value: '{value}'")
+
+        parsed[key] = value
+
+    return parsed
+
+
 def df_to_table(df: pd.DataFrame, max_col_count: int = -1) -> Table:
     """
     Convert a DataFrame to a rich Table instance

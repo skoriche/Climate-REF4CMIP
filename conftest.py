@@ -186,6 +186,7 @@ def invoke_cli(monkeypatch):
     def _invoke_cli(args: list[str], expected_exit_code: int = 0, always_log: bool = False) -> Result:
         # Disable color output for testing
         monkeypatch.setenv("NO_COLOR", "1")
+        monkeypatch.setenv("COLUMNS", "200")
 
         result = runner.invoke(
             app=cli.app,

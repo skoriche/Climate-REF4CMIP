@@ -21,6 +21,67 @@ from the examples given in that link.
 
 <!-- towncrier release notes start -->
 
+## climate-ref 0.7.0 (2025-10-01)
+
+### Breaking Changes
+
+- Use the directory structure template from the obs4MIPs specification to define
+  the instance_id. ([#383](https://github.com/Climate-REF/climate-ref/pull/383))
+- Used logical or instead of logical and to combine multiple facet filters.
+
+  This means that the selected input datasets will include items that match any of
+  the specified `FacetFilter`s, rather than only those that match all of them.
+  This change was made to improve the usability of the option to use multiple facet
+  filters, allowing users to be more specific with their filtering criteria. ([#414](https://github.com/Climate-REF/climate-ref/pull/414))
+- Changed all constraints so they return a filtered dataframe instead of a boolean.
+
+  This allows using the constraints in multi-model diagnostics. ([#416](https://github.com/Climate-REF/climate-ref/pull/416))
+
+### Features
+
+- Add a timerange constraint to ensure the required data is available. ([#399](https://github.com/Climate-REF/climate-ref/pull/399))
+- Add a human readable representation for `climate_ref_core.datasets.ExecutionDatasetCollection`. ([#401](https://github.com/Climate-REF/climate-ref/pull/401))
+- Allow execution outputs to have dimensions.
+  These dimensions allow the outputs to be filtered in the same manner as the metric values ([#434](https://github.com/Climate-REF/climate-ref/pull/434))
+- Adds filter options to the `ref executions list-groups` command.
+  This allows users to filter by facet, provider and diagnostic,
+  as well as whether the latest executions was successful
+  or if the exection group was has been marked as dirty ([#438](https://github.com/Climate-REF/climate-ref/pull/438))
+- Added a `ref executions delete-groups` command for removing unneeded results from the database.
+  This will delete the execution group and any executions and outputs associated with the group. ([#441](https://github.com/Climate-REF/climate-ref/pull/441))
+
+### Improvements
+
+- Updated the sample data to v0.7.3. ([#402](https://github.com/Climate-REF/climate-ref/pull/402))
+- PMP version updated to v3.9.2 ([#404](https://github.com/Climate-REF/climate-ref/pull/404))
+- Specified the "table_id" for all ESMValTool diagnostics to improve data selection. ([#407](https://github.com/Climate-REF/climate-ref/pull/407))
+- Added a groupby operation to the RequireFacets constraint to reduce failed runs because of missing data. ([#408](https://github.com/Climate-REF/climate-ref/pull/408))
+- Adds extra ESMValTool dimensions to the output series ([#410](https://github.com/Climate-REF/climate-ref/pull/410))
+- The dataset ingestion process now supports updating datasets if new files become available ([#412](https://github.com/Climate-REF/climate-ref/pull/412))
+- Added series output for ESMValTool diagnostics. ([#413](https://github.com/Climate-REF/climate-ref/pull/413))
+- Gracefully handles empty directories when ingesting.
+  The default behaviour is now to skip any invalid datasets as that is a sane default when ingesting many datasets. ([#419](https://github.com/Climate-REF/climate-ref/pull/419))
+- Include obs4MIPs and thetao in the ESGF download script and turn into a CLI tool.
+  This script was renamed to `fetch-esgf.py` to `fetch-esgf.py` as it now includes more than just CMIP6 data. ([#420](https://github.com/Climate-REF/climate-ref/pull/420))
+- Improved support for concatenating historical and future experiments in the ESMValTool recipe ([#431](https://github.com/Climate-REF/climate-ref/pull/431))
+- Log the ESMValTool recipe and configuration for easier debugging ([#432](https://github.com/Climate-REF/climate-ref/pull/432))
+- Adds output dimensions to ILAMB outputs.
+  This adds additional dimensions and attributes to the series values ([#435](https://github.com/Climate-REF/climate-ref/pull/435))
+- Replaced instance_id by individual facets in group_by of ESMValTool diagnostics. ([#439](https://github.com/Climate-REF/climate-ref/pull/439))
+
+### Bug Fixes
+
+- Resolves missing index and index names for series ([#410](https://github.com/Climate-REF/climate-ref/pull/410))
+- Added missing column to the PMP dataset model ([#418](https://github.com/Climate-REF/climate-ref/pull/418))
+- Removes the ERA-5 ta data Obs4REF in preference for Obs4MIPs ([#421](https://github.com/Climate-REF/climate-ref/pull/421))
+- Avoid selecting the areacella variable when filling the recipe for cloud scatterplots. ([#427](https://github.com/Climate-REF/climate-ref/pull/427))
+- Fixes to the ocean heat content IOMB diagnostic ([#433](https://github.com/Climate-REF/climate-ref/pull/433))
+
+### Trivial/Internal Changes
+
+- [#440](https://github.com/Climate-REF/climate-ref/pull/440)
+
+
 ## climate-ref 0.6.6 (2025-09-10)
 
 ### Features

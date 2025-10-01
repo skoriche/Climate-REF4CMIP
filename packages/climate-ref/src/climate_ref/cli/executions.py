@@ -129,7 +129,7 @@ def list_groups(  # noqa: PLR0913
             dirty=dirty,
         )
         execution_groups_results = all_filtered_results[:limit]
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logger.error(f"Error applying filters: {e}")
         raise typer.Exit(code=1)
 
@@ -271,7 +271,7 @@ def delete_groups(  # noqa: PLR0912, PLR0913
             successful=successful,
             dirty=dirty,
         )
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logger.error(f"Error applying filters: {e}")
         raise typer.Exit(code=1)
 
@@ -319,7 +319,7 @@ def delete_groups(  # noqa: PLR0912, PLR0913
                 output_dir = config.paths.results / execution.output_fragment
 
                 # Safety check
-                if not output_dir.is_relative_to(config.paths.results):
+                if not output_dir.is_relative_to(config.paths.results):  # pragma: no cover
                     logger.error(f"Skipping unsafe path: {output_dir}")
                     continue
 

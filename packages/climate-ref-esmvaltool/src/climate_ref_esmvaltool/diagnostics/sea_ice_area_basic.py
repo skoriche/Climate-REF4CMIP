@@ -35,7 +35,7 @@ class SeaIceAreaBasic(ESMValToolDiagnostic):
                     },
                 ),
             ),
-            group_by=("instance_id",),
+            group_by=("source_id", "member_id", "grid_label"),
             constraints=(
                 RequireTimerange(
                     group_by=("instance_id",),

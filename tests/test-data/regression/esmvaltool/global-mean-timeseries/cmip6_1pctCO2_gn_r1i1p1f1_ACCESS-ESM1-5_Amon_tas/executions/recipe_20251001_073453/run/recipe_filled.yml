@@ -1,7 +1,5 @@
 documentation:
-  description: 'Example recipe that plots a map and timeseries of temperature.
-
-    '
+  description: Example recipe that plots a map and timeseries of temperature.
   title: Recipe that runs an example diagnostic written in Python.
   authors:
   - andela_bouwe
@@ -13,7 +11,6 @@ documentation:
   projects:
   - esmval
   - c3s-magic
-datasets: []
 preprocessors:
   to_degrees_c:
     convert_units:
@@ -37,6 +34,7 @@ preprocessors:
       operator: mean
     convert_units:
       units: degrees_C
+  default: {}
 diagnostics:
   timeseries:
     description: Annual mean temperature in Amsterdam and global mean since 1850.
@@ -46,20 +44,24 @@ diagnostics:
     - atmos
     variables:
       tas:
-        additional_datasets:
-        - project: CMIP6
-          activity: CMIP
-          dataset: ACCESS-ESM1-5
-          ensemble: r1i1p1f1
-          institute: CSIRO
-          exp: 1pctCO2
-          grid: gn
-          mip: Amon
-          timerange: 01010116T120000/02501216T120000
         preprocessor: annual_mean_global
         caption: Annual global mean {long_name} according to {dataset}.
+        project: CMIP6
+        activity: CMIP
+        ensemble: r1i1p1f1
+        institute: CSIRO
+        exp: 1pctCO2
+        grid: gn
+        mip: Amon
+        timerange: 01010116T120000/02501216T120000
+        version: v20191115
+        supplementary_variables:
+        - mip: fx
+          short_name: areacella
     scripts:
       script1:
         script: examples/diagnostic.py
         quickplot:
           plot_type: plot
+datasets:
+- dataset: ACCESS-ESM1-5

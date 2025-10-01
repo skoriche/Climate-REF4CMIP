@@ -22,7 +22,7 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(FacetFilter(facets={"variable_id": ("tas",)}),),
-            group_by=("instance_id",),
+            group_by=("source_id", "experiment_id", "member_id", "table_id", "variable_id", "grid_label"),
             constraints=(
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),

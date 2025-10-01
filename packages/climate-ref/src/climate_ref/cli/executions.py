@@ -4,6 +4,7 @@ View execution groups and their results
 
 import json
 import pathlib
+import shutil
 from dataclasses import dataclass
 from typing import Annotated
 from urllib.parse import quote
@@ -21,7 +22,7 @@ from rich.tree import Tree
 from climate_ref.cli._utils import df_to_table, parse_facet_filters, pretty_print_df
 from climate_ref.config import Config
 from climate_ref.models import Execution, ExecutionGroup
-from climate_ref.models.execution import get_execution_group_and_latest_filtered
+from climate_ref.models.execution import execution_datasets, get_execution_group_and_latest_filtered
 from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 
 app = typer.Typer(help=__doc__)
@@ -186,7 +187,7 @@ def list_groups(  # noqa: PLR0913
 
 
 @app.command()
-def delete_groups(  # noqa: PLR0913
+def delete_groups(  # noqa: PLR0912, PLR0913
     ctx: typer.Context,
     diagnostic: Annotated[
         list[str] | None,
@@ -224,6 +225,9 @@ def delete_groups(  # noqa: PLR0913
             "These execution groups will be re-computed on the next run.",
         ),
     ] = None,
+    remove_outputs: bool = typer.Option(
+        False, "--remove-outputs", help="Also remove output directories from the filesystem"
+    ),
     force: bool = typer.Option(False, help="Skip confirmation prompt"),
 ) -> None:
     """
@@ -307,24 +311,53 @@ def delete_groups(  # noqa: PLR0913
             console.print("Deletion cancelled.")
             return
 
-    # Delete in transaction
-    if session.in_transaction():
-        # Already in a transaction, use nested transaction
-        with session.begin_nested():
-            for eg, _ in all_filtered_results:
-                # Delete associated executions first to avoid foreign key constraint issues
-                for execution in eg.executions:
-                    session.delete(execution)
-                session.delete(eg)
-    else:
-        with session.begin():
-            for eg, _ in all_filtered_results:
-                # Delete associated executions first to avoid foreign key constraint issues
-                for execution in eg.executions:
-                    session.delete(execution)
-                session.delete(eg)
+    # Remove output directories if requested
+    if remove_outputs:
+        config = ctx.obj.config
+        for eg, _ in all_filtered_results:
+            for execution in eg.executions:
+                output_dir = config.paths.results / execution.output_fragment
 
-    console.print(f"Successfully deleted {count} execution group(s).")
+                # Safety check
+                if not output_dir.is_relative_to(config.paths.results):
+                    logger.error(f"Skipping unsafe path: {output_dir}")
+                    continue
+
+                if output_dir.exists():
+                    try:
+                        logger.warning(f"Removing output directory: {output_dir}")
+                        shutil.rmtree(output_dir)
+                    except Exception as e:
+                        logger.error(f"Failed to remove {output_dir}: {e}")
+
+    # Delete execution groups and all related records
+    # TODO: Add cascade delete to FK relationships and simplify this code
+    with session.begin_nested() if session.in_transaction() else session.begin():
+        for eg, _ in all_filtered_results:
+            for execution in eg.executions:
+                # Delete MetricValues first
+                for metric_value in execution.values:
+                    session.delete(metric_value)
+
+                # Delete ExecutionOutputs
+                for output in execution.outputs:
+                    session.delete(output)
+
+                # Delete many-to-many associations with datasets
+                session.execute(
+                    execution_datasets.delete().where(execution_datasets.c.execution_id == execution.id)
+                )
+
+                # Now delete the execution
+                session.delete(execution)
+
+            # Finally delete the execution group
+            session.delete(eg)
+
+    if remove_outputs:
+        console.print(f"[green]Successfully deleted {count} execution group(s) and their output directories.")
+    else:
+        console.print(f"[green]Successfully deleted {count} execution group(s).")
 
 
 def walk_directory(directory: pathlib.Path, tree: Tree) -> None:

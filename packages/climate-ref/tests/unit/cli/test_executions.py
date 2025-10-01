@@ -168,7 +168,6 @@ class TestListGroupsFiltering:
     def test_filter_by_provider(self, db_with_groups, invoke_cli):
         result = invoke_cli(["executions", "list-groups", "--provider", "pmp"])
 
-        print(result.stdout)
         assert "pmp" in result.stdout
         assert "esmvaltool" not in result.stdout
 
@@ -443,6 +442,171 @@ class TestDeleteGroups:
         # Verify executions are also deleted
         remaining_exec_count = db_with_groups.session.query(Execution).count()
         assert remaining_exec_count < initial_exec_count
+
+    def test_delete_groups_removes_outputs(self, db_with_groups, tmp_path, invoke_cli, config):
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Run command with --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--remove-outputs",
+                    "--force",
+                ]
+            )
+
+        # Assert success
+        assert result.exit_code == 0
+
+        # Verify output directory was removed
+        assert not output_dir.exists()
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify success message includes output directories
+        assert "and their output directories" in result.stdout
+
+    def test_delete_groups_without_remove_outputs_flag(self, db_with_groups, tmp_path, invoke_cli, config):
+        """Test that output directories are NOT removed when --remove-outputs flag is omitted"""
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Run command WITHOUT --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        # Assert success
+        assert result.exit_code == 0
+
+        # Verify output directory still exists
+        assert output_dir.exists()
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify success message does NOT include output directories
+        assert "and their output directories" not in result.stdout
+
+    def test_delete_groups_remove_outputs_nonexistent_directory(
+        self, db_with_groups, tmp_path, invoke_cli, config
+    ):
+        """Test graceful handling when output directory doesn't exist"""
+        # Create results path but not the output directories
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Get execution with output_fragment (directories don't exist)
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+
+        # Verify directory does NOT exist
+        assert not output_dir.exists()
+
+        # Run command with --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--remove-outputs",
+                    "--force",
+                ]
+            )
+
+        # Assert success (no errors for missing directories)
+        assert result.exit_code == 0
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+    def test_delete_groups_remove_outputs_filesystem_error(
+        self, db_with_groups, tmp_path, invoke_cli, config
+    ):
+        """Test error handling for filesystem failures during output removal"""
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Mock shutil.rmtree to raise an exception
+        with patch("shutil.rmtree", side_effect=OSError("Permission denied")):
+            with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+                result = invoke_cli(
+                    [
+                        "executions",
+                        "delete-groups",
+                        "--diagnostic",
+                        "enso",
+                        "--remove-outputs",
+                        "--force",
+                    ]
+                )
+
+        # Assert success (command should not fail due to filesystem error)
+        assert result.exit_code == 0
+
+        # Verify database records are still deleted despite filesystem error (only enso diagnostics)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify output directory still exists (since rmtree failed)
+        assert output_dir.exists()
 
 
 class TestExecutionInspect:

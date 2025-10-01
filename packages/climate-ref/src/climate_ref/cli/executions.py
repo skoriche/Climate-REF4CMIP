@@ -70,6 +70,21 @@ def list_groups(  # noqa: PLR0913
             help="Filter by facet key=value pairs (exact match). Multiple filters can be provided.",
         ),
     ] = None,
+    successful: Annotated[
+        bool | None,
+        typer.Option(
+            "--successful/--not-successful",
+            help="Filter by successful or unsuccessful executions.",
+        ),
+    ] = None,
+    dirty: Annotated[
+        bool | None,
+        typer.Option(
+            "--dirty/--not-dirty",
+            help="Filter to include only dirty or clean execution groups."
+            "These execution groups will be re-computed on the next run.",
+        ),
+    ] = None,
 ) -> None:
     """
     List the diagnostic execution groups that have been identified
@@ -109,6 +124,8 @@ def list_groups(  # noqa: PLR0913
             diagnostic_filters=filters.diagnostic,
             provider_filters=filters.provider,
             facet_filters=filters.facets,
+            successful=successful,
+            dirty=dirty,
         )
         execution_groups_results = all_filtered_results[:limit]
     except Exception as e:

@@ -374,11 +374,71 @@ def get_execution_group_and_latest(
     return query  # type: ignore
 
 
-def get_execution_group_and_latest_filtered(
+def _filter_executions_by_facets(
+    results: Sequence[tuple[ExecutionGroup, Execution | None]],
+    facet_filters: dict[str, str],
+) -> list[tuple[ExecutionGroup, Execution | None]]:
+    """
+    Filter execution groups and their latest executions based on facet key-value pairs.
+
+    This is a relatively expensive operation as it requires iterating over all results.
+    This should be replaced once we have normalised the selectors into a separate table.
+
+
+    Parameters
+    ----------
+    results
+        List of tuples containing ExecutionGroup and its latest Execution (or None)
+    facet_filters
+        Dictionary of facet key-value pairs to filter by (AND logic, exact match)
+
+    Returns
+    -------
+        Filtered list of tuples containing ExecutionGroup and its latest Execution (or None)
+
+    Notes
+    -----
+    - Facet filters can either be key=value (searches all dataset types)
+      or dataset_type.key=value (searches specific dataset type)
+    - Key=value filters search across all dataset types
+    - dataset_type.key=value filters only search within the specified dataset type
+    - Multiple values within same filter type use OR logic
+    - All specified facets must match for an execution group to be included (AND logic)
+    """
+    filtered_results = []
+    for eg, execution in results:
+        all_filters_match = True
+        for facet_key, facet_value in facet_filters.items():
+            filter_match = False
+            if "." in facet_key:
+                # Handle dataset_type.key=value format
+                dataset_type, key = facet_key.split(".", 1)
+                if dataset_type in eg.selectors:
+                    if [key, facet_value] in eg.selectors[dataset_type]:
+                        filter_match = True
+                        break
+            else:
+                # Handle key=value format (search across all dataset types)
+                for ds_type_selectors in eg.selectors.values():
+                    if [facet_key, facet_value] in ds_type_selectors:
+                        filter_match = True
+                        break
+
+            if not filter_match:
+                all_filters_match = False
+                break
+        if all_filters_match:
+            filtered_results.append((eg, execution))
+    return filtered_results
+
+
+def get_execution_group_and_latest_filtered(  # noqa: PLR0913
     session: Session,
     diagnostic_filters: list[str] | None = None,
     provider_filters: list[str] | None = None,
     facet_filters: dict[str, str] | None = None,
+    dirty: bool | None = None,
+    successful: bool | None = None,
 ) -> list[tuple[ExecutionGroup, Execution | None]]:
     """
     Query execution groups with filtering capabilities.
@@ -393,6 +453,14 @@ def get_execution_group_and_latest_filtered(
         List of provider slug substrings (OR logic, case-insensitive)
     facet_filters
         Dictionary of facet key-value pairs (AND logic, exact match)
+    dirty
+        If True, only return dirty execution groups.
+        If False, only return clean execution groups.
+        If None, do not filter by dirty status.
+    successful
+        If True, only return execution groups whose latest execution was successful.
+        If False, only return execution groups whose latest execution was unsuccessful or has no executions.
+        If None, do not filter by execution success.
 
     Returns
     -------
@@ -403,7 +471,8 @@ def get_execution_group_and_latest_filtered(
     - Diagnostic and provider filters use substring matching (case-insensitive)
     - Multiple values within same filter type use OR logic
     - Different filter types use AND logic
-    - Facet filters require exact matches on the selectors JSON field
+    - Facet filters can either be key=value (searches all dataset types)
+      or dataset_type.key=value (searches specific dataset type)
     """
     # Start with base query
     query = get_execution_group_and_latest(session)
@@ -429,6 +498,18 @@ def get_execution_group_and_latest_filtered(
         ]
         query = query.filter(or_(*provider_conditions))
 
+    if successful is not None:
+        if successful:
+            query = query.filter(Execution.successful.is_(True))
+        else:
+            query = query.filter(or_(Execution.successful.is_(False), Execution.successful.is_(None)))
+
+    if dirty is not None:
+        if dirty:
+            query = query.filter(ExecutionGroup.dirty.is_(True))
+        else:
+            query = query.filter(or_(ExecutionGroup.dirty.is_(False), ExecutionGroup.dirty.is_(None)))
+
     if facet_filters:
         # Load all results into memory for Python-based filtering
         # TODO: Update once we have normalised the selector
@@ -436,51 +517,3 @@ def get_execution_group_and_latest_filtered(
         return _filter_executions_by_facets(results, facet_filters)
     else:
         return [r._tuple() for r in query.all()]
-
-
-def _filter_executions_by_facets(
-    results: Sequence[tuple[ExecutionGroup, Execution | None]],
-    facet_filters: dict[str, str],
-) -> list[tuple[ExecutionGroup, Execution | None]]:
-    """
-    Filter execution groups and their latest executions based on facet key-value pairs.
-
-    Parameters
-    ----------
-    results
-        List of tuples containing ExecutionGroup and its latest Execution (or None)
-    facet_filters
-        Dictionary of facet key-value pairs to filter by (AND logic, exact match)
-
-    Returns
-    -------
-        Filtered list of tuples containing ExecutionGroup and its latest Execution (or None)
-
-    Notes
-    -----
-    - Facet filters require exact matches on the selectors JSON field
-    - All specified facets must match for an execution group to be included (AND logic)
-    """
-    filtered_results = []
-    for eg, execution in results:
-        all_filters_match = True
-        for facet_key, facet_value in facet_filters.items():
-            filter_match = False
-            if "." in facet_key:
-                # Handle dataset_type.key=value format
-                dataset_type, key = facet_key.split(".", 1)
-                if dataset_type in eg.selectors:
-                    if [key, facet_value] in eg.selectors[dataset_type]:
-                        filter_match = True
-            else:
-                # Handle key=value format (search across all dataset types)
-                for ds_type_selectors in eg.selectors.values():
-                    if [facet_key, facet_value] in ds_type_selectors:
-                        filter_match = True
-                        break
-            if not filter_match:
-                all_filters_match = False
-                break
-        if all_filters_match:
-            filtered_results.append((eg, execution))
-    return filtered_results

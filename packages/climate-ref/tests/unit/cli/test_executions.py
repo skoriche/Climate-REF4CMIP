@@ -78,7 +78,7 @@ def db_with_groups(db_seeded):
         )
         db_seeded.session.add(
             Execution(
-                execution_group_id=eg3.id, successful=True, output_fragment="out3", dataset_hash="hash3"
+                execution_group_id=eg3.id, successful=False, output_fragment="out3", dataset_hash="hash3"
             )
         )
         db_seeded.session.add(
@@ -86,6 +86,27 @@ def db_with_groups(db_seeded):
                 execution_group_id=eg4.id, successful=True, output_fragment="out4", dataset_hash="hash4"
             )
         )
+
+        # Add a dirty execution group
+        eg5 = ExecutionGroup(
+            key="key5",
+            diagnostic_id=diag_4.id,
+            selectors={"cmip6": [["experiment_id", "historical"]]},
+            dirty=True,
+        )
+        db_seeded.session.add(eg5)
+        db_seeded.session.flush()
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg5.id, successful=True, output_fragment="out5", dataset_hash="hash5"
+            )
+        )
+
+        # Add an execution group with no executions (not-started)
+        eg6 = ExecutionGroup(
+            key="key6", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "ssp126"]]}
+        )
+        db_seeded.session.add(eg6)
     return db_seeded
 
 
@@ -243,6 +264,47 @@ class TestListGroupsFiltering:
         )
         assert "ACCESS-ESM1-5" in result.stdout
         assert "GFDL-ESM4" not in result.stdout
+
+    def test_filter_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--successful"])
+        # Should include key1, key2, key4, key5 (successful=True),
+        # exclude key3 (successful=False), exclude key6 (no executions)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-successful"])
+        # Should include key3 (successful=False) and key6 (no executions), exclude successful ones
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
+
+    def test_filter_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--dirty"])
+        # Should include key5 (dirty=True), exclude others (dirty=False by default)
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-dirty"])
+        # Should include key1, key2, key3, key4, key6 (dirty=False), exclude key5 (dirty=True)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
 
 
 class TestExecutionInspect:

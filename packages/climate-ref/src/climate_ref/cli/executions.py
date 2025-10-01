@@ -4,6 +4,7 @@ View execution groups and their results
 
 import json
 import pathlib
+import shutil
 from dataclasses import dataclass
 from typing import Annotated
 from urllib.parse import quote
@@ -21,7 +22,7 @@ from rich.tree import Tree
 from climate_ref.cli._utils import df_to_table, parse_facet_filters, pretty_print_df
 from climate_ref.config import Config
 from climate_ref.models import Execution, ExecutionGroup
-from climate_ref.models.execution import get_execution_group_and_latest_filtered
+from climate_ref.models.execution import execution_datasets, get_execution_group_and_latest_filtered
 from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 
 app = typer.Typer(help=__doc__)
@@ -128,7 +129,7 @@ def list_groups(  # noqa: PLR0913
             dirty=dirty,
         )
         execution_groups_results = all_filtered_results[:limit]
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logger.error(f"Error applying filters: {e}")
         raise typer.Exit(code=1)
 
@@ -183,6 +184,180 @@ def list_groups(  # noqa: PLR0913
             f"Displaying {limit} of {filtered_count} filtered results. "
             f"Use the `--limit` option to display more."
         )
+
+
+@app.command()
+def delete_groups(  # noqa: PLR0912, PLR0913
+    ctx: typer.Context,
+    diagnostic: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Filter by diagnostic slug (substring match, case-insensitive)."
+            "Multiple values can be provided."
+        ),
+    ] = None,
+    provider: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Filter by provider slug (substring match, case-insensitive)."
+            "Multiple values can be provided."
+        ),
+    ] = None,
+    filter: Annotated[  # noqa: A002
+        list[str] | None,
+        typer.Option(
+            "--filter",
+            help="Filter by facet key=value pairs (exact match). Multiple filters can be provided.",
+        ),
+    ] = None,
+    successful: Annotated[
+        bool | None,
+        typer.Option(
+            "--successful/--not-successful",
+            help="Filter by successful or unsuccessful executions.",
+        ),
+    ] = None,
+    dirty: Annotated[
+        bool | None,
+        typer.Option(
+            "--dirty/--not-dirty",
+            help="Filter to include only dirty or clean execution groups."
+            "These execution groups will be re-computed on the next run.",
+        ),
+    ] = None,
+    remove_outputs: bool = typer.Option(
+        False, "--remove-outputs", help="Also remove output directories from the filesystem"
+    ),
+    force: bool = typer.Option(False, help="Skip confirmation prompt"),
+) -> None:
+    """
+    Delete execution groups matching the specified filters.
+
+    This command will delete execution groups and their associated executions.
+    Use filters to specify which groups to delete. At least one filter must be provided
+    to prevent accidental deletion of all groups.
+
+    Filters can be combined using AND logic across filter types and OR logic within a filter type.
+    """
+    session = ctx.obj.database.session
+    console = ctx.obj.console
+
+    # Parse facet filters
+    try:
+        facet_filters = parse_facet_filters(filter)
+    except ValueError as e:
+        logger.error(str(e))
+        raise typer.Exit(code=1)
+
+    if not any([diagnostic, provider, facet_filters, successful is not None, dirty is not None]):
+        logger.warning("THIS WILL DELETE ALL EXECUTION GROUPS IN THE DATABASE")
+        raise typer.Exit(code=1)
+
+    # Build filter options
+    filters = ListGroupsFilterOptions(
+        diagnostic=diagnostic,
+        provider=provider,
+        facets=facet_filters if facet_filters else None,
+    )
+    logger.debug(f"Applying filters: {filters}")
+
+    # Apply filters to query
+    try:
+        all_filtered_results = get_execution_group_and_latest_filtered(
+            session,
+            diagnostic_filters=filters.diagnostic,
+            provider_filters=filters.provider,
+            facet_filters=filters.facets,
+            successful=successful,
+            dirty=dirty,
+        )
+    except Exception as e:  # pragma: no cover
+        logger.error(f"Error applying filters: {e}")
+        raise typer.Exit(code=1)
+
+    # Check if any results found
+    if not all_filtered_results:
+        emit_no_results_warning(filters, session.query(ExecutionGroup).count())
+        return
+
+    # Convert to DataFrame for preview
+    results_df = pd.DataFrame(
+        [
+            {
+                "id": eg.id,
+                "key": eg.key,
+                "provider": eg.diagnostic.provider.slug,
+                "diagnostic": eg.diagnostic.slug,
+                "dirty": eg.dirty,
+                "successful": result.successful if result else None,
+                "created_at": eg.created_at,
+                "updated_at": eg.updated_at,
+                "selectors": json.dumps(eg.selectors),
+            }
+            for eg, result in all_filtered_results
+        ]
+    )
+
+    # Display preview
+    console.print("Execution groups to be deleted:")
+    pretty_print_df(results_df, console=console)
+
+    count = len(all_filtered_results)
+    console.print(f"\nWill delete {count} execution group(s).")
+
+    # Confirm unless force is set
+    if not force:
+        if not typer.confirm("Do you want to proceed with deletion?"):
+            console.print("Deletion cancelled.")
+            return
+
+    # Remove output directories if requested
+    if remove_outputs:
+        config = ctx.obj.config
+        for eg, _ in all_filtered_results:
+            for execution in eg.executions:
+                output_dir = config.paths.results / execution.output_fragment
+
+                # Safety check
+                if not output_dir.is_relative_to(config.paths.results):  # pragma: no cover
+                    logger.error(f"Skipping unsafe path: {output_dir}")
+                    continue
+
+                if output_dir.exists():
+                    try:
+                        logger.warning(f"Removing output directory: {output_dir}")
+                        shutil.rmtree(output_dir)
+                    except Exception as e:
+                        logger.error(f"Failed to remove {output_dir}: {e}")
+
+    # Delete execution groups and all related records
+    # TODO: Add cascade delete to FK relationships and simplify this code
+    with session.begin_nested() if session.in_transaction() else session.begin():
+        for eg, _ in all_filtered_results:
+            for execution in eg.executions:
+                # Delete MetricValues first
+                for metric_value in execution.values:
+                    session.delete(metric_value)
+
+                # Delete ExecutionOutputs
+                for output in execution.outputs:
+                    session.delete(output)
+
+                # Delete many-to-many associations with datasets
+                session.execute(
+                    execution_datasets.delete().where(execution_datasets.c.execution_id == execution.id)
+                )
+
+                # Now delete the execution
+                session.delete(execution)
+
+            # Finally delete the execution group
+            session.delete(eg)
+
+    if remove_outputs:
+        console.print(f"[green]Successfully deleted {count} execution group(s) and their output directories.")
+    else:
+        console.print(f"[green]Successfully deleted {count} execution group(s).")
 
 
 def walk_directory(directory: pathlib.Path, tree: Tree) -> None:

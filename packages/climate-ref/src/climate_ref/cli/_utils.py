@@ -85,7 +85,7 @@ def df_to_table(df: pd.DataFrame, max_col_count: int = -1) -> Table:
 
     table = Table(*[str(column) for column in df.columns])
 
-    for index, value_list in enumerate(df.values.tolist()):
+    for value_list in df.values.tolist():
         row = [str(x) for x in value_list]
         table.add_row(*row)
 
@@ -112,7 +112,7 @@ def pretty_print_df(df: pd.DataFrame, console: Console | None = None) -> None:
     # Drop duplicates as they are not informative to CLI users.
     df = df.drop_duplicates()
 
-    if console is None:
+    if console is None:  # pragma: no branch
         logger.debug("Creating new console for pretty printing")
         console = Console()
 

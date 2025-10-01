@@ -170,8 +170,9 @@ class TestListGroupsFiltering:
         assert "pmp" in result.stdout
         assert "esmvaltool" not in result.stdout
 
-    def test_filter_by_facet(self, db_with_groups, invoke_cli):
-        result = invoke_cli(["executions", "list-groups", "--filter", "source_id=GFDL-ESM4"])
+    @pytest.mark.parametrize("filter_arg", ["source_id=GFDL-ESM4", "cmip6.source_id=GFDL-ESM4"])
+    def test_filter_by_facet(self, db_with_groups, invoke_cli, filter_arg):
+        result = invoke_cli(["executions", "list-groups", "--filter", filter_arg])
         assert "key1" in result.stdout
         assert "key2" not in result.stdout
         assert "key3" not in result.stdout

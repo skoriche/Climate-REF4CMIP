@@ -1,5 +1,6 @@
 import datetime
 import pathlib
+from unittest.mock import patch
 
 import pytest
 from climate_ref_esmvaltool import provider as esmvaltool_provider
@@ -107,6 +108,7 @@ def db_with_groups(db_seeded):
             key="key6", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "ssp126"]]}
         )
         db_seeded.session.add(eg6)
+    db_seeded.session.commit()
     return db_seeded
 
 
@@ -306,6 +308,141 @@ class TestListGroupsFiltering:
         assert "key4" in result.stdout
         assert "key5" not in result.stdout
         assert "key6" in result.stdout
+
+
+class TestDeleteGroups:
+    def test_delete_groups_with_confirmation(self, db_with_groups, invoke_cli):
+        # Count before deletion
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+        assert "Execution groups to be deleted:" in result.stdout
+
+        # Verify deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count < initial_count
+
+    def test_delete_groups_cancellation(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Deletion cancelled." in result.stdout
+
+        # Verify no deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count == initial_count
+
+    def test_delete_groups_force_flag(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+        assert "Execution groups to be deleted:" in result.stdout
+
+        # Verify deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count < initial_count
+
+    def test_delete_groups_no_deletion_on_decline(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Deletion cancelled." in result.stdout
+
+        # Verify no deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count == initial_count
+
+    def test_delete_groups_filter_diagnostic(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_provider(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--provider", "pmp", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_facet(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--filter", "source_id=GFDL-ESM4", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_successful(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--successful", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_dirty(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--dirty", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_multiple_filters(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--provider",
+                    "pmp",
+                    "--filter",
+                    "source_id=GFDL-ESM4",
+                    "--force",
+                ]
+            )
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_no_filters_error(self, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups"], expected_exit_code=1)
+
+        assert "THIS WILL DELETE ALL EXECUTION GROUPS IN THE DATABASE" in result.stderr
+
+    def test_delete_groups_no_results_warning(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "delete-groups", "--filter", "source_id=NONEXISTENT", "--force"])
+
+        assert result.exit_code == 0
+        assert "No execution groups match the specified filters." in result.stderr
+
+    def test_delete_groups_cascade_deletes_executions(self, db_with_groups, invoke_cli):
+        # Get initial execution count
+        initial_exec_count = db_with_groups.session.query(Execution).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+
+        # Verify executions are also deleted
+        remaining_exec_count = db_with_groups.session.query(Execution).count()
+        assert remaining_exec_count < initial_exec_count
 
 
 class TestExecutionInspect:

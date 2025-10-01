@@ -185,6 +185,148 @@ def list_groups(  # noqa: PLR0913
         )
 
 
+@app.command()
+def delete_groups(  # noqa: PLR0913
+    ctx: typer.Context,
+    diagnostic: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Filter by diagnostic slug (substring match, case-insensitive)."
+            "Multiple values can be provided."
+        ),
+    ] = None,
+    provider: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Filter by provider slug (substring match, case-insensitive)."
+            "Multiple values can be provided."
+        ),
+    ] = None,
+    filter: Annotated[  # noqa: A002
+        list[str] | None,
+        typer.Option(
+            "--filter",
+            help="Filter by facet key=value pairs (exact match). Multiple filters can be provided.",
+        ),
+    ] = None,
+    successful: Annotated[
+        bool | None,
+        typer.Option(
+            "--successful/--not-successful",
+            help="Filter by successful or unsuccessful executions.",
+        ),
+    ] = None,
+    dirty: Annotated[
+        bool | None,
+        typer.Option(
+            "--dirty/--not-dirty",
+            help="Filter to include only dirty or clean execution groups."
+            "These execution groups will be re-computed on the next run.",
+        ),
+    ] = None,
+    force: bool = typer.Option(False, help="Skip confirmation prompt"),
+) -> None:
+    """
+    Delete execution groups matching the specified filters.
+
+    This command will delete execution groups and their associated executions.
+    Use filters to specify which groups to delete. At least one filter must be provided
+    to prevent accidental deletion of all groups.
+
+    Filters can be combined using AND logic across filter types and OR logic within a filter type.
+    """
+    session = ctx.obj.database.session
+    console = ctx.obj.console
+
+    # Parse facet filters
+    try:
+        facet_filters = parse_facet_filters(filter)
+    except ValueError as e:
+        logger.error(str(e))
+        raise typer.Exit(code=1)
+
+    if not any([diagnostic, provider, facet_filters, successful is not None, dirty is not None]):
+        logger.warning("THIS WILL DELETE ALL EXECUTION GROUPS IN THE DATABASE")
+        raise typer.Exit(code=1)
+
+    # Build filter options
+    filters = ListGroupsFilterOptions(
+        diagnostic=diagnostic,
+        provider=provider,
+        facets=facet_filters if facet_filters else None,
+    )
+    logger.debug(f"Applying filters: {filters}")
+
+    # Apply filters to query
+    try:
+        all_filtered_results = get_execution_group_and_latest_filtered(
+            session,
+            diagnostic_filters=filters.diagnostic,
+            provider_filters=filters.provider,
+            facet_filters=filters.facets,
+            successful=successful,
+            dirty=dirty,
+        )
+    except Exception as e:
+        logger.error(f"Error applying filters: {e}")
+        raise typer.Exit(code=1)
+
+    # Check if any results found
+    if not all_filtered_results:
+        emit_no_results_warning(filters, session.query(ExecutionGroup).count())
+        return
+
+    # Convert to DataFrame for preview
+    results_df = pd.DataFrame(
+        [
+            {
+                "id": eg.id,
+                "key": eg.key,
+                "provider": eg.diagnostic.provider.slug,
+                "diagnostic": eg.diagnostic.slug,
+                "dirty": eg.dirty,
+                "successful": result.successful if result else None,
+                "created_at": eg.created_at,
+                "updated_at": eg.updated_at,
+                "selectors": json.dumps(eg.selectors),
+            }
+            for eg, result in all_filtered_results
+        ]
+    )
+
+    # Display preview
+    console.print("Execution groups to be deleted:")
+    pretty_print_df(results_df, console=console)
+
+    count = len(all_filtered_results)
+    console.print(f"\nWill delete {count} execution group(s).")
+
+    # Confirm unless force is set
+    if not force:
+        if not typer.confirm("Do you want to proceed with deletion?"):
+            console.print("Deletion cancelled.")
+            return
+
+    # Delete in transaction
+    if session.in_transaction():
+        # Already in a transaction, use nested transaction
+        with session.begin_nested():
+            for eg, _ in all_filtered_results:
+                # Delete associated executions first to avoid foreign key constraint issues
+                for execution in eg.executions:
+                    session.delete(execution)
+                session.delete(eg)
+    else:
+        with session.begin():
+            for eg, _ in all_filtered_results:
+                # Delete associated executions first to avoid foreign key constraint issues
+                for execution in eg.executions:
+                    session.delete(execution)
+                session.delete(eg)
+
+    console.print(f"Successfully deleted {count} execution group(s).")
+
+
 def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
     """Recursively build a Tree with directory contents."""
     # Sort dirs first then by filename

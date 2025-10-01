@@ -15,7 +15,6 @@ from typing import Annotated
 
 import typer
 from loguru import logger
-from rich.console import Console
 
 from climate_ref.cli._utils import pretty_print_df
 from climate_ref.database import ModelState
@@ -28,7 +27,6 @@ from climate_ref_core.dataset_registry import dataset_registry_manager, fetch_al
 from climate_ref_core.datasets import SourceDatasetType
 
 app = typer.Typer(help=__doc__)
-console = Console()
 
 
 @app.command(name="list")
@@ -71,7 +69,7 @@ def list_(
             raise typer.Exit(code=1)
         data_catalog = data_catalog[column].sort_values(by=column)
 
-    pretty_print_df(data_catalog, console=console)
+    pretty_print_df(data_catalog, console=ctx.obj.console)
 
 
 @app.command()
@@ -119,6 +117,7 @@ def ingest(  # noqa
     """
     config = ctx.obj.config
     db = ctx.obj.database
+    console = ctx.obj.console
 
     kwargs = {}
 

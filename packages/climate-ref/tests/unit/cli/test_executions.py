@@ -1,11 +1,113 @@
 import datetime
 import pathlib
 
+import pytest
+from climate_ref_esmvaltool import provider as esmvaltool_provider
+from climate_ref_pmp import provider as pmp_provider
 from rich.console import Console
 
 from climate_ref.cli.executions import _results_directory_panel
 from climate_ref.models import Execution, ExecutionGroup
+from climate_ref.models.diagnostic import Diagnostic
 from climate_ref.models.execution import execution_datasets
+from climate_ref.provider_registry import _register_provider
+
+
+@pytest.fixture
+def db_with_groups(db_seeded):
+    """Fixture to set up a database with various execution groups for testing filters."""
+    with db_seeded.session.begin():
+        _register_provider(db_seeded, pmp_provider)
+        _register_provider(db_seeded, esmvaltool_provider)
+
+        # Diagnostic 1, Provider 1, Facets: source_id=GFDL-ESM4, variable_id=tas
+        diag_1 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="enso_tel").first()
+        )  # ENSO diagnostic from PMP
+        eg1 = ExecutionGroup(
+            key="key1",
+            diagnostic_id=diag_1.id,
+            selectors={"cmip6": [["source_id", "GFDL-ESM4"], ["variable_id", "tas"]]},
+        )
+        db_seeded.session.add(eg1)
+
+        # Diagnostic 2, Provider 1, Facets: source_id=ACCESS-ESM1-5, variable_id=pr
+        diag_2 = (
+            db_seeded.session.query(Diagnostic)
+            .filter_by(slug="extratropical-modes-of-variability-nao")
+            .first()
+        )  # Mode of variability diagnostic from PMP
+        eg2 = ExecutionGroup(
+            key="key2",
+            diagnostic_id=diag_2.id,
+            selectors={"cmip6": [["source_id", "ACCESS-ESM1-5"], ["variable_id", "pr"]]},
+        )
+        db_seeded.session.add(eg2)
+
+        # Diagnostic 1, Provider 2, Facets: source_id=CNRM-CM6-1, variable_id=tas
+        diag_3 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="enso-characteristics").first()
+        )  # ENSO diagnostic from ESMValTool
+        eg3 = ExecutionGroup(
+            key="key3",
+            diagnostic_id=diag_3.id,
+            selectors={"cmip6": [["source_id", "CNRM-CM6-1"], ["variable_id", "tas"]]},
+        )
+        db_seeded.session.add(eg3)
+
+        # Diagnostic 4, Provider 2, No specific facets (or different ones)
+        diag_4 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="sea-ice-area-basic").first()
+        )  # ENSO diagnostic from ESMValTool
+        eg4 = ExecutionGroup(
+            key="key4", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "historical"]]}
+        )
+        db_seeded.session.add(eg4)
+
+        # Add some executions to avoid "not-started" status
+        db_seeded.session.flush()
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg1.id, successful=True, output_fragment="out1", dataset_hash="hash1"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg2.id, successful=True, output_fragment="out2", dataset_hash="hash2"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg3.id, successful=False, output_fragment="out3", dataset_hash="hash3"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg4.id, successful=True, output_fragment="out4", dataset_hash="hash4"
+            )
+        )
+
+        # Add a dirty execution group
+        eg5 = ExecutionGroup(
+            key="key5",
+            diagnostic_id=diag_4.id,
+            selectors={"cmip6": [["experiment_id", "historical"]]},
+            dirty=True,
+        )
+        db_seeded.session.add(eg5)
+        db_seeded.session.flush()
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg5.id, successful=True, output_fragment="out5", dataset_hash="hash5"
+            )
+        )
+
+        # Add an execution group with no executions (not-started)
+        eg6 = ExecutionGroup(
+            key="key6", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "ssp126"]]}
+        )
+        db_seeded.session.add(eg6)
+    return db_seeded
 
 
 def test_execution_help(invoke_cli):
@@ -52,6 +154,158 @@ class TestExecutionList:
         invoke_cli(
             ["executions", "list-groups", "--column", "key", "--column", "missing"], expected_exit_code=1
         )
+
+
+class TestListGroupsFiltering:
+    def test_filter_by_diagnostic(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--diagnostic", "enso"])
+        assert "enso" in result.stdout
+        assert "extratropical-modes-of-variability-nao" not in result.stdout
+        assert "sea-ice-area-basic" not in result.stdout
+
+    def test_filter_by_provider(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--provider", "pmp"])
+
+        print(result.stdout)
+        assert "pmp" in result.stdout
+        assert "esmvaltool" not in result.stdout
+
+    @pytest.mark.parametrize("filter_arg", ["source_id=GFDL-ESM4", "cmip6.source_id=GFDL-ESM4"])
+    def test_filter_by_facet(self, db_with_groups, invoke_cli, filter_arg):
+        result = invoke_cli(["executions", "list-groups", "--filter", filter_arg])
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+
+    def test_filter_combined(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--diagnostic",
+                "enso",
+                "--provider",
+                "pmp",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "variable_id=tas",
+            ]
+        )
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+
+    def test_filter_multiple_diagnostic_or(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--diagnostic",
+                "enso",
+                "--diagnostic",
+                "extratropical-modes-of-variability-nao",
+            ]
+        )
+        assert "enso" in result.stdout
+        assert "extratropical-modes-of-variability-nao" in result.stdout
+        assert "sea-ice-area-basic" not in result.stdout
+
+    def test_filter_multiple_provider_or(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--provider", "pmp", "--provider", "esmvaltool"])
+        assert "pmp" in result.stdout
+        assert "esmvaltool" in result.stdout
+
+    def test_filter_multiple_facet_and(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "variable_id=tas",
+            ]
+        )
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+
+    def test_filter_invalid_syntax(self, invoke_cli):
+        result = invoke_cli(
+            ["executions", "list-groups", "--filter", "invalid_no_equals"], expected_exit_code=1
+        )
+        assert "Invalid filter format" in result.stderr
+
+    def test_filter_empty_results_warning(self, db_with_groups, invoke_cli):
+        # Warn if no results after filtering
+        result = invoke_cli(["executions", "list-groups", "--filter", "source_id=NONEXISTENT"])
+        assert "No execution groups match the specified filters." in result.stderr
+        assert "Total execution groups in database:" in result.stderr
+        assert "Applied filters: facet filters: ['source_id=NONEXISTENT']" in result.stderr
+        assert "id" in result.stdout  # Ensure empty table headers are still printed
+
+    def test_facet_warning_multiple_same_key(self, db_with_groups, invoke_cli):
+        # This functionality might be useful in future, but not today
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "source_id=ACCESS-ESM1-5",
+            ]
+        )
+        assert (
+            "Filter key 'source_id' specified multiple times. Using last value: 'ACCESS-ESM1-5'"
+            in result.stderr
+        )
+        assert "ACCESS-ESM1-5" in result.stdout
+        assert "GFDL-ESM4" not in result.stdout
+
+    def test_filter_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--successful"])
+        # Should include key1, key2, key4, key5 (successful=True),
+        # exclude key3 (successful=False), exclude key6 (no executions)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-successful"])
+        # Should include key3 (successful=False) and key6 (no executions), exclude successful ones
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
+
+    def test_filter_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--dirty"])
+        # Should include key5 (dirty=True), exclude others (dirty=False by default)
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-dirty"])
+        # Should include key1, key2, key3, key4, key6 (dirty=False), exclude key5 (dirty=True)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
 
 
 class TestExecutionInspect:

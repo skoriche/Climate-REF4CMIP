@@ -173,7 +173,7 @@ def config(tmp_path, monkeypatch, request) -> Config:
 
 
 @pytest.fixture
-def invoke_cli():
+def invoke_cli(monkeypatch):
     """
     Invoke the CLI with the given arguments and verify the exit code
     """
@@ -184,6 +184,10 @@ def invoke_cli():
     runner = CliRunner(mix_stderr=False)
 
     def _invoke_cli(args: list[str], expected_exit_code: int = 0, always_log: bool = False) -> Result:
+        # Disable color output for testing
+        monkeypatch.setenv("NO_COLOR", "1")
+        monkeypatch.setenv("COLUMNS", "200")
+
         result = runner.invoke(
             app=cli.app,
             args=args,
@@ -277,7 +281,7 @@ def definition_factory(tmp_path: Path, config):
             diagnostic=diagnostic,
             key="key",
             datasets=execution_dataset_collection,
-            root_directory=config.paths.scratch,
+            root_directory=config.paths.scratch,  # type: ignore
             output_directory=config.paths.scratch / "output_fragment",
         )
 

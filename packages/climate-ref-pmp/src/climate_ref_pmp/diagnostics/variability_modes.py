@@ -1,3 +1,4 @@
+import json
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Union
@@ -215,8 +216,6 @@ def clean_up_json(json_file: Union[str, Path]) -> None:
     json_file : str or Path
         Path to the JSON file to clean up.
     """
-    import json
-
     with open(str(json_file)) as f:
         data = json.load(f)
 

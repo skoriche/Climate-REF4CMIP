@@ -4,14 +4,13 @@ import pytest
 from loguru import logger
 
 from climate_ref_core.diagnostics import ExecutionDefinition
-from climate_ref_core.logging import capture_logging, redirect_logs
+from climate_ref_core.logging import EXECUTION_LOG_FILENAME, capture_logging, redirect_logs
 
 
 @pytest.fixture
 def definition(mocker, tmp_path):
     d = mocker.MagicMock(spec=ExecutionDefinition)
     d.output_directory = tmp_path / "output"
-    from climate_ref_core.logging import EXECUTION_LOG_FILENAME
 
     return d, d.output_directory / EXECUTION_LOG_FILENAME
 
@@ -67,9 +66,7 @@ def test_redirect_logs_stdlog_captured(definition):
     definition, output_file = definition
 
     with redirect_logs(definition, "INFO"):
-        import logging
-
-        stdlog = logging.getLogger("stdlog")
+        stdlog = std_logging.getLogger("stdlog")
         stdlog.info("stdlog inner")
         stdlog.debug("stdlog debug")
 
@@ -80,13 +77,13 @@ def test_redirect_logs_stdlog_captured(definition):
 def test_redirect_logs_exception(definition, caplog):
     log_level = "DEBUG"
 
-    orig_handler = logger.default_handler_id
+    orig_handler = logger.default_handler_id  # type: ignore
 
     with pytest.raises(ValueError):
         with redirect_logs(definition[0], log_level):
             logger.debug("This will raise an exception")
             raise ValueError()
 
-    assert orig_handler != logger.default_handler_id, (
+    assert orig_handler != logger.default_handler_id, (  # type: ignore
         "The default handler should have changed during the redirect and cleanup."
     )

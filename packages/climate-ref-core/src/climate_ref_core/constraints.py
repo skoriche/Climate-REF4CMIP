@@ -267,7 +267,7 @@ class AddSupplementaryDataset:
 
 @frozen
 @total_ordering
-class PartialDateTime:
+class PartialDateTime:  # noqa: PLW1641
     """
     A partial datetime object that can be used to compare datetimes.
 

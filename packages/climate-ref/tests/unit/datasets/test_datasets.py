@@ -11,6 +11,7 @@ from climate_ref.datasets.base import DatasetAdapter
 from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
 from climate_ref.models.dataset import CMIP6Dataset, DatasetFile
 from climate_ref_core.datasets import SourceDatasetType
+from climate_ref_core.exceptions import RefException
 
 
 class MockDatasetAdapter(DatasetAdapter):
@@ -58,10 +59,10 @@ def test_validate_data_catalog_extra_columns():
 def test_validate_data_catalog_missing_columns():
     adapter = MockDatasetAdapter()
     data_catalog = adapter.find_local_datasets(Path("path/to/dataset"))
-    with pytest.raises(ValueError, match="Data catalog is missing required columns: {'source_id'}"):
+    with pytest.raises(ValueError, match=r"Data catalog is missing required columns: {'source_id'}"):
         adapter.validate_data_catalog(data_catalog.drop(columns=["source_id"]))
 
-    with pytest.raises(ValueError, match="Data catalog is missing required columns: {'path'}"):
+    with pytest.raises(ValueError, match=r"Data catalog is missing required columns: {'path'}"):
         adapter.validate_data_catalog(data_catalog.drop(columns=["path"]))
 
 
@@ -328,8 +329,6 @@ def test_register_dataset_multiple_datasets_error(monkeypatch, test_db):
         ],
         ignore_index=True,
     )
-
-    from climate_ref_core.exceptions import RefException
 
     with pytest.raises(RefException, match="Found multiple datasets in the same directory"):
         with db.session.begin():

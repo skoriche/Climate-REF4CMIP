@@ -228,7 +228,7 @@ class TestFetchObs4REFData:
         )
 
     def test_fetch_missing(self, mock_obs4ref, invoke_cli, tmp_path):
-        mock_data_registry, mock_fetch = mock_obs4ref
+        mock_data_registry, _mock_fetch = mock_obs4ref
         mock_data_registry.__getitem__.side_effect = KeyError
 
         invoke_cli(["datasets", "fetch-data", "--registry", "missing"], expected_exit_code=1)

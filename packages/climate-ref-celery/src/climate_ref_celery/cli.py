@@ -150,7 +150,7 @@ def start_worker(
             queues.append(provider_instance.slug)
     else:
         # This might need some tweaking in later PRs to pull in the appropriate tasks
-        import climate_ref_celery.worker_tasks  # noqa: F401
+        import climate_ref_celery.worker_tasks  # noqa: F401, PLC0415
 
         queues.append("celery")
 

@@ -353,7 +353,7 @@ class ExecutionSolver:
                 yield from solve_executions(self.data_catalog, diagnostic, provider)
 
 
-def solve_required_executions(  # noqa: PLR0913
+def solve_required_executions(  # noqa: PLR0912, PLR0913
     db: Database,
     dry_run: bool = False,
     execute: bool = True,
@@ -471,5 +471,14 @@ def solve_required_executions(  # noqa: PLR0913
 
                 provider_count[diagnostic.provider.slug] += 1
                 diagnostic_count[diagnostic.full_slug()] += 1
+
+    logger.info("Solve complete")
+    logger.info(f"Found {sum(diagnostic_count.values())} new executions")
+    for diag, count in diagnostic_count.items():
+        logger.info(f"  {diag}: {count} new executions")
+    for prov, count in provider_count.items():
+        logger.info(f"  {prov}: {count} new executions")
+
     if timeout > 0:
         executor.join(timeout=timeout)
+        logger.info("All executions complete")

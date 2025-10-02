@@ -154,6 +154,8 @@ def _process_execution_series(
                 "execution_id": execution.id,
                 "values": series_result.values,
                 "attributes": series_result.attributes,
+                "index": series_result.index,
+                "index_name": series_result.index_name,
                 **series_result.dimensions,
             }
             for series_result in series_values
@@ -304,12 +306,13 @@ def _handle_outputs(
             filename,
         )
         database.session.add(
-            ExecutionOutput(
+            ExecutionOutput.build(
                 execution_id=execution.id,
                 output_type=output_type,
                 filename=str(filename),
                 description=output_info.description,
                 short_name=key,
                 long_name=output_info.long_name,
+                dimensions=output_info.dimensions or {},
             )
         )

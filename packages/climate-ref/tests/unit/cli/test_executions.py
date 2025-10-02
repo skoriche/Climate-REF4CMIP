@@ -1,11 +1,118 @@
 import datetime
 import pathlib
+from unittest.mock import patch
 
+import pytest
+from climate_ref_esmvaltool import provider as esmvaltool_provider
+from climate_ref_pmp import provider as pmp_provider
 from rich.console import Console
 
 from climate_ref.cli.executions import _results_directory_panel
 from climate_ref.models import Execution, ExecutionGroup
-from climate_ref.models.execution import execution_datasets
+from climate_ref.models.dataset import CMIP6Dataset
+from climate_ref.models.diagnostic import Diagnostic
+from climate_ref.models.execution import ExecutionOutput, ResultOutputType, execution_datasets
+from climate_ref.models.metric_value import ScalarMetricValue
+from climate_ref.provider_registry import _register_provider
+from climate_ref_core.datasets import SourceDatasetType
+
+
+@pytest.fixture
+def db_with_groups(db_seeded):
+    """Fixture to set up a database with various execution groups for testing filters."""
+    with db_seeded.session.begin():
+        _register_provider(db_seeded, pmp_provider)
+        _register_provider(db_seeded, esmvaltool_provider)
+
+        # Diagnostic 1, Provider 1, Facets: source_id=GFDL-ESM4, variable_id=tas
+        diag_1 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="enso_tel").first()
+        )  # ENSO diagnostic from PMP
+        eg1 = ExecutionGroup(
+            key="key1",
+            diagnostic_id=diag_1.id,
+            selectors={"cmip6": [["source_id", "GFDL-ESM4"], ["variable_id", "tas"]]},
+        )
+        db_seeded.session.add(eg1)
+
+        # Diagnostic 2, Provider 1, Facets: source_id=ACCESS-ESM1-5, variable_id=pr
+        diag_2 = (
+            db_seeded.session.query(Diagnostic)
+            .filter_by(slug="extratropical-modes-of-variability-nao")
+            .first()
+        )  # Mode of variability diagnostic from PMP
+        eg2 = ExecutionGroup(
+            key="key2",
+            diagnostic_id=diag_2.id,
+            selectors={"cmip6": [["source_id", "ACCESS-ESM1-5"], ["variable_id", "pr"]]},
+        )
+        db_seeded.session.add(eg2)
+
+        # Diagnostic 1, Provider 2, Facets: source_id=CNRM-CM6-1, variable_id=tas
+        diag_3 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="enso-characteristics").first()
+        )  # ENSO diagnostic from ESMValTool
+        eg3 = ExecutionGroup(
+            key="key3",
+            diagnostic_id=diag_3.id,
+            selectors={"cmip6": [["source_id", "CNRM-CM6-1"], ["variable_id", "tas"]]},
+        )
+        db_seeded.session.add(eg3)
+
+        # Diagnostic 4, Provider 2, No specific facets (or different ones)
+        diag_4 = (
+            db_seeded.session.query(Diagnostic).filter_by(slug="sea-ice-area-basic").first()
+        )  # ENSO diagnostic from ESMValTool
+        eg4 = ExecutionGroup(
+            key="key4", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "historical"]]}
+        )
+        db_seeded.session.add(eg4)
+
+        # Add some executions to avoid "not-started" status
+        db_seeded.session.flush()
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg1.id, successful=True, output_fragment="out1", dataset_hash="hash1"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg2.id, successful=True, output_fragment="out2", dataset_hash="hash2"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg3.id, successful=False, output_fragment="out3", dataset_hash="hash3"
+            )
+        )
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg4.id, successful=True, output_fragment="out4", dataset_hash="hash4"
+            )
+        )
+
+        # Add a dirty execution group
+        eg5 = ExecutionGroup(
+            key="key5",
+            diagnostic_id=diag_4.id,
+            selectors={"cmip6": [["experiment_id", "historical"]]},
+            dirty=True,
+        )
+        db_seeded.session.add(eg5)
+        db_seeded.session.flush()
+        db_seeded.session.add(
+            Execution(
+                execution_group_id=eg5.id, successful=True, output_fragment="out5", dataset_hash="hash5"
+            )
+        )
+
+        # Add an execution group with no executions (not-started)
+        eg6 = ExecutionGroup(
+            key="key6", diagnostic_id=diag_4.id, selectors={"cmip6": [["experiment_id", "ssp126"]]}
+        )
+        db_seeded.session.add(eg6)
+    db_seeded.session.commit()
+    return db_seeded
 
 
 def test_execution_help(invoke_cli):
@@ -52,6 +159,550 @@ class TestExecutionList:
         invoke_cli(
             ["executions", "list-groups", "--column", "key", "--column", "missing"], expected_exit_code=1
         )
+
+
+class TestListGroupsFiltering:
+    def test_filter_by_diagnostic(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--diagnostic", "enso"])
+        assert "enso" in result.stdout
+        assert "extratropical-modes-of-variability-nao" not in result.stdout
+        assert "sea-ice-area-basic" not in result.stdout
+
+    def test_filter_by_provider(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--provider", "pmp"])
+
+        assert "pmp" in result.stdout
+        assert "esmvaltool" not in result.stdout
+
+    @pytest.mark.parametrize("filter_arg", ["source_id=GFDL-ESM4", "cmip6.source_id=GFDL-ESM4"])
+    def test_filter_by_facet(self, db_with_groups, invoke_cli, filter_arg):
+        result = invoke_cli(["executions", "list-groups", "--filter", filter_arg])
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+
+    def test_filter_combined(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--diagnostic",
+                "enso",
+                "--provider",
+                "pmp",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "variable_id=tas",
+            ]
+        )
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+
+    def test_filter_multiple_diagnostic_or(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--diagnostic",
+                "enso",
+                "--diagnostic",
+                "extratropical-modes-of-variability-nao",
+            ]
+        )
+
+        assert "enso" in result.stdout
+        assert "extratropical-modes-of-variability-nao" in result.stdout
+        assert "sea-ice-area-basic" not in result.stdout
+
+    def test_filter_multiple_provider_or(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--provider", "pmp", "--provider", "esmvaltool"])
+        assert "pmp" in result.stdout
+        assert "esmvaltool" in result.stdout
+
+    def test_filter_multiple_facet_and(self, db_with_groups, invoke_cli):
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "variable_id=tas",
+            ]
+        )
+        assert "key1" in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+
+    def test_filter_invalid_syntax(self, invoke_cli):
+        result = invoke_cli(
+            ["executions", "list-groups", "--filter", "invalid_no_equals"], expected_exit_code=1
+        )
+        assert "Invalid filter format" in result.stderr
+
+    def test_filter_empty_results_warning(self, db_with_groups, invoke_cli):
+        # Warn if no results after filtering
+        result = invoke_cli(["executions", "list-groups", "--filter", "source_id=NONEXISTENT"])
+        assert "No execution groups match the specified filters." in result.stderr
+        assert "Total execution groups in database:" in result.stderr
+        assert "Applied filters: facet filters: ['source_id=NONEXISTENT']" in result.stderr
+        assert "id" in result.stdout  # Ensure empty table headers are still printed
+
+    def test_facet_warning_multiple_same_key(self, db_with_groups, invoke_cli):
+        # This functionality might be useful in future, but not today
+        result = invoke_cli(
+            [
+                "executions",
+                "list-groups",
+                "--filter",
+                "source_id=GFDL-ESM4",
+                "--filter",
+                "source_id=ACCESS-ESM1-5",
+            ]
+        )
+        assert (
+            "Filter key 'source_id' specified multiple times. Using last value: 'ACCESS-ESM1-5'"
+            in result.stderr
+        )
+        assert "ACCESS-ESM1-5" in result.stdout
+        assert "GFDL-ESM4" not in result.stdout
+
+    def test_filter_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--successful"])
+        # Should include key1, key2, key4, key5 (successful=True),
+        # exclude key3 (successful=False), exclude key6 (no executions)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_successful(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-successful"])
+        # Should include key3 (successful=False) and key6 (no executions), exclude successful ones
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
+
+    def test_filter_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--dirty"])
+        # Should include key5 (dirty=True), exclude others (dirty=False by default)
+        assert "key1" not in result.stdout
+        assert "key2" not in result.stdout
+        assert "key3" not in result.stdout
+        assert "key4" not in result.stdout
+        assert "key5" in result.stdout
+        assert "key6" not in result.stdout
+
+    def test_filter_not_dirty(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "list-groups", "--not-dirty"])
+        # Should include key1, key2, key3, key4, key6 (dirty=False), exclude key5 (dirty=True)
+        assert "key1" in result.stdout
+        assert "key2" in result.stdout
+        assert "key3" in result.stdout
+        assert "key4" in result.stdout
+        assert "key5" not in result.stdout
+        assert "key6" in result.stdout
+
+
+class TestDeleteGroups:
+    def test_delete_groups_with_confirmation(self, db_with_groups, invoke_cli):
+        # Count before deletion
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+        assert "Execution groups to be deleted:" in result.stdout
+
+        # Verify deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count < initial_count
+
+    def test_delete_groups_cancellation(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Deletion cancelled." in result.stdout
+
+        # Verify no deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count == initial_count
+
+    def test_delete_groups_force_flag(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+        assert "Execution groups to be deleted:" in result.stdout
+
+        # Verify deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count < initial_count
+
+    def test_delete_groups_no_deletion_on_decline(self, db_with_groups, invoke_cli):
+        initial_count = db_with_groups.session.query(ExecutionGroup).count()
+
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso"])
+
+        assert result.exit_code == 0
+        assert "Deletion cancelled." in result.stdout
+
+        # Verify no deletion
+        remaining_count = db_with_groups.session.query(ExecutionGroup).count()
+        assert remaining_count == initial_count
+
+    def test_delete_groups_filter_diagnostic(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_provider(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--provider", "pmp", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_facet(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--filter", "source_id=GFDL-ESM4", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_successful(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--successful", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_filter_dirty(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--dirty", "--force"])
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_multiple_filters(self, db_with_groups, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--provider",
+                    "pmp",
+                    "--filter",
+                    "source_id=GFDL-ESM4",
+                    "--force",
+                ]
+            )
+
+        assert result.exit_code == 0
+        assert "Successfully deleted" in result.stdout
+
+    def test_delete_groups_no_filters_error(self, invoke_cli):
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=False):
+            result = invoke_cli(["executions", "delete-groups"], expected_exit_code=1)
+
+        assert "THIS WILL DELETE ALL EXECUTION GROUPS IN THE DATABASE" in result.stderr
+
+    def test_delete_groups_no_results_warning(self, db_with_groups, invoke_cli):
+        result = invoke_cli(["executions", "delete-groups", "--filter", "source_id=NONEXISTENT", "--force"])
+
+        assert result.exit_code == 0
+        assert "No execution groups match the specified filters." in result.stderr
+
+    def test_delete_groups_cascade_deletes_all_related_models(self, db_with_groups, invoke_cli):
+        """Test that delete-groups properly deletes ExecutionGroups, Executions,
+        ExecutionOutputs, MetricValues, and execution_datasets associations."""
+
+        # Get the execution groups that match "enso" diagnostic (eg1 and eg3)
+        enso_groups = [
+            eg
+            for eg in db_with_groups.session.query(ExecutionGroup).all()
+            if "enso" in eg.diagnostic.slug.lower()
+        ]
+
+        # Count datasets before creating a new one (db_seeded has existing datasets)
+        initial_dataset_count_before_test = db_with_groups.session.query(CMIP6Dataset).count()
+
+        # Create a shared Dataset for associations
+        with db_with_groups.session.begin_nested():
+            dataset = CMIP6Dataset(
+                slug="test-cmip6-dataset",
+                dataset_type=SourceDatasetType.CMIP6,
+                activity_id="CMIP",
+                experiment_id="historical",
+                institution_id="TEST",
+                source_id="TEST-MODEL",
+                member_id="r1i1p1f1",
+                table_id="Amon",
+                variable_id="tas",
+                grid_label="gn",
+                version="v20200101",
+                instance_id="CMIP.TEST.TEST-MODEL.historical.Amon.gn",
+                variant_label="r1i1p1f1",
+            )
+            db_with_groups.session.add(dataset)
+            db_with_groups.session.flush()
+
+            # Add ExecutionOutputs, MetricValues, and Dataset associations
+            for eg in enso_groups:
+                for execution in eg.executions:
+                    # Add ExecutionOutput
+                    output = ExecutionOutput(
+                        execution_id=execution.id,
+                        output_type=ResultOutputType.Plot,
+                        filename="test_plot.png",
+                    )
+                    db_with_groups.session.add(output)
+
+                    # Add MetricValue
+                    metric_value = ScalarMetricValue(
+                        execution_id=execution.id,
+                        value=42.0,
+                        attributes={"test_attr": "test_value"},
+                    )
+                    db_with_groups.session.add(metric_value)
+
+                    # Add Dataset association
+                    execution.datasets.append(dataset)
+
+        db_with_groups.session.commit()
+
+        # Get initial counts before deletion
+        initial_exec_count = db_with_groups.session.query(Execution).count()
+        initial_output_count = db_with_groups.session.query(ExecutionOutput).count()
+        initial_metric_count = db_with_groups.session.query(ScalarMetricValue).count()
+        initial_dataset_count = db_with_groups.session.query(CMIP6Dataset).count()
+
+        # Count execution_datasets associations before deletion
+        initial_assoc_count = len(db_with_groups.session.execute(execution_datasets.select()).fetchall())
+
+        # Verify we have created the related models
+        assert initial_output_count > 0, "Should have ExecutionOutputs"
+        assert initial_metric_count > 0, "Should have MetricValues"
+        assert initial_assoc_count > 0, "Should have execution_datasets associations"
+        assert initial_dataset_count == initial_dataset_count_before_test + 1, (
+            "Should have one more dataset than before"
+        )
+
+        # Perform deletion
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        assert result.exit_code == 0
+
+        # Verify executions are deleted
+        remaining_exec_count = db_with_groups.session.query(Execution).count()
+        assert remaining_exec_count < initial_exec_count, "Executions should be deleted"
+
+        # Verify ExecutionOutputs are deleted
+        remaining_output_count = db_with_groups.session.query(ExecutionOutput).count()
+        assert remaining_output_count < initial_output_count, "ExecutionOutputs should be deleted"
+
+        # Verify MetricValues are deleted
+        remaining_metric_count = db_with_groups.session.query(ScalarMetricValue).count()
+        assert remaining_metric_count < initial_metric_count, "MetricValues should be deleted"
+
+        # Verify execution_datasets associations are deleted
+        remaining_assoc_count = len(db_with_groups.session.execute(execution_datasets.select()).fetchall())
+        assert remaining_assoc_count < initial_assoc_count, (
+            "execution_datasets associations should be deleted"
+        )
+
+        # Verify Datasets themselves are NOT deleted (just the association)
+        remaining_dataset_count = db_with_groups.session.query(CMIP6Dataset).count()
+        assert remaining_dataset_count == initial_dataset_count, (
+            "Datasets should still exist (only associations removed)"
+        )
+
+    def test_delete_groups_removes_outputs(self, db_with_groups, tmp_path, invoke_cli, config):
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Run command with --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--remove-outputs",
+                    "--force",
+                ]
+            )
+
+        # Assert success
+        assert result.exit_code == 0
+
+        # Verify output directory was removed
+        assert not output_dir.exists()
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify success message includes output directories
+        assert "and their output directories" in result.stdout
+
+    def test_delete_groups_without_remove_outputs_flag(self, db_with_groups, tmp_path, invoke_cli, config):
+        """Test that output directories are NOT removed when --remove-outputs flag is omitted"""
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Run command WITHOUT --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(["executions", "delete-groups", "--diagnostic", "enso", "--force"])
+
+        # Assert success
+        assert result.exit_code == 0
+
+        # Verify output directory still exists
+        assert output_dir.exists()
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify success message does NOT include output directories
+        assert "and their output directories" not in result.stdout
+
+    def test_delete_groups_remove_outputs_nonexistent_directory(
+        self, db_with_groups, tmp_path, invoke_cli, config
+    ):
+        """Test graceful handling when output directory doesn't exist"""
+        # Create results path but not the output directories
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Get execution with output_fragment (directories don't exist)
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+
+        # Verify directory does NOT exist
+        assert not output_dir.exists()
+
+        # Run command with --remove-outputs
+        with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+            result = invoke_cli(
+                [
+                    "executions",
+                    "delete-groups",
+                    "--diagnostic",
+                    "enso",
+                    "--remove-outputs",
+                    "--force",
+                ]
+            )
+
+        # Assert success (no errors for missing directories)
+        assert result.exit_code == 0
+
+        # Verify database records deleted (only enso diagnostics: eg1 and eg3)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+    def test_delete_groups_remove_outputs_filesystem_error(
+        self, db_with_groups, tmp_path, invoke_cli, config
+    ):
+        """Test error handling for filesystem failures during output removal"""
+        # Create actual output directories in tmp_path
+        results_path = tmp_path / "results"
+        results_path.mkdir()
+
+        # Mock config.paths.results to use tmp_path
+        config.paths.results = results_path
+        config.save()
+
+        # Create execution and its output directory
+        eg = db_with_groups.session.query(ExecutionGroup).first()
+        execution = eg.executions[0]
+        output_dir = results_path / execution.output_fragment
+        output_dir.mkdir(parents=True)
+
+        # Verify directory exists before deletion
+        assert output_dir.exists()
+
+        # Mock shutil.rmtree to raise an exception
+        with patch("shutil.rmtree", side_effect=OSError("Permission denied")):
+            with patch("climate_ref.cli.executions.typer.confirm", return_value=True):
+                result = invoke_cli(
+                    [
+                        "executions",
+                        "delete-groups",
+                        "--diagnostic",
+                        "enso",
+                        "--remove-outputs",
+                        "--force",
+                    ]
+                )
+
+        # Assert success (command should not fail due to filesystem error)
+        assert result.exit_code == 0
+
+        # Verify database records are still deleted despite filesystem error (only enso diagnostics)
+        # Remaining: eg2, eg4, eg5, eg6 = 4 groups
+        assert db_with_groups.session.query(ExecutionGroup).count() == 4
+
+        # Verify output directory still exists (since rmtree failed)
+        assert output_dir.exists()
 
 
 class TestExecutionInspect:

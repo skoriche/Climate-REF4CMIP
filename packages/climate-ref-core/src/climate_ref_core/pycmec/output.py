@@ -44,6 +44,10 @@ class OutputCV(Enum):
     OBSDATA = "obsdata"
     LOG = "log"
 
+    # REF-specific additions
+    # These are not part of the CMEC standard
+    DIMENSIONS = "dimensions"
+
 
 class OutputProvenance(BaseModel):
     """CMEC output bundle provenance object"""
@@ -81,6 +85,14 @@ class OutputDict(BaseModel):
     filename: str  # Filename of plot produced (relative to output directory path)
     long_name: str  # Human readable name describing the plot
     description: str  # Description of what is depicted in the plot
+
+    dimensions: dict[str, str] | None = None
+    """
+    Dimensions associated with this output
+
+    These dimensions can be used to filter the output for given sources/experiments/variables etc.
+    They should match the controlled vocabulary dimensions defined in the system.
+    """
 
     model_config = ConfigDict(strict=True, extra="allow")
 

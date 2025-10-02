@@ -136,6 +136,8 @@ def test_handle_execution_result_with_series(
     assert series[0].type == MetricValueType.SERIES
     assert series[0].dimensions == {"source_id": "test1"}
     assert series[0].values == [1.0, 2.0, 3.0]
+    assert series[0].index == [0, 1, 2]
+    assert series[0].index_name == "time"
     assert series[0].attributes == {"attr": "value1"}
 
 
@@ -184,7 +186,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
     mock_definition.to_output_path("index.html").touch()
 
     mock_result_output = mocker.patch(
-        "climate_ref.executor.result_handling.ExecutionOutput", spec=ExecutionOutput
+        "climate_ref.executor.result_handling.ExecutionOutput.build", spec=ExecutionOutput
     )
 
     handle_execution_result(config, db, mock_execution_result, result)
@@ -197,6 +199,7 @@ def test_handle_execution_result_with_files(config, mock_execution_result, mocke
         short_name="index",
         long_name="",
         description="Landing page",
+        dimensions={},
     )
     db.session.add.assert_called_with(mock_result_output.return_value)
 
@@ -215,7 +218,7 @@ def test_handle_execution_result_missing_file(config, db, mock_execution_result,
     )
 
     with pytest.raises(
-        FileNotFoundError, match="Could not find diagnostic.json in .*/scratch/output_fragment"
+        FileNotFoundError, match=r"Could not find diagnostic.json in .*/scratch/output_fragment"
     ):
         handle_execution_result(config, db, mock_execution_result, result)
 

@@ -27,10 +27,6 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
     slug = "transient-climate-response-emissions"
     base_recipe = "recipe_tcre.yml"
 
-    experiments = (
-        "esm-1pctCO2",
-        "esm-piControl",
-    )
     variables = (
         "tas",
         "fco2antt",
@@ -42,30 +38,31 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
                 FacetFilter(
                     facets={
                         "variable_id": variables,
-                        "experiment_id": experiments,
+                        "experiment_id": "esm-1pctCO2",
                         "table_id": "Amon",
                     },
                 ),
                 FacetFilter(
                     facets={
-                        "variable_id": "fco2antt",
+                        "variable_id": "tas",
                         "experiment_id": "esm-piControl",
                         "table_id": "Amon",
                     },
-                    keep=False,
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("experiment_id", experiments),
-                RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
+                RequireFacets("experiment_id", ("esm-1pctCO2", "esm-piControl")),
+                RequireFacets("variable_id", variables),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    # TODO: the ESMValTool diagnostic script does not save the data for the timeseries.
+    series = tuple()
 
     @staticmethod
     def update_recipe(

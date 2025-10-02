@@ -10,14 +10,14 @@ class SlurmChecker:
 
     def __init__(self, intest: bool = False) -> None:
         if HAS_REAL_SLURM:
-            import pyslurm  # type: ignore
+            import pyslurm  # type: ignore # noqa: PLC0415
 
             self.slurm_association: dict[int, Any] | None = pyslurm.db.Associations.load()
             self.slurm_partition: dict[str, Any] | None = pyslurm.Partitions.load()
             self.slurm_qos: dict[str, Any] | None = pyslurm.qos().get()
             self.slurm_node: dict[str, Any] | None = pyslurm.Nodes.load()
         elif intest:
-            import pyslurm
+            import pyslurm  # noqa: PLC0415
 
             self.slurm_association = pyslurm.db.Associations.load()  # dict [num -> Association]
             self.slurm_partition = pyslurm.Partitions.load()  # collection

@@ -25,15 +25,15 @@ def get_dataset_adapter(source_type: str, **kwargs: Any) -> "DatasetAdapter":
         DatasetAdapter instance
     """
     if source_type.lower() == SourceDatasetType.CMIP6.value:
-        from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter
+        from climate_ref.datasets.cmip6 import CMIP6DatasetAdapter  # noqa: PLC0415
 
         return CMIP6DatasetAdapter(**kwargs)
     elif source_type.lower() == SourceDatasetType.obs4MIPs.value.lower():
-        from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter
+        from climate_ref.datasets.obs4mips import Obs4MIPsDatasetAdapter  # noqa: PLC0415
 
         return Obs4MIPsDatasetAdapter(**kwargs)
     elif source_type.lower() == SourceDatasetType.PMPClimatology.value.lower():
-        from climate_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter
+        from climate_ref.datasets.pmp_climatology import PMPClimatologyDatasetAdapter  # noqa: PLC0415
 
         return PMPClimatologyDatasetAdapter(**kwargs)
     else:

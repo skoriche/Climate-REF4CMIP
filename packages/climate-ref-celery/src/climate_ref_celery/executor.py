@@ -69,7 +69,7 @@ class CeleryExecutor(Executor):
             If provided, it will be updated with the executions of the execution.
             This may happen asynchronously, so the executions may not be immediately available.
         """
-        from climate_ref_celery.worker_tasks import handle_result
+        from climate_ref_celery.worker_tasks import handle_result  # noqa: PLC0415
 
         diagnostic = definition.diagnostic
 

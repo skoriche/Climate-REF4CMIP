@@ -59,6 +59,11 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
                     matching_facets=matching_facets,
                     optional_matching_facets=tuple(),
                 ),
+                RequireTimerange(
+                    group_by=matching_facets,
+                    start=PartialDateTime(year=1850, month=1),
+                    end=PartialDateTime(year=2100, month=12),
+                ),
                 RequireFacets(
                     "experiment_id",
                     required_facets=("historical",),
@@ -68,11 +73,6 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
                     "variable_id",
                     required_facets=variables,
                     group_by=("experiment_id", "source_id", "member_id", "grid_label", "table_id"),
-                ),
-                RequireTimerange(
-                    group_by=matching_facets,
-                    start=PartialDateTime(year=1850, month=1),
-                    end=PartialDateTime(year=2100, month=12),
                 ),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
@@ -90,13 +90,20 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
         diagnostics = recipe["diagnostics"]
         for diagnostic in diagnostics.values():
             diagnostic.pop("additional_datasets")
-        recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
+        recipe_variables = dataframe_to_recipe(
+            input_files[SourceDatasetType.CMIP6],
+            group_by=(
+                "source_id",
+                "member_id",
+                "grid_label",
+                "table_id",
+                "variable_id",
+            ),
+        )
         datasets = recipe_variables["tas"]["additional_datasets"]
         datasets = [ds for ds in datasets if ds["exp"] != "historical"]
         for dataset in datasets:
             dataset.pop("timerange")
-            dataset["activity"] = ["CMIP", dataset["activity"]]
-            dataset["exp"] = ["historical", dataset["exp"]]
         recipe["datasets"] = datasets
 
         # Specify the timeranges

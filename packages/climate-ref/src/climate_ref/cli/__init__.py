@@ -3,11 +3,12 @@
 import importlib
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from attrs import define
 from loguru import logger
+from rich.console import Console
 
 from climate_ref import __version__
 from climate_ref.cli import config, datasets, executions, providers, solve
@@ -37,6 +38,7 @@ class CLIContext:
 
     config: Config
     database: Database
+    console: Console
 
 
 def _version_callback(value: bool) -> None:
@@ -44,6 +46,13 @@ def _version_callback(value: bool) -> None:
         print(f"climate_ref: {__version__}")
         print(f"climate_ref-core: {__core_version__}")
         raise typer.Exit()
+
+
+def _create_console() -> Console:
+    # Hook for testing to disable color output
+
+    # Rich respects the NO_COLOR environment variabl
+    return Console()
 
 
 def _load_config(configuration_directory: Path | None = None) -> Config:
@@ -129,7 +138,7 @@ def main(  # noqa: PLR0913
         typer.Option(case_sensitive=False, help="Set the level of logging information to display"),
     ] = LogLevel.Info,
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version", callback=_version_callback, is_eager=True, help="Print the version and exit"
         ),
@@ -155,7 +164,7 @@ def main(  # noqa: PLR0913
 
     logger.debug(f"Configuration loaded from: {config._config_file!s}")
 
-    ctx.obj = CLIContext(config=config, database=Database.from_config(config))
+    ctx.obj = CLIContext(config=config, database=Database.from_config(config), console=_create_console())
 
 
 if __name__ == "__main__":

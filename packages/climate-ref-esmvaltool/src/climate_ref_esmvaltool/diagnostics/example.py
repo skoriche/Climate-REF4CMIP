@@ -17,28 +17,29 @@ class GlobalMeanTimeseries(ESMValToolDiagnostic):
     name = "Global Mean Timeseries"
     slug = "global-mean-timeseries"
     base_recipe = "examples/recipe_python.yml"
-    series = (
-        SeriesDefinition(
-            file_pattern="timeseries/script1/*.nc",
-            dimensions={},
-            values_name="tas",
-            index_name="time",
-            attributes=[],
-        ),
-    )
 
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(FacetFilter(facets={"variable_id": ("tas",)}),),
-            group_by=("instance_id",),
+            group_by=("source_id", "experiment_id", "member_id", "table_id", "variable_id", "grid_label"),
             constraints=(
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
     )
+
     facets = ()
+    series = (
+        SeriesDefinition(
+            file_pattern="timeseries/script1/*.nc",
+            dimensions={"statistic": "tas annual global mean"},
+            values_name="tas",
+            index_name="time",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
     def update_recipe(

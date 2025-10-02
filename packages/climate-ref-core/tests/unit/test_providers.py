@@ -114,7 +114,7 @@ class TestCondaMetricsProvider:
     def test_no_prefix(self):
         provider = CondaDiagnosticProvider("provider_name", "v0.23")
 
-        with pytest.raises(ValueError, match="No prefix for conda environments configured.*"):
+        with pytest.raises(ValueError, match=r"No prefix for conda environments configured.*"):
             provider.prefix
 
     def test_configure(self, config):
@@ -164,7 +164,7 @@ class TestCondaMetricsProvider:
         provider._install_conda.assert_not_called()
 
     def test_no_module(self, provider):
-        with pytest.raises(ValueError, match="Unable to determine the provider module.*"):
+        with pytest.raises(ValueError, match=r"Unable to determine the provider module.*"):
             provider.get_environment_file()
 
     def test_env_path(self, mocker, tmp_path, provider):

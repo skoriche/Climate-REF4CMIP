@@ -396,7 +396,14 @@ def solve_required_executions(  # noqa: PLR0912, PLR0913
             f"for {potential_execution.diagnostic.full_slug()}"
         )
 
+        if potential_execution.provider.slug not in provider_count:
+            provider_count[potential_execution.provider.slug] = 0
+        if potential_execution.diagnostic.full_slug() not in diagnostic_count:
+            diagnostic_count[potential_execution.diagnostic.full_slug()] = 0
+
         if dry_run:
+            provider_count[potential_execution.provider.slug] += 1
+            diagnostic_count[potential_execution.diagnostic.full_slug()] += 1
             continue
 
         # Use a transaction to make sure that the models
@@ -420,11 +427,6 @@ def solve_required_executions(  # noqa: PLR0912, PLR0913
                     "dirty": True,
                 },
             )
-
-            if diagnostic.provider.slug not in provider_count:
-                provider_count[diagnostic.provider.slug] = 0
-            if diagnostic.full_slug() not in diagnostic_count:
-                diagnostic_count[diagnostic.full_slug()] = 0
 
             if created:
                 logger.info(f"Created new execution group: {potential_execution.execution_slug()!r}")

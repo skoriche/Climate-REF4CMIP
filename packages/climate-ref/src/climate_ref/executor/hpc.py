@@ -38,7 +38,7 @@ from .local import ExecutionFuture, process_result
 
 
 class SlurmConfig(BaseModel):
-    """Slurm Config Pydnatic model"""
+    """Slurm Configurations"""
 
     scheduler: Literal["slurm"]
     account: str
@@ -78,12 +78,6 @@ class SlurmConfig(BaseModel):
             r"\s*$",
             re.IGNORECASE | re.MULTILINE,
         )
-
-        print(v)
-        for line in v.split("\n"):
-            print(line.strip().upper().startswith("#SBATCH"))
-
-            print(line, sbatch_pattern.match(line.strip()))
 
         invalid_lines = [
             line
@@ -249,8 +243,6 @@ class HPCExecutor:
             )
 
     def _initialize_parsl(self) -> None:
-        # executor_config = self.config.executor.config
-
         provider = SlurmProvider(
             account=self.slurm_config.account,
             partition=self.slurm_config.partition,

@@ -18,6 +18,7 @@ except ImportError:  # pragma: no cover
         "climate_ref_core.executor.hpc.HPCExecutor", "The HPCExecutor requires the `parsl` package"
     )
 
+import os
 import re
 import time
 from typing import Annotated, Any, Literal
@@ -176,6 +177,9 @@ class HPCExecutor:
         self.walltime = str(executor_config.get("walltime", "00:10:00"))
         self.log_dir = str(executor_config.get("log_dir", "runinfo"))
 
+        self.cores_per_worker = _to_int(executor_config.get("cores_per_worker"))
+        self.mem_per_worker = _to_float(executor_config.get("mem_per_worker"))
+
         if self.scheduler == "slurm":
             self.slurm_config = SlurmConfig.model_validate(executor_config)
             hours, minutes, seconds = map(int, self.slurm_config.walltime.split(":"))
@@ -187,7 +191,6 @@ class HPCExecutor:
 
         total_minutes = hours * 60 + minutes + seconds / 60
         self.total_minutes = total_minutes
-
 
         self._initialize_parsl()
 
@@ -299,7 +302,6 @@ class HPCExecutor:
                 retries=self.slurm_config.retries,
             )
 
-
         elif self.scheduler == "pbs":
             provider = SmartPBSProvider(
                 account=self.account,
@@ -335,7 +337,6 @@ class HPCExecutor:
                 executors=[executor],
                 retries=int(executor_config.get("retries", 2)),
             )
-
 
         else:
             raise ValueError(f"Unsupported scheduler: {self.scheduler}")

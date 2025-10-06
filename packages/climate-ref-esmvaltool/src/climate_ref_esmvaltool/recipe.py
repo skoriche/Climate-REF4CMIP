@@ -5,14 +5,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pooch
-from ruamel.yaml import YAML
+import yaml
 
 from climate_ref_esmvaltool.types import Recipe
 
 if TYPE_CHECKING:
     import pandas as pd
 
-yaml = YAML()
 
 FACETS = {
     "CMIP6": {
@@ -23,6 +22,13 @@ FACETS = {
         "exp": "experiment_id",
         "grid": "grid_label",
         "mip": "table_id",
+        "short_name": "variable_id",
+    },
+    "obs4MIPs": {
+        "dataset": "source_id",
+        "frequency": "frequency",
+        "grid": "grid_label",
+        "institute": "institution_id",
         "short_name": "variable_id",
     },
 }
@@ -81,42 +87,65 @@ def as_facets(
 
     """
     facets = {}
-    first_row = group.iloc[0]
-    project = first_row.instance_id.split(".", 2)[0]
+    project = group.iloc[0].instance_id.split(".", 2)[0]
     facets["project"] = project
     for esmvaltool_name, ref_name in FACETS[project].items():
-        facets[esmvaltool_name] = getattr(first_row, ref_name)
+        values = group[ref_name].unique().tolist()
+        facets[esmvaltool_name] = values if len(values) > 1 else values[0]
     timerange = as_timerange(group)
     if timerange is not None:
         facets["timerange"] = timerange
     return facets
 
 
-def dataframe_to_recipe(files: pd.DataFrame) -> dict[str, Any]:
+def dataframe_to_recipe(
+    files: pd.DataFrame,
+    group_by: tuple[str, ...] = ("instance_id",),
+    equalize_timerange: bool = False,
+) -> dict[str, Any]:
     """Convert the datasets dataframe to a recipe "variables" section.
 
     Parameters
     ----------
     files
         The pandas dataframe describing the input files.
+    group_by
+        The columns to group the input files by.
+    equalize_timerange
+        If True, use the timerange that is covered by all datasets.
 
     Returns
     -------
         A "variables" section that can be used in an ESMValTool recipe.
     """
     variables: dict[str, Any] = {}
-    # TODO: refine to make it possible to combine historical and scenario runs.
-    for _, group in files.groupby("instance_id"):
+    for _, group in files.groupby(list(group_by)):
         facets = as_facets(group)
         short_name = facets.pop("short_name")
         if short_name not in variables:
             variables[short_name] = {"additional_datasets": []}
         variables[short_name]["additional_datasets"].append(facets)
+
+    if equalize_timerange:
+        # Select a timerange covered by all datasets.
+        start_times, end_times = [], []
+        for variable in variables.values():
+            for dataset in variable["additional_datasets"]:
+                if "timerange" in dataset:
+                    start, end = dataset["timerange"].split("/")
+                    start_times.append(start)
+                    end_times.append(end)
+        timerange = f"{max(start_times)}/{min(end_times)}"
+        for variable in variables.values():
+            for dataset in variable["additional_datasets"]:
+                if "timerange" in dataset:
+                    dataset["timerange"] = timerange
+
     return variables
 
 
-_ESMVALTOOL_COMMIT = "58fd0b8ece981bc97c4fbd213b11f2228d90db28"
-_ESMVALTOOL_VERSION = f"2.13.0.dev65+g{_ESMVALTOOL_COMMIT[:9]}"
+_ESMVALTOOL_COMMIT = "2c438d0e0cc8904790294c72450eb7f06552c52a"
+_ESMVALTOOL_VERSION = f"2.13.0.dev148+g{_ESMVALTOOL_COMMIT[:9]}"
 
 _RECIPES = pooch.create(
     path=pooch.os_cache("climate_ref_esmvaltool"),
@@ -144,7 +173,16 @@ def load_recipe(recipe: str) -> Recipe:
         The loaded recipe.
     """
     filename = _RECIPES.fetch(recipe)
-    return yaml.load(Path(filename).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
+
+    def normalize(obj: Any) -> Any:
+        # Ensure objects in the recipe are not shared.
+        if isinstance(obj, dict):
+            return {k: normalize(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [normalize(item) for item in obj]
+        return obj
+
+    return normalize(yaml.safe_load(Path(filename).read_text(encoding="utf-8")))  # type: ignore[no-any-return]
 
 
 def prepare_climate_data(datasets: pd.DataFrame, climate_data_dir: Path) -> None:
@@ -167,6 +205,11 @@ def prepare_climate_data(datasets: pd.DataFrame, climate_data_dir: Path) -> None
         if not isinstance(row.path, str):  # pragma: no branch
             msg = f"Invalid path encountered in {row}"
             raise ValueError(msg)
-        tgt = climate_data_dir.joinpath(*row.instance_id.split(".")) / Path(row.path).name
+        if row.instance_id.startswith("obs4MIPs."):
+            version = row.instance_id.split(".")[-1]
+            subdirs: list[str] = ["obs4MIPs", row.source_id, version]  # type: ignore[list-item]
+        else:
+            subdirs = row.instance_id.split(".")
+        tgt = climate_data_dir.joinpath(*subdirs) / Path(row.path).name
         tgt.parent.mkdir(parents=True, exist_ok=True)
         tgt.symlink_to(row.path)

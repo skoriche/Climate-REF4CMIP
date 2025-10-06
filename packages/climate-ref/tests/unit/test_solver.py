@@ -4,7 +4,10 @@ from unittest import mock
 
 import pandas as pd
 import pytest
+from climate_ref_esmvaltool import provider as esmvaltool_provider
 from climate_ref_example import provider as example_provider
+from climate_ref_ilamb import provider as ilamb_provider
+from climate_ref_pmp import provider as pmp_provider
 
 from climate_ref.config import ExecutorConfig
 from climate_ref.models import Execution
@@ -34,10 +37,6 @@ def solver(db_seeded, config) -> ExecutionSolver:
 
 @pytest.fixture
 def aft_solver(db_seeded, config) -> ExecutionSolver:
-    from climate_ref_esmvaltool import provider as esmvaltool_provider
-    from climate_ref_ilamb import provider as ilamb_provider
-    from climate_ref_pmp import provider as pmp_provider
-
     registry = ProviderRegistry(providers=[pmp_provider, esmvaltool_provider, ilamb_provider])
     metric_solver = ExecutionSolver.build_from_db(config, db_seeded)
     metric_solver.provider_registry = registry
@@ -280,6 +279,13 @@ class TestMetricSolver:
     ],
 )
 def test_data_coverage(requirement, data_catalog, expected):
+    def add_path(df: pd.DataFrame) -> pd.DataFrame:
+        """Insert a path column into the DataFrame."""
+        df["path"] = df.apply(lambda r: "_".join(map(str, r.tolist())) + ".nc", axis=1)
+
+    add_path(data_catalog)
+    for expected_value in expected.values():
+        add_path(expected_value)
     result = extract_covered_datasets(data_catalog, requirement)
 
     for key, expected_value in expected.items():
@@ -456,8 +462,8 @@ def test_solve_metric_executions_mixed_data_requirements(mock_diagnostic, provid
     mock_diagnostic.data_requirements = mock_diagnostic.data_requirements[::-1]
     with pytest.raises(
         TypeError,
-        match="Expected a sequence of DataRequirement,"
-        " got <class 'climate_ref_core.diagnostics.DataRequirement'>",
+        match=r"Expected a sequence of DataRequirement,"
+        r" got <class 'climate_ref_core.diagnostics.DataRequirement'>",
     ):
         next(solve_executions(data_catalog, mock_diagnostic, provider))
 

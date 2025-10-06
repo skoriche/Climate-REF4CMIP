@@ -5,7 +5,7 @@ thetao-WOA2023-surface:
     # TODO: Update to use the obs4REF equiv
     thetao: ilamb/WOA/thetao_mon_WOA_A5B4_gn_200501-201412.nc
   variable_cmap: Reds
-  transform:
+  transforms:
   - select_depth:
       value: 0
   alternate_vars:
@@ -15,7 +15,7 @@ so-WOA2023-surface:
   sources:
     # TODO: Update to use the obs4REF equiv
     so: ilamb/WOA/so_mon_WOA_A5B4_gn_200501-201412.nc
-  transform:
+  transforms:
   - select_depth:
       value: 0
   variable_cmap: YlGn
@@ -27,7 +27,7 @@ amoc-RAPID:
   - timeseries
   related_vars:
   - msftmz
-  transform:
+  transforms:
   - msftmz_to_rapid
   sources:
     # TODO: Update to use the obs4REF equiv
@@ -39,10 +39,10 @@ ohc-NOAA:
   related_vars:
   - thetao
   - volcello
-  transform:
+  transforms:
   - select_depth:
-      min: 0
-      max: 2000
+      vmin: 0
+      vmax: 2000
   - ocean_heat_content:
       reference_year: 2005
   analyses:

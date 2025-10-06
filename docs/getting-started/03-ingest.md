@@ -38,7 +38,7 @@ ref datasets ingest --source-type cmip6 /path/to/cmip6/data
 ```
 
 
-Globbed-style paths can be used to specify multiple directories or file patterns.
+[Globbed-style](https://en.wikipedia.org/wiki/Glob_(programming)) paths can be used to specify multiple directories or file patterns.
 For example, if you have CMIP6 data organized by the CMIP6 DRS,
 you can use the following command to ingest all monthly and ancillary variables:
 
@@ -58,6 +58,13 @@ To fetch and ingest the sample CMIP6 data, run the following commands:
 ```bash
 ref datasets fetch-data --registry sample-data --output-directory $REF_CONFIGURATION/datasets/sample-data
 ref datasets ingest --source-type cmip6 $REF_CONFIGURATION/datasets/sample-data/CMIP6
+```
+
+Alternatively, the CMIP6 datasets matching the dataset requirements of the Assessment Fast Track REF can be downloaded using this script: [./scripts/fetch-esfgf.py](https://github.com/Climate-REF/climate-ref/blob/main/scripts/fetch-esfgf.py).
+This requires several terabytes of storage so we recommend configuring an appropriate [intake-esgf `local_cache`](https://intake-esgf.readthedocs.io/en/latest/configure.html) first.
+
+```bash
+python scripts/fetch-esgf.py
 ```
 
 ///

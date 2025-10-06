@@ -11,6 +11,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
@@ -39,27 +40,43 @@ class ZeroEmissionCommitment(ESMValToolDiagnostic):
                     facets={
                         "variable_id": ("tas",),
                         "experiment_id": experiments,
+                        "table_id": "Amon",
                     },
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("experiment_id", experiments),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
+                RequireFacets("experiment_id", experiments),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    series = (
+        SeriesDefinition(
+            file_pattern="work/zec/zec/zec.nc",
+            sel={"dim0": 0},
+            dimensions={
+                "statistic": "zec",
+            },
+            values_name="zec",
+            index_name="time",
+            attributes=[],
+        ),
+    )
 
     @staticmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """Update the recipe."""
         # Prepare updated datasets section in recipe. It contains two
         # datasets, one for the "esm-1pct-brch-1000PgC" and one for the "piControl"
         # experiment.
-        datasets = dataframe_to_recipe(input_files)["tas"]["additional_datasets"]
+        datasets = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])["tas"]["additional_datasets"]
         base_dataset = next(ds for ds in datasets if ds["exp"] == "1pctCO2")
         dataset = next(ds for ds in datasets if ds["exp"] == "esm-1pct-brch-1000PgC")
         start = dataset["timerange"].split("/")[0]

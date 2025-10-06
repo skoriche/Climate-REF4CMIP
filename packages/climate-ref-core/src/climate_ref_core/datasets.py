@@ -5,7 +5,7 @@ Dataset management and filtering
 import enum
 import functools
 import hashlib
-from collections.abc import Collection, Iterable
+from collections.abc import Collection, Iterable, Iterator
 from typing import Any, Self
 
 import pandas as pd
@@ -75,12 +75,6 @@ class FacetFilter:
     The keys are the metadata fields to filter on, and the values are the values to filter on.
     The result will only contain datasets where for all fields,
     the value of the field is one of the given values.
-    """
-    keep: bool = True
-    """
-    Whether to keep or remove datasets that match the filter.
-
-    If true (default), datasets that match the filter will be kept else they will be removed.
     """
 
 
@@ -159,6 +153,9 @@ class ExecutionDatasetCollection:
     def __init__(self, collection: dict[SourceDatasetType | str, DatasetCollection]):
         self._collection = {SourceDatasetType(k): v for k, v in collection.items()}
 
+    def __repr__(self) -> str:
+        return f"ExecutionDatasetCollection({self._collection})"
+
     def __contains__(self, key: SourceDatasetType | str) -> bool:
         if isinstance(key, str):
             key = SourceDatasetType(key)
@@ -172,9 +169,24 @@ class ExecutionDatasetCollection:
     def __hash__(self) -> int:
         return hash(self.hash)
 
+    def __iter__(self) -> Iterator[SourceDatasetType]:
+        return iter(self._collection)
+
+    def keys(self) -> Iterable[SourceDatasetType]:
+        """
+        Iterate over the source types in the collection.
+        """
+        return self._collection.keys()
+
+    def values(self) -> Iterable[DatasetCollection]:
+        """
+        Iterate over the datasets in the collection.
+        """
+        return self._collection.values()
+
     def items(self) -> Iterable[tuple[SourceDatasetType, DatasetCollection]]:
         """
-        Iterate over the datasets in the collection
+        Iterate over the items in the collection.
         """
         return self._collection.items()
 

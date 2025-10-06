@@ -9,6 +9,7 @@ import contextlib
 import inspect
 import logging
 import multiprocessing
+import os
 import sys
 from collections.abc import Generator
 from pathlib import Path
@@ -94,7 +95,10 @@ def initialise_logging(level: int | str, format: str, log_directory: str | Path)
     logger.info("Starting REF logging")
     logger.info(f"arguments: {sys.argv}")
 
-    add_log_handler(level=level, format=format, colorize=True)
+    # LOGURU_COLORIZE is the default env var used by loguru to determine if color should be used
+    # We override this to use NO_COLOR which is more widely supported
+    no_color = os.environ.get("NO_COLOR") is not None
+    add_log_handler(level=level, format=format, colorize=not no_color)
 
 
 def capture_logging() -> None:
@@ -150,12 +154,12 @@ def remove_log_handler() -> None:
     """
     if hasattr(logger, "default_handler_id"):
         try:
-            logger.remove(logger.default_handler_id)
+            logger.remove(logger.default_handler_id)  # pyright: ignore[reportAttributeAccessIssue]
         except ValueError:
             # This can happen if the handler has already been removed
             # or if the logger was never configured
             pass
-        del logger.default_handler_id
+        del logger.default_handler_id  # pyright: ignore[reportAttributeAccessIssue]
     else:
         raise AssertionError("No default log handler to remove.")
 

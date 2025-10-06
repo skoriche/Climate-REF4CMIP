@@ -1,10 +1,33 @@
 - activity_id: obs4MIPs
+  end_time: 2012-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 0.5x0.5 degree
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ARCCSS.LORA-1-1.mon.mrro.50km.gn.v20250516
+  institution_id: ARCCSS
+  long_name: Total Runoff
+  nominal_resolution: 50 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ARCCSS/LORA-1-1/mon/mrro/gn/20250516/mrro_mon_LORA-1-1_REF_gn_198001-201212.nc'
+  product: observations
+  realm: land
+  source_id: LORA-1-1
+  source_type: gridded_insitu
+  source_version_number: '1.1'
+  start_time: 1980-01-15 00:00:00
+  time_range: 1980-01-15 00:00:00-2012-12-15 00:00:00
+  units: kg m-2 s-1
+  variable_id: mrro
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 1
+- activity_id: obs4MIPs
   end_time: 2019-12-16 12:00:00
   finalised: true
   frequency: mon
   grid: 1x1 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.CNES.AVISO-1-0.zos.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.CNES.AVISO-1-0.mon.zos.250km.gn.v20210727
   institution_id: CNES
   long_name: Sea Surface Height Above Geoid
   nominal_resolution: 250 km
@@ -13,12 +36,83 @@
   realm: ocean
   source_id: AVISO-1-0
   source_type: satellite_retrieval
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1993-01-16 12:00:00
   time_range: 1993-01-16 12:00:00-2019-12-16 12:00:00
   units: m
   variable_id: zos
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ColumbiaU.WECANN-1-0.mon.gpp.100km.gn.v20250516
+  institution_id: ColumbiaU
+  long_name: Carbon Mass Flux out of Atmosphere Due to Gross Primary Production on
+    Land [kgC m-2 s-1]
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ColumbiaU/WECANN-1-0/mon/gpp/gn/20250516/gpp_mon_WECANN-1-0_REF_gn_200701-201512.nc'
+  product: derived
+  realm: land
+  source_id: WECANN-1-0
+  source_type: satellite_retrieval
+  source_version_number: '1'
+  start_time: 2007-01-15 00:00:00
+  time_range: 2007-01-15 00:00:00-2015-12-15 00:00:00
+  units: kg m-2 s-1
+  variable_id: gpp
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ColumbiaU.WECANN-1-0.mon.hfls.100km.gn.v20250516
+  institution_id: ColumbiaU
+  long_name: Surface Upward Latent Heat Flux
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ColumbiaU/WECANN-1-0/mon/hfls/gn/20250516/hfls_mon_WECANN-1-0_REF_gn_200701-201512.nc'
+  product: derived
+  realm: atmos
+  source_id: WECANN-1-0
+  source_type: satellite_retrieval
+  source_version_number: '1'
+  start_time: 2007-01-15 00:00:00
+  time_range: 2007-01-15 00:00:00-2015-12-15 00:00:00
+  units: W m-2
+  variable_id: hfls
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ColumbiaU.WECANN-1-0.mon.hfss.100km.gn.v20250516
+  institution_id: ColumbiaU
+  long_name: Surface Upward Sensible Heat Flux
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ColumbiaU/WECANN-1-0/mon/hfss/gn/20250516/hfss_mon_WECANN-1-0_REF_gn_200701-201512.nc'
+  product: derived
+  realm: atmos
+  source_id: WECANN-1-0
+  source_type: satellite_retrieval
+  source_version_number: '1'
+  start_time: 2007-01-15 00:00:00
+  time_range: 2007-01-15 00:00:00-2015-12-15 00:00:00
+  units: W m-2
+  variable_id: hfss
+  variant_label: REF
+  version: v20250516
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-12-16 12:00:00
@@ -26,7 +120,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-20C.psl.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-20C.mon.psl.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Sea Level Pressure
   nominal_resolution: 100 km
@@ -35,12 +129,13 @@
   realm: atmos
   source_id: ERA-20C
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1900-01-16 12:00:00
   time_range: 1900-01-16 12:00:00-2010-12-16 12:00:00
   units: Pa
   variable_id: psl
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-12-16 12:00:00
@@ -48,7 +143,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-20C.ts.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-20C.mon.ts.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Temperature
   nominal_resolution: 100 km
@@ -57,12 +152,13 @@
   realm: atmos
   source_id: ERA-20C
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1900-01-16 12:00:00
   time_range: 1900-01-16 12:00:00-2010-12-16 12:00:00
   units: K
   variable_id: ts
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -70,7 +166,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.hfls.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.hfls.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Upward Latent Heat Flux
   nominal_resolution: 100 km
@@ -79,12 +175,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: hfls
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -92,7 +189,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.hfss.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.hfss.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Upward Sensible Heat Flux
   nominal_resolution: 100 km
@@ -101,12 +198,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: hfss
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -114,7 +212,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.hur.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.hur.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Relative Humidity
   nominal_resolution: 100 km
@@ -123,12 +221,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: '%'
   variable_id: hur
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -136,7 +235,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.hus.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.hus.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Specific Humidity
   nominal_resolution: 100 km
@@ -145,12 +244,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: '1'
   variable_id: hus
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -158,7 +258,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.pr.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.pr.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Precipitation
   nominal_resolution: 100 km
@@ -167,12 +267,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: kg m-2 s-1
   variable_id: pr
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -180,7 +281,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.psl.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.psl.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Sea Level Pressure
   nominal_resolution: 100 km
@@ -189,12 +290,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: Pa
   variable_id: psl
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -202,7 +304,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.rlds.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.rlds.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Downwelling Longwave Radiation
   nominal_resolution: 100 km
@@ -211,12 +313,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: rlds
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -224,7 +327,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.rlus.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.rlus.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Upwelling Longwave Radiation
   nominal_resolution: 100 km
@@ -233,12 +336,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: rlus
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -246,7 +350,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.rsds.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.rsds.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Downwelling Shortwave Radiation
   nominal_resolution: 100 km
@@ -255,12 +359,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: rsds
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -268,7 +373,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.rsus.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.rsus.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Upwelling Shortwave Radiation
   nominal_resolution: 100 km
@@ -277,12 +382,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: W m-2
   variable_id: rsus
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -290,7 +396,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.sfcWind.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.sfcWind.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Near-Surface Wind Speed
   nominal_resolution: 100 km
@@ -299,12 +405,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: m s-1
   variable_id: sfcWind
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -312,7 +419,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.ta.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.ta.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Air Temperature
   nominal_resolution: 100 km
@@ -321,12 +428,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: K
   variable_id: ta
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -334,7 +442,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.tauu.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.tauu.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Downward Eastward Wind Stress
   nominal_resolution: 100 km
@@ -343,12 +451,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: Pa
   variable_id: tauu
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -356,7 +465,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.tauv.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.tauv.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Downward Northward Wind Stress
   nominal_resolution: 100 km
@@ -365,12 +474,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: Pa
   variable_id: tauv
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -378,7 +488,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.ts.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.ts.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Surface Temperature
   nominal_resolution: 100 km
@@ -387,12 +497,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: K
   variable_id: ts
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -400,7 +511,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.ua.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.ua.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Eastward Wind
   nominal_resolution: 100 km
@@ -409,12 +520,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: m s-1
   variable_id: ua
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -422,7 +534,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.uas.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.uas.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Eastward Near-Surface Wind
   nominal_resolution: 100 km
@@ -431,12 +543,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: m s-1
   variable_id: uas
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -444,7 +557,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.va.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.va.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Northward Wind
   nominal_resolution: 100 km
@@ -453,12 +566,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: m s-1
   variable_id: va
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2019-03-16 12:00:00
@@ -466,7 +580,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.vas.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.vas.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Northward Near-Surface Wind
   nominal_resolution: 100 km
@@ -475,12 +589,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-03-16 12:00:00
   units: m s-1
   variable_id: vas
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2010-01-16 12:00:00
@@ -488,7 +603,7 @@
   frequency: mon
   grid: 1.5x1.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.zg.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ECMWF.ERA-INT.mon.zg.100km.gn.v20210727
   institution_id: ECMWF
   long_name: Geopotential Height
   nominal_resolution: 100 km
@@ -497,12 +612,13 @@
   realm: atmos
   source_id: ERA-INT
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1989-01-16 12:00:00
   time_range: 1989-01-16 12:00:00-2010-01-16 12:00:00
   units: m
   variable_id: zg
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 19
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -510,7 +626,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.hfls.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.hfls.250km.gn.v20210727
   institution_id: ESSO
   long_name: Surface Upward Latent Heat Flux
   nominal_resolution: 250 km
@@ -519,12 +635,36 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: W m-2
   variable_id: hfls
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2017-07-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.hfls.250km.gn.v20250415
+  institution_id: ESSO
+  long_name: Surface Upward Latent Heat Flux
+  nominal_resolution: 250 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ESSO/TropFlux-1-0/mon/hfls/gn/v20250415/hfls_mon_TropFlux-1-0_PCMDI_gn_197901-201707.nc'
+  product: observations
+  realm: atmos
+  source_id: TropFlux-1-0
+  source_type: satellite_blended
+  source_version_number: '1.0'
+  start_time: 1979-01-16 12:00:00
+  time_range: 1979-01-16 12:00:00-2017-07-16 12:00:00
+  units: W m-2
+  variable_id: hfls
+  variant_label: PCMDI
+  version: v20250415
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -532,7 +672,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.hfns.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.hfns.250km.gn.v20210727
   institution_id: ESSO
   long_name: Net Surface Energy
   nominal_resolution: 250 km
@@ -541,12 +681,13 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: W m-2
   variable_id: hfns
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -554,7 +695,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.hfss.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.hfss.250km.gn.v20210727
   institution_id: ESSO
   long_name: Surface Upward Sensible Heat Flux
   nominal_resolution: 250 km
@@ -563,12 +704,36 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: W m-2
   variable_id: hfss
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2017-07-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.hfss.250km.gn.v20250415
+  institution_id: ESSO
+  long_name: Surface Upward Sensible Heat Flux
+  nominal_resolution: 250 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ESSO/TropFlux-1-0/mon/hfss/gn/v20250415/hfss_mon_TropFlux-1-0_PCMDI_gn_197901-201707.nc'
+  product: observations
+  realm: atmos
+  source_id: TropFlux-1-0
+  source_type: satellite_blended
+  source_version_number: '1.0'
+  start_time: 1979-01-16 12:00:00
+  time_range: 1979-01-16 12:00:00-2017-07-16 12:00:00
+  units: W m-2
+  variable_id: hfss
+  variant_label: PCMDI
+  version: v20250415
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -576,7 +741,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.tas.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.tas.250km.gn.v20210727
   institution_id: ESSO
   long_name: Near-Surface Air Temperature
   nominal_resolution: 250 km
@@ -585,12 +750,36 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: K
   variable_id: tas
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2017-07-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.tas.250km.gn.v20250415
+  institution_id: ESSO
+  long_name: Near-Surface Air Temperature
+  nominal_resolution: 250 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ESSO/TropFlux-1-0/mon/tas/gn/v20250415/tas_mon_TropFlux-1-0_PCMDI_gn_197901-201707.nc'
+  product: observations
+  realm: atmos
+  source_id: TropFlux-1-0
+  source_type: satellite_blended
+  source_version_number: '1.0'
+  start_time: 1979-01-16 12:00:00
+  time_range: 1979-01-16 12:00:00-2017-07-16 12:00:00
+  units: K
+  variable_id: tas
+  variant_label: PCMDI
+  version: v20250415
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -598,7 +787,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.tauu.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.tauu.250km.gn.v20210727
   institution_id: ESSO
   long_name: Surface Downward Eastward Wind Stress
   nominal_resolution: 250 km
@@ -607,12 +796,36 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: Pa
   variable_id: tauu
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2017-07-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.tauu.250km.gn.v20250415
+  institution_id: ESSO
+  long_name: Surface Downward Eastward Wind Stress
+  nominal_resolution: 250 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/ESSO/TropFlux-1-0/mon/tauu/gn/v20250415/tauu_mon_TropFlux-1-0_PCMDI_gn_197901-201707.nc'
+  product: observations
+  realm: atmos
+  source_id: TropFlux-1-0
+  source_type: satellite_blended
+  source_version_number: '1.0'
+  start_time: 1979-01-16 12:00:00
+  time_range: 1979-01-16 12:00:00-2017-07-16 12:00:00
+  units: Pa
+  variable_id: tauu
+  variant_label: PCMDI
+  version: v20250415
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -620,7 +833,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.tauv.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.tauv.250km.gn.v20210727
   institution_id: ESSO
   long_name: Surface Downward Northward Wind Stress
   nominal_resolution: 250 km
@@ -629,12 +842,13 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: Pa
   variable_id: tauv
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-07-15 12:00:00
@@ -642,7 +856,7 @@
   frequency: mon
   grid: 1.0x1.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.ts.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.ESSO.TropFlux-1-0.mon.ts.250km.gn.v20210727
   institution_id: ESSO
   long_name: Surface Temperature
   nominal_resolution: 250 km
@@ -651,12 +865,13 @@
   realm: atmos
   source_id: TropFlux-1-0
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '1.0'
   start_time: 1979-01-15 00:00:00
   time_range: 1979-01-15 00:00:00-2017-07-15 12:00:00
   units: K
   variable_id: ts
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-07-16 12:00:00
@@ -664,7 +879,7 @@
   frequency: mon
   grid: 1x1 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.MOHC.HadISST-1-1.ts.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.MOHC.HadISST-1-1.mon.ts.250km.gn.v20210727
   institution_id: MOHC
   long_name: Surface Temperature
   nominal_resolution: 250 km
@@ -673,12 +888,59 @@
   realm: atmos
   source_id: HadISST-1-1
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: 1-1
   start_time: 1870-01-16 11:59:59.464417
   time_range: 1870-01-16 11:59:59.464417-2019-07-16 12:00:00
   units: K
   variable_id: ts
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2025-01-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.MOHC.HadISST-1-1.mon.ts.250km.gn.v20250415
+  institution_id: MOHC
+  long_name: Surface Temperature
+  nominal_resolution: 250 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/MOHC/HadISST-1-1/mon/ts/gn/v20250415/ts_mon_HadISST-1-1_PCMDI_gn_187001-202501.nc'
+  product: observations
+  realm: atmos
+  source_id: HadISST-1-1
+  source_type: satellite_blended
+  source_version_number: 1-1
+  start_time: 1870-01-16 12:00:00
+  time_range: 1870-01-16 12:00:00-2025-01-16 12:00:00
+  units: K
+  variable_id: ts
+  variant_label: PCMDI
+  version: v20250415
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2023-03-16 12:00:00
+  finalised: true
+  frequency: mon
+  grid: 0.5x0.5 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NASA-GSFC.GPCP-Monthly-3-2.mon.pr.50km.gn.v20231205
+  institution_id: NASA-GSFC
+  long_name: Precipitation
+  nominal_resolution: 50 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/GPCP-2-3/mon/pr/gn/v20231205/pr_mon_GPCP-Monthly-3-2_RSS_gn_198301-202303.nc'
+  product: observations
+  realm: atmos
+  source_id: GPCP-Monthly-3-2
+  source_type: satellite_blended
+  source_version_number: '3.2'
+  start_time: 1983-01-16 12:00:00
+  time_range: 1983-01-16 12:00:00-2023-03-16 12:00:00
+  units: kg m-2 s-1
+  variable_id: pr
+  variant_label: RSS
+  version: v20231205
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2017-12-16 12:00:00
@@ -686,7 +948,7 @@
   frequency: mon
   grid: 0.25x0.25 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.NASA-GSFC.TRMM-3B43v-7.pr.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.NASA-GSFC.TRMM-3B43v-7.mon.pr.25km.gn.v20210727
   institution_id: NASA-GSFC
   long_name: Precipitation
   nominal_resolution: 25 km
@@ -695,12 +957,105 @@
   realm: atmos
   source_id: TRMM-3B43v-7
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: 3B43v.7
   start_time: 1998-01-16 12:00:00
   time_range: 1998-01-16 12:00:00-2017-12-16 12:00:00
   units: kg m-2 s-1
   variable_id: pr
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2023-09-16 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NASA-LaRC.CERES-EBAF-4-2.mon.rlds.100km.gn.v20230209
+  institution_id: NASA-LaRC
+  long_name: Surface Downwelling Longwave Radiation
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NASA-LaRC/CERES-EBAF-4-2/mon/rlds/gn/v20230209/rlds_mon_CERES-EBAF-4-2_RSS_gn_200003-202309.nc'
+  product: observations
+  realm: atmos
+  source_id: CERES-EBAF-4-2
+  source_type: satellite_blended
+  source_version_number: '4.2'
+  start_time: 2000-03-16 12:00:00
+  time_range: 2000-03-16 12:00:00-2023-09-16 00:00:00
+  units: W m-2
+  variable_id: rlds
+  variant_label: RSS
+  version: v20230209
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2023-09-16 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NASA-LaRC.CERES-EBAF-4-2.mon.rlus.100km.gn.v20230209
+  institution_id: NASA-LaRC
+  long_name: Surface Upwelling Longwave Radiation
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NASA-LaRC/CERES-EBAF-4-2/mon/rlus/gn/v20230209/rlus_mon_CERES-EBAF-4-2_RSS_gn_200003-202309.nc'
+  product: observations
+  realm: atmos
+  source_id: CERES-EBAF-4-2
+  source_type: satellite_blended
+  source_version_number: '4.2'
+  start_time: 2000-03-16 12:00:00
+  time_range: 2000-03-16 12:00:00-2023-09-16 00:00:00
+  units: W m-2
+  variable_id: rlus
+  variant_label: RSS
+  version: v20230209
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2023-09-16 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NASA-LaRC.CERES-EBAF-4-2.mon.rsds.100km.gn.v20230209
+  institution_id: NASA-LaRC
+  long_name: Surface Downwelling Shortwave Radiation
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NASA-LaRC/CERES-EBAF-4-2/mon/rsds/gn/v20230209/rsds_mon_CERES-EBAF-4-2_RSS_gn_200003-202309.nc'
+  product: observations
+  realm: atmos
+  source_id: CERES-EBAF-4-2
+  source_type: satellite_blended
+  source_version_number: '4.2'
+  start_time: 2000-03-16 12:00:00
+  time_range: 2000-03-16 12:00:00-2023-09-16 00:00:00
+  units: W m-2
+  variable_id: rsds
+  variant_label: RSS
+  version: v20230209
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2023-09-16 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 1x1 degree latitude x longitude
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NASA-LaRC.CERES-EBAF-4-2.mon.rsus.100km.gn.v20230209
+  institution_id: NASA-LaRC
+  long_name: Surface Upwelling Shortwave Radiation
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NASA-LaRC/CERES-EBAF-4-2/mon/rsus/gn/v20230209/rsus_mon_CERES-EBAF-4-2_RSS_gn_200003-202309.nc'
+  product: observations
+  realm: atmos
+  source_id: CERES-EBAF-4-2
+  source_type: satellite_blended
+  source_version_number: '4.2'
+  start_time: 2000-03-16 12:00:00
+  time_range: 2000-03-16 12:00:00-2023-09-16 00:00:00
+  units: W m-2
+  variable_id: rsus
+  variant_label: RSS
+  version: v20230209
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2012-12-16 12:00:00
@@ -708,7 +1063,7 @@
   frequency: mon
   grid: 2.0x2.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.NOAA-ESRL-PSD.20CR.psl.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.NOAA-ESRL-PSD.20CR.mon.psl.250km.gn.v20210727
   institution_id: NOAA-ESRL-PSD
   long_name: Sea Level Pressure
   nominal_resolution: 250 km
@@ -717,12 +1072,13 @@
   realm: atmos
   source_id: 20CR
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1871-01-16 12:00:00
   time_range: 1871-01-16 12:00:00-2012-12-16 12:00:00
   units: Pa
   variable_id: psl
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2012-12-16 12:00:00
@@ -730,7 +1086,7 @@
   frequency: mon
   grid: 2.0x2.0 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.NOAA-ESRL-PSD.20CR.ts.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.NOAA-ESRL-PSD.20CR.mon.ts.250km.gn.v20210727
   institution_id: NOAA-ESRL-PSD
   long_name: Surface Temperature
   nominal_resolution: 250 km
@@ -739,12 +1095,13 @@
   realm: atmos
   source_id: 20CR
   source_type: reanalysis
-  source_version_number: v20210727
+  source_version_number: N/A
   start_time: 1871-01-16 12:00:00
   time_range: 1871-01-16 12:00:00-2012-12-16 12:00:00
   units: K
   variable_id: ts
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-01-16 12:00:00
@@ -752,7 +1109,7 @@
   frequency: mon
   grid: 0.25x0.25 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.CMAP-V1902.pr.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.CMAP-V1902.mon.pr.100km.gn.v20210727
   institution_id: NOAA-NCEI
   long_name: Precipitation
   nominal_resolution: 100 km
@@ -761,12 +1118,13 @@
   realm: atmos
   source_id: CMAP-V1902
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: V1902
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-01-16 12:00:00
   units: kg m-2 s-1
   variable_id: pr
   variant_label: PCMDI
+  version: v20210727
   vertical_levels: 1
 - activity_id: obs4MIPs
   end_time: 2019-07-16 12:00:00
@@ -774,7 +1132,7 @@
   frequency: mon
   grid: 2.5x2.5 degree latitude x longitude
   grid_label: gn
-  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.GPCP-2-3.pr.gn.v20210727
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.GPCP-2-3.mon.pr.250km.gn.v20210727
   institution_id: NOAA-NCEI
   long_name: Precipitation
   nominal_resolution: 250 km
@@ -783,10 +1141,199 @@
   realm: atmos
   source_id: GPCP-2-3
   source_type: satellite_blended
-  source_version_number: v20210727
+  source_version_number: '2.3'
   start_time: 1979-01-16 12:00:00
   time_range: 1979-01-16 12:00:00-2019-07-16 12:00:00
   units: kg m-2 s-1
   variable_id: pr
   variant_label: PCMDI
+  version: v20210727
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 100 km
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.WOA2023.mon.no3.100km.gn.v20250516
+  institution_id: NOAA-NCEI
+  long_name: Objectively analyzed mean fields for moles_of_nitrate_per_unit_mass_in_sea_water
+    at standard depth levels.
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/WOA2023/mon/no3/gn/20250516/no3_mon_WOA2023_REF_gn_201501-202212.nc'
+  product: observations
+  realm: ocean
+  source_id: WOA2023
+  source_type: gridded_insitu
+  source_version_number: '2023'
+  start_time: 2015-01-15 00:00:00
+  time_range: 2015-01-15 00:00:00-2015-12-15 00:00:00
+  units: micromoles_per_kilogram
+  variable_id: no3
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 43
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 100 km
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.WOA2023.mon.o2.100km.gn.v20250516
+  institution_id: NOAA-NCEI
+  long_name: Objectively analyzed mean fields for moles_of_oxygen_per_unit_mass_in_sea_water
+    at standard depth levels.
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/WOA2023/mon/o2/gn/20250516/o2_mon_WOA2023_REF_gn_201501-202212.nc'
+  product: observations
+  realm: ocean
+  source_id: WOA2023
+  source_type: gridded_insitu
+  source_version_number: '2023'
+  start_time: 2015-01-15 00:00:00
+  time_range: 2015-01-15 00:00:00-2015-12-15 00:00:00
+  units: micromoles_per_kilogram
+  variable_id: o2
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 57
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 100 km
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.WOA2023.mon.po4.100km.gn.v20250516
+  institution_id: NOAA-NCEI
+  long_name: Objectively analyzed mean fields for moles_of_phosphate_per_unit_mass_in_sea_water
+    at standard depth levels.
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/WOA2023/mon/po4/gn/20250516/po4_mon_WOA2023_REF_gn_201501-202212.nc'
+  product: observations
+  realm: ocean
+  source_id: WOA2023
+  source_type: gridded_insitu
+  source_version_number: '2023'
+  start_time: 2015-01-15 00:00:00
+  time_range: 2015-01-15 00:00:00-2015-12-15 00:00:00
+  units: micromoles_per_kilogram
+  variable_id: po4
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 43
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 100 km
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.WOA2023.mon.so.100km.gn.v20250516
+  institution_id: NOAA-NCEI
+  long_name: Objectively analyzed mean fields for sea_water_practical_salinity at
+    standard depth levels.
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/WOA2023/mon/so/gn/20250516/so_mon_WOA2023_REF_gn_201501-202212.nc'
+  product: observations
+  realm: ocean
+  source_id: WOA2023
+  source_type: gridded_insitu
+  source_version_number: '2023'
+  start_time: 2015-01-15 00:00:00
+  time_range: 2015-01-15 00:00:00-2015-12-15 00:00:00
+  units: '1'
+  variable_id: so
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 57
+- activity_id: obs4MIPs
+  end_time: 2015-12-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: 100 km
+  grid_label: gn
+  instance_id: obs4MIPs.obs4MIPs.NOAA-NCEI.WOA2023.mon.thetao.100km.gn.v20250516
+  institution_id: NOAA-NCEI
+  long_name: Sea Water Potential Temperature
+  nominal_resolution: 100 km
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOAA-NCEI/WOA2023/mon/thetao/gn/20250516/thetao_mon_WOA2023_REF_gn_201501-202212.nc'
+  product: observations
+  realm: ocean
+  source_id: WOA2023
+  source_type: gridded_insitu
+  source_version_number: '2023'
+  start_time: 2015-01-15 00:00:00
+  time_range: 2015-01-15 00:00:00-2015-12-15 00:00:00
+  units: degC
+  variable_id: thetao
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 57
+- activity_id: obs4MIPs
+  end_time: 2023-02-15 00:00:00
+  finalised: true
+  frequency: mon
+  grid: N/A
+  grid_label: NA
+  instance_id: obs4MIPs.obs4MIPs.NOC.RAPID.mon.msftmz.N/A.NA.v20250516
+  institution_id: NOC
+  long_name: Ocean Meridional Overturning Mass Streamfunction
+  nominal_resolution: N/A
+  path: '{esgf_data_dir}/obs4REF/obs4REF/NOC/RAPID/mon/msftmz/NA/20250516/msftmz_mon_RAPID_REF_NA_200404-202302.nc'
+  product: derived
+  realm: ocean
+  source_id: RAPID
+  source_type: insitu
+  source_version_number: '2023.1'
+  start_time: 2004-04-15 00:00:00
+  time_range: 2004-04-15 00:00:00-2023-02-15 00:00:00
+  units: Sv
+  variable_id: msftmz
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2010-07-02 12:00:00
+  finalised: true
+  frequency: yr
+  grid: global mean data
+  grid_label: gm
+  instance_id: obs4MIPs.obs4MIPs.UCI-ORNL.Hoffman.yr.fgco2.N/A.gm.v20250516
+  institution_id: UCI-ORNL
+  long_name: global net downward ocean carbon flux
+  nominal_resolution: N/A
+  path: '{esgf_data_dir}/obs4REF/obs4REF/UCI-ORNL/Hoffman/yr/fgco2/gm/20250516/fgco2_yr_Hoffman_REF_gm_185007-201007.nc'
+  product: derived
+  realm: ocean
+  source_id: Hoffman
+  source_type: stastical-estimate
+  source_version_number: '1'
+  start_time: 1850-07-02 12:00:00
+  time_range: 1850-07-02 12:00:00-2010-07-02 12:00:00
+  units: Pg yr-1
+  variable_id: fgco2
+  variant_label: REF
+  version: v20250516
+  vertical_levels: 1
+- activity_id: obs4MIPs
+  end_time: 2010-07-02 12:00:00
+  finalised: true
+  frequency: yr
+  grid: global mean data
+  grid_label: gm
+  instance_id: obs4MIPs.obs4MIPs.UCI-ORNL.Hoffman.yr.nbp.N/A.gm.v20250516
+  institution_id: UCI-ORNL
+  long_name: global net downward land carbon flux
+  nominal_resolution: N/A
+  path: '{esgf_data_dir}/obs4REF/obs4REF/UCI-ORNL/Hoffman/yr/nbp/gm/20250516/nbp_yr_Hoffman_REF_gm_185007-201007.nc'
+  product: derived
+  realm: land
+  source_id: Hoffman
+  source_type: stastical-estimate
+  source_version_number: '1'
+  start_time: 1850-07-02 12:00:00
+  time_range: 1850-07-02 12:00:00-2010-07-02 12:00:00
+  units: Pg yr-1
+  variable_id: nbp
+  variant_label: REF
+  version: v20250516
   vertical_levels: 1

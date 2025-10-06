@@ -101,11 +101,12 @@ def test_dataset_polymorphic(db):
             product="",
             source_id="",
             source_type="",
+            source_version_number="",
             units="",
             variable_id="",
             variant_label="",
+            version="v12",
             vertical_levels=2,
-            source_version_number="v12",
             instance_id="test_obs",
             slug="test_obs",
         )
@@ -142,8 +143,8 @@ def test_database_cvs(config, mocker):
 
     db = Database.from_config(config, run_migrations=True)
 
-    # CV is loaded once during a migration and once when registering
-    assert mock_cv.call_count == 2
+    # CV is loaded once during a migration and once with each call to _add_dimension_columns
+    assert mock_cv.call_count == 3
     mock_cv.assert_called_with(config.paths.dimensions_cv)
     mock_register_cv.assert_called_once_with(mock_cv.return_value)
 

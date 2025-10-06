@@ -364,10 +364,10 @@ class Config:
     - `complete`: Use the complete parser, which parses the dataset based on all available metadata.
     """
 
-    paths: PathConfig = Factory(PathConfig)  # noqa
-    db: DbConfig = Factory(DbConfig)  # noqa
-    executor: ExecutorConfig = Factory(ExecutorConfig)  # noqa
-    diagnostic_providers: list[DiagnosticProviderConfig] = Factory(default_providers)  # noqa
+    paths: PathConfig = Factory(PathConfig)
+    db: DbConfig = Factory(DbConfig)
+    executor: ExecutorConfig = Factory(ExecutorConfig)
+    diagnostic_providers: list[DiagnosticProviderConfig] = Factory(default_providers)  # noqa: RUF009, RUF100
     _raw: TOMLDocument | None = field(init=False, default=None, repr=False)
     _config_file: Path | None = field(init=False, default=None, repr=False)
 

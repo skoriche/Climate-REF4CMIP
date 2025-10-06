@@ -1,6 +1,6 @@
 [project]
 name = "climate-ref-core"
-version = "0.6.4"
+version = "0.7.0"
 description = "Core library for the CMIP Rapid Evaluation Framework"
 readme = "README.md"
 authors = [
@@ -39,7 +39,7 @@ dependencies = [
     "environs>=11",
     "pyyaml>=6.0.2",
     # Not used directly, but required to support some installations
-    "setuptools>=75.8.0",
+    "setuptools<81",
 
     # SPEC 0000 constraints
     # We follow [SPEC-0000](https://scientific-python.org/specs/spec-0000/)

@@ -27,10 +27,6 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
     slug = "transient-climate-response-emissions"
     base_recipe = "recipe_tcre.yml"
 
-    experiments = (
-        "esm-1pctCO2",
-        "esm-piControl",
-    )
     variables = (
         "tas",
         "fco2antt",
@@ -42,37 +38,42 @@ class TransientClimateResponseEmissions(ESMValToolDiagnostic):
                 FacetFilter(
                     facets={
                         "variable_id": variables,
-                        "frequency": "mon",
-                        "experiment_id": experiments,
+                        "experiment_id": "esm-1pctCO2",
+                        "table_id": "Amon",
                     },
                 ),
                 FacetFilter(
                     facets={
-                        "variable_id": "fco2antt",
+                        "variable_id": "tas",
                         "experiment_id": "esm-piControl",
+                        "table_id": "Amon",
                     },
-                    keep=False,
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("experiment_id", experiments),
-                RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
+                RequireFacets("experiment_id", ("esm-1pctCO2", "esm-piControl")),
+                RequireFacets("variable_id", variables),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    # TODO: the ESMValTool diagnostic script does not save the data for the timeseries.
+    series = tuple()
 
     @staticmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """Update the recipe."""
         # Prepare updated datasets section in recipe. It contains three
         # datasets, "tas" and "fco2antt" for the "esm-1pctCO2" and just "tas"
         # for the "esm-piControl" experiment.
-        recipe_variables = dataframe_to_recipe(input_files)
+        recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
         tas_esm_1pctCO2 = next(
             ds for ds in recipe_variables["tas"]["additional_datasets"] if ds["exp"] == "esm-1pctCO2"
         )

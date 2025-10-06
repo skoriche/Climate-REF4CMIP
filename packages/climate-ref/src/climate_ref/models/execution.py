@@ -1,19 +1,22 @@
 import enum
 import pathlib
-from typing import TYPE_CHECKING, Any
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from loguru import logger
-from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
+from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func, or_
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.orm.query import RowReturningQuery
 
-from climate_ref.models import Dataset
-from climate_ref.models.base import Base, CreatedUpdatedMixin
+from climate_ref.models.base import Base
+from climate_ref.models.dataset import Dataset
+from climate_ref.models.diagnostic import Diagnostic
+from climate_ref.models.mixins import CreatedUpdatedMixin, DimensionMixin
+from climate_ref.models.provider import Provider
 from climate_ref_core.datasets import ExecutionDatasetCollection
 
 if TYPE_CHECKING:
     from climate_ref.database import Database
-    from climate_ref.models.diagnostic import Diagnostic
     from climate_ref.models.metric_value import MetricValue
 
 
@@ -40,7 +43,7 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    diagnostic_id: Mapped[int] = mapped_column(ForeignKey("diagnostic.id"))
+    diagnostic_id: Mapped[int] = mapped_column(ForeignKey("diagnostic.id"), index=True)
     """
     The diagnostic that this execution group belongs to
     """
@@ -103,8 +106,8 @@ class ExecutionGroup(CreatedUpdatedMixin, Base):
 execution_datasets = Table(
     "execution_dataset",
     Base.metadata,
-    Column("execution_id", ForeignKey("execution.id")),
-    Column("dataset_id", ForeignKey("dataset.id")),
+    Column("execution_id", ForeignKey("execution.id"), index=True),
+    Column("dataset_id", ForeignKey("dataset.id"), index=True),
 )
 
 
@@ -136,7 +139,8 @@ class Execution(CreatedUpdatedMixin, Base):
         ForeignKey(
             "execution_group.id",
             name="fk_execution_id",
-        )
+        ),
+        index=True,
     )
     """
     The execution group that this execution belongs to
@@ -149,7 +153,7 @@ class Execution(CreatedUpdatedMixin, Base):
     This is used to verify if an existing diagnostic execution has been run with the same datasets.
     """
 
-    successful: Mapped[bool] = mapped_column(nullable=True)
+    successful: Mapped[bool] = mapped_column(nullable=True, index=True)
     """
     Was the run successful
     """
@@ -216,15 +220,20 @@ class ResultOutputType(enum.Enum):
     HTML = "html"
 
 
-class ExecutionOutput(CreatedUpdatedMixin, Base):
+class ExecutionOutput(DimensionMixin, CreatedUpdatedMixin, Base):
     """
     An output generated as part of an execution.
 
     This output may be a plot, data file or HTML file.
-    These outputs are defined in the CMEC output bundle
+    These outputs are defined in the CMEC output bundle.
+
+    Outputs can be tagged with dimensions from the controlled vocabulary
+    to enable filtering and organization.
     """
 
     __tablename__ = "execution_output"
+
+    _cv_dimensions: ClassVar[list[str]] = []
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -262,6 +271,65 @@ class ExecutionOutput(CreatedUpdatedMixin, Base):
     """
 
     execution: Mapped["Execution"] = relationship(back_populates="outputs")
+
+    @classmethod
+    def build(  # noqa: PLR0913
+        cls,
+        *,
+        execution_id: int,
+        output_type: ResultOutputType,
+        dimensions: dict[str, str],
+        filename: str | None = None,
+        short_name: str | None = None,
+        long_name: str | None = None,
+        description: str | None = None,
+    ) -> "ExecutionOutput":
+        """
+        Build an ExecutionOutput from dimensions and metadata
+
+        This is a helper method that validates the dimensions supplied.
+
+        Parameters
+        ----------
+        execution_id
+            Execution that created the output
+        output_type
+            Type of the output
+        dimensions
+            Dimensions that describe the output
+        filename
+            Path to the output
+        short_name
+            Short key of the output
+        long_name
+            Human readable name
+        description
+            Long description
+
+        Raises
+        ------
+        KeyError
+            If an unknown dimension was supplied.
+
+            Dimensions must exist in the controlled vocabulary.
+
+        Returns
+        -------
+            Newly created ExecutionOutput
+        """
+        for k in dimensions:
+            if k not in cls._cv_dimensions:
+                raise KeyError(f"Unknown dimension column '{k}'")
+
+        return ExecutionOutput(
+            execution_id=execution_id,
+            output_type=output_type,
+            filename=filename,
+            short_name=short_name,
+            long_name=long_name,
+            description=description,
+            **dimensions,
+        )
 
 
 def get_execution_group_and_latest(
@@ -304,3 +372,148 @@ def get_execution_group_and_latest(
     )
 
     return query  # type: ignore
+
+
+def _filter_executions_by_facets(
+    results: Sequence[tuple[ExecutionGroup, Execution | None]],
+    facet_filters: dict[str, str],
+) -> list[tuple[ExecutionGroup, Execution | None]]:
+    """
+    Filter execution groups and their latest executions based on facet key-value pairs.
+
+    This is a relatively expensive operation as it requires iterating over all results.
+    This should be replaced once we have normalised the selectors into a separate table.
+
+
+    Parameters
+    ----------
+    results
+        List of tuples containing ExecutionGroup and its latest Execution (or None)
+    facet_filters
+        Dictionary of facet key-value pairs to filter by (AND logic, exact match)
+
+    Returns
+    -------
+        Filtered list of tuples containing ExecutionGroup and its latest Execution (or None)
+
+    Notes
+    -----
+    - Facet filters can either be key=value (searches all dataset types)
+      or dataset_type.key=value (searches specific dataset type)
+    - Key=value filters search across all dataset types
+    - dataset_type.key=value filters only search within the specified dataset type
+    - Multiple values within same filter type use OR logic
+    - All specified facets must match for an execution group to be included (AND logic)
+    """
+    filtered_results = []
+    for eg, execution in results:
+        all_filters_match = True
+        for facet_key, facet_value in facet_filters.items():
+            filter_match = False
+            if "." in facet_key:
+                # Handle dataset_type.key=value format
+                dataset_type, key = facet_key.split(".", 1)
+                if dataset_type in eg.selectors:
+                    if [key, facet_value] in eg.selectors[dataset_type]:
+                        filter_match = True
+                        break
+            else:
+                # Handle key=value format (search across all dataset types)
+                for ds_type_selectors in eg.selectors.values():
+                    if [facet_key, facet_value] in ds_type_selectors:
+                        filter_match = True
+                        break
+
+            if not filter_match:
+                all_filters_match = False
+                break
+        if all_filters_match:
+            filtered_results.append((eg, execution))
+    return filtered_results
+
+
+def get_execution_group_and_latest_filtered(  # noqa: PLR0913
+    session: Session,
+    diagnostic_filters: list[str] | None = None,
+    provider_filters: list[str] | None = None,
+    facet_filters: dict[str, str] | None = None,
+    dirty: bool | None = None,
+    successful: bool | None = None,
+) -> list[tuple[ExecutionGroup, Execution | None]]:
+    """
+    Query execution groups with filtering capabilities.
+
+    Parameters
+    ----------
+    session
+        Database session
+    diagnostic_filters
+        List of diagnostic slug substrings (OR logic, case-insensitive)
+    provider_filters
+        List of provider slug substrings (OR logic, case-insensitive)
+    facet_filters
+        Dictionary of facet key-value pairs (AND logic, exact match)
+    dirty
+        If True, only return dirty execution groups.
+        If False, only return clean execution groups.
+        If None, do not filter by dirty status.
+    successful
+        If True, only return execution groups whose latest execution was successful.
+        If False, only return execution groups whose latest execution was unsuccessful or has no executions.
+        If None, do not filter by execution success.
+
+    Returns
+    -------
+        Query returning tuples of (ExecutionGroup, latest Execution or None)
+
+    Notes
+    -----
+    - Diagnostic and provider filters use substring matching (case-insensitive)
+    - Multiple values within same filter type use OR logic
+    - Different filter types use AND logic
+    - Facet filters can either be key=value (searches all dataset types)
+      or dataset_type.key=value (searches specific dataset type)
+    """
+    # Start with base query
+    query = get_execution_group_and_latest(session)
+
+    if diagnostic_filters or provider_filters:
+        # Join through to the Diagnostic table
+        query = query.join(Diagnostic, ExecutionGroup.diagnostic_id == Diagnostic.id)
+
+    # Apply diagnostic filter (OR logic for multiple values)
+    if diagnostic_filters:
+        diagnostic_conditions = [
+            Diagnostic.slug.ilike(f"%{filter_value.lower()}%") for filter_value in diagnostic_filters
+        ]
+        query = query.filter(or_(*diagnostic_conditions))
+
+    # Apply provider filter (OR logic for multiple values)
+    if provider_filters:
+        # Need to join through Diagnostic to Provider
+        query = query.join(Provider, Diagnostic.provider_id == Provider.id)
+
+        provider_conditions = [
+            Provider.slug.ilike(f"%{filter_value.lower()}%") for filter_value in provider_filters
+        ]
+        query = query.filter(or_(*provider_conditions))
+
+    if successful is not None:
+        if successful:
+            query = query.filter(Execution.successful.is_(True))
+        else:
+            query = query.filter(or_(Execution.successful.is_(False), Execution.successful.is_(None)))
+
+    if dirty is not None:
+        if dirty:
+            query = query.filter(ExecutionGroup.dirty.is_(True))
+        else:
+            query = query.filter(or_(ExecutionGroup.dirty.is_(False), ExecutionGroup.dirty.is_(None)))
+
+    if facet_filters:
+        # Load all results into memory for Python-based filtering
+        # TODO: Update once we have normalised the selector
+        results = [r._tuple() for r in query.all()]
+        return _filter_executions_by_facets(results, facet_filters)
+    else:
+        return [r._tuple() for r in query.all()]

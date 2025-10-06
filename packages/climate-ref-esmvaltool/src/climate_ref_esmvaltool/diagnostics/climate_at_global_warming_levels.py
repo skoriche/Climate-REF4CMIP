@@ -2,8 +2,9 @@ import pandas
 
 from climate_ref_core.constraints import (
     AddSupplementaryDataset,
-    RequireContiguousTimerange,
+    PartialDateTime,
     RequireFacets,
+    RequireTimerange,
 )
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
@@ -26,6 +27,14 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
         "tas",
     )
 
+    matching_facets = (
+        "source_id",
+        "member_id",
+        "grid_label",
+        "table_id",
+        "variable_id",
+    )
+
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
@@ -39,25 +48,32 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
                             "ssp370",
                             "ssp585",
                         ),
+                        "table_id": "Amon",
                     },
                 ),
             ),
             group_by=("experiment_id",),
             constraints=(
-                RequireFacets("variable_id", variables),
                 AddSupplementaryDataset(
                     supplementary_facets={"experiment_id": "historical"},
-                    matching_facets=(
-                        "source_id",
-                        "member_id",
-                        "grid_label",
-                        "table_id",
-                        "variable_id",
-                    ),
+                    matching_facets=matching_facets,
                     optional_matching_facets=tuple(),
                 ),
-                RequireFacets("experiment_id", ("historical",)),
-                RequireContiguousTimerange(group_by=("instance_id",)),
+                RequireTimerange(
+                    group_by=matching_facets,
+                    start=PartialDateTime(year=1850, month=1),
+                    end=PartialDateTime(year=2100, month=12),
+                ),
+                RequireFacets(
+                    "experiment_id",
+                    required_facets=("historical",),
+                    group_by=matching_facets,
+                ),
+                RequireFacets(
+                    "variable_id",
+                    required_facets=variables,
+                    group_by=("experiment_id", "source_id", "member_id", "grid_label", "table_id"),
+                ),
                 AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
             ),
         ),
@@ -65,19 +81,29 @@ class ClimateAtGlobalWarmingLevels(ESMValToolDiagnostic):
     facets = ()
 
     @staticmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """Update the recipe."""
         # Set up the datasets
         diagnostics = recipe["diagnostics"]
         for diagnostic in diagnostics.values():
             diagnostic.pop("additional_datasets")
-        recipe_variables = dataframe_to_recipe(input_files)
+        recipe_variables = dataframe_to_recipe(
+            input_files[SourceDatasetType.CMIP6],
+            group_by=(
+                "source_id",
+                "member_id",
+                "grid_label",
+                "table_id",
+                "variable_id",
+            ),
+        )
         datasets = recipe_variables["tas"]["additional_datasets"]
         datasets = [ds for ds in datasets if ds["exp"] != "historical"]
         for dataset in datasets:
             dataset.pop("timerange")
-            dataset["activity"] = ["CMIP", dataset["activity"]]
-            dataset["exp"] = ["historical", dataset["exp"]]
         recipe["datasets"] = datasets
 
         # Specify the timeranges

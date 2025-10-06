@@ -4,7 +4,10 @@ from sqlalchemy import Connection, inspect
 
 from climate_ref.config import Config
 from climate_ref.database import Database
-from climate_ref.models import Base, MetricValue
+from climate_ref.models import Base
+from climate_ref.models.execution import ExecutionOutput
+from climate_ref.models.metric_value import MetricValue
+from climate_ref.models.mixins import DimensionMixin
 from climate_ref_core.logging import capture_logging
 from climate_ref_core.pycmec.controlled_vocabulary import CV
 
@@ -33,7 +36,7 @@ target_metadata = Base.metadata
 # Custom migration functions that are run on every migration
 
 
-def _add_metric_value_columns(connection: Connection) -> None:
+def _add_dimension_columns(connection: Connection, table: str, Cls: type[DimensionMixin]) -> None:
     """
     Add any missing columns in the current CV to the database
 
@@ -44,27 +47,25 @@ def _add_metric_value_columns(connection: Connection) -> None:
     connection
         Open connection to the database
     """
-    metric_value_table = "metric_value"
-
     inspector = inspect(connection)
 
     # Check if table already exists
     # Skip if it doesn't
     tables = inspector.get_table_names()
-    if metric_value_table not in tables:
-        logger.warning(f"No table named {metric_value_table!r} found")
+    if table not in tables:
+        logger.warning(f"No table named {table!r} found")
         return
 
     # Extract the current columns in the DB
-    existing_columns = [c["name"] for c in inspector.get_columns(metric_value_table)]
+    existing_columns = [c["name"] for c in inspector.get_columns(table)]
 
     cv_file = ref_config.paths.dimensions_cv
     cv = CV.load_from_file(cv_file)
 
     for dimension in cv.dimensions:
         if dimension.name not in existing_columns:
-            logger.info(f"Adding missing metric value dimension: {dimension.name!r}")
-            op.add_column(metric_value_table, MetricValue.build_dimension_column(dimension))
+            logger.info(f"Adding missing value dimension: {dimension.name!r}")
+            op.add_column(table, Cls.build_dimension_column(dimension))
 
 
 def include_object(object_, name: str, type_, reflected, compare_to) -> bool:
@@ -134,7 +135,8 @@ def run_migrations_online() -> None:
             # Set up the Operations context
             # This is needed to alter the tables
             with op.Operations.context(context.get_context()):  # type: ignore
-                _add_metric_value_columns(connection)
+                _add_dimension_columns(connection, "metric_value", MetricValue)
+                _add_dimension_columns(connection, "execution_output", ExecutionOutput)
 
 
 if context.is_offline_mode():

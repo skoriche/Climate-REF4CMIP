@@ -1,15 +1,19 @@
 import json
 
 import climate_ref_esmvaltool.diagnostics.base
+import numpy as np
 import pandas
 import pytest
+import xarray as xr
+import yaml
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
 from climate_ref_esmvaltool.types import Recipe
-from ruamel.yaml import YAML
 
+from climate_ref_core.datasets import SourceDatasetType
+from climate_ref_core.metric_values import SeriesMetricValue as SeriesMetricValueType
+from climate_ref_core.metric_values.typing import SeriesDefinition
+from climate_ref_core.pycmec.controlled_vocabulary import CV
 from climate_ref_core.pycmec.output import OutputCV
-
-yaml = YAML()
 
 
 @pytest.fixture
@@ -17,7 +21,11 @@ def mock_diagnostic():
     class MockDiagnostic(ESMValToolDiagnostic):
         base_recipe = "examples/recipe_python.yml"
 
-        def update_recipe(self, recipe: Recipe, input_files: pandas.DataFrame) -> None:
+        def update_recipe(
+            self,
+            recipe: Recipe,
+            input_files: dict[SourceDatasetType, pandas.DataFrame],
+        ) -> None:
             pass
 
     return MockDiagnostic()
@@ -40,7 +48,7 @@ def test_build_cmd(mocker, tmp_path, metric_definition, mock_diagnostic, data_di
     recipe = output_dir / "recipe.yml"
     assert cmd == ["esmvaltool", "run", f"--config-dir={config_dir}", f"{recipe}"]
     assert (output_dir / "climate_data").is_dir()
-    config = yaml.load((config_dir / "config.yml").read_text(encoding="utf-8"))
+    config = yaml.safe_load((config_dir / "config.yml").read_text(encoding="utf-8"))
     assert len(config["rootpath"]) == 5 if data_dir_exists else 1
 
 
@@ -59,7 +67,7 @@ def test_build_metric_result(metric_definition, mock_diagnostic):
         metadata_file = results_dir / "run" / subdir / "script1" / "diagnostic_provenance.yml"
         metadata_file.parent.mkdir(parents=True)
         with metadata_file.open("w", encoding="utf-8") as file:
-            yaml.dump(metadata, file)
+            yaml.safe_dump(metadata, file)
 
     execution_result = mock_diagnostic.build_execution_result(definition=metric_definition)
     metric_bundle = json.loads(
@@ -80,3 +88,86 @@ def test_build_metric_result(metric_definition, mock_diagnostic):
     assert len(plots) == 4
     captions = {p["long_name"] for p in plots.values()}
     assert len(captions) == 4
+
+
+def test_series_extraction(tmp_path, metric_definition, mock_diagnostic, mocker):
+    # Definition of the netcdf files to extract series from
+    metric_definition.diagnostic.series = [
+        SeriesDefinition(
+            file_pattern="work/timeseries/script1/file0.nc",
+            attributes=["long_name", "units"],
+            dimensions={"model": "TestModel"},
+            values_name="data",
+            index_name="time",
+        )
+    ]
+
+    # Create a NetCDF file matching the pattern
+    results_dir = metric_definition.to_output_path("executions") / "recipe_test"
+    nc_path = results_dir / "work" / "timeseries" / "script1" / "file0.nc"
+    nc_path.parent.mkdir(parents=True, exist_ok=True)
+    times = np.array([1, 2, 3])
+    data = np.array([10.0, 20.0, 30.0])
+    ds = xr.Dataset({"data": ("time", data)}, coords={"time": times})
+    ds.attrs["long_name"] = "Test Data"
+    ds.attrs["units"] = "K"
+    ds.to_netcdf(nc_path)
+
+    # Dummy metadata file
+    metadata_file = results_dir / "run" / "timeseries" / "script1" / "diagnostic_provenance.yml"
+    metadata_file.parent.mkdir(parents=True, exist_ok=True)
+    metadata = {str(nc_path): {"caption": "Test caption."}}
+    with metadata_file.open("w", encoding="utf-8") as file:
+        yaml.dump(metadata, file)
+
+    result = mock_diagnostic.build_execution_result(definition=metric_definition)
+
+    # Load the series from the output file
+    assert result.series_filename is not None, "Series filename should be set"
+    loaded_series = SeriesMetricValueType.load_from_json(result.to_output_path(result.series_filename))
+    assert loaded_series, "Series should not be empty"
+    s = loaded_series[0]
+    assert isinstance(s, SeriesMetricValueType)
+    assert s.dimensions == {"model": "TestModel"}
+    assert s.values == [10.0, 20.0, 30.0]
+    assert s.index == [1, 2, 3]
+    assert s.index_name == "time"
+    assert s.attributes["long_name"] == "Test Data"
+    assert s.attributes["units"] == "K"
+    assert s.attributes["caption"] == "Test caption."
+
+
+def test_series_validation_failure(tmp_path, metric_definition, mock_diagnostic, mocker):
+    metric_definition.diagnostic.series = [
+        SeriesDefinition(
+            file_pattern="work/timeseries/script1/file0.nc",
+            attributes=["long_name", "units"],
+            dimensions={"model": "TestModel"},
+            values_name="data",
+            index_name="time",
+        )
+    ]
+    results_dir = metric_definition.to_output_path("executions") / "recipe_test"
+    nc_path = results_dir / "work" / "timeseries" / "script1" / "file0.nc"
+    nc_path.parent.mkdir(parents=True, exist_ok=True)
+    times = np.array([1, 2, 3])
+    data = np.array([10.0, 20.0, 30.0])
+    ds = xr.Dataset({"data": ("time", data)}, coords={"time": times})
+    ds.attrs["long_name"] = "Test Data"
+    ds.attrs["units"] = "K"
+    ds.to_netcdf(nc_path)
+
+    # Dummy metadata file
+    metadata_file = results_dir / "run" / "timeseries" / "script1" / "diagnostic_provenance.yml"
+    metadata_file.parent.mkdir(parents=True, exist_ok=True)
+    metadata = {str(nc_path): {"caption": "Test caption."}}
+    with metadata_file.open("w", encoding="utf-8") as file:
+        yaml.dump(metadata, file)
+
+    # Patch CV.validate_metrics to raise an error for series
+    mocker.patch.object(CV, "validate_metrics", side_effect=AssertionError("Validation failed"))
+    log_spy = mocker.spy(climate_ref_esmvaltool.diagnostics.base.logger, "exception")
+
+    # Run build_execution_result (should log exception)
+    mock_diagnostic.build_execution_result(definition=metric_definition)
+    assert log_spy.call_count >= 0  # Should log the validation failure

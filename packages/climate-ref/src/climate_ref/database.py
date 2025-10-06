@@ -8,6 +8,7 @@ The `Database` class is the main entry point for interacting with the database.
 It provides a session object that can be used to interact with the database and run queries.
 """
 
+import enum
 import importlib.resources
 import shutil
 from datetime import datetime
@@ -23,6 +24,7 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from climate_ref.models import MetricValue, Table
+from climate_ref.models.execution import ExecutionOutput
 from climate_ref_core.pycmec.controlled_vocabulary import CV
 
 if TYPE_CHECKING:
@@ -135,6 +137,16 @@ def validate_database_url(database_url: str) -> str:
     return database_url
 
 
+class ModelState(enum.Enum):
+    """
+    State of a model instance
+    """
+
+    CREATED = "created"
+    UPDATED = "updated"
+    DELETED = "deleted"
+
+
 class Database:
     """
     Manage the database connection and migrations
@@ -234,11 +246,57 @@ class Database:
         # This will add new columns to the db if the CVs have changed
         MetricValue.register_cv_dimensions(cv)
 
+        # Register the CV dimensions with the ExecutionOutput model
+        # This enables dimension-based filtering of outputs
+        ExecutionOutput.register_cv_dimensions(cv)
+
         return db
+
+    def update_or_create(
+        self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any
+    ) -> tuple[Table, ModelState | None]:
+        """
+        Update an existing instance or create a new one
+
+        This doesn't commit the transaction,
+        so you will need to call `session.commit()` after this method
+        or use a transaction context manager.
+
+        Parameters
+        ----------
+        model
+            The model to update or create
+        defaults
+            Default values to use when creating a new instance, or values to update on existing instance
+        kwargs
+            The filter parameters to use when querying for an instance
+
+        Returns
+        -------
+        :
+            A tuple containing the instance and a state enum indicating if the instance was created or updated
+        """
+        instance = self.session.query(model).filter_by(**kwargs).first()
+        state: ModelState | None = None
+        if instance:
+            # Update existing instance with defaults
+            if defaults:
+                for key, value in defaults.items():
+                    if getattr(instance, key) != value:
+                        logger.debug(f"Updating {model.__name__} {key} to {value}")
+                        setattr(instance, key, value)
+                        state = ModelState.UPDATED
+            return instance, state
+        else:
+            # Create new instance
+            params = {**kwargs, **(defaults or {})}
+            instance = model(**params)
+            self.session.add(instance)
+            return instance, ModelState.CREATED
 
     def get_or_create(
         self, model: type[Table], defaults: dict[str, Any] | None = None, **kwargs: Any
-    ) -> tuple[Table, bool]:
+    ) -> tuple[Table, ModelState | None]:
         """
         Get or create an instance of a model
 
@@ -258,13 +316,13 @@ class Database:
         Returns
         -------
         :
-            A tuple containing the instance and a boolean indicating if the instance was created
+            A tuple containing the instance and enum indicating if the instance was created
         """
         instance = self.session.query(model).filter_by(**kwargs).first()
         if instance:
-            return instance, False
+            return instance, None
         else:
             params = {**kwargs, **(defaults or {})}
             instance = model(**params)
             self.session.add(instance)
-            return instance, True
+            return instance, ModelState.CREATED

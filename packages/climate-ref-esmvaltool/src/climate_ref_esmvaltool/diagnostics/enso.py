@@ -11,6 +11,7 @@ from climate_ref_core.constraints import (
 )
 from climate_ref_core.datasets import ExecutionDatasetCollection, FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import DataRequirement
+from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
 from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
@@ -27,36 +28,104 @@ class ENSOBasicClimatology(ESMValToolDiagnostic):
     slug = "enso-basic-climatology"
     base_recipe = "ref/recipe_enso_basicclimatology.yml"
 
-    variables = (
-        "pr",
-        "tos",
-        "tauu",
-    )
     data_requirements = (
         DataRequirement(
             source_type=SourceDatasetType.CMIP6,
             filters=(
                 FacetFilter(
                     facets={
-                        "variable_id": variables,
+                        "variable_id": ("pr", "tauu"),
                         "experiment_id": "historical",
+                        "table_id": "Amon",
+                    },
+                ),
+                FacetFilter(
+                    facets={
+                        "variable_id": "tos",
+                        "experiment_id": "historical",
+                        "table_id": "Omon",
                     },
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("variable_id", variables),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
+                RequireFacets(
+                    "variable_id",
+                    (
+                        "pr",
+                        "tauu",
+                        "tos",
+                    ),
+                ),
             ),
         ),
     )
     facets = ()
 
+    series = (
+        tuple(
+            SeriesDefinition(
+                file_pattern=f"diagnostic_metrics/plot_script/{{source_id}}_eq_{var_name}_bias.nc",
+                dimensions={
+                    "statistic": (
+                        f"zonal bias in the time-mean {var_name} structure across the equatorial Pacific"
+                    ),
+                },
+                values_name="tos" if var_name == "sst" else var_name,
+                index_name="lon",
+                attributes=[],
+            )
+            for var_name in ["pr", "sst", "tauu"]
+        )
+        + tuple(
+            SeriesDefinition(
+                file_pattern=f"diagnostic_metrics/plot_script/{{source_id}}_eq_{var_name}_seacycle.nc",
+                dimensions={
+                    "statistic": (
+                        "zonal bias in the amplitude of the mean seasonal cycle of "
+                        f"{var_name} in the equatorial Pacific"
+                    ),
+                },
+                values_name="tos" if var_name == "sst" else var_name,
+                index_name="lon",
+                attributes=[],
+            )
+            for var_name in ["pr", "sst", "tauu"]
+        )
+        + (
+            SeriesDefinition(
+                file_pattern="diagnostic_metrics/plot_script/{source_id}_pr_double.nc",
+                dimensions={
+                    "statistic": ("meridional bias in the time-mean pr structure across the eastern Pacific"),
+                },
+                values_name="pr",
+                index_name="lat",
+                attributes=[],
+            ),
+            SeriesDefinition(
+                file_pattern="diagnostic_metrics/plot_script/*_pr_double_seacycle.nc",
+                dimensions={
+                    "statistic": (
+                        "meridional bias in the amplitude of the mean seasonal "
+                        "pr cycle in the eastern Pacific"
+                    ),
+                },
+                values_name="pr",
+                index_name="lat",
+                attributes=[],
+            ),
+        )
+    )
+
     @staticmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """Update the recipe."""
-        recipe_variables = dataframe_to_recipe(input_files)
+        recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
         recipe.pop("datasets")
         for diagnostic in recipe["diagnostics"].values():
             for variable in diagnostic["variables"].values():
@@ -82,24 +151,31 @@ class ENSOCharacteristics(ESMValToolDiagnostic):
                     facets={
                         "variable_id": "tos",
                         "experiment_id": "historical",
+                        "table_id": "Omon",
                     },
                 ),
             ),
             group_by=("source_id", "member_id", "grid_label"),
             constraints=(
-                RequireFacets("variable_id", ("tos",)),
                 RequireContiguousTimerange(group_by=("instance_id",)),
                 RequireOverlappingTimerange(group_by=("instance_id",)),
                 AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                RequireFacets("variable_id", ("tos", "areacello")),
             ),
         ),
     )
     facets = ("grid_label", "member_id", "source_id", "region", "metric")
+    # ENSO pattern and lifecycle are series, but the ESMValTool diagnostic
+    # script does not save the values used in the figure.
+    series = tuple()
 
     @staticmethod
-    def update_recipe(recipe: Recipe, input_files: pandas.DataFrame) -> None:
+    def update_recipe(
+        recipe: Recipe,
+        input_files: dict[SourceDatasetType, pandas.DataFrame],
+    ) -> None:
         """Update the recipe."""
-        recipe_variables = dataframe_to_recipe(input_files)
+        recipe_variables = dataframe_to_recipe(input_files[SourceDatasetType.CMIP6])
         recipe["datasets"] = recipe_variables["tos"]["additional_datasets"]
         # TODO: update the observational data requirement once available on ESGF.
         # Observations - use only one per run

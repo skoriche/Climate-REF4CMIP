@@ -160,12 +160,15 @@ def import_executor_cls(fqn: str) -> type[Executor]:
         imp = importlib.import_module(module)
         executor: type[Executor] = getattr(imp, attribute_name)
 
+        if isinstance(executor, Exception):
+            raise executor
+
         # We can't really check if the executor is a subclass of Executor here
         # Protocols can't be used with issubclass if they have non-method members
         # We have to check this at class instantiation time
 
         return executor
-    except ModuleNotFoundError:
+    except (ModuleNotFoundError, ImportError):
         logger.error(f"Package '{fqn}' not found")
         raise InvalidExecutorException(fqn, f"Module '{module}' not found")
     except AttributeError:

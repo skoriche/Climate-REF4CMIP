@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from climate_ref.models.base import Base, CreatedUpdatedMixin
+from climate_ref.models.base import Base
+from climate_ref.models.mixins import CreatedUpdatedMixin
 
 if TYPE_CHECKING:
     from climate_ref.models.execution import ExecutionGroup

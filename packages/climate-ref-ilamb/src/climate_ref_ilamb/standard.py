@@ -1,14 +1,15 @@
 from pathlib import Path
 from typing import Any
 
-import ilamb3  # type: ignore
-import ilamb3.regions as ilr  # type: ignore
-import matplotlib.pyplot as plt
+import dask.config
+import ilamb3
+import ilamb3.regions as ilr
 import pandas as pd
 import pooch
+import xarray as xr
 from ilamb3 import run
 
-from climate_ref_core.constraints import AddSupplementaryDataset
+from climate_ref_core.constraints import AddSupplementaryDataset, RequireFacets
 from climate_ref_core.dataset_registry import dataset_registry_manager
 from climate_ref_core.datasets import FacetFilter, SourceDatasetType
 from climate_ref_core.diagnostics import (
@@ -17,8 +18,9 @@ from climate_ref_core.diagnostics import (
     ExecutionDefinition,
     ExecutionResult,
 )
+from climate_ref_core.metric_values.typing import SeriesMetricValue
 from climate_ref_core.pycmec.metric import CMECMetric
-from climate_ref_core.pycmec.output import CMECOutput
+from climate_ref_core.pycmec.output import CMECOutput, OutputCV
 from climate_ref_ilamb.datasets import (
     registry_to_collection,
 )
@@ -101,16 +103,7 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     # reference_df = df[df["source"] == "Reference"]
     model_df = df[df["source"] != "Reference"]
 
-    # Source is formatted as "ACCESS-ESM1-5-r1i1p1f1-gn"
-    # This assumes that the member_id and grid_label are always the last two parts of the source string
-    # and don't contain '-'
-    extracted_source = model_df.source.str.extract(r"([\w-]+)-([\w\d]+)-([\w\d]+)")
-    model_df.loc[:, "source_id"] = extracted_source[0]
-    model_df.loc[:, "member_id"] = extracted_source[1]
-    model_df.loc[:, "grid_label"] = extracted_source[2]
-
-    # Strip out units from the name
-    # These are available in the attributes
+    # Strip out units from the name (available in the attributes)
     extracted_source = model_df.name.str.extract(r"(.*)\s\[.*\]")
     model_df.loc[:, "name"] = extracted_source[0]
 
@@ -149,25 +142,21 @@ def _build_cmec_bundle(df: pd.DataFrame) -> dict[str, Any]:
     return bundle
 
 
-def _form_bundles(df: pd.DataFrame) -> tuple[CMECMetric, CMECOutput]:
-    """
-    Create the output bundles (really a lift to make Ruff happy with the size of run()).
-    """
-    metric_bundle = _build_cmec_bundle(df)
-    output_bundle = CMECOutput.create_template()
-    return CMECMetric.model_validate(metric_bundle), CMECOutput.model_validate(output_bundle)
-
-
 def _set_ilamb3_options(registry: pooch.Pooch, registry_file: str) -> None:
     """
     Set options for ILAMB based on which registry file is being used.
     """
-    ilamb3.conf.reset()
+    ilamb3.conf.reset()  # type: ignore
     ilamb_regions = ilr.Regions()
     if registry_file == "ilamb":
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/GlobalLand.nc"))
         ilamb_regions.add_netcdf(registry.fetch("ilamb/regions/Koppen_coarse.nc"))
         ilamb3.conf.set(regions=["global", "tropical"])
+    # REF's data requirement correctly will add measure data from another
+    # ensemble, but internally I also groupby. Since REF is only giving 1
+    # source_id/member_id/grid_label at a time, relax the groupby option here so
+    # these measures are part of the dataframe in ilamb3.
+    ilamb3.conf.set(comparison_groupby=["source_id", "grid_label"])
 
 
 def _load_csv_and_merge(output_directory: Path) -> pd.DataFrame:
@@ -213,29 +202,63 @@ class ILAMBStandard(Diagnostic):
                         facets={
                             "variable_id": (
                                 self.variable_id,
-                                *ilamb_kwargs.get("relationships", {}).keys(),
                                 *ilamb_kwargs.get("alternate_vars", []),
                                 *ilamb_kwargs.get("related_vars", []),
-                            )
+                                *ilamb_kwargs.get("relationships", {}).keys(),
+                            ),
+                            "frequency": "mon",
+                            "experiment_id": ("historical", "land-hist"),
+                            "table_id": (
+                                "AERmonZ",
+                                "Amon",
+                                "CFmon",
+                                "Emon",
+                                "EmonZ",
+                                "LImon",
+                                "Lmon",
+                                "Omon",
+                                "SImon",
+                            ),
                         }
                     ),
-                    FacetFilter(facets={"frequency": ("mon",)}),
-                    FacetFilter(facets={"experiment_id": ("historical", "land-hist")}),
-                    # Exclude unneeded snc tables
-                    FacetFilter(facets={"table_id": ("ImonAnt", "ImonGre")}, keep=False),
                 ),
                 constraints=(
-                    AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
-                )
-                if registry_file == "ilamb"
-                else (
-                    AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
-                    AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                    RequireFacets(
+                        "variable_id",
+                        (
+                            self.variable_id,
+                            *ilamb_kwargs.get("alternate_vars", []),
+                            *ilamb_kwargs.get("related_vars", []),
+                        ),
+                        operator="any",
+                    ),
+                    *(
+                        [
+                            RequireFacets(
+                                "variable_id",
+                                required_facets=tuple(ilamb_kwargs.get("relationships", {}).keys()),
+                            )
+                        ]
+                        if "relationships" in ilamb_kwargs
+                        else []
+                    ),
+                    *(
+                        (
+                            AddSupplementaryDataset.from_defaults("areacella", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftlf", SourceDatasetType.CMIP6),
+                        )
+                        if registry_file == "ilamb"
+                        else (
+                            AddSupplementaryDataset.from_defaults("volcello", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("areacello", SourceDatasetType.CMIP6),
+                            AddSupplementaryDataset.from_defaults("sftof", SourceDatasetType.CMIP6),
+                        )
+                    ),
                 ),
-                group_by=("experiment_id",),
+                group_by=("experiment_id", "source_id", "member_id", "grid_label"),
             ),
         )
+
         self.facets = (
             "experiment_id",
             "source_id",
@@ -257,16 +280,18 @@ class ILAMBStandard(Diagnostic):
         """
         Run the ILAMB standard analysis.
         """
-        plt.rcParams.update({"figure.max_open_warning": 0})
         _set_ilamb3_options(self.registry, self.registry_file)
         ref_datasets = self.ilamb_data.datasets.set_index(self.ilamb_data.slug_column)
-        run.run_simple(
-            ref_datasets,
-            self.slug,
-            definition.datasets[SourceDatasetType.CMIP6].datasets,
-            definition.output_directory,
-            **self.ilamb_kwargs,
-        )
+
+        # Run ILAMB in a single-threaded mode to avoid issues with multithreading (#394)
+        with dask.config.set(scheduler="synchronous"):
+            run.run_single_block(
+                self.slug,
+                ref_datasets,
+                definition.datasets[SourceDatasetType.CMIP6].datasets,
+                definition.output_directory,
+                **self.ilamb_kwargs,
+            )
 
     def build_execution_result(self, definition: ExecutionDefinition) -> ExecutionResult:
         """
@@ -281,15 +306,162 @@ class ILAMBStandard(Diagnostic):
         -------
             An execution result object
         """
-        selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
         _set_ilamb3_options(self.registry, self.registry_file)
-
+        # In ILAMB, scalars are saved in CSV files in the output directory. To
+        # be compatible with the REF system we will need to add the metadata
+        # that is associated with the execution group, called the selector.
         df = _load_csv_and_merge(definition.output_directory)
-        # Add the selectors to the dataframe
-        for key, value in selectors.items():
+        selectors = definition.datasets[SourceDatasetType.CMIP6].selector_dict()
+
+        # TODO: Fix reference data once we are using the obs4MIPs dataset
+        dataset_source = self.name.split("-")[1] if "-" in self.name else "None"
+        common_dimensions = {**selectors, "reference_source_id": dataset_source}
+        for key, value in common_dimensions.items():
             df[key] = value
-        metric_bundle, output_bundle = _form_bundles(df)
+        metric_bundle = CMECMetric.model_validate(_build_cmec_bundle(df))
+
+        # Add each png file plot to the output
+        output_bundle = CMECOutput.create_template()
+        for plotfile in definition.output_directory.glob("*.png"):
+            relative_path = str(definition.as_relative_path(plotfile))
+            caption, figure_dimensions = _caption_from_filename(plotfile, common_dimensions)
+
+            output_bundle[OutputCV.PLOTS.value][relative_path] = {
+                OutputCV.FILENAME.value: relative_path,
+                OutputCV.LONG_NAME.value: caption,
+                OutputCV.DESCRIPTION.value: "",
+                OutputCV.DIMENSIONS.value: figure_dimensions,
+            }
+
+        # Add the html page to the output
+        index_html = definition.to_output_path("index.html")
+        if index_html.exists():
+            relative_path = str(definition.as_relative_path(index_html))
+            output_bundle[OutputCV.HTML.value][relative_path] = {
+                OutputCV.FILENAME.value: relative_path,
+                OutputCV.LONG_NAME.value: "Results page",
+                OutputCV.DESCRIPTION.value: "Page displaying scalars and plots from the ILAMB execution.",
+                OutputCV.DIMENSIONS.value: common_dimensions,
+            }
+            output_bundle[OutputCV.INDEX.value] = relative_path
+
+        # Add series to the output based on the time traces we find in the
+        # output files
+        series = []
+        for ncfile in definition.output_directory.glob("*.nc"):
+            ds = xr.open_dataset(ncfile, use_cftime=True)
+            for name, da in ds.items():
+                # Only create series for 1d DataArray's with these dimensions
+                if not (da.ndim == 1 and set(da.dims).intersection(["time", "month"])):
+                    continue
+                # Convert dimension values
+                attrs = {
+                    "units": da.attrs.get("units", ""),
+                    "long_name": da.attrs.get("long_name", str(name)),
+                    "standard_name": da.attrs.get("standard_name", ""),
+                }
+                str_name = str(name)
+                index_name = str(da.dims[0])
+                index = ds[index_name].values.tolist()
+                if hasattr(index[0], "isoformat"):
+                    index = [v.isoformat() for v in index]
+                if hasattr(index[0], "calendar"):
+                    attrs["calendar"] = index[0].calendar
+
+                # Parse out some dimensions
+                if ncfile.stem == "Reference":
+                    dimensions = {
+                        "source_id": "Reference",
+                        "metric": str_name,
+                    }
+                else:
+                    dimensions = {"metric": str_name, **common_dimensions}
+
+                # Split the metric into metric and region if possible
+                if "_" in str_name:
+                    dimensions["metric"] = str_name.split("_")[0]
+                    dimensions["region"] = str_name.split("_")[1]
+                else:
+                    dimensions["region"] = "None"
+
+                series.append(
+                    SeriesMetricValue(
+                        dimensions=dimensions,
+                        values=da.values.tolist(),
+                        index=index,
+                        index_name=index_name,
+                        attributes=attrs,
+                    )
+                )
 
         return ExecutionResult.build_from_output_bundle(
-            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle
+            definition, cmec_output_bundle=output_bundle, cmec_metric_bundle=metric_bundle, series=series
         )
+
+
+def _caption_from_filename(filename: Path, common_dimensions: dict[str, str]) -> tuple[str, dict[str, str]]:
+    source, region, plot = filename.stem.split("_")
+    plot_texts = {
+        "bias": "bias",
+        "biasscore": "bias score",
+        "cycle": "annual cycle",
+        "cyclescore": "annual cycle score",
+        "mean": "period mean",
+        "rmse": "RMSE",
+        "rmsescore": "RMSE score",
+        "shift": "shift in maximum month",
+        "tmax": "maxmimum month",
+        "trace": "regional mean",
+        "taylor": "Taylor diagram",
+        "distribution": "distribution",
+        "response": "response",
+    }
+    # Name of statistics dimension in CMEC output
+    plot_statistics = {
+        "bias": "Bias",
+        "biasscore": "Bias score",
+        "cycle": "Annual cycle",
+        "cyclescore": "Annual cycle score",
+        "mean": "Period Mean",
+        "rmse": "RMSE",
+        "rmsescore": "RMSE score",
+        "shift": "Shift in maximum month",
+        "tmax": "Maximum month",
+        "trace": "Regional mean",
+        "taylor": "Taylor diagram",
+        "distribution": "Distribution",
+        "response": "Response",
+    }
+    figure_dimensions = {
+        "region": region,
+    }
+    plot_option = None
+    # Some plots have options appended with a dash (distribution-pr, response-tas)
+    if "-" in plot:
+        plot, plot_option = plot.split("-", 1)
+
+    if plot not in plot_texts:
+        return "", figure_dimensions
+
+    # Build the caption
+    caption = f"The {plot_texts.get(plot)}"
+    if plot_option is not None:
+        caption += f" of {plot_option}"
+    if source != "None":
+        caption += f" for {'the reference data' if source == 'Reference' else source}"
+    if region.lower() != "none":
+        caption += f" over the {ilr.Regions().get_name(region)} region."
+
+    # Use the statistic dimension to determine what is being plotted
+    if plot_statistics.get(plot) is not None:
+        figure_dimensions["statistic"] = plot_statistics[plot]
+        if plot_option is not None:
+            figure_dimensions["statistic"] += f"|{plot_option}"
+
+    # If the source is the reference we don't need some dimensions as they are not applicable
+    if source == "Reference":
+        figure_dimensions["source_id"] = "Reference"
+    else:
+        figure_dimensions = {**common_dimensions, **figure_dimensions}
+
+    return caption, figure_dimensions

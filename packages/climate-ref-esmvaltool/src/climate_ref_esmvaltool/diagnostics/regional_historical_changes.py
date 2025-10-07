@@ -16,7 +16,7 @@ from climate_ref_core.diagnostics import DataRequirement
 from climate_ref_core.metric_values.typing import SeriesDefinition
 from climate_ref_core.pycmec.metric import CMECMetric, MetricCV
 from climate_ref_core.pycmec.output import CMECOutput
-from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic
+from climate_ref_esmvaltool.diagnostics.base import ESMValToolDiagnostic, fillvalues_to_nan
 from climate_ref_esmvaltool.recipe import dataframe_to_recipe
 from climate_ref_esmvaltool.types import MetricBundleArgs, OutputBundleArgs, Recipe
 
@@ -85,6 +85,15 @@ REGIONS = (
 def normalize_region(region: str) -> str:
     """Normalize region name so it can be used in filenames."""
     return region.replace("&", "-and-").replace("/", "-and-")
+
+
+REFERENCE_DATASETS = {
+    "hus": "ERA-5",
+    "pr": "GPCP-V2.3",
+    "psl": "ERA-5",
+    "tas": "HadCRUT5-5.0.1.0-analysis",
+    "ua": "ERA-5",
+}
 
 
 class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
@@ -166,13 +175,21 @@ class RegionalHistoricalAnnualCycle(ESMValToolDiagnostic):
         SeriesDefinition(
             file_pattern=f"anncyc-{region}/allplots/*_{var_name}_*.nc",
             sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={"region": region, "statistic": f"{var_name} regional mean"},
+            dimensions=(
+                {
+                    "region": region,
+                    "variable_id": var_name,
+                    "statistic": "mean",
+                }
+                | ({} if i == 0 else {"reference_source_id": REFERENCE_DATASETS[var_name]})
+            ),
             values_name=var_name,
             index_name="month_number",
             attributes=[],
         )
         for var_name in variables
         for region in REGIONS
+        for i in range(2)
     )
 
     @staticmethod
@@ -292,15 +309,15 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
     series = tuple(
         SeriesDefinition(
             file_pattern=f"{diagnostic}-{region}/allplots/*_{var_name}_*.nc",
-            sel={"dim0": 0},  # Select the model and not the observation.
-            dimensions={
-                "region": region,
-                "statistic": (
-                    f"{var_name} regional mean"
-                    if diagnostic == "timeseries_abs"
-                    else f"{var_name} regional mean anomaly"
-                ),
-            },
+            sel={"dim0": i},
+            dimensions=(
+                {
+                    "region": region,
+                    "variable_id": var_name,
+                    "statistic": ("mean" if diagnostic == "timeseries_abs" else "mean anomaly"),
+                }
+                | ({} if i == 0 else {"reference_source_id": REFERENCE_DATASETS[var_name]})
+            ),
             values_name=var_name,
             index_name="time",
             attributes=[],
@@ -308,6 +325,7 @@ class RegionalHistoricalTimeSeries(RegionalHistoricalAnnualCycle):
         for var_name in variables
         for region in REGIONS
         for diagnostic in ["timeseries_abs", "timeseries"]
+        for i in range(2)
     )
 
 
@@ -425,7 +443,9 @@ class RegionalHistoricalTrend(ESMValToolDiagnostic):
             variable_id = next(iter(ds.data_vars.keys()))
             metric_args[MetricCV.DIMENSIONS.value]["variable_id"][variable_id] = {}
             metric_args[MetricCV.RESULTS.value][variable_id] = {}
-            for region_value, trend_value in zip(ds.shape_id.astype(str).values, ds[variable_id].values):
+            for region_value, trend_value in zip(
+                ds.shape_id.astype(str).values, fillvalues_to_nan(ds[variable_id].values)
+            ):
                 region = region_value.strip()
                 trend = float(trend_value)
                 if region not in metric_args[MetricCV.DIMENSIONS.value]["region"]:
